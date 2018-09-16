@@ -3,9 +3,9 @@ OuterProdEuclFunc <- function(data, pep, runA, runB){
     num_of_samplesA <- length(data[[runA]][[pep]][[1]][,1])
     num_of_samplesB <- length(data[[runB]][[pep]][[1]][,1])
     MeanNormA <- sapply(data[[runA]][[pep]], function(x) sum(x[,2])/num_of_samplesA)
-    MeanNormA <- mean(MeanNormA[goodchrom])
+    MeanNormA <- mean(MeanNormA)
     MeanNormB <- sapply(data[[runB]][[pep]], function(x) sum(x[,2])/num_of_samplesB)
-    MeanNormB <- mean(MeanNormB[goodchrom])
+    MeanNormB <- mean(MeanNormB)
     outerProdList <- list()
     for (i in 1:num_of_frag){
         NormIntensityA <- data[[runA]][[pep]][[i]][,2]/MeanNormA
@@ -54,15 +54,15 @@ OuterProdCorFunc <- function(data, pep, runA, runB){
     }
     return(s) }
 
+#' @export
 OuterProdMeanNormAll6Func <- function(data, pep, runA, runB){
     num_of_frag <- length(data[[runA]][[pep]])
-    goodchrom <- seq(1:num_of_frag)
     num_of_samplesA <- length(data[[runA]][[pep]][[1]][,1])
     num_of_samplesB <- length(data[[runB]][[pep]][[1]][,1])
     MeanNormA <- sapply(data[[runA]][[pep]], function(x) sum(x[,2])/num_of_samplesA)
-    MeanNormA <- mean(MeanNormA[goodchrom])
+    MeanNormA <- mean(MeanNormA)
     MeanNormB <- sapply(data[[runB]][[pep]], function(x) sum(x[,2])/num_of_samplesB)
-    MeanNormB <- mean(MeanNormB[goodchrom])
+    MeanNormB <- mean(MeanNormB)
     outerProdList <- list()
     for (i in 1:num_of_frag){
         NormIntensityA <- data[[runA]][[pep]][[i]][,2]/MeanNormA
@@ -88,6 +88,8 @@ OuterProdL2NormAllFunc <- function(data, pep, runA, runB){
     }
     return(outerProdList) }
 
+add <- function(x) Reduce("+", x)
+
 #' calculates similarity matrix between two chromatogram groups
 #'
 #' This function takes in datafile, precursor id, names of run pair. Based on
@@ -96,9 +98,11 @@ OuterProdL2NormAllFunc <- function(data, pep, runA, runB){
 #' @param pep precursor ID
 #' @param runA First run of the run-pair
 #' @param runB Second run of the run-pair
-#' @param type A character string
+#' @param type A character string. must be selected from (dotProduct,
+#'   cosineAngle, cosine2Angle, dotProductMasked, euclideanDist, covariance and
+#'   correlation)
 #' @export
-getSimilarityMatrix <- function(data, pep, runA, runB, type = "dotProduct"){
+getSimilarityMatrix <- function(data, pep, runA, runB, type = "dotProductMasked", dotProdThresh = 0.96, cosAngleThresh = 0.3){
     switch(type,
            dotProduct = {OuterProdNormAll6 <- OuterProdMeanNormAll6Func(data, pep, runA, runB); s <- add(OuterProdNormAll6)},
            cosineAngle = {OuterProdL2NormAll <- OuterProdL2NormAllFunc(data, pep, runA, runB); s <- add(OuterProdL2NormAll)},

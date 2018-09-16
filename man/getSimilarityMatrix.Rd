@@ -4,8 +4,8 @@
 \alias{getSimilarityMatrix}
 \title{calculates similarity matrix between two chromatogram groups}
 \usage{
-getSimilarityMatrix(data, pep, runA, runB, removeOutlierChrom = FALSE,
-  type = "dotProduct")
+getSimilarityMatrix(data, pep, runA, runB, type = "dotProductMasked",
+  dotProdThresh = 0.96, cosAngleThresh = 0.3)
 }
 \arguments{
 \item{data}{Chromatographic data}
@@ -16,7 +16,9 @@ getSimilarityMatrix(data, pep, runA, runB, removeOutlierChrom = FALSE,
 
 \item{runB}{Second run of the run-pair}
 
-\item{type}{A character string}
+\item{type}{A character string. must be selected from (dotProduct,
+cosineAngle, cosine2Angle, dotProductMasked, euclideanDist, covariance and
+correlation)}
 }
 \description{
 This function takes in datafile, precursor id, names of run pair. Based on
