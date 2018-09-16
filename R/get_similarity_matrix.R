@@ -106,6 +106,16 @@ OuterProdL2NormAllFunc <- function(data, pep, runA, runB, removeOutlierChrom = F
     }
     return(outerProdList) }
 
+#' calculates similarity matrix between two chromatogram groups
+#'
+#' This function takes in datafile, precursor id, names of run pair. Based on
+#' similarity measure, it calculates the similarity matrix.
+#' @param data Chromatographic data
+#' @param pep precursor ID
+#' @param runA First run of the run-pair
+#' @param runB Second run of the run-pair
+#' @param type A character string
+#' @export
 getSimilarityMatrix <- function(data, pep, runA, runB, removeOutlierChrom = FALSE, type = "dotProduct"){
     switch(type,
            dotProduct = {OuterProdNormAll6 <- OuterProdMeanNormAll6Func(data, pep, runA, runB, removeOutlierChrom); s <- add(OuterProdNormAll6)},
