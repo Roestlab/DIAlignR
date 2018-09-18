@@ -1,4 +1,4 @@
-Package: DIAlignment
+Package: DIAlign
 Type: Package
 Title: Dynamic programming based alignment of MS2 chromatograms
 Version: 0.1.0
