@@ -4,8 +4,10 @@
 \alias{getSimilarityMatrix}
 \title{calculates similarity matrix between two chromatogram groups}
 \usage{
-getSimilarityMatrix(data, pep, runA, runB, type = "dotProductMasked",
-  dotProdThresh = 0.96, cosAngleThresh = 0.3)
+getSimilarityMatrix(data, pep, runA, runB, type = c("dotProductMasked",
+  "dotProduct", "cosineAngle", "cosine2Angle", "euclideanDist",
+  "covariance", "correlation"), dotProdThresh = 0.96,
+  cosAngleThresh = 0.3)
 }
 \arguments{
 \item{data}{Chromatographic data}

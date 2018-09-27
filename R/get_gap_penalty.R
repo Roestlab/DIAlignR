@@ -9,7 +9,8 @@
 #' @param s A numeric matrix
 #' @return The gap penalty for dynamic programming
 #' @export
-getGapPenalty <- function(s, gapQuantile, type = "dotProduct"){
+getGapPenalty <- function(s, gapQuantile, type = c("dotProductMasked", "dotProduct", "cosineAngle", "cosine2Angle", "euclideanDist", "covariance", "correlation")){
+    type <- match.arg(type)
     switch(type,
            dotProduct = {gapPenalty <- as.numeric(quantile(s, gapQuantile), na.rm = TRUE)},
            cosineAngle = {gapPenalty <- 0.95},

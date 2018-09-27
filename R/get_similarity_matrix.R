@@ -102,7 +102,8 @@ add <- function(x) Reduce("+", x)
 #'   cosineAngle, cosine2Angle, dotProductMasked, euclideanDist, covariance and
 #'   correlation)
 #' @export
-getSimilarityMatrix <- function(data, pep, runA, runB, type = "dotProductMasked", dotProdThresh = 0.96, cosAngleThresh = 0.3){
+getSimilarityMatrix <- function(data, pep, runA, runB, type = c("dotProductMasked", "dotProduct", "cosineAngle", "cosine2Angle", "euclideanDist", "covariance", "correlation"), dotProdThresh = 0.96, cosAngleThresh = 0.3){
+    type <- match.arg(type)
     switch(type,
            dotProduct = {OuterProdNormAll6 <- OuterProdMeanNormAll6Func(data, pep, runA, runB); s <- add(OuterProdNormAll6)},
            cosineAngle = {OuterProdL2NormAll <- OuterProdL2NormAllFunc(data, pep, runA, runB); s <- add(OuterProdL2NormAll)},

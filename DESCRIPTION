@@ -15,4 +15,7 @@ RoxygenNote: 6.1.0
 Imports:
     methods 
 Suggests:
-    zoo (>= 1.8-3)
+    zoo (>= 1.8-3),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

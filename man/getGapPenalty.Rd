@@ -4,7 +4,9 @@
 \alias{getGapPenalty}
 \title{Calculates gap penalty}
 \usage{
-getGapPenalty(s, gapQuantile, type = "dotProduct")
+getGapPenalty(s, gapQuantile, type = c("dotProductMasked", "dotProduct",
+  "cosineAngle", "cosine2Angle", "euclideanDist", "covariance",
+  "correlation"))
 }
 \arguments{
 \item{s}{A numeric matrix}
