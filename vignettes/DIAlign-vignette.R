@@ -16,7 +16,7 @@ StrepAnnot <- as.data.frame(StrepAnnot)
 predict.run2 <- predict(loess.fit, data.frame(RUN1 = StrepAnnot[, run_pair[1]]))
 Err <- predict.run2 - StrepAnnot[,run_pair[2]]
 
-## ----plotGlobal----------------------------------------------------------
+## ----plotGlobal, fig.width=6, fig.align='center', fig.height=6-----------
 plotErrorCurve <- function(x, clr = "black", SameGraph = FALSE, xmax = 120, ...){
     x <- x[!is.na(x)]
     breaks = seq(0, xmax, by=0.5)
@@ -28,7 +28,7 @@ plotErrorCurve <- function(x, clr = "black", SameGraph = FALSE, xmax = 120, ...)
 }
 plotErrorCurve(abs(Err), "blue", xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 
-## ----localFit------------------------------------------------------------
+## ----localFit, eval=TRUE-------------------------------------------------
 gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
 run_pair <- c("run1", "run2")
@@ -48,27 +48,8 @@ for(peptide in peptides){
   Err[peptide, 1] <- deltaT
 }
 
-## ----plotLocal-----------------------------------------------------------
-plotErrorCurve(abs(Err), "red", xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
-
-## ----VisualizeAlignment--------------------------------------------------
-library(lattice)
-library(ggplot2)
-library(reshape2)
-
-plotChromatogram <- function(data, run, peptide, StrepAnnot, printTitle =TRUE){
-  df <- do.call("cbind", data[[run]][[peptide]])
-  df <- df[,!duplicated(colnames(df))]
-  df <- melt(df, id.vars="time", value.name = "Intensity")
-  g <- ggplot(df, aes(time, Intensity, col=variable)) + geom_line(show.legend = FALSE) + theme_bw()
-  if(printTitle) g <- g + ggtitle(paste0(run, ", ",peptide)) + theme(plot.title = element_text(hjust = 0.5))
-  g <- g + geom_vline(xintercept=StrepAnnot[peptide, run], lty="dotted", size = 0.4)
-  return(g)
-}
-
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index")
-Path <- getAlignmentPath(AlignedIndices[[1]], s)
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index", main = paste0("Alignment path through the ", simMeasure, " similarity matrix\n for ", peptide)) + latticeExtra::as.layer(levelplot(Path, col.regions = c("transparent", "green"), alpha = 1, axes = FALSE))
+## ----plotLocal, fig.width=6, fig.align='center', fig.height=6, fig.show='hold'----
+plotErrorCurve(abs(Err), "darkgreen", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 
 ## ----hybridAlignParam----------------------------------------------------
 samplingTime <-3.4 # In example dataset, all points are acquired at 3.4 second interval.
@@ -89,7 +70,7 @@ for(pair in pair_names){
 }
 meanRSE <- mean(globalStrep["RSE",])
 
-## ----hybridAlign---------------------------------------------------------
+## ----hybridAlign, eval=TRUE----------------------------------------------
 gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
 run_pair <- c("run1", "run2"); pair <- "run1_run2"
@@ -120,8 +101,27 @@ for(peptide in peptides){
   Err[peptide, 1] <- deltaT
 }
 
-## ----plotHybrid----------------------------------------------------------
-plotErrorCurve(abs(Err), "red", xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
+## ----plotHybrid, fig.width=6, fig.align='center', fig.height=6-----------
+plotErrorCurve(abs(Err), "red", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
+
+## ----VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6----
+library(lattice)
+library(ggplot2)
+library(reshape2)
+
+plotChromatogram <- function(data, run, peptide, StrepAnnot, printTitle =TRUE){
+  df <- do.call("cbind", data[[run]][[peptide]])
+  df <- df[,!duplicated(colnames(df))]
+  df <- melt(df, id.vars="time", value.name = "Intensity")
+  g <- ggplot(df, aes(time, Intensity, col=variable)) + geom_line(show.legend = FALSE) + theme_bw()
+  if(printTitle) g <- g + ggtitle(paste0(run, ", ",peptide)) + theme(plot.title = element_text(hjust = 0.5))
+  g <- g + geom_vline(xintercept=StrepAnnot[peptide, run], lty="dotted", size = 0.4)
+  return(g)
+}
+
+levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index")
+Path <- getAlignmentPath(AlignedIndices[[1]], s)
+levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index", main = paste0("Alignment path through the ", simMeasure, " similarity matrix\n for ", peptide)) + latticeExtra::as.layer(levelplot(Path, col.regions = c("transparent", "green"), alpha = 1, axes = FALSE))
 
 ## ----sessionInfo, eval=TRUE----------------------------------------------
 devtools::session_info()
