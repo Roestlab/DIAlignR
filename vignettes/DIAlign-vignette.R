@@ -4,10 +4,50 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----installDIAlign------------------------------------------------------
-require(devtools)
-install_github("Roestlab/DIAlign")
+## ----installDIAlign, eval=FALSE------------------------------------------
+#  require(devtools)
+#  install_github("Roestlab/DIAlign")
+
+## ----loadDIAlign---------------------------------------------------------
 library(DIAlign)
+
+## ----loadChroms, eval=FALSE----------------------------------------------
+#  library(mzR)
+#  library(signal)
+#  TargetPeptides <- read.table("500Peptide4Alignment.csv", sep = ",", header = T)
+#  temp <- list.files(pattern="*.mzML", recursive = TRUE)
+#  for(filename in temp){
+#    # This makes sure that order of extracted MS2 chromatograms is same for each run.
+#    mz <- openMSfile(filename, backend = "pwiz")
+#    chromHead <- chromatogramHeader(mz)
+#    filename <- gsub("(.*)(/hroest_)(.*)(_SW.chrom.mzML)", replacement = "\\3", filename)
+#    chromatogramIndices <- chromHead$chromatogramIndex[match(TargetPeptides$transition_name, chromHead$chromatogramId)]
+#    TargetPeptides[filename] <- chromatogramIndices
+#    transition_group_ids <- unique(TargetPeptides$transition_group_id)
+#    ChromsExtractedPerRun <- sapply(transition_group_ids, function(id){
+#      chromIndices <- chromatogramIndices[TargetPeptides$transition_group_id == id]
+#      # ChromsExtracted <- lapply(1:length(chromIndices), function(i) chromatograms(mz, chromIndices[i]))
+#      ChromsExtracted <- lapply(1:length(chromIndices), function(i) {
+#        rawChrom <- chromatograms(mz, chromIndices[i])
+#        rawChrom[,2] <- sgolayfilt(rawChrom[,2], p = 4, n = 9) # To smooth chromatograms, use Savitzky-Golay filter
+#        return(rawChrom)
+#      } )
+#      return(ChromsExtracted)
+#    })
+#    names(ChromsExtractedPerRun) <- transition_group_ids
+#    rm(mz)
+#    saveRDS(ChromsExtractedPerRun, paste0(filename, "_ChromSelected.rds"))
+#  }
+#  write.table(TargetPeptides, file = "TargetPeptidesWchromIndex.csv", sep = ",")
+#  
+#  # Load chromatograms of all runs
+#  temp <- list.files(pattern = "*_ChromSelected.rds")
+#  StrepChroms1 <- list()
+#  for(i in 1:length(temp)){
+#    StrepChroms1[[i]] <- readRDS(temp[i])
+#  }
+#  temp <- sapply(temp, strsplit, split = "_ChromSelected.rds", USE.NAMES = FALSE)
+#  names(StrepChroms1) <- temp
 
 ## ----globalFit-----------------------------------------------------------
 run_pair <- c("run1", "run2")
@@ -104,7 +144,7 @@ for(peptide in peptides){
 ## ----plotHybrid, fig.width=6, fig.align='center', fig.height=6-----------
 plotErrorCurve(abs(Err), "red", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 
-## ----VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6----
+## ----VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=TRUE----
 library(lattice)
 library(ggplot2)
 library(reshape2)

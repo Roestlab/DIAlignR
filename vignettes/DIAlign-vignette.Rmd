@@ -19,10 +19,62 @@ knitr::opts_chunk$set(
 In this document we are presenting workflow of DIAlign for retention time (RT) alignment of targeted proteomics (e.g. DIA, SWATH-MS) runs. This tool works with MS2 chromatograms and uses a hybrid approach of global and local alignment to establish correspondence between peaks.
 
 # Install DIAlign 
-```{r installDIAlign}
+```{r installDIAlign, eval=FALSE}
 require(devtools)
 install_github("Roestlab/DIAlign")
+```
+
+```{r loadDIAlign}
 library(DIAlign)
+```
+
+
+# Load MS2 chromatograms from mzML files
+MS2 chromatograms can be extracted from mzML files using [mzR](https://bioconductor.org/packages/release/bioc/html/mzR.html) package. The workflow of extraction of a few chromatograms for this paper is provided below. From the FTP link provided [here](http://www.peptideatlas.org/PASS/PASS01280) download `mzML` files from these directories:   
+
+* Spyogenes/raw/hroest_K120808_Strep10PlasmaBiolRepl2_R02_SW   
+* Spyogenes/raw/hroest_K120808_Strep0PlasmaBiolRepl2_R01_SW    
+
+Few precursor IDs and their transition IDs are tabulated in this file at the same FTP link:
+
+* Spyogenes/assay/500Peptide4Alignment.csv    
+```{r loadChroms, eval=FALSE}
+library(mzR)
+library(signal)
+TargetPeptides <- read.table("500Peptide4Alignment.csv", sep = ",", header = T)
+temp <- list.files(pattern="*.mzML", recursive = TRUE)
+for(filename in temp){
+  # This makes sure that order of extracted MS2 chromatograms is same for each run.
+  mz <- openMSfile(filename, backend = "pwiz")
+  chromHead <- chromatogramHeader(mz)
+  filename <- gsub("(.*)(/hroest_)(.*)(_SW.chrom.mzML)", replacement = "\\3", filename)
+  chromatogramIndices <- chromHead$chromatogramIndex[match(TargetPeptides$transition_name, chromHead$chromatogramId)]
+  TargetPeptides[filename] <- chromatogramIndices
+  transition_group_ids <- unique(TargetPeptides$transition_group_id)
+  ChromsExtractedPerRun <- sapply(transition_group_ids, function(id){
+    chromIndices <- chromatogramIndices[TargetPeptides$transition_group_id == id]
+    # ChromsExtracted <- lapply(1:length(chromIndices), function(i) chromatograms(mz, chromIndices[i]))
+    ChromsExtracted <- lapply(1:length(chromIndices), function(i) {
+      rawChrom <- chromatograms(mz, chromIndices[i])
+      rawChrom[,2] <- sgolayfilt(rawChrom[,2], p = 4, n = 9) # To smooth chromatograms, use Savitzky-Golay filter
+      return(rawChrom)
+    } )
+    return(ChromsExtracted)
+  })
+  names(ChromsExtractedPerRun) <- transition_group_ids
+  rm(mz)
+  saveRDS(ChromsExtractedPerRun, paste0(filename, "_ChromSelected.rds"))
+}
+write.table(TargetPeptides, file = "TargetPeptidesWchromIndex.csv", sep = ",")
+
+# Load chromatograms of all runs 
+temp <- list.files(pattern = "*_ChromSelected.rds")
+StrepChroms1 <- list()
+for(i in 1:length(temp)){
+  StrepChroms1[[i]] <- readRDS(temp[i])
+}
+temp <- sapply(temp, strsplit, split = "_ChromSelected.rds", USE.NAMES = FALSE)
+names(StrepChroms1) <- temp
 ```
 
 
@@ -138,7 +190,7 @@ plotErrorCurve(abs(Err), "red", SameGraph = FALSE, xlab = "Retention time differ
 ```
 
 ## Visualize chromatograms, similarity matrix and alignment path
-```{r VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6}
+```{r VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=TRUE}
 library(lattice)
 library(ggplot2)
 library(reshape2)

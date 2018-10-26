@@ -12,7 +12,7 @@
 
 <meta name="author" content="Shubham Gupta, Hannes Rost" />
 
-<meta name="date" content="2018-10-08" />
+<meta name="date" content="2018-10-26" />
 
 <title>Introduction to DIAlign package for alignment of targeted proteomics runs</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to DIAlign package for alignment of targeted proteomics runs</h1>
 <h4 class="author"><em>Shubham Gupta, Hannes Rost</em></h4>
-<h4 class="date"><em>2018-10-08</em></h4>
+<h4 class="date"><em>2018-10-26</em></h4>
 
 
 
@@ -78,19 +78,57 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="install-dialign" class="section level1">
 <h1>Install DIAlign</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(devtools)
-<span class="co">#&gt; Loading required package: devtools</span>
-<span class="kw">install_github</span>(<span class="st">&quot;Roestlab/DIAlign&quot;</span>)
-<span class="co">#&gt; Downloading GitHub repo Roestlab/DIAlign@master</span>
-<span class="co">#&gt; from URL https://api.github.com/repos/Roestlab/DIAlign/zipball/master</span>
-<span class="co">#&gt; Installing DIAlign</span>
-<span class="co">#&gt; '/usr/lib/R/bin/R' --no-site-file --no-environ --no-save --no-restore  \</span>
-<span class="co">#&gt;   --quiet CMD INSTALL  \</span>
-<span class="co">#&gt;   '/tmp/RtmpRkLWlB/devtools59ef66acefbd/Roestlab-DIAlign-de10224'  \</span>
-<span class="co">#&gt;   --library='/home/shubham/R/x86_64-pc-linux-gnu-library/3.4'  \</span>
-<span class="co">#&gt;   --install-tests</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Reloading installed DIAlign</span>
-<span class="kw">library</span>(DIAlign)</code></pre></div>
+<span class="kw">install_github</span>(<span class="st">&quot;Roestlab/DIAlign&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(DIAlign)</code></pre></div>
+</div>
+<div id="load-ms2-chromatograms-from-mzml-files" class="section level1">
+<h1>Load MS2 chromatograms from mzML files</h1>
+<p>MS2 chromatograms can be extracted from mzML files using <a href="https://bioconductor.org/packages/release/bioc/html/mzR.html">mzR</a> package. The workflow of extraction of a few chromatograms for this paper is provided below. From the FTP link provided <a href="http://www.peptideatlas.org/PASS/PASS01280">here</a> download <code>mzML</code> files from these directories:</p>
+<ul>
+<li>Spyogenes/raw/hroest_K120808_Strep10PlasmaBiolRepl2_R02_SW<br />
+</li>
+<li>Spyogenes/raw/hroest_K120808_Strep0PlasmaBiolRepl2_R01_SW</li>
+</ul>
+<p>Few precursor IDs and their transition IDs are tabulated in this file at the same FTP link:</p>
+<ul>
+<li>Spyogenes/assay/500Peptide4Alignment.csv</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mzR)
+<span class="kw">library</span>(signal)
+TargetPeptides &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;500Peptide4Alignment.csv&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>, <span class="dt">header =</span> T)
+temp &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">pattern=</span><span class="st">&quot;*.mzML&quot;</span>, <span class="dt">recursive =</span> <span class="ot">TRUE</span>)
+<span class="cf">for</span>(filename <span class="cf">in</span> temp){
+  <span class="co"># This makes sure that order of extracted MS2 chromatograms is same for each run.</span>
+  mz &lt;-<span class="st"> </span><span class="kw">openMSfile</span>(filename, <span class="dt">backend =</span> <span class="st">&quot;pwiz&quot;</span>)
+  chromHead &lt;-<span class="st"> </span><span class="kw">chromatogramHeader</span>(mz)
+  filename &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;(.*)(/hroest_)(.*)(_SW.chrom.mzML)&quot;</span>, <span class="dt">replacement =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">3&quot;</span>, filename)
+  chromatogramIndices &lt;-<span class="st"> </span>chromHead<span class="op">$</span>chromatogramIndex[<span class="kw">match</span>(TargetPeptides<span class="op">$</span>transition_name, chromHead<span class="op">$</span>chromatogramId)]
+  TargetPeptides[filename] &lt;-<span class="st"> </span>chromatogramIndices
+  transition_group_ids &lt;-<span class="st"> </span><span class="kw">unique</span>(TargetPeptides<span class="op">$</span>transition_group_id)
+  ChromsExtractedPerRun &lt;-<span class="st"> </span><span class="kw">sapply</span>(transition_group_ids, <span class="cf">function</span>(id){
+    chromIndices &lt;-<span class="st"> </span>chromatogramIndices[TargetPeptides<span class="op">$</span>transition_group_id <span class="op">==</span><span class="st"> </span>id]
+    <span class="co"># ChromsExtracted &lt;- lapply(1:length(chromIndices), function(i) chromatograms(mz, chromIndices[i]))</span>
+    ChromsExtracted &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(chromIndices), <span class="cf">function</span>(i) {
+      rawChrom &lt;-<span class="st"> </span><span class="kw">chromatograms</span>(mz, chromIndices[i])
+      rawChrom[,<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="kw">sgolayfilt</span>(rawChrom[,<span class="dv">2</span>], <span class="dt">p =</span> <span class="dv">4</span>, <span class="dt">n =</span> <span class="dv">9</span>) <span class="co"># To smooth chromatograms, use Savitzky-Golay filter</span>
+      <span class="kw">return</span>(rawChrom)
+    } )
+    <span class="kw">return</span>(ChromsExtracted)
+  })
+  <span class="kw">names</span>(ChromsExtractedPerRun) &lt;-<span class="st"> </span>transition_group_ids
+  <span class="kw">rm</span>(mz)
+  <span class="kw">saveRDS</span>(ChromsExtractedPerRun, <span class="kw">paste0</span>(filename, <span class="st">&quot;_ChromSelected.rds&quot;</span>))
+}
+<span class="kw">write.table</span>(TargetPeptides, <span class="dt">file =</span> <span class="st">&quot;TargetPeptidesWchromIndex.csv&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)
+
+<span class="co"># Load chromatograms of all runs </span>
+temp &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">pattern =</span> <span class="st">&quot;*_ChromSelected.rds&quot;</span>)
+StrepChroms1 &lt;-<span class="st"> </span><span class="kw">list</span>()
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(temp)){
+  StrepChroms1[[i]] &lt;-<span class="st"> </span><span class="kw">readRDS</span>(temp[i])
+}
+temp &lt;-<span class="st"> </span><span class="kw">sapply</span>(temp, strsplit, <span class="dt">split =</span> <span class="st">&quot;_ChromSelected.rds&quot;</span>, <span class="dt">USE.NAMES =</span> <span class="ot">FALSE</span>)
+<span class="kw">names</span>(StrepChroms1) &lt;-<span class="st"> </span>temp</code></pre></div>
 </div>
 <div id="fit-a-global-alignment-function-between-runs" class="section level1">
 <h1>Fit a global alignment function between runs</h1>
@@ -221,72 +259,69 @@ plotChromatogram &lt;-<span class="st"> </span><span class="cf">function</span>(
 <span class="co">#&gt;  language en_US                       </span>
 <span class="co">#&gt;  collate  C                           </span>
 <span class="co">#&gt;  tz       America/Toronto             </span>
-<span class="co">#&gt;  date     2018-10-08</span>
+<span class="co">#&gt;  date     2018-10-26</span>
 <span class="co">#&gt; Packages -----------------------------------------------------------------</span>
-<span class="co">#&gt;  package      * version date       source                           </span>
-<span class="co">#&gt;  assertthat     0.2.0   2017-04-11 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  backports      1.1.2   2017-12-13 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  base         * 3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  bindr          0.1.1   2018-03-13 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  bindrcpp       0.2.2   2018-03-29 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  colorspace     1.3-2   2016-12-14 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  commonmark     1.5     2018-04-28 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  compiler       3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  crayon         1.3.4   2017-09-16 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  curl           3.2     2018-03-28 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  datasets     * 3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  desc           1.2.0   2018-05-01 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  devtools     * 1.13.6  2018-06-27 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  DIAlign      * 0.1.0   2018-10-08 Github (Roestlab/DIAlign@de10224)</span>
-<span class="co">#&gt;  digest         0.6.17  2018-09-12 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  dplyr          0.7.6   2018-06-29 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  evaluate       0.11    2018-07-17 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  ggplot2      * 3.0.0   2018-07-03 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  git2r          0.21.0  2018-01-04 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  glue           1.3.0   2018-07-17 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  graphics     * 3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  grDevices    * 3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  grid           3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  gtable         0.2.0   2016-02-26 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  htmltools      0.3.6   2017-04-28 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  httr           1.3.1   2017-08-20 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  knitr          1.20    2018-02-20 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  lattice      * 0.20-35 2017-03-25 CRAN (R 3.3.3)                   </span>
-<span class="co">#&gt;  latticeExtra   0.6-28  2016-02-09 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  lazyeval       0.2.1   2017-10-29 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  magrittr       1.5     2014-11-22 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  memoise        1.1.0   2017-04-21 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  methods      * 3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  munsell        0.5.0   2018-06-12 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  pillar         1.3.0   2018-07-14 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  pkgconfig      2.0.2   2018-08-16 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  plyr           1.8.4   2016-06-08 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  purrr          0.2.5   2018-05-29 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  R6             2.2.2   2017-06-17 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  RColorBrewer   1.1-2   2014-12-07 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  Rcpp           0.12.18 2018-07-23 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  reshape2     * 1.4.3   2017-12-11 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  rlang          0.2.2   2018-08-16 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  rmarkdown      1.10    2018-06-11 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  roxygen2       6.1.0   2018-07-27 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  rprojroot      1.3-2   2018-01-03 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  rstudioapi     0.7     2017-09-07 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  scales         1.0.0   2018-08-09 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  stats        * 3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  stringi        1.2.4   2018-07-20 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  stringr        1.3.1   2018-05-10 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  tibble         1.4.2   2018-01-22 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  tidyselect     0.2.4   2018-02-26 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  tools          3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  utils        * 3.4.4   2018-03-16 local                            </span>
-<span class="co">#&gt;  withr          2.1.2   2018-03-15 CRAN (R 3.4.4)                   </span>
-<span class="co">#&gt;  xml2           1.2.0   2018-01-24 CRAN (R 3.4.3)                   </span>
-<span class="co">#&gt;  yaml           2.2.0   2018-07-25 CRAN (R 3.4.4)                   </span>
+<span class="co">#&gt;  package      * version date       source        </span>
+<span class="co">#&gt;  assertthat     0.2.0   2017-04-11 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  backports      1.1.2   2017-12-13 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  base         * 3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  bindr          0.1.1   2018-03-13 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  bindrcpp       0.2.2   2018-03-29 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  colorspace     1.3-2   2016-12-14 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  commonmark     1.5     2018-04-28 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  compiler       3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  crayon         1.3.4   2017-09-16 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  datasets     * 3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  desc           1.2.0   2018-05-01 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  devtools       1.13.6  2018-06-27 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  DIAlign      * 0.1.0   &lt;NA&gt;       local         </span>
+<span class="co">#&gt;  digest         0.6.17  2018-09-12 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  dplyr          0.7.6   2018-06-29 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  evaluate       0.11    2018-07-17 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  ggplot2      * 3.0.0   2018-07-03 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  glue           1.3.0   2018-07-17 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  graphics     * 3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  grDevices    * 3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  grid           3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  gtable         0.2.0   2016-02-26 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  htmltools      0.3.6   2017-04-28 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  knitr          1.20    2018-02-20 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  lattice      * 0.20-35 2017-03-25 CRAN (R 3.3.3)</span>
+<span class="co">#&gt;  latticeExtra   0.6-28  2016-02-09 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  lazyeval       0.2.1   2017-10-29 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  magrittr       1.5     2014-11-22 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  memoise        1.1.0   2017-04-21 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  methods      * 3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  munsell        0.5.0   2018-06-12 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  pillar         1.3.0   2018-07-14 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  pkgconfig      2.0.2   2018-08-16 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  plyr           1.8.4   2016-06-08 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  purrr          0.2.5   2018-05-29 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  R6             2.2.2   2017-06-17 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  RColorBrewer   1.1-2   2014-12-07 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  Rcpp           0.12.18 2018-07-23 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  reshape2     * 1.4.3   2017-12-11 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  rlang          0.2.2   2018-08-16 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  rmarkdown      1.10    2018-06-11 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  roxygen2       6.1.0   2018-07-27 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  rprojroot      1.3-2   2018-01-03 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  rstudioapi     0.7     2017-09-07 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  scales         1.0.0   2018-08-09 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  stats        * 3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  stringi        1.2.4   2018-07-20 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  stringr        1.3.1   2018-05-10 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  tibble         1.4.2   2018-01-22 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  tidyselect     0.2.4   2018-02-26 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  tools          3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  utils        * 3.4.4   2018-03-16 local         </span>
+<span class="co">#&gt;  withr          2.1.2   2018-03-15 CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  xml2           1.2.0   2018-01-24 CRAN (R 3.4.3)</span>
+<span class="co">#&gt;  yaml           2.2.0   2018-07-25 CRAN (R 3.4.4)</span>
 <span class="co">#&gt;  zoo            1.8-4   2018-09-19 CRAN (R 3.4.4)</span></code></pre></div>
 <p><br></p>
 <div id="last-compilation" class="section level2">
 <h2>Last compilation</h2>
-<p>Last compiled at 2018-10-08.</p>
+<p>Last compiled at 2018-10-26.</p>
 </div>
 </div>
 
