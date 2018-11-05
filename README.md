@@ -5,6 +5,7 @@ For documentation please see [our vignette](http://htmlpreview.github.io/?https:
 
 If you use available algorithms or the package, please cite our paper:
 Shubham Gupta, Sara Ahadi, Wenyu Zhou, Hannes L. Rost. DIAlign provides precise retention time alignment across distant runs in DIA and targeted proteomics
-doi: https://doi.org/10.1101/438309
-doi: https://doi.org/10.6084/m9.figshare.6200837.v1
-doi: https://doi.org/10.6084/m9.figshare.7121696.v2
+doi: https://doi.org/10.1101/438309    
+CNPN 2018 Poster doi: https://doi.org/10.6084/m9.figshare.6200837.v1     
+HUPO 2018 Poster doi: https://doi.org/10.6084/m9.figshare.7121696.v2     
+
