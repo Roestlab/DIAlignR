@@ -12,9 +12,9 @@
 
 <meta name="author" content="Shubham Gupta, Hannes Rost" />
 
-<meta name="date" content="2018-10-26" />
+<meta name="date" content="2018-12-04" />
 
-<title>Introduction to DIAlign package for alignment of targeted proteomics runs</title>
+<title>Introduction to DIAlignR package for alignment of targeted proteomics runs</title>
 
 
 
@@ -68,18 +68,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Introduction to DIAlign package for alignment of targeted proteomics runs</h1>
+<h1 class="title toc-ignore">Introduction to DIAlignR package for alignment of targeted proteomics runs</h1>
 <h4 class="author"><em>Shubham Gupta, Hannes Rost</em></h4>
-<h4 class="date"><em>2018-10-26</em></h4>
+<h4 class="date"><em>2018-12-04</em></h4>
 
 
 
-<p>In this document we are presenting workflow of DIAlign for retention time (RT) alignment of targeted proteomics (e.g. DIA, SWATH-MS) runs. This tool works with MS2 chromatograms and uses a hybrid approach of global and local alignment to establish correspondence between peaks.</p>
-<div id="install-dialign" class="section level1">
-<h1>Install DIAlign</h1>
+<p>In this document we are presenting workflow of DIAlignR for retention time (RT) alignment of targeted proteomics (e.g. DIA, SWATH-MS) runs. This tool works with MS2 chromatograms and uses a hybrid approach of global and local alignment to establish correspondence between peaks.</p>
+<div id="install-dialignr" class="section level1">
+<h1>Install DIAlignR</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(devtools)
-<span class="kw">install_github</span>(<span class="st">&quot;Roestlab/DIAlign&quot;</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(DIAlign)</code></pre></div>
+<span class="kw">install_github</span>(<span class="st">&quot;Roestlab/DIAlignR&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(DIAlignR)</code></pre></div>
 </div>
 <div id="load-ms2-chromatograms-from-mzml-files" class="section level1">
 <h1>Load MS2 chromatograms from mzML files</h1>
@@ -259,7 +259,7 @@ plotChromatogram &lt;-<span class="st"> </span><span class="cf">function</span>(
 <span class="co">#&gt;  language en_US                       </span>
 <span class="co">#&gt;  collate  C                           </span>
 <span class="co">#&gt;  tz       America/Toronto             </span>
-<span class="co">#&gt;  date     2018-10-26</span>
+<span class="co">#&gt;  date     2018-12-04</span>
 <span class="co">#&gt; Packages -----------------------------------------------------------------</span>
 <span class="co">#&gt;  package      * version date       source        </span>
 <span class="co">#&gt;  assertthat     0.2.0   2017-04-11 CRAN (R 3.4.3)</span>
@@ -274,7 +274,7 @@ plotChromatogram &lt;-<span class="st"> </span><span class="cf">function</span>(
 <span class="co">#&gt;  datasets     * 3.4.4   2018-03-16 local         </span>
 <span class="co">#&gt;  desc           1.2.0   2018-05-01 CRAN (R 3.4.4)</span>
 <span class="co">#&gt;  devtools       1.13.6  2018-06-27 CRAN (R 3.4.4)</span>
-<span class="co">#&gt;  DIAlign      * 0.1.0   &lt;NA&gt;       local         </span>
+<span class="co">#&gt;  DIAlignR     * 0.1.0   &lt;NA&gt;       local         </span>
 <span class="co">#&gt;  digest         0.6.17  2018-09-12 CRAN (R 3.4.4)</span>
 <span class="co">#&gt;  dplyr          0.7.6   2018-06-29 CRAN (R 3.4.4)</span>
 <span class="co">#&gt;  evaluate       0.11    2018-07-17 CRAN (R 3.4.4)</span>
@@ -286,7 +286,7 @@ plotChromatogram &lt;-<span class="st"> </span><span class="cf">function</span>(
 <span class="co">#&gt;  gtable         0.2.0   2016-02-26 CRAN (R 3.4.3)</span>
 <span class="co">#&gt;  htmltools      0.3.6   2017-04-28 CRAN (R 3.4.3)</span>
 <span class="co">#&gt;  knitr          1.20    2018-02-20 CRAN (R 3.4.4)</span>
-<span class="co">#&gt;  lattice      * 0.20-35 2017-03-25 CRAN (R 3.3.3)</span>
+<span class="co">#&gt;  lattice      * 0.20-38 2018-11-04 CRAN (R 3.4.4)</span>
 <span class="co">#&gt;  latticeExtra   0.6-28  2016-02-09 CRAN (R 3.4.4)</span>
 <span class="co">#&gt;  lazyeval       0.2.1   2017-10-29 CRAN (R 3.4.3)</span>
 <span class="co">#&gt;  magrittr       1.5     2014-11-22 CRAN (R 3.4.3)</span>
@@ -321,7 +321,7 @@ plotChromatogram &lt;-<span class="st"> </span><span class="cf">function</span>(
 <p><br></p>
 <div id="last-compilation" class="section level2">
 <h2>Last compilation</h2>
-<p>Last compiled at 2018-10-26.</p>
+<p>Last compiled at 2018-12-04.</p>
 </div>
 </div>
 

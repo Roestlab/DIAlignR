@@ -1,95 +1,62 @@
----
-title: "Introduction to DIAlign package for alignment of targeted proteomics runs"
-author: "Shubham Gupta, Hannes Rost"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include = FALSE}
+## ----setup, include = FALSE----------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
 
-In this document we are presenting workflow of DIAlign for retention time (RT) alignment of targeted proteomics (e.g. DIA, SWATH-MS) runs. This tool works with MS2 chromatograms and uses a hybrid approach of global and local alignment to establish correspondence between peaks.
+## ----installDIAlignR, eval=FALSE-----------------------------------------
+#  require(devtools)
+#  install_github("Roestlab/DIAlignR")
 
-# Install DIAlign 
-```{r installDIAlign, eval=FALSE}
-require(devtools)
-install_github("Roestlab/DIAlign")
-```
+## ----loadDIAlignR--------------------------------------------------------
+library(DIAlignR)
 
-```{r loadDIAlign}
-library(DIAlign)
-```
+## ----loadChroms, eval=FALSE----------------------------------------------
+#  library(mzR)
+#  library(signal)
+#  TargetPeptides <- read.table("500Peptide4Alignment.csv", sep = ",", header = T)
+#  temp <- list.files(pattern="*.mzML", recursive = TRUE)
+#  for(filename in temp){
+#    # This makes sure that order of extracted MS2 chromatograms is same for each run.
+#    mz <- openMSfile(filename, backend = "pwiz")
+#    chromHead <- chromatogramHeader(mz)
+#    filename <- gsub("(.*)(/hroest_)(.*)(_SW.chrom.mzML)", replacement = "\\3", filename)
+#    chromatogramIndices <- chromHead$chromatogramIndex[match(TargetPeptides$transition_name, chromHead$chromatogramId)]
+#    TargetPeptides[filename] <- chromatogramIndices
+#    transition_group_ids <- unique(TargetPeptides$transition_group_id)
+#    ChromsExtractedPerRun <- sapply(transition_group_ids, function(id){
+#      chromIndices <- chromatogramIndices[TargetPeptides$transition_group_id == id]
+#      # ChromsExtracted <- lapply(1:length(chromIndices), function(i) chromatograms(mz, chromIndices[i]))
+#      ChromsExtracted <- lapply(1:length(chromIndices), function(i) {
+#        rawChrom <- chromatograms(mz, chromIndices[i])
+#        rawChrom[,2] <- sgolayfilt(rawChrom[,2], p = 4, n = 9) # To smooth chromatograms, use Savitzky-Golay filter
+#        return(rawChrom)
+#      } )
+#      return(ChromsExtracted)
+#    })
+#    names(ChromsExtractedPerRun) <- transition_group_ids
+#    rm(mz)
+#    saveRDS(ChromsExtractedPerRun, paste0(filename, "_ChromSelected.rds"))
+#  }
+#  write.table(TargetPeptides, file = "TargetPeptidesWchromIndex.csv", sep = ",")
+#  
+#  # Load chromatograms of all runs
+#  temp <- list.files(pattern = "*_ChromSelected.rds")
+#  StrepChroms1 <- list()
+#  for(i in 1:length(temp)){
+#    StrepChroms1[[i]] <- readRDS(temp[i])
+#  }
+#  temp <- sapply(temp, strsplit, split = "_ChromSelected.rds", USE.NAMES = FALSE)
+#  names(StrepChroms1) <- temp
 
-
-# Load MS2 chromatograms from mzML files
-MS2 chromatograms can be extracted from mzML files using [mzR](https://bioconductor.org/packages/release/bioc/html/mzR.html) package. The workflow of extraction of a few chromatograms for this paper is provided below. From the FTP link provided [here](http://www.peptideatlas.org/PASS/PASS01280) download `mzML` files from these directories:   
-
-* Spyogenes/raw/hroest_K120808_Strep10PlasmaBiolRepl2_R02_SW   
-* Spyogenes/raw/hroest_K120808_Strep0PlasmaBiolRepl2_R01_SW    
-
-Few precursor IDs and their transition IDs are tabulated in this file at the same FTP link:
-
-* Spyogenes/assay/500Peptide4Alignment.csv    
-```{r loadChroms, eval=FALSE}
-library(mzR)
-library(signal)
-TargetPeptides <- read.table("500Peptide4Alignment.csv", sep = ",", header = T)
-temp <- list.files(pattern="*.mzML", recursive = TRUE)
-for(filename in temp){
-  # This makes sure that order of extracted MS2 chromatograms is same for each run.
-  mz <- openMSfile(filename, backend = "pwiz")
-  chromHead <- chromatogramHeader(mz)
-  filename <- gsub("(.*)(/hroest_)(.*)(_SW.chrom.mzML)", replacement = "\\3", filename)
-  chromatogramIndices <- chromHead$chromatogramIndex[match(TargetPeptides$transition_name, chromHead$chromatogramId)]
-  TargetPeptides[filename] <- chromatogramIndices
-  transition_group_ids <- unique(TargetPeptides$transition_group_id)
-  ChromsExtractedPerRun <- sapply(transition_group_ids, function(id){
-    chromIndices <- chromatogramIndices[TargetPeptides$transition_group_id == id]
-    # ChromsExtracted <- lapply(1:length(chromIndices), function(i) chromatograms(mz, chromIndices[i]))
-    ChromsExtracted <- lapply(1:length(chromIndices), function(i) {
-      rawChrom <- chromatograms(mz, chromIndices[i])
-      rawChrom[,2] <- sgolayfilt(rawChrom[,2], p = 4, n = 9) # To smooth chromatograms, use Savitzky-Golay filter
-      return(rawChrom)
-    } )
-    return(ChromsExtracted)
-  })
-  names(ChromsExtractedPerRun) <- transition_group_ids
-  rm(mz)
-  saveRDS(ChromsExtractedPerRun, paste0(filename, "_ChromSelected.rds"))
-}
-write.table(TargetPeptides, file = "TargetPeptidesWchromIndex.csv", sep = ",")
-
-# Load chromatograms of all runs 
-temp <- list.files(pattern = "*_ChromSelected.rds")
-StrepChroms1 <- list()
-for(i in 1:length(temp)){
-  StrepChroms1[[i]] <- readRDS(temp[i])
-}
-temp <- sapply(temp, strsplit, split = "_ChromSelected.rds", USE.NAMES = FALSE)
-names(StrepChroms1) <- temp
-```
-
-
-# Fit a global alignment function between runs
-```{r globalFit}
+## ----globalFit-----------------------------------------------------------
 run_pair <- c("run1", "run2")
 loess.fit <- getLOESSfit(run_pair, peptides, oswOutStrep, 0.15)
 StrepAnnot <- as.data.frame(StrepAnnot)
 predict.run2 <- predict(loess.fit, data.frame(RUN1 = StrepAnnot[, run_pair[1]]))
 Err <- predict.run2 - StrepAnnot[,run_pair[2]]
-```
 
-
-## plot fraction of aligned peptides
-```{r plotGlobal, fig.width=6, fig.align='center', fig.height=6}
+## ----plotGlobal, fig.width=6, fig.align='center', fig.height=6-----------
 plotErrorCurve <- function(x, clr = "black", SameGraph = FALSE, xmax = 120, ...){
     x <- x[!is.na(x)]
     breaks = seq(0, xmax, by=0.5)
@@ -100,11 +67,8 @@ plotErrorCurve <- function(x, clr = "black", SameGraph = FALSE, xmax = 120, ...)
     else{plot(breaks, cumfreq0/length(x), col = clr, type = "l", ...)}
 }
 plotErrorCurve(abs(Err), "blue", xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
-```
 
-
-# Fit a local alignment between chromatogram groups
-```{r localFit, eval=TRUE}
+## ----localFit, eval=TRUE-------------------------------------------------
 gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
 run_pair <- c("run1", "run2")
@@ -123,16 +87,11 @@ for(peptide in peptides){
   deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
   Err[peptide, 1] <- deltaT
 }
-```
 
-
-```{r plotLocal, fig.width=6, fig.align='center', fig.height=6, fig.show='hold'}
+## ----plotLocal, fig.width=6, fig.align='center', fig.height=6, fig.show='hold'----
 plotErrorCurve(abs(Err), "darkgreen", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
-```
 
-
-# Hybrid alignment of chromatograms
-```{r hybridAlignParam}
+## ----hybridAlignParam----------------------------------------------------
 samplingTime <-3.4 # In example dataset, all points are acquired at 3.4 second interval.
 samples4gradient <- 100; RSEdistFactor <- 3.5; hardConstrain <- FALSE
 pair_names <- vector(); runs <- names(StrepChroms)
@@ -150,10 +109,8 @@ for(pair in pair_names){
   globalStrep["RSE", pair] <- Loess.fit$s
 }
 meanRSE <- mean(globalStrep["RSE",])
-```
 
-
-```{r hybridAlign, eval=TRUE}
+## ----hybridAlign, eval=TRUE----------------------------------------------
 gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
 run_pair <- c("run1", "run2"); pair <- "run1_run2"
@@ -183,14 +140,11 @@ for(peptide in peptides){
   deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
   Err[peptide, 1] <- deltaT
 }
-```
 
-```{r plotHybrid, fig.width=6, fig.align='center', fig.height=6}
+## ----plotHybrid, fig.width=6, fig.align='center', fig.height=6-----------
 plotErrorCurve(abs(Err), "red", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
-```
 
-## Visualize chromatograms, similarity matrix and alignment path
-```{r VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=TRUE}
+## ----VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=TRUE----
 library(lattice)
 library(ggplot2)
 library(reshape2)
@@ -208,15 +162,7 @@ plotChromatogram <- function(data, run, peptide, StrepAnnot, printTitle =TRUE){
 levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index")
 Path <- getAlignmentPath(AlignedIndices[[1]], s)
 levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index", main = paste0("Alignment path through the ", simMeasure, " similarity matrix\n for ", peptide)) + latticeExtra::as.layer(levelplot(Path, col.regions = c("transparent", "green"), alpha = 1, axes = FALSE))
-```
 
-
-# Session Info
-```{r sessionInfo, eval=TRUE}
+## ----sessionInfo, eval=TRUE----------------------------------------------
 devtools::session_info()
-```
 
-<br>
-
-## Last compilation
-Last compiled at `r Sys.Date()`.
