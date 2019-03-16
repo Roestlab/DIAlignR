@@ -12,6 +12,30 @@
 #' @export
 NeedleObjAffine <- setClass(Class="NeedleObjAffine", representation(Traceback = "list", M = "matrix", A = "matrix", B = "matrix", GapOpen = "numeric", GapExten = "numeric", FreeEndGaps = "logical") )
 
+#' An S4 object for class Person
+#'
+#' @importFrom methods setClass
+#' @export
+Person <- setClass(Class="Person",
+                   representation(name="character", birth="Date"),
+                   # Initializing slots
+                   prototype = list(
+                     name = as.character(NULL),
+                     birth = as.Date(as.character(NULL))
+                   ))
+
+#' An S4 object for class Person
+#'
+#' @importFrom methods setClass
+#' @export
+AffineAlignObj1 <- setClass(Class="AffineAlignObj1",
+                   representation(M = "matrix",
+                                  signalA_len = "numeric", signalB_len = "numeric",
+                                  GapOpen = "numeric", GapExten = "numeric",
+                                  FreeEndGaps = "logical")
+                   )
+
+
 #' Creates affine alignment object
 #'
 #' This function calculates three matrices for affine gap alignment using input

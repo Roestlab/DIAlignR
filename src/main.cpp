@@ -1,7 +1,8 @@
 #include <Rcpp.h>
+#include "affinealignobj.h"
 using namespace Rcpp;
 
-//' Calculate similarity matrix for two sequences
+//' Initialize a similarity matrix
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
@@ -50,3 +51,49 @@ void getseqSimMat(std::string seq1, std::string seq2, float Match, float MisMatc
 // Match=10; MisMatch=-2; go=22; ge=7; gap=go
 // seq1 = "GCAT"; seq2 = "CAGTG"
 // getseqSimMat(seq1, seq2, Match, MisMatch, s)
+
+//' Initialize a S4 object AffineAlignObj1
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param seq1Len (int) Length of sequence1
+//' @param seq2Len (int) Length of sequence2
+//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @export
+// [[Rcpp::export]]
+S4 setAffineAlignObj1_S4(bool TorF){
+  // Creating an object of Person class
+  S4 x("AffineAlignObj1");
+  // Setting values to the slots
+  x.slot("M")  = initializeMatrix(0, 4, 4);
+  x.slot("signalA_len") = 4;
+  x.slot("signalB_len") = 4;
+  x.slot("GapOpen") = 4;
+  x.slot("GapExten") = 4;
+  x.slot("FreeEndGaps") = TorF;
+  return(x);
+}
+// setClass("Person", representation(name="char", birth="Date"))
+
+
+//' Initialize a similarity matrix
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param seq1Len (int) Length of sequence1
+//' @param seq2Len (int) Length of sequence2
+//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @export
+// [[Rcpp::export]]
+S4 rcpp_s4(std::string Name){
+  // Creating an object of Person class
+  S4 x("Person");
+  // Setting values to the slots
+  x.slot("name")  = Name;
+  x.slot("birth") = Date("1889-12-21");
+  return(x);
+}
