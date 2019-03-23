@@ -33,13 +33,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // setAffineAlignObj1_S4
-S4 setAffineAlignObj1_S4(bool TorF);
-RcppExport SEXP _DIAlignR_setAffineAlignObj1_S4(SEXP TorFSEXP) {
+S4 setAffineAlignObj1_S4(int ROW_SIZE, int COL_SIZE);
+RcppExport SEXP _DIAlignR_setAffineAlignObj1_S4(SEXP ROW_SIZESEXP, SEXP COL_SIZESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< bool >::type TorF(TorFSEXP);
-    rcpp_result_gen = Rcpp::wrap(setAffineAlignObj1_S4(TorF));
+    Rcpp::traits::input_parameter< int >::type ROW_SIZE(ROW_SIZESEXP);
+    Rcpp::traits::input_parameter< int >::type COL_SIZE(COL_SIZESEXP);
+    rcpp_result_gen = Rcpp::wrap(setAffineAlignObj1_S4(ROW_SIZE, COL_SIZE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -58,7 +59,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_initializeMatrix", (DL_FUNC) &_DIAlignR_initializeMatrix, 3},
     {"_DIAlignR_getseqSimMat", (DL_FUNC) &_DIAlignR_getseqSimMat, 5},
-    {"_DIAlignR_setAffineAlignObj1_S4", (DL_FUNC) &_DIAlignR_setAffineAlignObj1_S4, 1},
+    {"_DIAlignR_setAffineAlignObj1_S4", (DL_FUNC) &_DIAlignR_setAffineAlignObj1_S4, 2},
     {"_DIAlignR_rcpp_s4", (DL_FUNC) &_DIAlignR_rcpp_s4, 1},
     {NULL, NULL, 0}
 };

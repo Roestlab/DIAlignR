@@ -63,16 +63,17 @@ void getseqSimMat(std::string seq1, std::string seq2, float Match, float MisMatc
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 //' @export
 // [[Rcpp::export]]
-S4 setAffineAlignObj1_S4(bool TorF){
+S4 setAffineAlignObj1_S4(int ROW_SIZE, int COL_SIZE){
+  AffineAlignObj1 obj(ROW_SIZE, COL_SIZE);
   // Creating an object of Person class
   S4 x("AffineAlignObj1");
   // Setting values to the slots
-  x.slot("M")  = initializeMatrix(0, 4, 4);
-  x.slot("signalA_len") = 4;
-  x.slot("signalB_len") = 4;
-  x.slot("GapOpen") = 4;
-  x.slot("GapExten") = 4;
-  x.slot("FreeEndGaps") = TorF;
+  x.slot("M")  = obj.M;
+  x.slot("signalA_len") = obj.signalA_len;
+  x.slot("signalB_len") = obj.signalB_len;
+  x.slot("GapOpen") = obj.GapOpen;
+  x.slot("GapExten") = obj.GapExten;
+  x.slot("FreeEndGaps") = obj.FreeEndGaps;
   return(x);
 }
 // setClass("Person", representation(name="char", birth="Date"))

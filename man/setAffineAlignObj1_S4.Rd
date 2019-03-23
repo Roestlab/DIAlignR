@@ -4,7 +4,7 @@
 \alias{setAffineAlignObj1_S4}
 \title{Initialize a S4 object AffineAlignObj1}
 \usage{
-setAffineAlignObj1_S4(TorF)
+setAffineAlignObj1_S4(ROW_SIZE, COL_SIZE)
 }
 \arguments{
 \item{seq1Len}{(int) Length of sequence1}

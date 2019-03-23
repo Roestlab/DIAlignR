@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <vector>
 
 enum TracebackType {SS = 0, DM = 1, DA = 2, DB = 3, TM = 4, TA = 5, TB = 6, LM = 7, LA = 8, LB = 9};
 
@@ -87,7 +88,7 @@ struct AffineAlignObj
 
 struct AffineAlignObj1
 {
-  float* M;
+  std::vector<float> M;
   int signalA_len; // stack allocation
   int signalB_len;
   float GapOpen;
@@ -97,9 +98,12 @@ struct AffineAlignObj1
   // Not a default constructor
   AffineAlignObj1(int ROW_SIZE, int COL_SIZE)
   {
-    M = new float[ROW_SIZE * COL_SIZE]; // heap allocation
+    M.resize(ROW_SIZE * COL_SIZE, 0);
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
+    GapOpen = 0.0;
+    GapExten = 0.0;
+    FreeEndGaps = true;
   }
 
   // Rule 1 Copy constructor
@@ -110,30 +114,23 @@ struct AffineAlignObj1
     GapOpen = other.GapOpen;
     GapExten = other.GapExten;
     FreeEndGaps = other.FreeEndGaps;
-    M = new float[(signalA_len+1)*(signalB_len+1)];
-    std::memcpy(M, other.M, sizeof(float) * (signalA_len+1)*(signalB_len+1));
   }
 
   // Rule 2 Copy assignment operator
   AffineAlignObj1& operator=(const AffineAlignObj1& other)
   {
     if(this == &other) return *this; // handling of self assignment.
-    delete[] M; // freeing previously used memory
     signalA_len = other.signalA_len;
     signalB_len = other.signalB_len;
     GapOpen = other.GapOpen;
     GapExten = other.GapExten;
     FreeEndGaps = other.FreeEndGaps;
-    M = new float[(signalA_len+1)*(signalB_len+1)];
-    std::memcpy(M, other.M, sizeof(float) * (signalA_len+1)*(signalB_len+1));
     return *this;
   }
 
   // Rule 3 Not a default destructor
   ~AffineAlignObj1()
-  {
-    delete[] M; // since we declared with new, manually clear memory from heap.
-  }
+  {  }
 };
 
 #endif // AFFINEALIGNOBJ_H

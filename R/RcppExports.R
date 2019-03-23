@@ -43,8 +43,8 @@ getseqSimMat <- function(seq1, seq2, Match, MisMatch, s) {
 #' @param seq2Len (int) Length of sequence2
 #' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 #' @export
-setAffineAlignObj1_S4 <- function(TorF) {
-    .Call(`_DIAlignR_setAffineAlignObj1_S4`, TorF)
+setAffineAlignObj1_S4 <- function(ROW_SIZE, COL_SIZE) {
+    .Call(`_DIAlignR_setAffineAlignObj1_S4`, ROW_SIZE, COL_SIZE)
 }
 
 #' Initialize a similarity matrix
