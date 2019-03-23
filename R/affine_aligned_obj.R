@@ -29,7 +29,7 @@ Person <- setClass(Class="Person",
 #' @importFrom methods setClass
 #' @export
 AffineAlignObj1 <- setClass(Class="AffineAlignObj1",
-                   representation(M = "matrix",
+                   representation(M = "matrix", A = "matrix", B = "matrix", Traceback = "matrix",
                                   signalA_len = "numeric", signalB_len = "numeric",
                                   GapOpen = "numeric", GapExten = "numeric",
                                   FreeEndGaps = "logical")

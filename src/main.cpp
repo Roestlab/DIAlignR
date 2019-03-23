@@ -2,6 +2,9 @@
 #include "affinealignobj.h"
 using namespace Rcpp;
 
+// Enable C++11 via this plugin (Rcpp 0.10.3 or later)
+// [[Rcpp::plugins(cpp11)]]
+
 //' Initialize a similarity matrix
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -69,6 +72,11 @@ S4 setAffineAlignObj1_S4(int ROW_SIZE, int COL_SIZE){
   S4 x("AffineAlignObj1");
   // Setting values to the slots
   x.slot("M")  = obj.M;
+  x.slot("A")  = obj.A;
+  x.slot("B")  = obj.B;
+  // std::vector<char> traceback;
+  // traceback = EnumToChar(obj.Traceback);
+  x.slot("Traceback")  = EnumToChar(obj.Traceback);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
