@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include "alignment.h"
 #include "affinealignobj.h"
 using namespace Rcpp;
 
@@ -86,6 +87,32 @@ S4 setAffineAlignObj1_S4(int ROW_SIZE, int COL_SIZE){
 }
 // setClass("Person", representation(name="char", birth="Date"))
 
+
+//' Initialize a S4 object AffineAlignObj1
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param seq1Len (int) Length of sequence1
+//' @param seq2Len (int) Length of sequence2
+//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @export
+// [[Rcpp::export]]
+S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
+  AlignObj obj(ROW_SIZE, COL_SIZE);
+  // Creating an object of Person class
+  S4 x("AlignObj");
+  // Setting values to the slots
+  x.slot("M")  = obj.M;
+  x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("signalA_len") = obj.signalA_len;
+  x.slot("signalB_len") = obj.signalB_len;
+  x.slot("GapOpen") = obj.GapOpen;
+  x.slot("GapExten") = obj.GapExten;
+  x.slot("FreeEndGaps") = obj.FreeEndGaps;
+  return(x);
+}
 
 //' Initialize a similarity matrix
 //'

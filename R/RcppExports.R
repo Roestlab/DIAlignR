@@ -47,6 +47,20 @@ setAffineAlignObj1_S4 <- function(ROW_SIZE, COL_SIZE) {
     .Call(`_DIAlignR_setAffineAlignObj1_S4`, ROW_SIZE, COL_SIZE)
 }
 
+#' Initialize a S4 object AffineAlignObj1
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-03-08
+#' @param seq1Len (int) Length of sequence1
+#' @param seq2Len (int) Length of sequence2
+#' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+#' @export
+setAlignObj_S4 <- function(ROW_SIZE, COL_SIZE) {
+    .Call(`_DIAlignR_setAlignObj_S4`, ROW_SIZE, COL_SIZE)
+}
+
 #' Initialize a similarity matrix
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
