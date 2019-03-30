@@ -1,33 +1,11 @@
 #include <Rcpp.h>
+#include "simpleFcn.h"
 #include "alignment.h"
 #include "affinealignobj.h"
 using namespace Rcpp;
 
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
 // [[Rcpp::plugins(cpp11)]]
-
-//' Initialize a similarity matrix
-//'
-//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-//' ORCID: 0000-0003-3500-8152
-//' License: (c) Author (2019) + MIT
-//' Date: 2019-03-05
-//' @param initVal (char) Matrix intialization value
-//' @param ROW_SIZE (int) Number of rows
-//' @param COL_SIZE (int) Number of columns
-//' @return s (matrix) a similarity matrix
-//' @export
-// [[Rcpp::export]]
-NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE){
-  NumericMatrix s(ROW_SIZE, COL_SIZE);
-  for(int i = 0; i < ROW_SIZE; i++){
-    for(int j = 0; j < COL_SIZE; j++){
-      s(i, j) = initVal;
-    }
-  }
-  return s;
-}
-// s <- initializeMatrix(0, 4, 5)
 
 //' Calculate similarity matrix for two sequences
 //'
@@ -101,6 +79,34 @@ S4 setAffineAlignObj1_S4(int ROW_SIZE, int COL_SIZE){
 // [[Rcpp::export]]
 S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
   AlignObj obj(ROW_SIZE, COL_SIZE);
+  // Creating an object of Person class
+  S4 x("AlignObj");
+  // Setting values to the slots
+  x.slot("M")  = obj.M;
+  x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("signalA_len") = obj.signalA_len;
+  x.slot("signalB_len") = obj.signalB_len;
+  x.slot("GapOpen") = obj.GapOpen;
+  x.slot("GapExten") = obj.GapExten;
+  x.slot("FreeEndGaps") = obj.FreeEndGaps;
+  return(x);
+}
+
+
+//' Initialize a S4 object AffineAlignObj1
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param seq1Len (int) Length of sequence1
+//' @param seq2Len (int) Length of sequence2
+//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @export
+// [[Rcpp::export]]
+S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
+  AlignObj obj(signalA_len+1, signalB_len+1);
+  obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment);
   // Creating an object of Person class
   S4 x("AlignObj");
   // Setting values to the slots

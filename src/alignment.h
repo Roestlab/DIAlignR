@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <vector>
 
+#include "simpleFcn.h"
 #include "affinealignobj.h"
 #define NA 0
 
@@ -62,5 +63,7 @@ struct AlignObj
     ~AlignObj()
     {  }
 };
+
+AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
 
 #endif // ALIGNMENT_H
