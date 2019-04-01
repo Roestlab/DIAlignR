@@ -37,6 +37,7 @@ struct AlignObj
       FreeEndGaps = true;
     }
 
+    /***
     // Rule 1 Copy constructor
     AlignObj(const AlignObj &other)
     {
@@ -58,6 +59,8 @@ struct AlignObj
       FreeEndGaps = other.FreeEndGaps;
       return *this;
     }
+
+    ***/
 
     // Rule 3 Not a default destructor
     ~AlignObj()

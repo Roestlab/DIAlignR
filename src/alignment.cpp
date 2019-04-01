@@ -11,6 +11,7 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   NumericMatrix M;
   M = initializeMatrix(0, signalA_len+1, signalB_len+1);
 
+  // Rcpp::Rcout << M << std::endl;
   std::vector<TracebackType> Traceback;
   Traceback.resize((signalA_len+1)*(signalB_len+1), SS);
 
@@ -19,11 +20,14 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
     M(i, 0) = -i*gap;
     Traceback[i*(signalA_len+1)+0] = TM; //Top
   }
+
   for(int j = 0; j<=signalB_len; j++){
     M(0, j) = -j*gap;
     Traceback[0*(signalA_len+1)+j] = LM; //Left
   }
   Traceback[0*(signalA_len+1) + 0] = SS; //STOP
+
+  // Rcpp::Rcout << M << std::endl;
 
   // Perform dynamic programming for alignment
   float Diago, gapInA, gapInB;
@@ -47,12 +51,19 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
     }
   }
 
+  // Rcpp::Rcout << M << std::endl;
   for (int i = 0; i < signalA_len+1; i++) {
     for (int j = 0; j < signalB_len+1; j++) {
-      alignObj.M.push_back(M(i, j)); // Add an element (column) to the row
-      alignObj.Traceback.push_back(Traceback[i*(signalA_len+1)+j]); // Add an element (column) to the row
+      // Rcpp::Rcout << i*(signalA_len+1) + j << std::endl;
+      // Rcpp::Rcout << M(i, j) << std::endl;
+      // Rcpp::Rcout << alignObj.M[i*(signalA_len+1) + j] << std::endl;
+      alignObj.M[i*(signalA_len+1) + j] = M(i, j); // Add an element (column) to the row
+      // Rcpp::Rcout << alignObj.M[i*(signalA_len+1) + j]<< std::endl;
+      alignObj.Traceback[i*(signalA_len+1) + j] = Traceback[i*(signalA_len+1)+j]; // Add an element (column) to the row
     }
   }
 
+  // for (auto i = alignObj.M.begin(); i != alignObj.M.end(); ++i)
+  //   Rcpp::Rcout << *i << ' ';
   return alignObj;
 }
