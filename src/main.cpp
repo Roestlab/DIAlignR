@@ -120,6 +120,23 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
   return(x);
 }
 
+//' Initialize a S4 object AffineAlignObj1
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param seq1Len (int) Length of sequence1
+//' @param seq2Len (int) Length of sequence2
+//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @export
+// [[Rcpp::export]]
+int getAlignedInices_NEW(Rcpp::S4 obj){
+  int x;
+  x = obj.slot("signalB_len");
+  return(x);
+}
+
 //' Initialize a similarity matrix
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -140,7 +157,7 @@ S4 rcpp_s4(std::string Name){
   return(x);
 }
 
-
+// Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 // s <- matrix(NA, nrow = 4, ncol = 5)
 // s[, 1] <- c(-2, 10, -2, -2)
 // s[, 2] <- c(-2, -2, 10, -2)

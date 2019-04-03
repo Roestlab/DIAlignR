@@ -65,5 +65,57 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
 
   // for (auto i = alignObj.M.begin(); i != alignObj.M.end(); ++i)
   //   Rcpp::Rcout << *i << ' ';
+  // for (auto i = alignObj.Traceback.begin(); i != alignObj.Traceback.end(); ++i)
+  //   Rcpp::Rcout << *i << ' ';
   return alignObj;
+}
+
+AlignedIndices getAlignedIndices(AlignObj &alignObj){
+  AlignedIndices alignedIdx;
+  TracebackType TracebackPointer;
+  float alignmentScore;
+  int ROW_IDX = alignObj.signalA_len;
+  int COL_IDX = alignObj.signalB_len;
+  int ROW_SIZE = alignObj.signalA_len + 1;
+  int COL_SIZE = alignObj.signalB_len + 1;
+
+  alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
+  alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
+  alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+  TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
+  // Traceback path and align row indices to column indices.
+  while(TracebackPointer != SS){
+    // D: Diagonal, T: Top, L: Left
+    switch(TracebackPointer){
+    case DM: {
+      ROW_IDX = ROW_IDX - 1;
+      COL_IDX = COL_IDX - 1;
+      alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
+      alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
+      alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      break;
+    }
+    case TM:
+    {
+      ROW_IDX = ROW_IDX - 1;
+      alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
+      alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
+      alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      break;
+    }
+    case LM:
+    {
+      COL_IDX = COL_IDX - 1;
+      alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
+      alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
+      alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      break;
+    }
+    }
+    TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
+  }
+  alignedIdx.score.erase(alignedIdx.score.begin());
+  alignedIdx.indexA_aligned.erase(alignedIdx.indexA_aligned.begin());
+  alignedIdx.indexB_aligned.erase(alignedIdx.indexB_aligned.begin());
+  return alignedIdx;
 }

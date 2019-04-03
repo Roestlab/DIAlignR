@@ -37,30 +37,8 @@ struct AlignObj
       FreeEndGaps = true;
     }
 
-    /***
-    // Rule 1 Copy constructor
-    AlignObj(const AlignObj &other)
-    {
-      signalA_len = other.signalA_len;
-      signalB_len = other.signalB_len;
-      GapOpen = other.GapOpen;
-      GapExten = other.GapExten;
-      FreeEndGaps = other.FreeEndGaps;
-    }
-
-    // Rule 2 Copy assignment operator
-    AlignObj& operator=(const AlignObj& other)
-    {
-      if(this == &other) return *this; // handling of self assignment.
-      signalA_len = other.signalA_len;
-      signalB_len = other.signalB_len;
-      GapOpen = other.GapOpen;
-      GapExten = other.GapExten;
-      FreeEndGaps = other.FreeEndGaps;
-      return *this;
-    }
-
-    ***/
+    // Rule 1 Copy constructor and Rule 2 Copy assignment operator are not needed.
+    // C++ auto-create them and will do the right-thing compared to manual code.
 
     // Rule 3 Not a default destructor
     ~AlignObj()
@@ -68,5 +46,7 @@ struct AlignObj
 };
 
 AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
+
+AlignedIndices getAlignedIndices(AlignObj &alignObj);
 
 #endif // ALIGNMENT_H
