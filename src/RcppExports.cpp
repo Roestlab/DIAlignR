@@ -58,14 +58,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// getAlignedInices_NEW
-int getAlignedInices_NEW(Rcpp::S4 obj);
-RcppExport SEXP _DIAlignR_getAlignedInices_NEW(SEXP objSEXP) {
+// getAlignedInices_S4
+int getAlignedInices_S4(Rcpp::S4 obj);
+RcppExport SEXP _DIAlignR_getAlignedInices_S4(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::S4 >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(getAlignedInices_NEW(obj));
+    rcpp_result_gen = Rcpp::wrap(getAlignedInices_S4(obj));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -99,7 +99,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_setAffineAlignObj1_S4", (DL_FUNC) &_DIAlignR_setAffineAlignObj1_S4, 2},
     {"_DIAlignR_setAlignObj_S4", (DL_FUNC) &_DIAlignR_setAlignObj_S4, 2},
     {"_DIAlignR_doAlignment_S4", (DL_FUNC) &_DIAlignR_doAlignment_S4, 5},
-    {"_DIAlignR_getAlignedInices_NEW", (DL_FUNC) &_DIAlignR_getAlignedInices_NEW, 1},
+    {"_DIAlignR_getAlignedInices_S4", (DL_FUNC) &_DIAlignR_getAlignedInices_S4, 1},
     {"_DIAlignR_rcpp_s4", (DL_FUNC) &_DIAlignR_rcpp_s4, 1},
     {"_DIAlignR_initializeMatrix", (DL_FUNC) &_DIAlignR_initializeMatrix, 3},
     {NULL, NULL, 0}

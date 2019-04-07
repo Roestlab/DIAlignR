@@ -70,8 +70,8 @@ doAlignment_S4 <- function(s, signalA_len, signalB_len, gap, OverlapAlignment) {
 #' @param seq2Len (int) Length of sequence2
 #' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 #' @export
-getAlignedInices_NEW <- function(obj) {
-    .Call(`_DIAlignR_getAlignedInices_NEW`, obj)
+getAlignedInices_S4 <- function(obj) {
+    .Call(`_DIAlignR_getAlignedInices_S4`, obj)
 }
 
 #' Initialize a similarity matrix

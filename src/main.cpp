@@ -131,9 +131,20 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 //' @export
 // [[Rcpp::export]]
-int getAlignedInices_NEW(Rcpp::S4 obj){
+int getAlignedInices_S4(Rcpp::S4 obj){
+  AlignedIndices alignedIdx;
+  AlignObj alignObj(obj.slot("signalA_len"), obj.slot("signalB_len"));
+  // alignObj.Traceback = 3;
+  // alignObj.M = obj.slot("M");
+  // alignObj.signalA_len = obj.slot("signalA_len");
+  // alignObj.signalB_len = obj.slot("signalB_len");
+  // alignObj.GapOpen = obj.slot("GapOpen");
+  // alignObj.GapExten = obj.slot("GapExten");
+  // alignObj.FreeEndGaps = obj.slot("FreeEndGaps");
+  // alignedIdx = getAlignedIndices(alignObj);
   int x;
-  x = obj.slot("signalB_len");
+  x = 2;
+  // x = obj.slot("signalB_len");
   return(x);
 }
 
