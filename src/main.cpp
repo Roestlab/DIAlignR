@@ -104,7 +104,7 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 //' @export
 // [[Rcpp::export]]
-S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
+NumericMatrix doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
   AlignObj obj(signalA_len+1, signalB_len+1);
   obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment);
   // Creating an object of Person class
@@ -117,7 +117,20 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
   x.slot("GapOpen") = obj.GapOpen;
   x.slot("GapExten") = obj.GapExten;
   x.slot("FreeEndGaps") = obj.FreeEndGaps;
-  return(x);
+
+  AlignedIndices alignedIdx;
+  alignedIdx = getAlignedIndices(obj);
+  NumericMatrix y;
+  // y[1,_] = alignedIdx.indexA_aligned;
+  // y[2,_] = alignedIdx.indexB_aligned;
+  // y(3,_) =
+  int k = 0;
+  for (auto i = alignedIdx.score.begin(); i != alignedIdx.score.end(); ++i)
+  {
+    y(3, k) = *i;
+    k++;
+  }
+  return(y);
 }
 
 //' Initialize a S4 object AffineAlignObj1
@@ -175,3 +188,4 @@ S4 rcpp_s4(std::string Name){
 // s[, 3] <- c(10, -2, -2, -2)
 // s[, 4] <- c(-2, -2, -2, 10)
 // s[, 5] <- c(10, -2, -2, -2)
+// doAlignment_S4(s, 4, 5, 22, F)

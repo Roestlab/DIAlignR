@@ -46,6 +46,16 @@ AlignObj <- setClass(Class="AlignObj",
                                            FreeEndGaps = "logical")
 )
 
+#' An S4 object for class Person
+#'
+#' @importFrom methods setClass
+#' @export
+AlignedIndices <- setClass(Class="AlignedIndices",
+                     representation(M = "matrix", Traceback = "matrix",
+                                    signalA_len = "numeric", signalB_len = "numeric",
+                                    GapOpen = "numeric", GapExten = "numeric",
+                                    FreeEndGaps = "logical")
+)
 
 #' Creates affine alignment object
 #'

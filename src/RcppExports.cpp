@@ -44,7 +44,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // doAlignment_S4
-S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
+NumericMatrix doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
 RcppExport SEXP _DIAlignR_doAlignment_S4(SEXP sSEXP, SEXP signalA_lenSEXP, SEXP signalB_lenSEXP, SEXP gapSEXP, SEXP OverlapAlignmentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
