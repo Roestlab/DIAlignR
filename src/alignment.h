@@ -24,6 +24,9 @@ struct AlignObj
     float GapOpen;
     float GapExten;
     bool FreeEndGaps;
+    std::vector<int> indexA_aligned;
+    std::vector<int> indexB_aligned;
+    std::vector<float> score;
 
     // Not a default constructor
     AlignObj(int ROW_SIZE, int COL_SIZE)

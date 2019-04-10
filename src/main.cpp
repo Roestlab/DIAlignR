@@ -89,6 +89,9 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
   x.slot("GapOpen") = obj.GapOpen;
   x.slot("GapExten") = obj.GapExten;
   x.slot("FreeEndGaps") = obj.FreeEndGaps;
+  x.slot("indexA_aligned") = obj.indexA_aligned;
+  x.slot("indexB_aligned") = obj.indexB_aligned;
+  x.slot("score") = obj.score;
   return(x);
 }
 
@@ -104,9 +107,11 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 //' @export
 // [[Rcpp::export]]
-NumericMatrix doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
+S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
   AlignObj obj(signalA_len+1, signalB_len+1);
   obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment);
+  AlignedIndices alignedIdx;
+  alignedIdx = getAlignedIndices(obj);
   // Creating an object of Person class
   S4 x("AlignObj");
   // Setting values to the slots
@@ -117,49 +122,22 @@ NumericMatrix doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, 
   x.slot("GapOpen") = obj.GapOpen;
   x.slot("GapExten") = obj.GapExten;
   x.slot("FreeEndGaps") = obj.FreeEndGaps;
+  x.slot("indexA_aligned") = obj.indexA_aligned;
+  x.slot("indexB_aligned") = obj.indexB_aligned;
+  x.slot("score") = obj.score;
 
-  AlignedIndices alignedIdx;
-  alignedIdx = getAlignedIndices(obj);
   NumericMatrix y;
-  // y[1,_] = alignedIdx.indexA_aligned;
-  // y[2,_] = alignedIdx.indexB_aligned;
-  // y(3,_) =
+  //std::vector<float> newv(v.begin(), v.end()); // if v is NumericVector; R to C++
   int k = 0;
-  for (auto i = alignedIdx.score.begin(); i != alignedIdx.score.end(); ++i)
+  //for (auto i = alignedIdx.score.begin(); i != alignedIdx.score.end(); ++i)
+  for (const auto& i : alignedIdx.score) // for i in alignedIdx.score:
   {
-    y(3, k) = *i;
+    y(3, k) = i;
     k++;
   }
-  return(y);
-}
-
-//' Initialize a S4 object AffineAlignObj1
-//'
-//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-//' ORCID: 0000-0003-3500-8152
-//' License: (c) Author (2019) + MIT
-//' Date: 2019-03-08
-//' @param seq1Len (int) Length of sequence1
-//' @param seq2Len (int) Length of sequence2
-//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
-//' @export
-// [[Rcpp::export]]
-int getAlignedInices_S4(Rcpp::S4 obj){
-  AlignedIndices alignedIdx;
-  AlignObj alignObj(obj.slot("signalA_len"), obj.slot("signalB_len"));
-  // alignObj.Traceback = 3;
-  // alignObj.M = obj.slot("M");
-  // alignObj.signalA_len = obj.slot("signalA_len");
-  // alignObj.signalB_len = obj.slot("signalB_len");
-  // alignObj.GapOpen = obj.slot("GapOpen");
-  // alignObj.GapExten = obj.slot("GapExten");
-  // alignObj.FreeEndGaps = obj.slot("FreeEndGaps");
-  // alignedIdx = getAlignedIndices(alignObj);
-  int x;
-  x = 2;
-  // x = obj.slot("signalB_len");
   return(x);
 }
+
 
 //' Initialize a similarity matrix
 //'

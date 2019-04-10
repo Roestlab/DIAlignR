@@ -44,7 +44,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // doAlignment_S4
-NumericMatrix doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
+S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
 RcppExport SEXP _DIAlignR_doAlignment_S4(SEXP sSEXP, SEXP signalA_lenSEXP, SEXP signalB_lenSEXP, SEXP gapSEXP, SEXP OverlapAlignmentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -55,17 +55,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< float >::type gap(gapSEXP);
     Rcpp::traits::input_parameter< bool >::type OverlapAlignment(OverlapAlignmentSEXP);
     rcpp_result_gen = Rcpp::wrap(doAlignment_S4(s, signalA_len, signalB_len, gap, OverlapAlignment));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getAlignedInices_S4
-int getAlignedInices_S4(Rcpp::S4 obj);
-RcppExport SEXP _DIAlignR_getAlignedInices_S4(SEXP objSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::S4 >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(getAlignedInices_S4(obj));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -99,7 +88,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_setAffineAlignObj1_S4", (DL_FUNC) &_DIAlignR_setAffineAlignObj1_S4, 2},
     {"_DIAlignR_setAlignObj_S4", (DL_FUNC) &_DIAlignR_setAlignObj_S4, 2},
     {"_DIAlignR_doAlignment_S4", (DL_FUNC) &_DIAlignR_doAlignment_S4, 5},
-    {"_DIAlignR_getAlignedInices_S4", (DL_FUNC) &_DIAlignR_getAlignedInices_S4, 1},
     {"_DIAlignR_rcpp_s4", (DL_FUNC) &_DIAlignR_rcpp_s4, 1},
     {"_DIAlignR_initializeMatrix", (DL_FUNC) &_DIAlignR_initializeMatrix, 3},
     {NULL, NULL, 0}

@@ -43,7 +43,9 @@ AlignObj <- setClass(Class="AlignObj",
                             representation(M = "matrix", Traceback = "matrix",
                                            signalA_len = "numeric", signalB_len = "numeric",
                                            GapOpen = "numeric", GapExten = "numeric",
-                                           FreeEndGaps = "logical")
+                                           FreeEndGaps = "logical",
+                                           indexA_aligned = "numeric", indexB_aligned = "numeric",
+                                           score = "numeric")
 )
 
 #' An S4 object for class Person
