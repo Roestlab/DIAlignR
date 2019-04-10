@@ -142,6 +142,7 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
 S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
   AffineAlignObj obj(signalA_len+1, signalB_len+1);
   obj = doAffineAlignment(s, signalA_len, signalB_len, go, ge, OverlapAlignment);
+  getAffineAlignedIndices(obj);
   // printMatrix(obj.M, signalA_len+1, signalB_len+1);
   // getAlignedIndices(obj);
   // Creating an object of Person class
