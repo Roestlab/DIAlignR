@@ -28,8 +28,8 @@ getseqSimMat <- function(seq1, seq2, Match, MisMatch, s) {
 #' @param seq2Len (int) Length of sequence2
 #' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 #' @export
-setAffineAlignObj1_S4 <- function(ROW_SIZE, COL_SIZE) {
-    .Call(`_DIAlignR_setAffineAlignObj1_S4`, ROW_SIZE, COL_SIZE)
+setAffineAlignObj_S4 <- function(ROW_SIZE, COL_SIZE) {
+    .Call(`_DIAlignR_setAffineAlignObj_S4`, ROW_SIZE, COL_SIZE)
 }
 
 #' Initialize a S4 object AffineAlignObj1
@@ -58,6 +58,20 @@ setAlignObj_S4 <- function(ROW_SIZE, COL_SIZE) {
 #' @export
 doAlignment_S4 <- function(s, signalA_len, signalB_len, gap, OverlapAlignment) {
     .Call(`_DIAlignR_doAlignment_S4`, s, signalA_len, signalB_len, gap, OverlapAlignment)
+}
+
+#' Initialize a S4 object AffineAlignObj
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-03-08
+#' @param seq1Len (int) Length of sequence1
+#' @param seq2Len (int) Length of sequence2
+#' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+#' @export
+doAffineAlignment_S4 <- function(s, signalA_len, signalB_len, go, ge, OverlapAlignment) {
+    .Call(`_DIAlignR_doAffineAlignment_S4`, s, signalA_len, signalB_len, go, ge, OverlapAlignment)
 }
 
 #' Initialize a similarity matrix

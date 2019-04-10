@@ -28,11 +28,13 @@ Person <- setClass(Class="Person",
 #'
 #' @importFrom methods setClass
 #' @export
-AffineAlignObj1 <- setClass(Class="AffineAlignObj1",
+AffineAlignObj <- setClass(Class="AffineAlignObj",
                    representation(M = "matrix", A = "matrix", B = "matrix", Traceback = "matrix",
                                   signalA_len = "numeric", signalB_len = "numeric",
                                   GapOpen = "numeric", GapExten = "numeric",
-                                  FreeEndGaps = "logical")
+                                  FreeEndGaps = "logical",
+                                  indexA_aligned = "numeric", indexB_aligned = "numeric",
+                                  score = "numeric")
                    )
 
 #' An S4 object for class Person
@@ -46,17 +48,6 @@ AlignObj <- setClass(Class="AlignObj",
                                            FreeEndGaps = "logical",
                                            indexA_aligned = "numeric", indexB_aligned = "numeric",
                                            score = "numeric")
-)
-
-#' An S4 object for class Person
-#'
-#' @importFrom methods setClass
-#' @export
-AlignedIndices <- setClass(Class="AlignedIndices",
-                     representation(M = "matrix", Traceback = "matrix",
-                                    signalA_len = "numeric", signalB_len = "numeric",
-                                    GapOpen = "numeric", GapExten = "numeric",
-                                    FreeEndGaps = "logical")
 )
 
 #' Creates affine alignment object

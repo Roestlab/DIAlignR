@@ -50,6 +50,6 @@ struct AlignObj
 
 AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
 
-AlignedIndices getAlignedIndices(AlignObj &alignObj);
+void getAlignedIndices(AlignObj &alignObj);
 
 #endif // ALIGNMENT_H

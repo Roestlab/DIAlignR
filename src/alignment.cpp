@@ -58,7 +58,7 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   return alignObj;
 }
 
-AlignedIndices getAlignedIndices(AlignObj &alignObj){
+void getAlignedIndices(AlignObj &alignObj){
   AlignedIndices alignedIdx;
   TracebackType TracebackPointer;
   float alignmentScore;
@@ -110,5 +110,5 @@ AlignedIndices getAlignedIndices(AlignObj &alignObj){
   alignObj.indexA_aligned = alignedIdx.indexA_aligned;
   alignObj.indexB_aligned = alignedIdx.indexB_aligned;
   alignObj.score = alignedIdx.score;
-  return alignedIdx;
+  return;
 }

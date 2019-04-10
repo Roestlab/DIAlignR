@@ -2,6 +2,7 @@
 #include "simpleFcn.h"
 #include "alignment.h"
 #include "affinealignobj.h"
+#include "affinealignment.h"
 using namespace Rcpp;
 
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
@@ -45,10 +46,10 @@ void getseqSimMat(std::string seq1, std::string seq2, float Match, float MisMatc
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 //' @export
 // [[Rcpp::export]]
-S4 setAffineAlignObj1_S4(int ROW_SIZE, int COL_SIZE){
-  AffineAlignObj1 obj(ROW_SIZE, COL_SIZE);
+S4 setAffineAlignObj_S4(int ROW_SIZE, int COL_SIZE){
+  AffineAlignObj obj(ROW_SIZE, COL_SIZE);
   // Creating an object of Person class
-  S4 x("AffineAlignObj1");
+  S4 x("AffineAlignObj");
   // Setting values to the slots
   x.slot("M")  = obj.M;
   x.slot("A")  = obj.A;
@@ -110,8 +111,7 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
   AlignObj obj(signalA_len+1, signalB_len+1);
   obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment);
-  AlignedIndices alignedIdx;
-  alignedIdx = getAlignedIndices(obj);
+  getAlignedIndices(obj);
   // Creating an object of Person class
   S4 x("AlignObj");
   // Setting values to the slots
@@ -125,19 +125,42 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
-
-  NumericMatrix y;
-  //std::vector<float> newv(v.begin(), v.end()); // if v is NumericVector; R to C++
-  int k = 0;
-  //for (auto i = alignedIdx.score.begin(); i != alignedIdx.score.end(); ++i)
-  for (const auto& i : alignedIdx.score) // for i in alignedIdx.score:
-  {
-    y(3, k) = i;
-    k++;
-  }
   return(x);
 }
 
+//' Initialize a S4 object AffineAlignObj
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param seq1Len (int) Length of sequence1
+//' @param seq2Len (int) Length of sequence2
+//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @export
+// [[Rcpp::export]]
+S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
+  AffineAlignObj obj(signalA_len+1, signalB_len+1);
+  obj = doAffineAlignment(s, signalA_len, signalB_len, go, ge, OverlapAlignment);
+  // printMatrix(obj.M, signalA_len+1, signalB_len+1);
+  // getAlignedIndices(obj);
+  // Creating an object of Person class
+  S4 x("AffineAlignObj");
+  // Setting values to the slots
+  x.slot("M")  = obj.M;
+  x.slot("A")  = obj.A;
+  x.slot("B")  = obj.B;
+  x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("signalA_len") = obj.signalA_len;
+  x.slot("signalB_len") = obj.signalB_len;
+  x.slot("GapOpen") = obj.GapOpen;
+  x.slot("GapExten") = obj.GapExten;
+  x.slot("FreeEndGaps") = obj.FreeEndGaps;
+  x.slot("indexA_aligned") = obj.indexA_aligned;
+  x.slot("indexB_aligned") = obj.indexB_aligned;
+  x.slot("score") = obj.score;
+  return(x);
+}
 
 //' Initialize a similarity matrix
 //'
