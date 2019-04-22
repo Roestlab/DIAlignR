@@ -5,18 +5,18 @@
 
 using namespace Rcpp;
 
-// getseqSimMat
-void getseqSimMat(std::string seq1, std::string seq2, float Match, float MisMatch, NumericMatrix s);
-RcppExport SEXP _DIAlignR_getseqSimMat(SEXP seq1SEXP, SEXP seq2SEXP, SEXP MatchSEXP, SEXP MisMatchSEXP, SEXP sSEXP) {
+// getSeqSimMat
+NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, float MisMatch);
+RcppExport SEXP _DIAlignR_getSeqSimMat(SEXP seq1SEXP, SEXP seq2SEXP, SEXP MatchSEXP, SEXP MisMatchSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type seq1(seq1SEXP);
     Rcpp::traits::input_parameter< std::string >::type seq2(seq2SEXP);
     Rcpp::traits::input_parameter< float >::type Match(MatchSEXP);
     Rcpp::traits::input_parameter< float >::type MisMatch(MisMatchSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type s(sSEXP);
-    getseqSimMat(seq1, seq2, Match, MisMatch, s);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(getSeqSimMat(seq1, seq2, Match, MisMatch));
+    return rcpp_result_gen;
 END_RCPP
 }
 // setAffineAlignObj_S4
@@ -100,7 +100,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_DIAlignR_getseqSimMat", (DL_FUNC) &_DIAlignR_getseqSimMat, 5},
+    {"_DIAlignR_getSeqSimMat", (DL_FUNC) &_DIAlignR_getSeqSimMat, 4},
     {"_DIAlignR_setAffineAlignObj_S4", (DL_FUNC) &_DIAlignR_setAffineAlignObj_S4, 2},
     {"_DIAlignR_setAlignObj_S4", (DL_FUNC) &_DIAlignR_setAlignObj_S4, 2},
     {"_DIAlignR_doAlignment_S4", (DL_FUNC) &_DIAlignR_doAlignment_S4, 5},

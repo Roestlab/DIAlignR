@@ -10,7 +10,6 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj);
 
-
 template<class T>
 float getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, tbJump &MatrixName);
 

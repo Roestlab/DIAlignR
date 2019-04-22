@@ -11,11 +11,15 @@
 #' @param seq2 (char) A single string
 #' @param Match (float) Score for character match
 #' @param MisMatch (float) score for character mismatch
-#' @param s (matrix) A similarity matrix
-#' @return s (matrix) Updated similarity matrix
+#' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
+#' @examples
+#' # Get sequence similarity of two DNA strings
+#' Match=10; MisMatch=-2
+#' seq1 = "GCAT"; seq2 = "CAGTG"
+#' getSeqSimMat(seq1, seq2, Match, MisMatch)
 #' @export
-getseqSimMat <- function(seq1, seq2, Match, MisMatch, s) {
-    invisible(.Call(`_DIAlignR_getseqSimMat`, seq1, seq2, Match, MisMatch, s))
+getSeqSimMat <- function(seq1, seq2, Match, MisMatch) {
+    .Call(`_DIAlignR_getSeqSimMat`, seq1, seq2, Match, MisMatch)
 }
 
 #' Initialize a S4 object AffineAlignObj1
@@ -24,9 +28,9 @@ getseqSimMat <- function(seq1, seq2, Match, MisMatch, s) {
 #' ORCID: 0000-0003-3500-8152
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-03-08
-#' @param seq1Len (int) Length of sequence1
-#' @param seq2Len (int) Length of sequence2
-#' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+#' @param ROW_SIZE (int) Number of rows of a matrix
+#' @param COL_SIZE (int) Number of columns of a matrix
+#' @return affineAlignObj (S4class) A S4class dummy object from C++ class of AffineAlignObj
 #' @export
 setAffineAlignObj_S4 <- function(ROW_SIZE, COL_SIZE) {
     .Call(`_DIAlignR_setAffineAlignObj_S4`, ROW_SIZE, COL_SIZE)

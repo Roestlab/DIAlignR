@@ -7,12 +7,12 @@
 setAffineAlignObj_S4(ROW_SIZE, COL_SIZE)
 }
 \arguments{
-\item{seq1Len}{(int) Length of sequence1}
+\item{ROW_SIZE}{(int) Number of rows of a matrix}
 
-\item{seq2Len}{(int) Length of sequence2}
+\item{COL_SIZE}{(int) Number of columns of a matrix}
 }
 \value{
-affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+affineAlignObj (S4class) A S4class dummy object from C++ class of AffineAlignObj
 }
 \description{
 Initialize a S4 object AffineAlignObj1
