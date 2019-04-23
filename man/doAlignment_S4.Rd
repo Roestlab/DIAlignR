@@ -2,20 +2,34 @@
 % Please edit documentation in R/RcppExports.R
 \name{doAlignment_S4}
 \alias{doAlignment_S4}
-\title{Initialize a S4 object AffineAlignObj1}
+\title{Perform non-affine global and overlap alignemnt on a similarity matrix}
 \usage{
 doAlignment_S4(s, signalA_len, signalB_len, gap, OverlapAlignment)
 }
 \arguments{
-\item{seq1Len}{(int) Length of sequence1}
+\item{s}{(NumericMatrix) A numeric matrix with similarity values of two sequences or signals}
 
-\item{seq2Len}{(int) Length of sequence2}
+\item{signalA_len}{(int) Length of signalA or sequenceA. Expresses along the rows of s}
+
+\item{signalB_len}{(int) Length of signalB or sequenceB. Expresses along the columns of s}
+
+\item{gap}{(float) Penalty for introducing gaps in alignment}
+
+\item{OverlapAlignment}{(bool) An inpul for gap-free alignment. False: Global alignment, True: Gap-free overlap alignment}
 }
 \value{
-affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+AlignObj (S4class) An object from C++ class of AlignObj
 }
 \description{
-Initialize a S4 object AffineAlignObj1
+Perform non-affine global and overlap alignemnt on a similarity matrix
+}
+\examples{
+# Get sequence similarity of two DNA strings
+Match=10; MisMatch=-2
+seq1 = "GCAT"; seq2 = "CAGTG"
+s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+obj_Olap <- doAlignment_S4(s, 4, 5, 22, FALSE)
+obj_global <- doAlignment_S4(s, 4, 5, 22, TRUE)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

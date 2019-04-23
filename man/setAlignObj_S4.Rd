@@ -2,20 +2,24 @@
 % Please edit documentation in R/RcppExports.R
 \name{setAlignObj_S4}
 \alias{setAlignObj_S4}
-\title{Initialize a S4 object AffineAlignObj1}
+\title{Get a dummy S4 object of C++ class AlignObj}
 \usage{
 setAlignObj_S4(ROW_SIZE, COL_SIZE)
 }
 \arguments{
-\item{seq1Len}{(int) Length of sequence1}
+\item{ROW_SIZE}{(int) Number of rows of a matrix}
 
-\item{seq2Len}{(int) Length of sequence2}
+\item{COL_SIZE}{(int) Number of columns of a matrix}
 }
 \value{
-affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+AlignObj (S4class) A S4class dummy object from C++ AlignObj struct
 }
 \description{
-Initialize a S4 object AffineAlignObj1
+Get a dummy S4 object of C++ class AlignObj
+}
+\examples{
+x <- setAlignObj_S4(4, 5)
+x@signalA_len # 3
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

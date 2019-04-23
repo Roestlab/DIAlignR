@@ -12,7 +12,7 @@ rcpp_s4(Name)
 \item{seq2Len}{(int) Length of sequence2}
 }
 \value{
-affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+s (S4class) A similarity matrix
 }
 \description{
 Initialize a similarity matrix

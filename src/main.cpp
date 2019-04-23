@@ -108,16 +108,24 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 //' @param s (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
 //' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
 //' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
-//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @param gap (float) Penalty for introducing gaps in alignment
+//' @param OverlapAlignment (bool) An inpul for gap-free alignment. False: Global alignment, True: Gap-free overlap alignment
+//' @return AlignObj (S4class) An object from C++ class of AlignObj
+//' @examples
+//' # Get sequence similarity of two DNA strings
+//' Match=10; MisMatch=-2
+//' seq1 = "GCAT"; seq2 = "CAGTG"
+//' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+//' obj_Olap <- doAlignment_S4(s, 4, 5, 22, FALSE)
+//' obj_global <- doAlignment_S4(s, 4, 5, 22, TRUE)
 //' @export
 // [[Rcpp::export]]
 S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
-  AlignObj obj(signalA_len+1, signalB_len+1);
-  obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment);
-  getAlignedIndices(obj);
-  // Creating an object of Person class
-  S4 x("AlignObj");
-  // Setting values to the slots
+  AlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AlignObj struct
+  obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment); // Performs alignment on s matrix and returns AlignObj struct
+  getAlignedIndices(obj); // Performs traceback and fills aligned indices in AlignObj struct
+  S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
+  // Copying values to the slots
   x.slot("M")  = obj.M;
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
   x.slot("signalA_len") = obj.signalA_len;
@@ -174,7 +182,7 @@ S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float
 //' Date: 2019-03-08
 //' @param seq1Len (int) Length of sequence1
 //' @param seq2Len (int) Length of sequence2
-//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @return s (S4class) A similarity matrix
 //' @export
 // [[Rcpp::export]]
 S4 rcpp_s4(std::string Name){
@@ -189,7 +197,7 @@ S4 rcpp_s4(std::string Name){
 // Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 // Match=10; MisMatch=-2; go=22; ge=7; gap=go
 // seq1 = "GCAT"; seq2 = "CAGTG"
-// getSeqSimMat(seq1, seq2, Match, MisMatch, s)
+// s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
 // s <- matrix(NA, nrow = 4, ncol = 5)
 // s[, 1] <- c(-2, 10, -2, -2)
 // s[, 2] <- c(-2, -2, 10, -2)
@@ -197,3 +205,7 @@ S4 rcpp_s4(std::string Name){
 // s[, 4] <- c(-2, -2, -2, 10)
 // s[, 5] <- c(10, -2, -2, -2)
 // doAlignment_S4(s, 4, 5, 22, F)
+// library(Biostrings)
+// mat <- nucleotideSubstitutionMatrix(match = Match, mismatch = MisMatch, baseOnly = TRUE)
+// pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
+// pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)

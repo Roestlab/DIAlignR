@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{setAffineAlignObj_S4}
 \alias{setAffineAlignObj_S4}
-\title{Initialize a S4 object AffineAlignObj1}
+\title{Get a dummy S4 object of C++ class AffineAlignObj}
 \usage{
 setAffineAlignObj_S4(ROW_SIZE, COL_SIZE)
 }
@@ -12,10 +12,14 @@ setAffineAlignObj_S4(ROW_SIZE, COL_SIZE)
 \item{COL_SIZE}{(int) Number of columns of a matrix}
 }
 \value{
-affineAlignObj (S4class) A S4class dummy object from C++ class of AffineAlignObj
+affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
 }
 \description{
-Initialize a S4 object AffineAlignObj1
+Get a dummy S4 object of C++ class AffineAlignObj
+}
+\examples{
+x <- setAffineAlignObj_S4(4, 5)
+x@signalA_len # 3
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

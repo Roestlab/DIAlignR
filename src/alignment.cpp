@@ -26,12 +26,12 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   Traceback[0*(signalB_len+1) + 0] = SS; //STOP
 
   // Perform dynamic programming for alignment
-  float Diago, gapInA, gapInB;
+  float Diago, gapInA, gapInB; // signalA is along the rows, signalB is along the columns
   for(int i=1; i<=signalA_len; i++ ){
     for(int j=1; j<=signalB_len; j++){
       Diago = M(i-1, j-1) + s(i-1, j-1);
-      gapInA = M(i-1, j) - gap;
-      gapInB = M(i, j-1) - gap;
+      gapInB= M(i-1, j) - gap; // Travelling from Top. signalA is along the rows, signalB is along the columns
+      gapInA = M(i, j-1) - gap; // Travelling from Left. signalA is along the rows, signalB is along the columns
       if(Diago>=gapInA && Diago>=gapInB){
         Traceback[i*(signalB_len+1) + j] = DM; // D: Diagonal
         M(i, j) = Diago;
@@ -67,46 +67,50 @@ void getAlignedIndices(AlignObj &alignObj){
   int ROW_SIZE = alignObj.signalA_len + 1;
   int COL_SIZE = alignObj.signalB_len + 1;
 
-  alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
-  alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
-  alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
-  TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
-  // Rcpp::Rcout << "Traceback is starting" << std::endl;
-  // Rcpp::Rcout << TracebackPointer << std::endl;
-  // Traceback path and align row indices to column indices.
+  if(alignObj.FreeEndGaps == true){
+    TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
+  }
+
   while(TracebackPointer != SS){
     // D: Diagonal, T: Top, L: Left
     switch(TracebackPointer){
     case DM: {
-      ROW_IDX = ROW_IDX - 1;
-      COL_IDX = COL_IDX - 1;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX - 1;
+      COL_IDX = COL_IDX - 1;
       break;
     }
     case TM:
     {
-      ROW_IDX = ROW_IDX - 1;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX - 1;
       break;
     }
     case LM:
     {
-      COL_IDX = COL_IDX - 1;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      COL_IDX = COL_IDX - 1;
       break;
     }
     }
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
   }
-  alignedIdx.score.erase(alignedIdx.score.begin());
-  alignedIdx.indexA_aligned.erase(alignedIdx.indexA_aligned.begin());
-  alignedIdx.indexB_aligned.erase(alignedIdx.indexB_aligned.begin());
+  // alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
+  // alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
+  // alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+  // TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
+  // Rcpp::Rcout << "Traceback is starting" << std::endl;
+  // Rcpp::Rcout << TracebackPointer << std::endl;
+  // Traceback path and align row indices to column indices.
+  // alignedIdx.score.erase(alignedIdx.score.begin());
+  // alignedIdx.indexA_aligned.erase(alignedIdx.indexA_aligned.begin());
+  // alignedIdx.indexB_aligned.erase(alignedIdx.indexB_aligned.begin());
   alignObj.indexA_aligned = alignedIdx.indexA_aligned;
   alignObj.indexB_aligned = alignedIdx.indexB_aligned;
   alignObj.score = alignedIdx.score;
