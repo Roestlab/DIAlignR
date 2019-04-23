@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include <limits>
 
 #include "simpleFcn.h"
 #include "affinealignobj.h"

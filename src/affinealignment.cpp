@@ -1,7 +1,6 @@
 #include "affinealignment.h"
 // Do not inclue cpp file because compiler will build the Obj through two different path.
 
-
 AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
   AffineAlignObj affineAlignObj(signalA_len+1, signalB_len+1);
   affineAlignObj.FreeEndGaps = OverlapAlignment;
