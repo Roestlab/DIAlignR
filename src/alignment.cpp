@@ -1,7 +1,8 @@
 #include "alignment.h"
 
+// This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
 AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
-  AlignObj alignObj(signalA_len+1, signalB_len+1);
+  AlignObj alignObj(signalA_len+1, signalB_len+1); // initialize AlignObj struct
   alignObj.FreeEndGaps = OverlapAlignment;
   alignObj.GapOpen = gap;
   alignObj.GapExten = gap;
@@ -9,32 +10,34 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   alignObj.signalB_len = signalB_len;
 
   NumericMatrix M;
-  M = initializeMatrix(0, signalA_len+1, signalB_len+1);
+  M = initializeMatrix(0, signalA_len+1, signalB_len+1); // get a NumericMatrix filled with zeros.
   std::vector<TracebackType> Traceback;
-  Traceback.resize((signalA_len+1)*(signalB_len+1), SS);
+  Traceback.resize((signalA_len+1)*(signalB_len+1), SS); // Fill Traceback matrix with SS.
 
   // Initialize first row and first column for global and overlap alignment.
   if(alignObj.FreeEndGaps){
+    // For Overlap alignment, First row and first column of M matrix is filled with zeros.
     for(int i = 0; i<=signalA_len; i++){
       M(i, 0) = 0;
-      Traceback[i*(signalB_len+1)+0] = TM; //Top
+      Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
     }
     for(int j = 0; j<=signalB_len; j++){
       M(0, j) = 0;
-      Traceback[0*(signalB_len+1)+j] = LM; //Left
+      Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
     }
-    Traceback[0*(signalB_len+1) + 0] = SS; //STOP
+    Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
   }
   else{
+    // For global alignment, top-row and left-column cells are filled with values indicating distance from top-left corner.
     for(int i = 0; i<=signalA_len; i++){
       M(i, 0) = -i*gap;
-      Traceback[i*(signalB_len+1)+0] = TM; //Top
+      Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
     }
     for(int j = 0; j<=signalB_len; j++){
       M(0, j) = -j*gap;
-      Traceback[0*(signalB_len+1)+j] = LM; //Left
+      Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
     }
-    Traceback[0*(signalB_len+1) + 0] = SS; //STOP
+    Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
   }
 
   // Perform dynamic programming for alignment
@@ -70,16 +73,17 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   return alignObj;
 }
 
+// This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
 void getAlignedIndices(AlignObj &alignObj){
-  AlignedIndices alignedIdx;
+  AlignedIndices alignedIdx; // initialize empty struct
   TracebackType TracebackPointer;
-  float alignmentScore;
   int ROW_IDX = alignObj.signalA_len;
   int COL_IDX = alignObj.signalB_len;
   int ROW_SIZE = alignObj.signalA_len + 1;
   int COL_SIZE = alignObj.signalB_len + 1;
 
   if(alignObj.FreeEndGaps){
+    // For overlap alignment find maximum score in matrix "M" along last column and long row.
     float maxScore = -std::numeric_limits<float>::infinity();
     int MaxRowIndex, MaxColIndex;
     for(int i = 0; i < ROW_SIZE; i++){
@@ -96,30 +100,37 @@ void getAlignedIndices(AlignObj &alignObj){
         maxScore = alignObj.M[(ROW_SIZE-1)*COL_SIZE+j];
       }
     }
+    // Use the indices of maximum score as starting point for traceback procedure.
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
+    // Align indices higher than max-score-index to NA
     if(ROW_IDX != alignObj.signalA_len){
+      // Maximum score is obtained in last column. Align all row indices below max-score-index to NA.
       for (int i = alignObj.signalA_len; i>ROW_IDX; i--){
         alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), i);
-        alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
-        alignedIdx.score.insert(alignedIdx.score.begin(), maxScore);
+        alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA); // Insert NA in signalB.
+        alignedIdx.score.insert(alignedIdx.score.begin(), maxScore); // Insert maxScore instead of score from the matrix M.
       }
     }
     else if (COL_IDX != alignObj.signalB_len){
+      // Maximum score is obtained in last row. Align all column indices right to max-score-index to NA.
       for (int j = alignObj.signalB_len; j>COL_IDX; j--){
-        alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
+        alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA); // Insert NA in signalA.
         alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), j);
-        alignedIdx.score.insert(alignedIdx.score.begin(), maxScore);
+        alignedIdx.score.insert(alignedIdx.score.begin(), maxScore); // Insert maxScore instead of score from the matrix M.
       }
     }
   }
   else{
+    // In Global alignment, traceback starts at the bottom-right corner.
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
   }
 
   while(TracebackPointer != SS){
+    // SS: STOP when top-left corner of the matrix is reached
     // D: Diagonal, T: Top, L: Left
     switch(TracebackPointer){
     case DM: {
+      // Go diagonal (Up-Left) in the matrix M.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
@@ -129,6 +140,7 @@ void getAlignedIndices(AlignObj &alignObj){
     }
     case TM:
     {
+      // Go up in the matrix M.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
@@ -137,6 +149,7 @@ void getAlignedIndices(AlignObj &alignObj){
     }
     case LM:
     {
+      // Go left in the matrix M.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
@@ -144,8 +157,10 @@ void getAlignedIndices(AlignObj &alignObj){
       break;
     }
     }
+    // Read traceback for the next iteration.
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
   }
+  // Copy aligned indices to alignObj.
   alignObj.indexA_aligned = alignedIdx.indexA_aligned;
   alignObj.indexB_aligned = alignedIdx.indexB_aligned;
   alignObj.score = alignedIdx.score;

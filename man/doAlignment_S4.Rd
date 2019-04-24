@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{doAlignment_S4}
 \alias{doAlignment_S4}
-\title{Perform non-affine global and overlap alignemnt on a similarity matrix}
+\title{Perform non-affine global and overlap alignment on a similarity matrix}
 \usage{
 doAlignment_S4(s, signalA_len, signalB_len, gap, OverlapAlignment)
 }
@@ -21,15 +21,17 @@ doAlignment_S4(s, signalA_len, signalB_len, gap, OverlapAlignment)
 AlignObj (S4class) An object from C++ class of AlignObj
 }
 \description{
-Perform non-affine global and overlap alignemnt on a similarity matrix
+Perform non-affine global and overlap alignment on a similarity matrix
 }
 \examples{
 # Get sequence similarity of two DNA strings
 Match=10; MisMatch=-2
 seq1 = "GCAT"; seq2 = "CAGTG"
 s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
-obj_Olap <- doAlignment_S4(s, 4, 5, 22, FALSE)
-obj_global <- doAlignment_S4(s, 4, 5, 22, TRUE)
+obj_Global <- doAlignment_S4(s, 4, 5, 22, FALSE)
+obj_Global@score # -2 -4 -6 4 -18
+obj_Olap <- doAlignment_S4(s, 4, 5, 22, TRUE)
+obj_Olap@score # 0 10 20 18 18 18
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

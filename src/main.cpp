@@ -99,7 +99,7 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
   return(x);
 }
 
-//' Perform non-affine global and overlap alignemnt on a similarity matrix
+//' Perform non-affine global and overlap alignment on a similarity matrix
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
@@ -116,8 +116,10 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 //' Match=10; MisMatch=-2
 //' seq1 = "GCAT"; seq2 = "CAGTG"
 //' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
-//' obj_Olap <- doAlignment_S4(s, 4, 5, 22, FALSE)
-//' obj_global <- doAlignment_S4(s, 4, 5, 22, TRUE)
+//' obj_Global <- doAlignment_S4(s, 4, 5, 22, FALSE)
+//' obj_Global@score # -2 -4 -6 4 -18
+//' obj_Olap <- doAlignment_S4(s, 4, 5, 22, TRUE)
+//' obj_Olap@score # 0 10 20 18 18 18
 //' @export
 // [[Rcpp::export]]
 S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
