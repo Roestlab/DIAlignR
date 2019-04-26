@@ -49,8 +49,10 @@ struct AlignObj
     {  }
 };
 
+// This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
 AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
 
+// This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
 void getAlignedIndices(AlignObj &alignObj);
 
 #endif // ALIGNMENT_H

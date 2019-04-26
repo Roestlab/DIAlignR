@@ -127,7 +127,7 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
   obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment); // Performs alignment on s matrix and returns AlignObj struct
   getAlignedIndices(obj); // Performs traceback and fills aligned indices in AlignObj struct
   S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
-  // Copying values to the slots
+  // Copying values to slots
   x.slot("M")  = obj.M;
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
   x.slot("signalA_len") = obj.signalA_len;

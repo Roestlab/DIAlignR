@@ -6,7 +6,7 @@
 #include "affinealignobj.h"
 using namespace Rcpp;
 
-//' Initialize a similarity matrix
+//' Outputs a NumericMatrix of given row and column size.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
@@ -15,11 +15,13 @@ using namespace Rcpp;
 //' @param initVal (char) Matrix intialization value
 //' @param ROW_SIZE (int) Number of rows
 //' @param COL_SIZE (int) Number of columns
-//' @return s (matrix) a similarity matrix
+//' @return s (NumericMatrix) A matrix
+//' @examples
+//' # Get a matrix of type NumericMatrix
+//' initializeMatrix(0, ROW_SIZE = 4, COL_SIZE = 5)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE);
-// s <- initializeMatrix(0, 4, 5)
 
 // Template definitions should always be in header file.
 template<class T>

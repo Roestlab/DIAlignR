@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{initializeMatrix}
 \alias{initializeMatrix}
-\title{Initialize a similarity matrix}
+\title{Outputs a NumericMatrix of given row and column size.}
 \usage{
 initializeMatrix(initVal, ROW_SIZE, COL_SIZE)
 }
@@ -14,10 +14,14 @@ initializeMatrix(initVal, ROW_SIZE, COL_SIZE)
 \item{COL_SIZE}{(int) Number of columns}
 }
 \value{
-s (matrix) a similarity matrix
+s (NumericMatrix) A matrix
 }
 \description{
-Initialize a similarity matrix
+Outputs a NumericMatrix of given row and column size.
+}
+\examples{
+# Get a matrix of type NumericMatrix
+initializeMatrix(0, ROW_SIZE = 4, COL_SIZE = 5)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

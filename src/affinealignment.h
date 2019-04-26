@@ -6,6 +6,7 @@
 #include "simpleFcn.h"
 #include <limits>
 
+// It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
 AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment);
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj);

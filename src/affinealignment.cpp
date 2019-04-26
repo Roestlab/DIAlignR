@@ -1,51 +1,82 @@
 #include "affinealignment.h"
-// Do not inclue cpp file because compiler will build the Obj through two different path.
+// Do not inclue cpp file otherwise compiler will build the Obj through two different path.
 
+// It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
 AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
-  AffineAlignObj affineAlignObj(signalA_len+1, signalB_len+1);
+  AffineAlignObj affineAlignObj(signalA_len+1, signalB_len+1); // Initialize AffineAlignObj
   affineAlignObj.FreeEndGaps = OverlapAlignment;
   affineAlignObj.GapOpen = go;
   affineAlignObj.GapExten = ge;
 
-  // Initialize first row and first column for global and overlap alignment.
+  int Traceback_M_index = 0; // First block of Traceback vector corresponds to M matrix.
+  int Traceback_A_index = 1; // Second block of Traceback vector corresponds to A matrix.
+  int Traceback_B_index = 2; // Third block of Traceback vector corresponds to B matrix.
+
+  // Initialize first row and first column for affine alignment.
   float Inf = std::numeric_limits<float>::infinity();
   for(int i = 0; i<=signalA_len; i++){
+    // Aligning ith character of signal A with 0th character of signal B without a gap. Not possible, hence, First column of M is initialized with -Inf.
     affineAlignObj.M[i*(signalB_len+1)+0] = -Inf;
+    // Score of the best alignment between ith character of A and 0th character of B that introduces a gap in A. Not possible, hence, First column of B is initialized with -Inf.
     affineAlignObj.B[i*(signalB_len+1)+0] = -Inf;
-    affineAlignObj.Traceback[0*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = SS; //STOP
-    affineAlignObj.Traceback[2*((signalA_len+1)*(signalB_len+1)) + i*(signalB_len+1)+0] = SS; //STOP
+    // It is impossible for traceback to reach the cells modified above, however, STOP alignment if it happens.
+    affineAlignObj.Traceback[Traceback_M_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = SS; //STOP
+    affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1)) + i*(signalB_len+1)+0] = SS; //STOP
     }
-
   for(int j = 0; j<=signalB_len; j++){
+    // Aligning 0th character of signal A with jth character of signal B without a gap. Not possible, hence, First row of M is initialized with -Inf.
     affineAlignObj.M[0*(signalB_len+1)+j] = -Inf;
+    // Score of the best alignment between 0th character of A and jth character of B that results a gap in B. Not possible, hence, First row of A is initialized with -Inf.
     affineAlignObj.A[0*(signalB_len+1)+j] = -Inf;
-    affineAlignObj.Traceback[0*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = SS; //STOP
-    affineAlignObj.Traceback[1*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = SS; //STOP
+    // It is impossible for traceback to reach the cells modified above, however, STOP alignment if it happens.
+    affineAlignObj.Traceback[Traceback_M_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = SS; //STOP
+    affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = SS; //STOP
     }
-  affineAlignObj.M[0*(signalB_len+1)+0] = 0;
+  affineAlignObj.M[0*(signalB_len+1)+0] = 0; // Match state (0,0) should have zero to begin the alignment.
 
+  // Fill up remaining cells of first row and first column for global and overlap alignment.
   if(affineAlignObj.FreeEndGaps == true){
+    // For overlap alignment, there is no gap penalty for alignment of ith character of A to 0th characters of B that results a gap in B.
+    // Hence, aligning ith character of A to gaps in B without any penalty.
+    // Since, consecutive elements of A are aligned to consecutive gaps in B. Therefore, we remain in A matrix for such alignment.
+    // Hence Traceback_matrix_A should have TA for these cells, except for Traceback_matrix_A(1,0). This cell indicates first gap and is reached from M(0,0).
     for(int i = 1; i<=signalA_len; i++){
       affineAlignObj.A[i*(signalB_len+1) + 0] = 0;
-      affineAlignObj.Traceback[1*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
+      affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
       }
+    affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ 1*(signalB_len+1)+0] = TM; //TOP M
+    // For overlap alignment, there is no gap penalty for alignment of zero characters of A to jth characters of B that results a gap in A.
+    // Hence, aligning jth character of B to gaps in A without any penalty.
+    // Since, consecutive elements of B are aligned to consecutive gaps in A. Therefore, we remain in B matrix for such alignment.
+    // Hence Traceback_matrix_B should have LB for these cells, except for Traceback_matrix_B(0,1). This cell indicates first gap and is reached from M(0,0).
     for(int j = 1; j<=signalB_len; j++){
       affineAlignObj.B[0*(signalB_len+1)+j] = 0;
-      affineAlignObj.Traceback[2*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
+      affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
       }
+    affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+1] = LM; //LEFT M
     }
   else {
-      for(int i = 1; i<=signalA_len; i++){
-        affineAlignObj.A[i*(signalB_len+1) + 0] = -(i-1)*ge - go;
-        affineAlignObj.Traceback[1*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
-        }
-      for(int j = 1; j<=signalB_len; j++){
-        affineAlignObj.B[0*(signalB_len+1)+j] = -(j-1)*ge - go;
-        affineAlignObj.Traceback[2*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
-        }
+    // In global alignment, penalty for alignment of ith character of A to 0th characters of B that results a gap in B =
+    // GapOpen + (i-1)*GapExten
+    // Since, consecutive elements of A are aligned to consecutive gaps in B. Therefore, we remain in A matrix for such alignment.
+    // Hence Traceback matrix for A should have TA for these cells.
+    for(int i = 1; i<=signalA_len; i++){
+      affineAlignObj.A[i*(signalB_len+1) + 0] = -(i-1)*ge - go;
+      affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
       }
+    affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ 1*(signalB_len+1)+0] = TM; //TOP M
+    // In global alignment, penalty for the alignment of zero characters of A to jth characters of B that results a gap in A =
+    // GapOpen + (j-1)*GapExten
+    // Since, consecutive elements of B are aligned to consecutive gaps in A. Therefore, we remain in B matrix for such alignment.
+    // Hence Traceback matrix for B should have LB for these cells.
+    for(int j = 1; j<=signalB_len; j++){
+      affineAlignObj.B[0*(signalB_len+1)+j] = -(j-1)*ge - go;
+      affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
+      }
+    affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+1] = LM; //LEFT M
+    }
 
-  // Perform dynamic programming for affine alignment
+  // Perform dynamic programming to fill matrix M, A and B for affine alignment
   float Diago, gapInA, gapInB;
   for(int i=1; i<=signalA_len; i++){
     for(int j=1; j<=signalB_len; j++){

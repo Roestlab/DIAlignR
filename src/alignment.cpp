@@ -9,8 +9,7 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   alignObj.signalA_len = signalA_len;
   alignObj.signalB_len = signalB_len;
 
-  NumericMatrix M;
-  M = initializeMatrix(0, signalA_len+1, signalB_len+1); // get a NumericMatrix filled with zeros.
+  NumericMatrix M = initializeMatrix(0, signalA_len+1, signalB_len+1); // get a NumericMatrix filled with zeros.
   std::vector<TracebackType> Traceback;
   Traceback.resize((signalA_len+1)*(signalB_len+1), SS); // Fill Traceback matrix with SS.
 
@@ -61,11 +60,10 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
       }
     }
   }
-  alignObj.Traceback = Traceback;
-  // Rcpp::Rcout << M << std::endl;
+  alignObj.Traceback = Traceback; // Copy traceback to alignObj
   for (int i = 0; i < signalA_len+1; i++) {
     for (int j = 0; j < signalB_len+1; j++) {
-      alignObj.M[i*(signalB_len+1) + j] = M(i, j); // Add an element (column) to the row
+      alignObj.M[i*(signalB_len+1) + j] = M(i, j); // Copy NumericMatrix M to alignObj.M vector
     }
   }
   // printMatrix(alignObj.M, signalA_len+1, signalB_len+1);

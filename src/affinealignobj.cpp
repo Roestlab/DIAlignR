@@ -1,5 +1,6 @@
 #include "affinealignobj.h"
 
+// This function overloads << to display TracebackType.
 std::ostream& operator<<(std::ostream& out, const TracebackType value){
     const char* s = 0;
 #define PROCESS_VAL(p) case(p): s = #p; break;
@@ -19,6 +20,7 @@ std::ostream& operator<<(std::ostream& out, const TracebackType value){
     return out << s;
 }
 
+// This function converts TracebackType Enum to characters.
 std::vector<char> EnumToChar(std::vector<TracebackType> v) {
   std::vector<char> nv(v.begin(), v.end());
   for (auto& it : nv) it += 48;
