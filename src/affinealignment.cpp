@@ -59,7 +59,7 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
     // In global alignment, penalty for alignment of ith character of A to 0th characters of B that results a gap in B =
     // GapOpen + (i-1)*GapExten
     // Since, consecutive elements of A are aligned to consecutive gaps in B. Therefore, we remain in A matrix for such alignment.
-    // Hence Traceback matrix for A should have TA for these cells.
+    // Hence Traceback_matrix_A should have TA for these cells.
     for(int i = 1; i<=signalA_len; i++){
       affineAlignObj.A[i*(signalB_len+1) + 0] = -(i-1)*ge - go;
       affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
@@ -68,7 +68,7 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
     // In global alignment, penalty for the alignment of zero characters of A to jth characters of B that results a gap in A =
     // GapOpen + (j-1)*GapExten
     // Since, consecutive elements of B are aligned to consecutive gaps in A. Therefore, we remain in B matrix for such alignment.
-    // Hence Traceback matrix for B should have LB for these cells.
+    // Hence Traceback_matrix_B should have LB for these cells.
     for(int j = 1; j<=signalB_len; j++){
       affineAlignObj.B[0*(signalB_len+1)+j] = -(j-1)*ge - go;
       affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
@@ -77,59 +77,68 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
     }
 
   // Perform dynamic programming to fill matrix M, A and B for affine alignment
-  float Diago, gapInA, gapInB;
+  float Diago, InsertInA, InsertInB;
   for(int i=1; i<=signalA_len; i++){
     for(int j=1; j<=signalB_len; j++){
-      float sI_1J_1 = s(i-1, j-1);
-      Diago = affineAlignObj.M[(i-1)*(signalB_len+1)+j-1] + sI_1J_1;
-      gapInA = affineAlignObj.A[(i-1)*(signalB_len+1)+j-1] + sI_1J_1;
-      gapInB = affineAlignObj.B[(i-1)*(signalB_len+1)+j-1] + sI_1J_1;
+      float sI_1J_1 = s(i-1, j-1); // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
+      Diago = affineAlignObj.M[(i-1)*(signalB_len+1)+j-1] + sI_1J_1; // M(i-1, j-1) means Ai-1 is aligned to Bj-1.
+      InsertInA = affineAlignObj.A[(i-1)*(signalB_len+1)+j-1] + sI_1J_1; // A(i-1, j-1) means Ai-1 is aligned to a gap in B.
+      InsertInB = affineAlignObj.B[(i-1)*(signalB_len+1)+j-1] + sI_1J_1; // B(i-1, j-1) means Bj-1 is aligned to a gap in A.
 
-      // Calculate recursively for matched alignment
-      if(Diago>=gapInA && Diago>=gapInB){
-        affineAlignObj.Traceback[0*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = DM; // DM: Diagonal TrM
+      // Calculate recursively for matched state or diagonal alignment
+      if(Diago>=InsertInA && Diago>=InsertInB){
+        // Given that signal Ai-1 is aligned to signal Bj-1, signal Ai is aligned to signal Bj. Hence Traceback_matrix_M = DM.
+        affineAlignObj.Traceback[Traceback_M_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = DM; // DM: Diagonal TrM
         affineAlignObj.M[i*(signalB_len+1)+j] = Diago;
         }
-      else if (gapInA>=Diago && gapInA>=gapInB){
-        affineAlignObj.Traceback[0*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = DA; // DA: Diagonal TrA
-        affineAlignObj.M[i*(signalB_len+1)+j] = gapInA;
+      else if (InsertInA>=Diago && InsertInA>=InsertInB){
+        // given InsertInA in the last alignment and a diagobal alignment in current step, the traceback will be DA.
+        affineAlignObj.Traceback[Traceback_M_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = DA; // DA: Diagonal TrA
+        affineAlignObj.M[i*(signalB_len+1)+j] = InsertInA;
         }
       else{
-        affineAlignObj.Traceback[0*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = DB; // DB: Diagonal TrB
-        affineAlignObj.M[i*(signalB_len+1)+j] = gapInB;
+        // given InsertInB in the last alignment and a diagobal alignment in current step, the traceback will be DB.
+        affineAlignObj.Traceback[Traceback_M_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = DB; // DB: Diagonal TrB
+        affineAlignObj.M[i*(signalB_len+1)+j] = InsertInB;
         }
 
-      // Calculate recursively for gap in signalB
-      float AfromM = affineAlignObj.M[(i-1)*(signalB_len+1)+j] - go;
-      float AfromA = affineAlignObj.A[(i-1)*(signalB_len+1)+j] - ge;
-      float AfromB = affineAlignObj.B[(i-1)*(signalB_len+1)+j] - go;
+      // Calculate recursively for insert in signalA. signalA is along rows, hence entries would be either TM, TA or TB.
+      float AfromM = affineAlignObj.M[(i-1)*(signalB_len+1)+j] - go; // Signal Ai-1 is aligned to Bj. Ai is aligned to a gap. So gap opening penalty is subtracted.
+      float AfromA = affineAlignObj.A[(i-1)*(signalB_len+1)+j] - ge; // Signal Ai-1 is already aligned to a gap. Ai is aligned to a gap. So gap extension penalty is subtracted.
+      float AfromB = affineAlignObj.B[(i-1)*(signalB_len+1)+j] - go; // Signal Ai-1 (gap) is aligned to signal Bj. Ai is aligned to a gap in B. So a gap in B is introduced, thus, gap opening penalty is subtracted.
       if(AfromM >= AfromA && AfromM >= AfromB){
-        affineAlignObj.Traceback[1*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = TM; // TM: Top TrM
+        // Given signal Ai is aligned to gap and signal Ai-1 is aligned to Bj, The way to traceback is TM (Top from A to M).
+        affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = TM; // TM: Top TrM
         affineAlignObj.A[i*(signalB_len+1)+j] = AfromM;
         }
       else if (AfromA >= AfromM && AfromA >= AfromB){
-        affineAlignObj.Traceback[1*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = TA; // TA: Top TrA
+        // Given signal Ai is aligned to gap and signal Ai-1 is already aligned to gap, The way to traceback is TA (Top from A to A).
+        affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = TA; // TA: Top TrA
         affineAlignObj.A[i*(signalB_len+1)+j] = AfromA;
         }
       else{
-        affineAlignObj.Traceback[1*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = TB; // TB: Top TrB
+        // Given signal Ai is aligned to gap and signal Ai-1 (gap) is aligned to Bj, The way to traceback is TB (Top from A to B).
+        affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = TB; // TB: Top TrB
         affineAlignObj.A[i*(signalB_len+1)+j] = AfromB;
         }
 
-      // Calculate recursively for gap in signalA
-      float BfromM = affineAlignObj.M[i*(signalB_len+1)+j-1] - go;
-      float BfromA = affineAlignObj.A[i*(signalB_len+1)+j-1] - go;
-      float BfromB = affineAlignObj.B[i*(signalB_len+1)+j-1] - ge;
+      // Calculate recursively for insert in signalB. signalB is along rows, hence entries would be either LM, LA or LB.
+      float BfromM = affineAlignObj.M[i*(signalB_len+1)+j-1] - go; // Signal Ai is aligned to Bj-1. Because Bj is aligned to a gap, so gap opening penalty is subtracted.
+      float BfromA = affineAlignObj.A[i*(signalB_len+1)+j-1] - go; // Signal Ai is aligned to signal Bj-1(gap). Because Bj is aligned to a gap, so a gap in A is introduced, thus, gap opening penalty is subtracted.
+      float BfromB = affineAlignObj.B[i*(signalB_len+1)+j-1] - ge; // Signal Bj-1 is already aligned to a gap. Because  Bj is aligned to a gap also, so gap extension penalty is subtracted.
       if(BfromM >= BfromA && BfromM >= BfromB){
-        affineAlignObj.Traceback[2*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = LM; // LM: Left TrM
+        // Given signal Bj is aligned to gap and signal Ai is aligned to Bj-1, The way to traceback is LM (Left from B to M).
+        affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = LM; // LM: Left TrM
         affineAlignObj.B[i*(signalB_len+1)+j] = BfromM;
         }
       else if (BfromA >= BfromM && BfromA >= BfromB){
-        affineAlignObj.Traceback[2*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = LA; // LA: Left TrA
+        // Given signal Bj is aligned to a gap and signal Bj-1 (gap) is aligned to signal Ai, The way to traceback is LA (Left from B to A).
+        affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = LA; // LA: Left TrA
         affineAlignObj.B[i*(signalB_len+1)+j] = BfromA;
         }
       else{
-        affineAlignObj.Traceback[2*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = LB; // LB: Left TrB
+        // Given signal Bj is aligned to a gap and signal Bj-1 is already aligned to gap, The way to traceback is LB (Left from B to B).
+        affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = LB; // LB: Left TrB
         affineAlignObj.B[i*(signalB_len+1)+j] = BfromB;
         }
       }
@@ -350,3 +359,11 @@ float getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_SI
     affineAlignmentScore = maxScore;
     return affineAlignmentScore;
 }
+
+
+/***
+ * https://www.coursera.org/lecture/bioinformatics-pku/alignment-with-affine-gap-penalty-and-calculation-of-time-complexity-of-the-0ya7X
+ * https://www.cs.cmu.edu/~ckingsf/bioinfo-lectures/gaps.pdf
+ *
+ *
+ ***/
