@@ -153,9 +153,9 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
   }
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
-  AlignedIndices alignedIdx;
+  AlignedIndices alignedIdx; // initialize empty struct.
   TracebackType TracebackPointer;
-  tbJump MatName;
+  tbJump MatName; // Matrix name M = 0, A = 1 or B = 2
   float affineAlignmentScore;
   int ROW_IDX = affineAlignObj.signalA_len;
   int COL_IDX = affineAlignObj.signalB_len;
@@ -164,24 +164,29 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
 
   if(affineAlignObj.FreeEndGaps == true){
     // Overlap Alignment
+    // Maximum score and corresponding indices along the last column and last row is searched across all three matrices.
+    // Matrix name and maximum score indices are passed by reference.
     affineAlignmentScore = getOlapAffineAlignStartIndices(affineAlignObj.M, affineAlignObj.A, affineAlignObj.B, ROW_SIZE, COL_SIZE, ROW_IDX, COL_IDX, MatName);
     if(ROW_IDX != affineAlignObj.signalA_len){
+      // Maximum score is obtained in last column. Align all row indices below max-score-index to NA.
       for (int i = affineAlignObj.signalA_len; i>ROW_IDX; i--){
         alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), i);
-        alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
-        alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignmentScore);
+        alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA); // Insert NA in signalB.
+        alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
         }
       }
     else if (COL_IDX != affineAlignObj.signalB_len){
+      // Maximum score is obtained in last row. Align all column indices right to max-score-index to NA.
       for (int j = affineAlignObj.signalB_len; j>COL_IDX; j--){
-        alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
+        alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA); // Insert NA in signalA.
         alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), j);
-        alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignmentScore);
+        alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
         }
       }
     }
   else {
-    // Global Alignment
+    // Global Alignment, traceback starts at the bottom-right corner.
+    // Search for the matrix which has the highest score at bottom-right corner.
     float Mscore = affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX];
     float Ascore = affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX];
     float Bscore = affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX];
