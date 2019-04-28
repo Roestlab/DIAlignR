@@ -156,7 +156,7 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
 //' seq1 = "GCAT"; seq2 = "CAGTG"
 //' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
 //' objAffine_Global <- doAffineAlignment_S4(s, 4, 5, 22, 7, FALSE)
-//' objAffine_Global@score # -2 -4 -6 4 -33
+//' objAffine_Global@score # -2  -4  -6  4 -18
 //' objAffine_Olap <- doAffineAlignment_S4(s, 4, 5, 22, 7, TRUE)
 //' objAffine_Olap@score # 0 10 20 18 18 18
 //' @export
@@ -219,3 +219,5 @@ S4 rcpp_s4(std::string Name){
 // mat <- nucleotideSubstitutionMatrix(match = Match, mismatch = MisMatch, baseOnly = TRUE)
 // pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
+// pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
+// pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
