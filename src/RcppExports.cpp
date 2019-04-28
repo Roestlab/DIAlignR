@@ -74,17 +74,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_s4
-S4 rcpp_s4(std::string Name);
-RcppExport SEXP _DIAlignR_rcpp_s4(SEXP NameSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type Name(NameSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_s4(Name));
-    return rcpp_result_gen;
-END_RCPP
-}
 // initializeMatrix
 NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE);
 RcppExport SEXP _DIAlignR_initializeMatrix(SEXP initValSEXP, SEXP ROW_SIZESEXP, SEXP COL_SIZESEXP) {
@@ -105,7 +94,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_setAlignObj_S4", (DL_FUNC) &_DIAlignR_setAlignObj_S4, 2},
     {"_DIAlignR_doAlignment_S4", (DL_FUNC) &_DIAlignR_doAlignment_S4, 5},
     {"_DIAlignR_doAffineAlignment_S4", (DL_FUNC) &_DIAlignR_doAffineAlignment_S4, 6},
-    {"_DIAlignR_rcpp_s4", (DL_FUNC) &_DIAlignR_rcpp_s4, 1},
     {"_DIAlignR_initializeMatrix", (DL_FUNC) &_DIAlignR_initializeMatrix, 3},
     {NULL, NULL, 0}
 };

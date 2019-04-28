@@ -2,20 +2,28 @@
 % Please edit documentation in R/RcppExports.R
 \name{doAffineAlignment_S4}
 \alias{doAffineAlignment_S4}
-\title{Initialize a S4 object AffineAlignObj}
+\title{Perform affine global and overlap alignment on a similarity matrix}
 \usage{
 doAffineAlignment_S4(s, signalA_len, signalB_len, go, ge, OverlapAlignment)
 }
 \arguments{
-\item{seq1Len}{(int) Length of sequence1}
+\item{s}{(NumericMatrix) A numeric matrix with similarity values of two sequences or signals}
 
-\item{seq2Len}{(int) Length of sequence2}
+\item{signalA_len}{(int) Length of signalA or sequenceA. Expresses along the rows of s}
+
+\item{signalB_len}{(int) Length of signalB or sequenceB. Expresses along the columns of s}
+
+\item{go}{(float) Penalty for introducing first gap in alignment}
+
+\item{ge}{(float) Penalty for introducing subsequent gaps in alignment}
+
+\item{OverlapAlignment}{(bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment}
 }
 \value{
 affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 }
 \description{
-Initialize a S4 object AffineAlignObj
+Perform affine global and overlap alignment on a similarity matrix
 }
 \examples{
 # Get sequence similarity of two DNA strings
@@ -26,6 +34,13 @@ objAffine_Global <- doAffineAlignment_S4(s, 4, 5, 22, 7, FALSE)
 objAffine_Global@score # -2  -4  -6  4 -18
 objAffine_Olap <- doAffineAlignment_S4(s, 4, 5, 22, 7, TRUE)
 objAffine_Olap@score # 0 10 20 18 18 18
+
+seq1 = "CAT"; seq2 = "CAGTG"
+s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+objAffine_Global <- doAffineAlignment_S4(s, 3, 5, 22, 7, FALSE)
+objAffine_Global@score # 10  20  -2  -9 -11
+objAffine_Olap <- doAffineAlignment_S4(s, 3, 5, 22, 7, TRUE)
+objAffine_Olap@score # 10 20 18 18 18
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

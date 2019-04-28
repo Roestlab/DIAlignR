@@ -15,7 +15,7 @@ doAlignment_S4(s, signalA_len, signalB_len, gap, OverlapAlignment)
 
 \item{gap}{(float) Penalty for introducing gaps in alignment}
 
-\item{OverlapAlignment}{(bool) An inpul for gap-free alignment. False: Global alignment, True: Gap-free overlap alignment}
+\item{OverlapAlignment}{(bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment}
 }
 \value{
 AlignObj (S4class) An object from C++ class of AlignObj

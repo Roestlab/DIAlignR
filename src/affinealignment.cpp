@@ -218,7 +218,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
     // In the code below, we are appending future scores. Because, once we go to the M,A or B matrix.
     // we will not be able to tell which matrix we are currently in.
     case DM:
-      {
+      {// Go diagonal (Up-Left) to the matrix M.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       ROW_IDX = ROW_IDX-1;
@@ -228,7 +228,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     case DA:
-      {
+      {// Go diagonal (Up-Left) to the matrix A.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       ROW_IDX = ROW_IDX-1;
@@ -238,7 +238,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     case DB:
-      {
+      {// Go diagonal (Up-Left) to the matrix B.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       ROW_IDX = ROW_IDX-1;
@@ -248,7 +248,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     case TM:
-      {
+      {// Go up to the matrix M.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       ROW_IDX = ROW_IDX-1;
@@ -257,7 +257,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     case TA:
-      {
+      {// Go up to the matrix A.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       ROW_IDX = ROW_IDX-1;
@@ -266,7 +266,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     case TB:
-      {
+      {// Go up to the matrix B.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       ROW_IDX = ROW_IDX-1;
@@ -275,7 +275,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     case LM:
-      {
+      {// Go left to the matrix M.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       COL_IDX = COL_IDX-1;
@@ -285,7 +285,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       }
 
     case LA:
-      {
+      {// Go left to the matrix A.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       COL_IDX = COL_IDX-1;
@@ -294,7 +294,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     case LB:
-      {
+      {// Go left to the matrix B.
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       COL_IDX = COL_IDX-1;
@@ -303,36 +303,39 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       break;}
 
     }
+    // Read traceback for the next iteration.
     TracebackPointer = affineAlignObj.Traceback[MatName*ROW_SIZE*COL_SIZE+ROW_IDX*COL_SIZE+COL_IDX];
   }
-  alignedIdx.score.erase(alignedIdx.score.begin());
-  // for (auto i = alignedIdx.score.begin(); i != alignedIdx.score.end(); ++i)
-  //   Rcpp::Rcout << *i << ' ';
+  alignedIdx.score.erase(alignedIdx.score.begin()); // remove the firat index, since the score-traceback is ahead of aligned indices.
+  // Copy aligned indices to alignObj.
   affineAlignObj.indexA_aligned = alignedIdx.indexA_aligned;
   affineAlignObj.indexB_aligned = alignedIdx.indexB_aligned;
   affineAlignObj.score = alignedIdx.score;
   return;
 }
 
+// It finds start indices and matrix for tracebackin in case of overlap affine alignment.
 template<class T>
 float getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, tbJump &MatrixName){
-  float affineAlignmentScore;
-  float maxScore = -std::numeric_limits<float>::infinity();
+  float maxScore = -std::numeric_limits<float>::infinity(); //- Inf
   int MaxRowIndex, MaxColIndex;
   for(int i = 0; i < ROW_SIZE; i++){
     if(MatrixM[i*COL_SIZE+COL_SIZE-1] >= maxScore){
+      // Search the maximum score along the last column of M matrix
       MaxRowIndex = i;
       MaxColIndex = COL_SIZE-1;
       MatrixName = M;
       maxScore = MatrixM[i*COL_SIZE+COL_SIZE-1];
     }
     else if(MatrixA[i*COL_SIZE+COL_SIZE-1] >= maxScore){
+      // Search the maximum score along the last column of A matrix
       MaxRowIndex = i;
       MaxColIndex = COL_SIZE-1;
       MatrixName = A;
       maxScore = MatrixA[i*COL_SIZE+COL_SIZE-1];
       }
     else if(MatrixB[i*COL_SIZE+COL_SIZE-1] >= maxScore){
+      // Search the maximum score along the last column of B matrix
       MaxRowIndex = i;
       MaxColIndex = COL_SIZE-1;
       MatrixName = B;
@@ -341,30 +344,32 @@ float getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_SI
     }
   for (int j = 0; j < COL_SIZE; j++){
     if(MatrixM[(ROW_SIZE-1)*COL_SIZE+j] >= maxScore){
+      // Search the maximum score along the last row of M matrix
       MaxRowIndex = ROW_SIZE-1;
       MaxColIndex = j;
       MatrixName = M;
       maxScore = MatrixM[(ROW_SIZE-1)*COL_SIZE+j];
       }
     else if(MatrixA[(ROW_SIZE-1)*COL_SIZE+j] >= maxScore){
+      // Search the maximum score along the last row of A matrix
       MaxRowIndex = ROW_SIZE-1;
       MaxColIndex = j;
       MatrixName = A;
       maxScore = MatrixA[(ROW_SIZE-1)*COL_SIZE+j];
       }
     else if(MatrixB[(ROW_SIZE-1)*COL_SIZE+j] >= maxScore){
+      // Search the maximum score along the last row of B matrix
       MaxRowIndex = ROW_SIZE-1;
       MaxColIndex = j;
       MatrixName = B;
       maxScore = MatrixB[(ROW_SIZE-1)*COL_SIZE+j];
       }
     }
-    OlapStartRow = MaxRowIndex;
-    OlapStartCol = MaxColIndex;
-    affineAlignmentScore = maxScore;
-    return affineAlignmentScore;
+  // Copy max-score indices to pass-by-reference variables
+  OlapStartRow = MaxRowIndex;
+  OlapStartCol = MaxColIndex;
+  return maxScore;
 }
-
 
 /***
  * https://www.coursera.org/lecture/bioinformatics-pku/alignment-with-affine-gap-penalty-and-calculation-of-time-complexity-of-the-0ya7X

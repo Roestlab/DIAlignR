@@ -66,7 +66,7 @@ setAlignObj_S4 <- function(ROW_SIZE, COL_SIZE) {
 #' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
 #' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
 #' @param gap (float) Penalty for introducing gaps in alignment
-#' @param OverlapAlignment (bool) An inpul for gap-free alignment. False: Global alignment, True: Gap-free overlap alignment
+#' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
 #' @return AlignObj (S4class) An object from C++ class of AlignObj
 #' @examples
 #' # Get sequence similarity of two DNA strings
@@ -82,14 +82,18 @@ doAlignment_S4 <- function(s, signalA_len, signalB_len, gap, OverlapAlignment) {
     .Call(`_DIAlignR_doAlignment_S4`, s, signalA_len, signalB_len, gap, OverlapAlignment)
 }
 
-#' Initialize a S4 object AffineAlignObj
+#' Perform affine global and overlap alignment on a similarity matrix
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #' ORCID: 0000-0003-3500-8152
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-03-08
-#' @param seq1Len (int) Length of sequence1
-#' @param seq2Len (int) Length of sequence2
+#' @param s (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
+#' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
+#' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
+#' @param go (float) Penalty for introducing first gap in alignment
+#' @param ge (float) Penalty for introducing subsequent gaps in alignment
+#' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
 #' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 #' @examples
 #' # Get sequence similarity of two DNA strings
@@ -100,23 +104,16 @@ doAlignment_S4 <- function(s, signalA_len, signalB_len, gap, OverlapAlignment) {
 #' objAffine_Global@score # -2  -4  -6  4 -18
 #' objAffine_Olap <- doAffineAlignment_S4(s, 4, 5, 22, 7, TRUE)
 #' objAffine_Olap@score # 0 10 20 18 18 18
+#'
+#' seq1 = "CAT"; seq2 = "CAGTG"
+#' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+#' objAffine_Global <- doAffineAlignment_S4(s, 3, 5, 22, 7, FALSE)
+#' objAffine_Global@score # 10  20  -2  -9 -11
+#' objAffine_Olap <- doAffineAlignment_S4(s, 3, 5, 22, 7, TRUE)
+#' objAffine_Olap@score # 10 20 18 18 18
 #' @export
 doAffineAlignment_S4 <- function(s, signalA_len, signalB_len, go, ge, OverlapAlignment) {
     .Call(`_DIAlignR_doAffineAlignment_S4`, s, signalA_len, signalB_len, go, ge, OverlapAlignment)
-}
-
-#' Initialize a similarity matrix
-#'
-#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-#' ORCID: 0000-0003-3500-8152
-#' License: (c) Author (2019) + MIT
-#' Date: 2019-03-08
-#' @param seq1Len (int) Length of sequence1
-#' @param seq2Len (int) Length of sequence2
-#' @return s (S4class) A similarity matrix
-#' @export
-rcpp_s4 <- function(Name) {
-    .Call(`_DIAlignR_rcpp_s4`, Name)
 }
 
 #' Outputs a NumericMatrix of given row and column size.

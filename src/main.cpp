@@ -109,7 +109,7 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 //' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
 //' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
 //' @param gap (float) Penalty for introducing gaps in alignment
-//' @param OverlapAlignment (bool) An inpul for gap-free alignment. False: Global alignment, True: Gap-free overlap alignment
+//' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
 //' @return AlignObj (S4class) An object from C++ class of AlignObj
 //' @examples
 //' # Get sequence similarity of two DNA strings
@@ -141,14 +141,18 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
   return(x);
 }
 
-//' Initialize a S4 object AffineAlignObj
+//' Perform affine global and overlap alignment on a similarity matrix
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param seq1Len (int) Length of sequence1
-//' @param seq2Len (int) Length of sequence2
+//' @param s (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
+//' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
+//' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
+//' @param go (float) Penalty for introducing first gap in alignment
+//' @param ge (float) Penalty for introducing subsequent gaps in alignment
+//' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 //' @examples
 //' # Get sequence similarity of two DNA strings
@@ -159,14 +163,19 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
 //' objAffine_Global@score # -2  -4  -6  4 -18
 //' objAffine_Olap <- doAffineAlignment_S4(s, 4, 5, 22, 7, TRUE)
 //' objAffine_Olap@score # 0 10 20 18 18 18
+//'
+//' seq1 = "CAT"; seq2 = "CAGTG"
+//' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+//' objAffine_Global <- doAffineAlignment_S4(s, 3, 5, 22, 7, FALSE)
+//' objAffine_Global@score # 10  20  -2  -9 -11
+//' objAffine_Olap <- doAffineAlignment_S4(s, 3, 5, 22, 7, TRUE)
+//' objAffine_Olap@score # 10 20 18 18 18
 //' @export
 // [[Rcpp::export]]
 S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
-  AffineAlignObj obj(signalA_len+1, signalB_len+1);
-  obj = doAffineAlignment(s, signalA_len, signalB_len, go, ge, OverlapAlignment);
-  getAffineAlignedIndices(obj);
-  // printMatrix(obj.M, signalA_len+1, signalB_len+1);
-  // getAlignedIndices(obj);
+  AffineAlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AffineAlignObj struct
+  obj = doAffineAlignment(s, signalA_len, signalB_len, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
+  getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
   x.slot("M")  = obj.M;
@@ -181,26 +190,6 @@ S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
-  return(x);
-}
-
-//' Initialize a similarity matrix
-//'
-//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-//' ORCID: 0000-0003-3500-8152
-//' License: (c) Author (2019) + MIT
-//' Date: 2019-03-08
-//' @param seq1Len (int) Length of sequence1
-//' @param seq2Len (int) Length of sequence2
-//' @return s (S4class) A similarity matrix
-//' @export
-// [[Rcpp::export]]
-S4 rcpp_s4(std::string Name){
-  // Creating an object of Person class
-  S4 x("Person");
-  // Setting values to the slots
-  x.slot("name")  = Name;
-  x.slot("birth") = Date("1889-12-21");
   return(x);
 }
 
