@@ -104,17 +104,17 @@ void getAlignedIndices(AlignObj &alignObj){
     if(ROW_IDX != alignObj.signalA_len){
       // Maximum score is obtained in last column. Align all row indices below max-score-index to NA.
       for (int i = alignObj.signalA_len; i>ROW_IDX; i--){
-        alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), i);
-        alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA); // Insert NA in signalB.
-        alignedIdx.score.insert(alignedIdx.score.begin(), maxScore); // Insert maxScore instead of score from the matrix M.
+        alignedIdx.indexA_aligned.push_back(i);
+        alignedIdx.indexB_aligned.push_back(NA); // Insert NA in signalB.
+        alignedIdx.score.push_back(maxScore); // Insert maxScore instead of score from the matrix M.
       }
     }
     else if (COL_IDX != alignObj.signalB_len){
       // Maximum score is obtained in last row. Align all column indices right to max-score-index to NA.
       for (int j = alignObj.signalB_len; j>COL_IDX; j--){
-        alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA); // Insert NA in signalA.
-        alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), j);
-        alignedIdx.score.insert(alignedIdx.score.begin(), maxScore); // Insert maxScore instead of score from the matrix M.
+        alignedIdx.indexA_aligned.push_back(NA); // Insert NA in signalA.
+        alignedIdx.indexB_aligned.push_back(j);
+        alignedIdx.score.push_back(maxScore); // Insert maxScore instead of score from the matrix M.
       }
     }
   }
@@ -129,9 +129,9 @@ void getAlignedIndices(AlignObj &alignObj){
     switch(TracebackPointer){
     case DM: {
       // Go diagonal (Up-Left) in the matrix M.
-      alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
-      alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
-      alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      alignedIdx.indexA_aligned.push_back(ROW_IDX);
+      alignedIdx.indexB_aligned.push_back(COL_IDX);
+      alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       ROW_IDX = ROW_IDX - 1;
       COL_IDX = COL_IDX - 1;
       break;
@@ -139,18 +139,18 @@ void getAlignedIndices(AlignObj &alignObj){
     case TM:
     {
       // Go up in the matrix M.
-      alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
-      alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
-      alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      alignedIdx.indexA_aligned.push_back(ROW_IDX);
+      alignedIdx.indexB_aligned.push_back(NA);
+      alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       ROW_IDX = ROW_IDX - 1;
       break;
     }
     case LM:
     {
       // Go left in the matrix M.
-      alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
-      alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
-      alignedIdx.score.insert(alignedIdx.score.begin(), alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      alignedIdx.indexA_aligned.push_back(NA);
+      alignedIdx.indexB_aligned.push_back(COL_IDX);
+      alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       COL_IDX = COL_IDX - 1;
       break;
     }
@@ -158,6 +158,10 @@ void getAlignedIndices(AlignObj &alignObj){
     // Read traceback for the next iteration.
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
   }
+  // push_back adds values at the end of vector, therefore, reverse the vector.
+  std::reverse(std::begin(alignedIdx.indexA_aligned), std::end(alignedIdx.indexA_aligned));
+  std::reverse(std::begin(alignedIdx.indexB_aligned), std::end(alignedIdx.indexB_aligned));
+  std::reverse(std::begin(alignedIdx.score), std::end(alignedIdx.score));
   // Copy aligned indices to alignObj.
   alignObj.indexA_aligned = alignedIdx.indexA_aligned;
   alignObj.indexB_aligned = alignedIdx.indexB_aligned;
