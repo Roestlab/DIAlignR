@@ -150,6 +150,15 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
 //' @param seq1Len (int) Length of sequence1
 //' @param seq2Len (int) Length of sequence2
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @examples
+//' # Get sequence similarity of two DNA strings
+//' Match=10; MisMatch=-2
+//' seq1 = "GCAT"; seq2 = "CAGTG"
+//' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+//' objAffine_Global <- doAffineAlignment_S4(s, 4, 5, 22, 7, FALSE)
+//' objAffine_Global@score # -2 -4 -6 4 -33
+//' objAffine_Olap <- doAffineAlignment_S4(s, 4, 5, 22, 7, TRUE)
+//' objAffine_Olap@score # 0 10 20 18 18 18
 //' @export
 // [[Rcpp::export]]
 S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
@@ -158,9 +167,8 @@ S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float
   getAffineAlignedIndices(obj);
   // printMatrix(obj.M, signalA_len+1, signalB_len+1);
   // getAlignedIndices(obj);
-  // Creating an object of Person class
-  S4 x("AffineAlignObj");
-  // Setting values to the slots
+  S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
+  // Copying values to slots
   x.slot("M")  = obj.M;
   x.slot("A")  = obj.A;
   x.slot("B")  = obj.B;

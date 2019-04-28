@@ -204,110 +204,104 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       }
     }
 
-  alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
-  alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
-  alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignmentScore);
   TracebackPointer = affineAlignObj.Traceback[MatName*ROW_SIZE*COL_SIZE+ROW_IDX*COL_SIZE+COL_IDX];
   // Traceback path and align row indices to column indices.
 
   while(TracebackPointer != SS){
+    // SS: STOP when top-left corner of the matrix is reached
     // D: Diagonal, T: Top, L: Left
     switch(TracebackPointer){
     // In the code below, we are appending future values. Because, once we go to the M,A or B matrix.
     // we will not be able to tell which matrix we are currently in.
     case DM:
       {
-      ROW_IDX = ROW_IDX-1;
-      MatName = M;
-      COL_IDX = COL_IDX-1;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX-1;
+      MatName = M;
+      COL_IDX = COL_IDX-1;
       break;}
 
     case DA:
       {
-      ROW_IDX = ROW_IDX-1;
-      COL_IDX = COL_IDX-1;
-      MatName = A;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX-1;
+      COL_IDX = COL_IDX-1;
+      MatName = A;
       break;}
 
     case DB:
       {
-      ROW_IDX = ROW_IDX-1;
-      COL_IDX = COL_IDX-1;
-      MatName = B;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX-1;
+      COL_IDX = COL_IDX-1;
+      MatName = B;
       break;}
 
     case TM:
       {
-      ROW_IDX = ROW_IDX-1;
-      MatName = M;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX-1;
+      MatName = M;
       break;}
 
     case TA:
       {
-      ROW_IDX = ROW_IDX-1;
-      MatName = A;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX-1;
+      MatName = A;
       break;}
 
     case TB:
       {
-      ROW_IDX = ROW_IDX-1;
-      MatName = B;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), ROW_IDX);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), NA);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
+      ROW_IDX = ROW_IDX-1;
+      MatName = B;
       break;}
 
     case LM:
       {
-      COL_IDX = COL_IDX-1;
-      MatName = M;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      COL_IDX = COL_IDX-1;
+      MatName = M;
       break;
       }
 
     case LA:
       {
-      COL_IDX = COL_IDX-1;
-      MatName = A;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
+      COL_IDX = COL_IDX-1;
+      MatName = A;
       break;}
 
     case LB:
       {
-      COL_IDX = COL_IDX-1;
-      MatName = B;
       alignedIdx.indexA_aligned.insert(alignedIdx.indexA_aligned.begin(), NA);
       alignedIdx.indexB_aligned.insert(alignedIdx.indexB_aligned.begin(), COL_IDX);
       alignedIdx.score.insert(alignedIdx.score.begin(), affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
+      COL_IDX = COL_IDX-1;
+      MatName = B;
       break;}
     }
-
     TracebackPointer = affineAlignObj.Traceback[MatName*ROW_SIZE*COL_SIZE+ROW_IDX*COL_SIZE+COL_IDX];
   }
   // for (auto i = alignedIdx.score.begin(); i != alignedIdx.score.end(); ++i)
   //   Rcpp::Rcout << *i << ' ';
-  alignedIdx.score.erase(alignedIdx.score.begin());
-  alignedIdx.indexA_aligned.erase(alignedIdx.indexA_aligned.begin());
-  alignedIdx.indexB_aligned.erase(alignedIdx.indexB_aligned.begin());
   affineAlignObj.indexA_aligned = alignedIdx.indexA_aligned;
   affineAlignObj.indexB_aligned = alignedIdx.indexB_aligned;
   affineAlignObj.score = alignedIdx.score;
