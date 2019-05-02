@@ -22,6 +22,27 @@ getSeqSimMat <- function(seq1, seq2, Match, MisMatch) {
     .Call(`_DIAlignR_getSeqSimMat`, seq1, seq2, Match, MisMatch)
 }
 
+#' Calculate similarity matrix of two fragment-ion chromatogram sets.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-03-05
+#' @param seq1 (char) A single string
+#' @param seq2 (char) A single string
+#' @param Match (float) Score for character match
+#' @param MisMatch (float) score for character mismatch
+#' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
+#' @examples
+#' # Get sequence similarity of two DNA strings
+#' Match=10; MisMatch=-2
+#' seq1 = "GCAT"; seq2 = "CAGTG"
+#' getChromSimMat(seq1, seq2, Match, MisMatch)
+#' @export
+getChromSimMat <- function() {
+    invisible(.Call(`_DIAlignR_getChromSimMat`))
+}
+
 #' Get a dummy S4 object of C++ class AffineAlignObj
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

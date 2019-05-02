@@ -19,6 +19,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getChromSimMat
+void getChromSimMat();
+RcppExport SEXP _DIAlignR_getChromSimMat() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    getChromSimMat();
+    return R_NilValue;
+END_RCPP
+}
 // setAffineAlignObj_S4
 S4 setAffineAlignObj_S4(int ROW_SIZE, int COL_SIZE);
 RcppExport SEXP _DIAlignR_setAffineAlignObj_S4(SEXP ROW_SIZESEXP, SEXP COL_SIZESEXP) {
@@ -90,6 +99,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_getSeqSimMat", (DL_FUNC) &_DIAlignR_getSeqSimMat, 4},
+    {"_DIAlignR_getChromSimMat", (DL_FUNC) &_DIAlignR_getChromSimMat, 0},
     {"_DIAlignR_setAffineAlignObj_S4", (DL_FUNC) &_DIAlignR_setAffineAlignObj_S4, 2},
     {"_DIAlignR_setAlignObj_S4", (DL_FUNC) &_DIAlignR_setAlignObj_S4, 2},
     {"_DIAlignR_doAlignment_S4", (DL_FUNC) &_DIAlignR_doAlignment_S4, 5},

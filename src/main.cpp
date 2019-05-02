@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include "simpleFcn.h"
+#include "chromSimMatrix.h"
 #include "alignment.h"
 #include "affinealignobj.h"
 #include "affinealignment.h"
@@ -37,6 +38,34 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
   }
   return(s);
 }
+
+//' Calculate similarity matrix of two fragment-ion chromatogram sets.
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-05
+//' @param seq1 (char) A single string
+//' @param seq2 (char) A single string
+//' @param Match (float) Score for character match
+//' @param MisMatch (float) score for character mismatch
+//' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
+//' @examples
+//' # Get sequence similarity of two DNA strings
+//' Match=10; MisMatch=-2
+//' seq1 = "GCAT"; seq2 = "CAGTG"
+//' getChromSimMat(seq1, seq2, Match, MisMatch)
+//' @export
+// [[Rcpp::export]]
+void getChromSimMat(){
+  std::vector<std::vector<double> > vec;
+  vec.push_back({1.0,3.0,2.0});
+  vec.push_back({0.0,0.0,0.0});
+  vec.push_back({4.0,4.0,4.0});
+  double mean_d1 = meanVecOfVec(vec);
+  Rcpp::Rcout << mean_d1 << std::endl;
+}
+
 
 //' Get a dummy S4 object of C++ class AffineAlignObj
 //'
@@ -210,3 +239,28 @@ S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
 // pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
+
+// Comparing the alignment with
+/***
+gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
+simMeasure <- "dotProductMasked"
+run_pair <- c("run1", "run2")
+  Err <- matrix(NA, nrow = length(peptides), ncol = 1)
+  rownames(Err) <- peptides
+  for(peptide in peptides){
+    s <- getSimilarityMatrix(StrepChroms, peptide, run_pair[1], run_pair[2], type = simMeasure)
+    gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
+    Alignobj <- doAffineAlignment_S4(s, nrow(s), ncol(s), go = gapPenalty*goFactor, ge = gapPenalty*geFactor, OverlapAlignment = TRUE)
+    AlignedIndices <- cbind(Alignobj@indexA_aligned, Alignobj@indexB_aligned, Alignobj@score)
+    colnames(AlignedIndices) <- c("indexA_aligned", "indexB_aligned", "score")
+    AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
+    tA <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
+    tB <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
+    tA.aligned <- mapIdxToTime(tA, AlignedIndices[,"indexA_aligned"])
+    tB.aligned <- mapIdxToTime(tB, AlignedIndices[,"indexB_aligned"])
+    predictTime <- tB.aligned[which.min(abs(tA.aligned - StrepAnnot[peptide, run_pair[1]]))]
+    deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
+    Err[peptide, 1] <- deltaT
+  }
+sum(abs(Err[,1])) # 49.2
+***/
