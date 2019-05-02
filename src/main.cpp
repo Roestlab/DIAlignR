@@ -60,29 +60,20 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
 void getChromSimMat(){
   std::vector<std::vector<double> > r1;
   std::vector<std::vector<double> > r2;
+  std::vector<std::vector<double> > r3;
   r1.push_back({1.0,3.0,2.0,4.0});
   r1.push_back({0.0,0.0,0.0,1.0});
   r1.push_back({4.0,4.0,4.0,5.0});
   r2.push_back({1.4,2.0,1.5,4.0});
   r2.push_back({0.0,0.5,0.0,0.0});
   r2.push_back({2.0,3.0,4.0,0.9});
-  double mean_d1 = meanVecOfVec(r1);
-  std::vector<std::vector<double>> d1_new = divideVecOfVec(r1, mean_d1);
-  for(const auto& v : d1_new){
-    for(const auto& i : v){
-      Rcpp::Rcout << i << " ";
-      }
-    Rcpp::Rcout << std::endl;
-    };
-  for(const auto& v : r1){
-    for(const auto& i : v){
-      Rcpp::Rcout << i << " ";
-    }
-    Rcpp::Rcout << std::endl;
-  };
   SimMatrix s = SumOuterProdMeanNormFrag(r1, r2);
+  //printMatrix(s.data, s.n_row, s.n_col);
+  s = SumOuterProdL2NormFrag(r1, r2);
+  //printMatrix(s.data, s.n_row, s.n_col);
+  s = SumOuterEuclMeanNormFrag(r1, r2);
   printMatrix(s.data, s.n_row, s.n_col);
-  Rcpp::Rcout << mean_d1 << std::endl;
+  // Rcpp::Rcout << mean_d1 << std::endl;
 }
 
 
@@ -266,6 +257,8 @@ MeanNormA <- sapply(r1, function(x) sum(x)/4)
 MeanNormA <- mean(MeanNormA)
 MeanNormB <- sapply(r2, function(x) sum(x)/4)
 MeanNormB <- mean(MeanNormB)
+L2NormA <- sqrt(sum(unlist(r1)^2))
+L2NormB <- sqrt(sum(unlist(r2)^2))
 outerProdList <- list()
 for (i in 1:3){
   NormIntensityA <- r1[[i]]/MeanNormA

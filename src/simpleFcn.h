@@ -6,6 +6,8 @@
 #include "affinealignobj.h"
 using namespace Rcpp;
 
+#define PRECONDITION(condition, message) assert(condition); // If you don't put the message, C++ will output the code.
+
 //' Outputs a NumericMatrix of given row and column size.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
