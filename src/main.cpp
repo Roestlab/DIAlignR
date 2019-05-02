@@ -63,6 +63,20 @@ void getChromSimMat(){
   vec.push_back({0.0,0.0,0.0});
   vec.push_back({4.0,4.0,4.0});
   double mean_d1 = meanVecOfVec(vec);
+  std::vector<std::vector<double>> d1_new = divideVecOfVec(vec, mean_d1);
+  for(const auto& v : d1_new){
+    for(const auto& i : v){
+      Rcpp::Rcout << i << " ";
+      }
+    Rcpp::Rcout << std::endl;
+    };
+  for(const auto& v : vec){
+    for(const auto& i : v){
+      Rcpp::Rcout << i << " ";
+    }
+    Rcpp::Rcout << std::endl;
+  };
+
   Rcpp::Rcout << mean_d1 << std::endl;
 }
 

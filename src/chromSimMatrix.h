@@ -14,4 +14,6 @@ SimMatrix OuterProdMeanNormAllFunc(std::vector<std::vector<double>> d1, std::vec
 
 double meanVecOfVec(std::vector<std::vector<double>> d1);
 
+std::vector<std::vector<double>> divideVecOfVec(const std::vector<std::vector<double>>& d, double num);
+
 #endif // CHROMSIMMATRIX_H
