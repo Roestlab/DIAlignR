@@ -58,25 +58,30 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
 //' @export
 // [[Rcpp::export]]
 void getChromSimMat(){
-  std::vector<std::vector<double> > vec;
-  vec.push_back({1.0,3.0,2.0});
-  vec.push_back({0.0,0.0,0.0});
-  vec.push_back({4.0,4.0,4.0});
-  double mean_d1 = meanVecOfVec(vec);
-  std::vector<std::vector<double>> d1_new = divideVecOfVec(vec, mean_d1);
+  std::vector<std::vector<double> > r1;
+  std::vector<std::vector<double> > r2;
+  r1.push_back({1.0,3.0,2.0,4.0});
+  r1.push_back({0.0,0.0,0.0,1.0});
+  r1.push_back({4.0,4.0,4.0,5.0});
+  r2.push_back({1.4,2.0,1.5,4.0});
+  r2.push_back({0.0,0.5,0.0,0.0});
+  r2.push_back({2.0,3.0,4.0,0.9});
+  double mean_d1 = meanVecOfVec(r1);
+  std::vector<std::vector<double>> d1_new = divideVecOfVec(r1, mean_d1);
   for(const auto& v : d1_new){
     for(const auto& i : v){
       Rcpp::Rcout << i << " ";
       }
     Rcpp::Rcout << std::endl;
     };
-  for(const auto& v : vec){
+  for(const auto& v : r1){
     for(const auto& i : v){
       Rcpp::Rcout << i << " ";
     }
     Rcpp::Rcout << std::endl;
   };
-
+  SimMatrix s = SumOuterProdMeanNormFrag(r1, r2);
+  printMatrix(s.data, s.n_row, s.n_col);
   Rcpp::Rcout << mean_d1 << std::endl;
 }
 
@@ -253,6 +258,23 @@ S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
 // pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
+
+/***
+r1 <- list(c(1.0,3.0,2.0,4.0), c(0.0,0.0,0.0,1.0), c(4.0,4.0,4.0,5.0))
+r2 <- list(c(1.4,2.0,1.5,4.0), c(0.0,0.5,0.0,0.0), c(2.0,3.0,4.0,0.9))
+MeanNormA <- sapply(r1, function(x) sum(x)/4)
+MeanNormA <- mean(MeanNormA)
+MeanNormB <- sapply(r2, function(x) sum(x)/4)
+MeanNormB <- mean(MeanNormB)
+outerProdList <- list()
+for (i in 1:3){
+  NormIntensityA <- r1[[i]]/MeanNormA
+  NormIntensityB <- r2[[i]]/MeanNormB
+  outerProdList[[i]] <- outer(NormIntensityA, NormIntensityB)
+  }
+add <- function(x) Reduce("+", x)
+add(outerProdList)
+***/
 
 // Comparing the alignment with
 /***
