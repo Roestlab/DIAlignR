@@ -68,10 +68,14 @@ void getChromSimMat(){
   r2.push_back({0.0,0.5,0.0,0.0});
   r2.push_back({2.0,3.0,4.0,0.9});
   SimMatrix s = SumOuterProdMeanNormFrag(r1, r2);
-  //printMatrix(s.data, s.n_row, s.n_col);
+  // printMatrix(s.data, s.n_row, s.n_col);
   s = SumOuterProdL2NormFrag(r1, r2);
-  //printMatrix(s.data, s.n_row, s.n_col);
+  // printMatrix(s.data, s.n_row, s.n_col);
   s = SumOuterEuclMeanNormFrag(r1, r2);
+  // printMatrix(s.data, s.n_row, s.n_col);
+  s = SumOuterCosineMeanNormFrag(r1, r2);
+  printMatrix(s.data, s.n_row, s.n_col);
+  s = SumOuterCosine(r1, r2);
   printMatrix(s.data, s.n_row, s.n_col);
   // Rcpp::Rcout << mean_d1 << std::endl;
 }

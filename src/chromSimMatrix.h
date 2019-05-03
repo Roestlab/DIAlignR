@@ -26,6 +26,8 @@ double meanVecOfVec(const std::vector<std::vector<double>>& vec);
 
 double eucLenVecOfVec(const std::vector<std::vector<double>>& vec);
 
+std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double>>& vec);
+
 void distToSim(SimMatrix& s, double offset, double Numerator);
 
 std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d);
@@ -38,6 +40,8 @@ void ElemWiseSumOuterProd(const std::vector<double>& d1, const std::vector<doubl
 
 void ElemWiseSumOuterEucl(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s);
 
+void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double>& d2, const std::vector<double>& d1_mag, const std::vector<double>& d2_mag, SimMatrix& s);
+
 SimMatrix SumOuterProdMeanNormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
 
 SimMatrix SumOuterProdL2NormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
@@ -48,6 +52,6 @@ SimMatrix SumOuterEuclL2NormFrag(const std::vector<std::vector<double>>& d1, con
 
 SimMatrix SumOuterCosineMeanNormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
 
-SimMatrix SumOuterCosineL2NormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
+SimMatrix SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
 
 #endif // CHROMSIMMATRIX_H

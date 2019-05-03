@@ -16,6 +16,19 @@ double eucLenVecOfVec(const std::vector<std::vector<double>>& vec){
   return std::sqrt(sos);
 }
 
+std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double>>& vec){
+  std::vector<double> mag;
+  mag.resize(vec[0].size(), 0.0);
+  int n_frag = vec.size();
+  for (int i = 0; i < mag.size(); i++){
+    for (int fragIon = 0; fragIon < n_frag; fragIon++){
+      mag[i] += vec[fragIon][i] * vec[fragIon][i];
+    }
+    mag[i] = std::sqrt(mag[i]);
+  }
+  return mag;
+}
+
 void distToSim(SimMatrix& s, double offset, double Numerator){
   std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::plus<double>(), std::placeholders::_1, offset));
   std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::divides<double>(), Numerator, std::placeholders::_1));
@@ -63,6 +76,21 @@ void ElemWiseSumOuterEucl(const std::vector<double>& d1, const std::vector<doubl
   for (int i = 0; i < nrow; i++){
     for(int j = 0; j < ncol; j++){
       s.data[i*ncol + j] += (d1[i]-d2[j]) * (d1[i]-d2[j]); // Summing outer product of vectors across fragment-ions.
+    }
+  }
+}
+
+void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double>& d2, const std::vector<double>& d1_mag, const std::vector<double>& d2_mag, SimMatrix& s){
+  PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+  PRECONDITION(d1_mag.size() == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  PRECONDITION(d2_mag.size() == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+
+  int nrow = s.n_row;
+  int ncol = s.n_col;
+  for (int i = 0; i < nrow; i++){
+    for(int j = 0; j < ncol; j++){
+      s.data[i*ncol + j] += d1[i]*d2[j]/(d1_mag[i]*d2_mag[j]); // Summing outer product of vectors across fragment-ions.
     }
   }
 }
@@ -149,7 +177,7 @@ SimMatrix SumOuterEuclL2NormFrag(const std::vector<std::vector<double>>& d1, con
   return s;
 }
 
-SimMatrix SumOuterCosineL2NormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2){
+SimMatrix SumOuterCosineMeanNormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2){
   PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
   PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
   SimMatrix s;
@@ -157,8 +185,31 @@ SimMatrix SumOuterCosineL2NormFrag(const std::vector<std::vector<double>>& d1, c
   s.n_col = d2[0].size();
   s.data.resize(s.n_row*s.n_col, 0.0);
   // L2 normalize each vector of vector.
-  std::vector<std::vector<double>> d1_new = L2NormalizeVecOfVec(d1);
-  std::vector<std::vector<double>> d2_new = L2NormalizeVecOfVec(d2);
+  std::vector<std::vector<double>> d1_new = meanNormalizeVecOfVec(d1);
+  std::vector<std::vector<double>> d2_new = meanNormalizeVecOfVec(d2);
+  std::vector<double> d1_mag = perSampleEucLenVecOfVec(d1_new);
+  std::vector<double> d2_mag = perSampleEucLenVecOfVec(d2_new);
+  int n_frag = d1.size();
+  for (int fragIon = 0; fragIon < n_frag; fragIon++){
+    ElemWiseOuterCosine(d1_new[fragIon], d2_new[fragIon], d1_mag, d2_mag, s);
+  }
+  return s;
+}
+
+SimMatrix SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2){
+  PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
+  PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
+  SimMatrix s;
+  s.n_row = d1[0].size();
+  s.n_col = d2[0].size();
+  s.data.resize(s.n_row*s.n_col, 0.0);
+  // No normalization needed for calculating cosine similarity.
+  std::vector<double> d1_mag = perSampleEucLenVecOfVec(d1);
+  std::vector<double> d2_mag = perSampleEucLenVecOfVec(d2);
+  int n_frag = d1.size();
+  for (int fragIon = 0; fragIon < n_frag; fragIon++){
+    ElemWiseOuterCosine(d1[fragIon], d2[fragIon], d1_mag, d2_mag, s);
+  }
   return s;
 }
 
