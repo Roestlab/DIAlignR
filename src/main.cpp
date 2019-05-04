@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include "simpleFcn.h"
+#include "interface.h"
 #include "chromSimMatrix.h"
 #include "alignment.h"
 #include "affinealignobj.h"
@@ -57,31 +58,15 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
 //' getChromSimMat(seq1, seq2, Match, MisMatch)
 //' @export
 // [[Rcpp::export]]
-void getChromSimMat(Rcpp::List l1, Rcpp::List l2){
-  std::vector<std::vector<double> > r1;
-  std::vector<std::vector<double> > r2;
-  std::vector<std::vector<double> > r3;
-  r1.push_back({1.0,3.0,2.0,4.0});
-  r1.push_back({0.0,0.0,0.0,1.0});
-  r1.push_back({4.0,4.0,4.0,5.0});
-  r2.push_back({1.4,2.0,1.5,4.0});
-  r2.push_back({0.0,0.5,0.0,0.0});
-  r2.push_back({2.0,3.0,4.0,0.9});
-  SimMatrix s = SumOuterProdMeanNormFrag(r1, r2);
+NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2){
+  std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
+  std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
+  // printVecOfVec(l1);
+  // printVecOfVec(l2);
+  SimMatrix s = SumOuterCosine(r1, r2);
   // printMatrix(s.data, s.n_row, s.n_col);
-  s = SumOuterProdL2NormFrag(r1, r2);
-  // printMatrix(s.data, s.n_row, s.n_col);
-  s = SumOuterEuclMeanNormFrag(r1, r2);
-  // printMatrix(s.data, s.n_row, s.n_col);
-  s = SumOuterCosineMeanNormFrag(r1, r2);
-  printMatrix(s.data, s.n_row, s.n_col);
-  s = SumOuterCosine(r1, r2);
-  printMatrix(s.data, s.n_row, s.n_col);
-  Rcpp::Rcout << l1.size() << std::endl;
-  NumericVector re = as<NumericVector>(l1[0]);
-  for (const auto& i : re) Rcpp::Rcout<< i << " ";
-  Rcpp::Rcout<< std::endl;
-  Rcpp::Rcout << typeid(l1).name() << std::endl; // N4Rcpp6VectorILi19ENS_15PreserveStorageEEE
+  NumericMatrix simMat = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+  return simMat;
 }
 
 

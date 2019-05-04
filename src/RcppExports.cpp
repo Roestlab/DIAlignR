@@ -20,14 +20,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // getChromSimMat
-void getChromSimMat(Rcpp::List l1, Rcpp::List l2);
+NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2);
 RcppExport SEXP _DIAlignR_getChromSimMat(SEXP l1SEXP, SEXP l2SEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type l1(l1SEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type l2(l2SEXP);
-    getChromSimMat(l1, l2);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(getChromSimMat(l1, l2));
+    return rcpp_result_gen;
 END_RCPP
 }
 // setAffineAlignObj_S4

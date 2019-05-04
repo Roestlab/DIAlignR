@@ -206,10 +206,6 @@ SimMatrix SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::
   // No normalization needed for calculating cosine similarity.
   std::vector<double> d1_mag = perSampleEucLenVecOfVec(d1);
   std::vector<double> d2_mag = perSampleEucLenVecOfVec(d2);
-  for (const auto& i : d1_mag) Rcpp::Rcout<< i << " ";
-  Rcpp::Rcout<< std::endl;
-  for (const auto& i : d2_mag) Rcpp::Rcout<< i << " ";
-  Rcpp::Rcout<< std::endl;
   int n_frag = d1.size();
   for (int fragIon = 0; fragIon < n_frag; fragIon++){
     ElemWiseOuterCosine(d1[fragIon], d2[fragIon], d1_mag, d2_mag, s);
