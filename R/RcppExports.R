@@ -39,8 +39,8 @@ getSeqSimMat <- function(seq1, seq2, Match, MisMatch) {
 #' seq1 = "GCAT"; seq2 = "CAGTG"
 #' getChromSimMat(seq1, seq2, Match, MisMatch)
 #' @export
-getChromSimMat <- function(l1, l2) {
-    .Call(`_DIAlignR_getChromSimMat`, l1, l2)
+getChromSimMat <- function(l1, l2, Normalization, SimType) {
+    .Call(`_DIAlignR_getChromSimMat`, l1, l2, Normalization, SimType)
 }
 
 #' Get a dummy S4 object of C++ class AffineAlignObj

@@ -4,7 +4,7 @@
 \alias{getChromSimMat}
 \title{Calculate similarity matrix of two fragment-ion chromatogram sets.}
 \usage{
-getChromSimMat(l1, l2)
+getChromSimMat(l1, l2, Normalization, SimType)
 }
 \arguments{
 \item{seq1}{(char) A single string}

@@ -42,16 +42,13 @@ void ElemWiseSumOuterEucl(const std::vector<double>& d1, const std::vector<doubl
 
 void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double>& d2, const std::vector<double>& d1_mag, const std::vector<double>& d2_mag, SimMatrix& s);
 
-SimMatrix SumOuterProdMeanNormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
+void SumOuterProd(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
-SimMatrix SumOuterProdL2NormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
+void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
-SimMatrix SumOuterEuclMeanNormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
+void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
-SimMatrix SumOuterEuclL2NormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
+SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType);
 
-SimMatrix SumOuterCosineMeanNormFrag(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
-
-SimMatrix SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2);
 
 #endif // CHROMSIMMATRIX_H

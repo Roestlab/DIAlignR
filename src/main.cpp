@@ -58,12 +58,14 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
 //' getChromSimMat(seq1, seq2, Match, MisMatch)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2){
+NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normalization, std::string SimType){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
   // printVecOfVec(l1);
   // printVecOfVec(l2);
-  SimMatrix s = SumOuterCosine(r1, r2);
+  // Rcpp::Rcout << Normalization << std::endl;
+  // Rcpp::Rcout << SimType << std::endl;
+  SimMatrix s = getSimilarityMatrix(r1, r2, Normalization, SimType);
   // printMatrix(s.data, s.n_row, s.n_col);
   NumericMatrix simMat = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return simMat;
