@@ -57,7 +57,7 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
 //' getChromSimMat(seq1, seq2, Match, MisMatch)
 //' @export
 // [[Rcpp::export]]
-void getChromSimMat(){
+void getChromSimMat(Rcpp::List l1, Rcpp::List l2){
   std::vector<std::vector<double> > r1;
   std::vector<std::vector<double> > r2;
   std::vector<std::vector<double> > r3;
@@ -77,7 +77,11 @@ void getChromSimMat(){
   printMatrix(s.data, s.n_row, s.n_col);
   s = SumOuterCosine(r1, r2);
   printMatrix(s.data, s.n_row, s.n_col);
-  // Rcpp::Rcout << mean_d1 << std::endl;
+  Rcpp::Rcout << l1.size() << std::endl;
+  NumericVector re = as<NumericVector>(l1[0]);
+  for (const auto& i : re) Rcpp::Rcout<< i << " ";
+  Rcpp::Rcout<< std::endl;
+  Rcpp::Rcout << typeid(l1).name() << std::endl; // N4Rcpp6VectorILi19ENS_15PreserveStorageEEE
 }
 
 
@@ -261,12 +265,14 @@ MeanNormA <- sapply(r1, function(x) sum(x)/4)
 MeanNormA <- mean(MeanNormA)
 MeanNormB <- sapply(r2, function(x) sum(x)/4)
 MeanNormB <- mean(MeanNormB)
-L2NormA <- sqrt(sum(unlist(r1)^2))
-L2NormB <- sqrt(sum(unlist(r2)^2))
+L2NormA <- sapply(r1, function(x) x)
+L2NormA <- sqrt(rowSums(L2NormA^2))
+L2NormB <- sapply(r2, function(x) x)
+L2NormB <- sqrt(rowSums(L2NormB^2))
 outerProdList <- list()
 for (i in 1:3){
-  NormIntensityA <- r1[[i]]/MeanNormA
-  NormIntensityB <- r2[[i]]/MeanNormB
+  NormIntensityA <- r1[[i]]/L2NormA
+  NormIntensityB <- r2[[i]]/L2NormB
   outerProdList[[i]] <- outer(NormIntensityA, NormIntensityB)
   }
 add <- function(x) Reduce("+", x)

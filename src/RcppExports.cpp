@@ -20,11 +20,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // getChromSimMat
-void getChromSimMat();
-RcppExport SEXP _DIAlignR_getChromSimMat() {
+void getChromSimMat(Rcpp::List l1, Rcpp::List l2);
+RcppExport SEXP _DIAlignR_getChromSimMat(SEXP l1SEXP, SEXP l2SEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    getChromSimMat();
+    Rcpp::traits::input_parameter< Rcpp::List >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type l2(l2SEXP);
+    getChromSimMat(l1, l2);
     return R_NilValue;
 END_RCPP
 }
@@ -99,7 +101,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_getSeqSimMat", (DL_FUNC) &_DIAlignR_getSeqSimMat, 4},
-    {"_DIAlignR_getChromSimMat", (DL_FUNC) &_DIAlignR_getChromSimMat, 0},
+    {"_DIAlignR_getChromSimMat", (DL_FUNC) &_DIAlignR_getChromSimMat, 2},
     {"_DIAlignR_setAffineAlignObj_S4", (DL_FUNC) &_DIAlignR_setAffineAlignObj_S4, 2},
     {"_DIAlignR_setAlignObj_S4", (DL_FUNC) &_DIAlignR_setAlignObj_S4, 2},
     {"_DIAlignR_doAlignment_S4", (DL_FUNC) &_DIAlignR_doAlignment_S4, 5},
