@@ -163,11 +163,13 @@ void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vecto
     // Mean normalize each vector of vector.
     d1_new = meanNormalizeVecOfVec(d1);
     d2_new = meanNormalizeVecOfVec(d2);
-  } else if(Normalization == "L2"){
+  }
+  else if(Normalization == "L2"){
     // L2 normalize each vector of vector.
     d1_new = L2NormalizeVecOfVec(d1);
     d2_new = L2NormalizeVecOfVec(d2);
-  } else {
+  }
+  else {
     d1_new = d1;
     d2_new = d2;
   }
@@ -178,6 +180,7 @@ void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vecto
   for (int fragIon = 0; fragIon < n_frag; fragIon++){
     ElemWiseOuterCosine(d1_new[fragIon], d2_new[fragIon], d1_mag, d2_mag, s);
   }
+  // TODO: Implement clamping function.
 }
 
 SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType){
@@ -185,7 +188,29 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   s.n_row = d1[0].size();
   s.n_col = d2[0].size();
   s.data.resize(s.n_row*s.n_col, 0.0);
-  SumOuterProd(d1, d2, Normalization, s);
+  if (SimType == "dotProductMasked"){
+    SumOuterProd(d1, d2, Normalization, s);
+    SimMatrix MASK;
+    MASK.n_row = s.n_row;
+    MASK.n_col = s.n_col;
+    MASK.data.resize(s.n_row*s.n_col, 0.0);
+    SumOuterCosine(d1, d2, Normalization, MASK);
+    for(auto& i : MASK.data) i = std::cos(2*std::acos(i));
+    // Implement quantile.
+    //
+  }
+  if (SimType == "dotProduct")
+    SumOuterProd(d1, d2, Normalization, s);
+  else if(SimType == "cosineAngle")
+    SumOuterCosine(d1, d2, Normalization, s);
+  else if(SimType == "cosine2Angle"){
+    SumOuterCosine(d1, d2, Normalization, s);
+    for(auto& i : s.data) i = std::cos(2*std::acos(i));
+  }
+  else if(SimType == "euclidianDist")
+    SumOuterEucl(d1, d2, Normalization, s);
+  else
+    SumOuterProd(d1, d2, Normalization, s);
   return s;
 }
 

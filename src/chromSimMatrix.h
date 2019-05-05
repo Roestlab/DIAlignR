@@ -11,7 +11,8 @@ struct SimMatrix
   int n_col;
 };
 
-// functor for getting sum of previous result and square of current element
+// functor for getting sum of previous result and square of current element.
+// TODO: Need to understand the implementation.
 template<typename T>
 struct square
 {
@@ -21,6 +22,8 @@ struct square
     return (Left + Right*Right);
   }
 };
+
+
 
 double meanVecOfVec(const std::vector<std::vector<double>>& vec);
 

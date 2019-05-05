@@ -1,5 +1,4 @@
 #include "interface.h"
-#include <Rcpp.h>
 
 std::vector<std::vector<double> > list2VecOfVec (Rcpp::List l){
   int len = l.size();
