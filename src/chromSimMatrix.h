@@ -23,7 +23,9 @@ struct square
   }
 };
 
+void clamp(std::vector<double>& vec, double minValue, double maxValue);
 
+double getQuantile(std::vector<double> vec, float quantile);
 
 double meanVecOfVec(const std::vector<std::vector<double>>& vec);
 

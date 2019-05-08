@@ -34,6 +34,17 @@ void distToSim(SimMatrix& s, double offset, double Numerator){
   std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::divides<double>(), Numerator, std::placeholders::_1));
 }
 
+void clamp(std::vector<double>& vec, double minValue, double maxValue){
+  for (auto& i : vec) {i = (i > maxValue) ? maxValue : i;
+    i = (i < minValue) ? minValue : i;}
+}
+
+double getQuantile(std::vector<double> vec, float quantile){
+  int idx = ceil(quantile*vec.size());
+  std::nth_element(vec.begin(), vec.begin()+1, vec.end(), std::less_equal<double>());
+  return vec[idx];
+}
+
 std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d){
   // Calculate overall mean and divide by it.
   double mean_d = meanVecOfVec(d);
@@ -180,7 +191,7 @@ void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vecto
   for (int fragIon = 0; fragIon < n_frag; fragIon++){
     ElemWiseOuterCosine(d1_new[fragIon], d2_new[fragIon], d1_mag, d2_mag, s);
   }
-  // TODO: Implement clamping function.
+  clamp(s.data, -1.0, 1.0); // Clamp the cosine similarity between -1.0 and 1.0
 }
 
 SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType){
@@ -196,7 +207,8 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     MASK.data.resize(s.n_row*s.n_col, 0.0);
     SumOuterCosine(d1, d2, Normalization, MASK);
     for(auto& i : MASK.data) i = std::cos(2*std::acos(i));
-    // Implement quantile.
+    double Quant = getQuantile(s.data, 0.98);
+    // Implement quantile. std::vector<double> buffer(sequence);
     //
   }
   if (SimType == "dotProduct")
@@ -206,6 +218,7 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   else if(SimType == "cosine2Angle"){
     SumOuterCosine(d1, d2, Normalization, s);
     for(auto& i : s.data) i = std::cos(2*std::acos(i));
+    clamp(s.data, -1.0, 1.0); // Clamp the cosine similarity between -1.0 and 1.0
   }
   else if(SimType == "euclidianDist")
     SumOuterEucl(d1, d2, Normalization, s);
