@@ -4,7 +4,8 @@
 \alias{getChromSimMat}
 \title{Calculate similarity matrix of two fragment-ion chromatogram group.}
 \usage{
-getChromSimMat(l1, l2, Normalization, SimType)
+getChromSimMat(l1, l2, Normalization, SimType, dotProdThresh = 0.96,
+  cosAngleThresh = 0.3)
 }
 \arguments{
 \item{l1}{(list) A list of vectors. Length should be same as of l2.}
@@ -26,7 +27,9 @@ Calculate similarity matrix of two fragment-ion chromatogram group.
 r1 <- list(c(1.0,3.0,2.0,4.0), c(0.0,0.0,0.0,1.0), c(4.0,4.0,4.0,5.0))
 r2 <- list(c(1.4,2.0,1.5,4.0), c(0.0,0.5,0.0,0.0), c(2.0,3.0,4.0,0.9))
 getChromSimMat(r1, r2, "L2", "dotProduct")
-matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509, 0.2395940, 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048, 0.3460802, 0.1011619, 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
+matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509,
+ 0.2395940, 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048,
+  0.3460802, 0.1011619, 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

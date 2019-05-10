@@ -53,7 +53,7 @@ void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<
 
 void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
-SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType);
+SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType, double cosAngleThresh, double dotProdThresh);
 
 
 #endif // CHROMSIMMATRIX_H

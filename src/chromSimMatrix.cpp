@@ -96,7 +96,6 @@ void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double
   PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
   PRECONDITION(d1_mag.size() == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
   PRECONDITION(d2_mag.size() == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
-
   int nrow = s.n_row;
   int ncol = s.n_col;
   for (int i = 0; i < nrow; i++){
@@ -194,22 +193,29 @@ void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vecto
   clamp(s.data, -1.0, 1.0); // Clamp the cosine similarity between -1.0 and 1.0
 }
 
-SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType){
+SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType, double cosAngleThresh, double dotProdThresh){
   SimMatrix s;
   s.n_row = d1[0].size();
   s.n_col = d2[0].size();
   s.data.resize(s.n_row*s.n_col, 0.0);
   if (SimType == "dotProductMasked"){
     SumOuterProd(d1, d2, Normalization, s);
-    SimMatrix MASK;
-    MASK.n_row = s.n_row;
-    MASK.n_col = s.n_col;
-    MASK.data.resize(s.n_row*s.n_col, 0.0);
-    SumOuterCosine(d1, d2, Normalization, MASK);
-    for(auto& i : MASK.data) i = std::cos(2*std::acos(i));
-    double Quant = getQuantile(s.data, 0.98);
-    // Implement quantile. std::vector<double> buffer(sequence);
-    //
+    SimMatrix s2;
+    s2.n_row = s.n_row;
+    s2.n_col = s.n_col;
+    s2.data.resize(s.n_row*s.n_col, 0.0);
+    SumOuterCosine(d1, d2, Normalization, s2);
+    for(auto& i : s2.data) i = std::cos(2*std::acos(i));
+    double Quant = getQuantile(s.data, dotProdThresh);
+    Quant = 0.67;
+    cosAngleThresh = 0.5;
+    std::vector<double> MASK;
+    MASK.resize(s.n_row*s.n_col, 0.0);
+    for(int i = 0; i < MASK.size(); i++){
+      MASK[i] = (s.data[i] < Quant) ? 0.0 : 1.0;
+      MASK[i] = (MASK[i]*s2.data[i] + (1.0-MASK[i]) > cosAngleThresh) ? 1.0 : 0.0;
+      s.data[i] = s.data[i] * MASK[i];
+    }
   }
   if (SimType == "dotProduct")
     SumOuterProd(d1, d2, Normalization, s);
