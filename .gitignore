@@ -1,4 +1,16 @@
+# Rstudio files
 .Rproj.user
+
+# Histpry files
 .Rhistory
+
+# Session data files
 .RData
+
+# User specific files
 .Ruserdata
+
+# Rcpp build file
+src/*.o
+src/*.so
+src/*.dll
