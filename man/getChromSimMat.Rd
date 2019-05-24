@@ -4,8 +4,8 @@
 \alias{getChromSimMat}
 \title{Calculate similarity matrix of two fragment-ion chromatogram group.}
 \usage{
-getChromSimMat(l1, l2, Normalization, SimType, dotProdThresh = 0.96,
-  cosAngleThresh = 0.3)
+getChromSimMat(l1, l2, Normalization, SimType, cosAngleThresh = 0.3,
+  dotProdThresh = 0.96)
 }
 \arguments{
 \item{l1}{(list) A list of vectors. Length should be same as of l2.}
