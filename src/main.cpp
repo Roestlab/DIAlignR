@@ -48,17 +48,40 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
 //' Date: 2019-03-05
 //' @param l1 (list) A list of vectors. Length should be same as of l2.
 //' @param l2 (list) A list of vectors. Length should be same as of l1.
-//' @param Normalization (char) Normalization to be used. L2, mean
-//' @param SimType (char) Method for calculating the similarity matrix. dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation.
+//' @param Normalization (char) A character string. Normalization must be selected from (L2, mean).
+//' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).
 //' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
 //' @examples
 //' # Get similarity matrix of dummy chromatograms
 //' r1 <- list(c(1.0,3.0,2.0,4.0), c(0.0,0.0,0.0,1.0), c(4.0,4.0,4.0,5.0))
 //' r2 <- list(c(1.4,2.0,1.5,4.0), c(0.0,0.5,0.0,0.0), c(2.0,3.0,4.0,0.9))
+//' getChromSimMat(r1, r2, "L2", "dotProductMasked")
+//' matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509, 0.2395940,
+//' 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048, 0.3460802, 0.1011619,
+//' 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
+//'
 //' getChromSimMat(r1, r2, "L2", "dotProduct")
 //' matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509,
 //'  0.2395940, 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048,
 //'   0.3460802, 0.1011619, 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
+//'
+//' getChromSimMat(r1, r2, "L2", "cosineAngle")
+//' matrix(c(0.9338568, 0.9994629, 0.9892035, 0.9859998, 0.9328152, 0.9889961,
+//'  0.9828722, 0.9961742, 0.9935327, 0.9597374, 0.9945055, 0.9391117, 0.4495782,
+//'  0.7609756, 0.6326436, 0.7715167), 4, 4, byrow = F)
+//'
+//' getChromSimMat(r1, r2, "L2", "cosine2Angle")
+//' matrix(c(0.7441769, 0.9978523, 0.9570470, 0.9443912, 0.7402886, 0.9562264, 0.9320755,
+//' 0.9847260, 0.9742143, 0.8421918, 0.9780822, 0.7638617, -0.5957588, 0.1581678,
+//' -0.1995241, 0.1904762), 4, 4, byrow = F)
+//'
+//' getChromSimMat(r1, r2, "L2", "euclidianDist")
+//' matrix(c(0.7387025, 0.7127694, 0.7250831, 0.6869622, 0.6984783, 0.6713737,
+//' 0.6842335, 0.6413183, 0.6744739, 0.6568703, 0.6653819, 0.6296096, 0.7586910,
+//' 0.6869622, 0.7179039, 0.6568703), 4, 4, byrow = F)
+//'
+//' getChromSimMat(r1, r2, "L2", "covariance")
+//' getChromSimMat(r1, r2, "L2", "correlation")
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normalization, std::string SimType, double dotProdThresh = 0.96, double cosAngleThresh = 0.3){
@@ -263,6 +286,11 @@ for (i in 1:3){
   }
 add <- function(x) Reduce("+", x)
 add(outerProdList)
+s1 <- getChromSimMat(r1, r2, "L2", "dotProduct")
+s2 <- getChromSimMat(r1, r2, "L2", "cosine2Angle")
+MASK <- (s1 > quantile(s1, 0.96))
+AngleGreat <- (((1*MASK)*s2) + (1-MASK)) > 0.3
+s <- s1*(1*AngleGreat)
 ***/
 
 // Comparing the alignment with

@@ -156,7 +156,7 @@ void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<
     ElemWiseSumOuterProd(d1_new[fragIon], d2_new[fragIon], s);
   }
   // Take sqrt to get eucledian distance from the sum of squared-differences.
-  // TODO std::ptr_fun<double, double> wHY?
+  // TODO std::ptr_fun<double, double> Why? Effectively calls std::pointer_to_unary_function<Arg,Result>(f)
   std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::ptr_fun<double, double>(sqrt));
   // Convert distance into similarity.
   distToSim(s, 1.0, 1.0); // similarity = Numerator/(offset + distance)
@@ -193,7 +193,9 @@ void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vecto
   clamp(s.data, -1.0, 1.0); // Clamp the cosine similarity between -1.0 and 1.0
 }
 
-SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType, double cosAngleThresh, double dotProdThresh){
+SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, \
+                              const std::string Normalization, const std::string SimType, double cosAngleThresh, \
+                              double dotProdThresh){
   SimMatrix s;
   s.n_row = d1[0].size();
   s.n_col = d2[0].size();
@@ -207,8 +209,7 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     SumOuterCosine(d1, d2, Normalization, s2);
     for(auto& i : s2.data) i = std::cos(2*std::acos(i));
     double Quant = getQuantile(s.data, dotProdThresh);
-    Quant = 0.67;
-    cosAngleThresh = 0.5;
+    Quant = 0.326114;
     std::vector<double> MASK;
     MASK.resize(s.n_row*s.n_col, 0.0);
     for(int i = 0; i < MASK.size(); i++){
@@ -217,7 +218,7 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
       s.data[i] = s.data[i] * MASK[i];
     }
   }
-  if (SimType == "dotProduct")
+  else if (SimType == "dotProduct")
     SumOuterProd(d1, d2, Normalization, s);
   else if(SimType == "cosineAngle")
     SumOuterCosine(d1, d2, Normalization, s);
@@ -228,8 +229,12 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   }
   else if(SimType == "euclidianDist")
     SumOuterEucl(d1, d2, Normalization, s);
+  else if(SimType == "covariance")
+    SumOuterEucl(d1, d2, Normalization, s);
+  else if(SimType == "correlation")
+    SumOuterEucl(d1, d2, Normalization, s);
   else
-    SumOuterProd(d1, d2, Normalization, s);
+    Rcpp::Rcout << "getChromSimMat should have value from given choices only!" << std::endl;
   return s;
 }
 
