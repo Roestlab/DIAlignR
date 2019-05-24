@@ -23,17 +23,23 @@ struct square
   }
 };
 
-void clamp(std::vector<double>& vec, double minValue, double maxValue);
-
-double getQuantile(std::vector<double> vec, float quantile);
-
 double meanVecOfVec(const std::vector<std::vector<double>>& vec);
 
 double eucLenVecOfVec(const std::vector<std::vector<double>>& vec);
 
 std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double>>& vec);
 
+std::vector<double> perSampleSqrSumVecOfVec(const std::vector<std::vector<double>>& vec);
+
+std::vector<double> perSampleMeanVecOfVec(const std::vector<std::vector<double>>& vec);
+
+std::vector<double> perSampleSumVecOfVec(const std::vector<std::vector<double>>& vec);
+
 void distToSim(SimMatrix& s, double offset, double Numerator);
+
+void clamp(std::vector<double>& vec, double minValue, double maxValue);
+
+double getQuantile(std::vector<double> vec, float quantile);
 
 std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d);
 
@@ -43,17 +49,22 @@ std::vector<std::vector<double>> divideVecOfVec(const std::vector<std::vector<do
 
 void ElemWiseSumOuterProd(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s);
 
+void ElemWiseSumOuterProdMeanSub(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s, const std::vector<double>& mean1, const std::vector<double>& mean2);
+
 void ElemWiseSumOuterEucl(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s);
 
 void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double>& d2, const std::vector<double>& d1_mag, const std::vector<double>& d2_mag, SimMatrix& s);
 
 void SumOuterProd(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
+void SumOuterCov(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
+
+void SumOuterCorr(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
+
 void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
 void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
 SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType, double cosAngleThresh, double dotProdThresh);
-
 
 #endif // CHROMSIMMATRIX_H

@@ -81,7 +81,14 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, floa
 //' 0.6869622, 0.7179039, 0.6568703), 4, 4, byrow = F)
 //'
 //' getChromSimMat(r1, r2, "L2", "covariance")
+//' matrix(c(0.016564523, 0.018930883, 0.017747703, 0.018930883, 0.021445141, 0.022924117,
+//' 0.022184629, 0.022924117, 0.036974382, 0.034016431, 0.035495406, 0.034016431,
+//' -0.002514258, 0.018487191, 0.007986466, 0.018487191), 4, 4, byrow = F)
+//'
 //' getChromSimMat(r1, r2, "L2", "correlation")
+//' matrix(c(0.87372107, 0.99853837, 0.97435470, 0.99853837, 0.92261291, 0.98624138, 0.99339927,
+//' 0.98624138, 0.99053606, 0.91129318, 0.98974332, 0.91129318, -0.06486282, 0.47693252,
+//' 0.21444787, 0.47693252), 4, 4, byrow = F)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normalization, std::string SimType, double cosAngleThresh = 0.3, double dotProdThresh = 0.96){
@@ -93,7 +100,6 @@ NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normaliza
   NumericMatrix simMat = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return simMat;
 }
-
 
 //' Get a dummy S4 object of C++ class AffineAlignObj
 //'
@@ -269,7 +275,6 @@ S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
 
 /***
-
 MeanNormA <- sapply(r1, function(x) sum(x)/4)
 MeanNormA <- mean(MeanNormA)
 MeanNormB <- sapply(r2, function(x) sum(x)/4)
