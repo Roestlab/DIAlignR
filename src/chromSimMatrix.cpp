@@ -1,7 +1,7 @@
 #include "chromSimMatrix.h"
 #include <Rcpp.h>
 
-double meanVecOfVec(const std::vector<std::vector<double>>& vec){
+double meanVecOfVec(const std::vector<std::vector<double> >& vec){
   double average = 0.0;
   // Sum-up mean of each vector using Range-based for loop.
   // const makes sure we do not accidentally chnage v. auto allows compiler to find type of v. & makes sure we are referening to v instead of making a copy that could cause performance loss.
@@ -10,13 +10,13 @@ double meanVecOfVec(const std::vector<std::vector<double>>& vec){
   return average / vec.size();
 }
 
-double eucLenVecOfVec(const std::vector<std::vector<double>>& vec){
+double eucLenVecOfVec(const std::vector<std::vector<double> >& vec){
   double sos = 0.0; // sum of squares
   for (const auto& v : vec) sos += std::accumulate( v.begin(), v.end(), 0.0, square<double>());
   return std::sqrt(sos);
 }
 
-std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double>>& vec){
+std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double> >& vec){
   std::vector<double> mag;
   mag.resize(vec[0].size(), 0.0);
   int n_frag = vec.size();
@@ -29,7 +29,7 @@ std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double
   return mag;
 }
 
-std::vector<double> perSampleSqrSumVecOfVec(const std::vector<std::vector<double>>& vec){
+std::vector<double> perSampleSqrSumVecOfVec(const std::vector<std::vector<double> >& vec){
   std::vector<double> mag;
   mag.resize(vec[0].size(), 0.0);
   int n_frag = vec.size();
@@ -41,7 +41,7 @@ std::vector<double> perSampleSqrSumVecOfVec(const std::vector<std::vector<double
   return mag;
 }
 
-std::vector<double> perSampleMeanVecOfVec(const std::vector<std::vector<double>>& vec){
+std::vector<double> perSampleMeanVecOfVec(const std::vector<std::vector<double> >& vec){
   std::vector<double> mean;
   mean.resize(vec[0].size(), 0.0);
   int n_frag = vec.size();
@@ -54,7 +54,7 @@ std::vector<double> perSampleMeanVecOfVec(const std::vector<std::vector<double>>
   return mean;
 }
 
-std::vector<double> perSampleSumVecOfVec(const std::vector<std::vector<double>>& vec){
+std::vector<double> perSampleSumVecOfVec(const std::vector<std::vector<double> >& vec){
   std::vector<double> sum;
   sum.resize(vec[0].size(), 0.0);
   int n_frag = vec.size();

@@ -5,6 +5,7 @@
 #include "alignment.h"
 #include "affinealignobj.h"
 #include "affinealignment.h"
+#include "constrainMat.h"
 using namespace Rcpp;
 
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
@@ -99,6 +100,32 @@ NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normaliza
   // printMatrix(s.data, s.n_row, s.n_col);
   NumericMatrix simMat = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return simMat;
+}
+
+//' Get a mask for constraining similarity matrix
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param ROW_SIZE (int) Number of rows of a matrix
+//' @param COL_SIZE (int) Number of columns of a matrix
+//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @examples
+//' x <- setAffineAlignObj_S4(4, 5)
+//' x@signalA_len # 3
+//' @export
+// [[Rcpp::export]]
+NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef = 50, bool hardConstrain = false){
+  SimMatrix MASK;
+  MASK.n_row = tA.size();
+  MASK.n_col = tB.size();
+  MASK.data.resize(MASK.n_row*MASK.n_col, 0.0);
+  double A1 = tA[0], A2 = tA[MASK.n_row-1];
+  double B1 = tB[0], B2 = tB[MASK.n_col-1];
+  calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
+  NumericMatrix mask = Vec2NumericMatrix(MASK.data, MASK.n_row, MASK.n_col);
+  return mask;
 }
 
 //' Get a dummy S4 object of C++ class AffineAlignObj
