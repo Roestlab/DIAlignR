@@ -102,7 +102,12 @@ NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normaliza
   return simMat;
 }
 
-//' Get a mask for constraining similarity matrix
+//' Get a mask for constraining similarity matrix.
+//'
+//' This function takes in timeVectors from both runs, a global-fit object and
+//' sample-length of window of no constraining. Outside of window, all elements
+//' of matrix are either equally weighted or weighted proportional to distance
+//' from window-boundry.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
@@ -112,11 +117,15 @@ NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normaliza
 //' @param COL_SIZE (int) Number of columns of a matrix
 //' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
 //' @examples
+//'
+//' B1p <- predict(Loess.fit, tRunAVec[1])
+//' B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
+//' m <- getGlobalAlignMask(s, tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
 //' x <- setAffineAlignObj_S4(4, 5)
 //' x@signalA_len # 3
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef = 50, bool hardConstrain = false){
+NumericMatrix getGlobalAlignMask(NumericMatrix s, const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef = 50, bool hardConstrain = false){
   SimMatrix MASK;
   MASK.n_row = tA.size();
   MASK.n_col = tB.size();
@@ -124,6 +133,9 @@ NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vecto
   double A1 = tA[0], A2 = tA[MASK.n_row-1];
   double B1 = tB[0], B2 = tB[MASK.n_col-1];
   calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
+  //auto maxIt = max_element(std::begin(s.data), std::end(s.data));
+  //double maxVal = *maxIt;
+  //constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
   NumericMatrix mask = Vec2NumericMatrix(MASK.data, MASK.n_row, MASK.n_col);
   return mask;
 }

@@ -2,9 +2,9 @@
 % Please edit documentation in R/RcppExports.R
 \name{getGlobalAlignMask}
 \alias{getGlobalAlignMask}
-\title{Get a mask for constraining similarity matrix}
+\title{Get a mask for constraining similarity matrix.}
 \usage{
-getGlobalAlignMask(tA, tB, B1p, B2p, noBeef = 50L,
+getGlobalAlignMask(s, tA, tB, B1p, B2p, noBeef = 50L,
   hardConstrain = FALSE)
 }
 \arguments{
@@ -16,9 +16,16 @@ getGlobalAlignMask(tA, tB, B1p, B2p, noBeef = 50L,
 affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
 }
 \description{
-Get a mask for constraining similarity matrix
+This function takes in timeVectors from both runs, a global-fit object and
+sample-length of window of no constraining. Outside of window, all elements
+of matrix are either equally weighted or weighted proportional to distance
+from window-boundry.
 }
 \examples{
+
+B1p <- predict(Loess.fit, tRunAVec[1])
+B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
+m <- getGlobalAlignMask(s, tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
 x <- setAffineAlignObj_S4(4, 5)
 x@signalA_len # 3
 }
