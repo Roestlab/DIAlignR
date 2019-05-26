@@ -134,9 +134,6 @@ NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vecto
   double A1 = tA[0], A2 = tA[MASK.n_row-1];
   double B1 = tB[0], B2 = tB[MASK.n_col-1];
   calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
-  //
-  //
-  //
   NumericMatrix mask = Vec2NumericMatrix(MASK.data, MASK.n_row, MASK.n_col);
   return mask;
 }
@@ -155,13 +152,15 @@ NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vecto
 //'
 //' @export
 // [[Rcpp::export]]
-void constrainSimMain(NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient = 100.0){
+NumericMatrix constrainSimMain(const NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient = 100.0){
   SimMatrix s = NumericMatrix2Vec(sim);
   SimMatrix mask = NumericMatrix2Vec(MASK);
   auto maxIt = max_element(std::begin(s.data), std::end(s.data));
   double maxVal = *maxIt;
   constrainSimilarity(s, mask, -2.0*maxVal/samples4gradient);
-  sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+  // sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col); // This code doesn't update sim matrix. Why?
+  NumericMatrix s1 = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+  return s1;
 }
 
 //' Get a dummy S4 object of C++ class AffineAlignObj
@@ -369,8 +368,16 @@ run_pair <- c("run1", "run2")
   Err <- matrix(NA, nrow = length(peptides), ncol = 1)
   rownames(Err) <- peptides
   for(peptide in peptides){
-    s <- getSimilarityMatrix(StrepChroms, peptide, run_pair[1], run_pair[2], type = simMeasure)
+    r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
+    r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
+    s <- getChromSimMat(r1, r2, Normalization = "mean", SimType = simMeasure)
     gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
+    tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
+    tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
+    noBeef <- ceiling(RSEdistFactor*min(globalStrep["RSE", pair], meanRSE)/samplingTime)
+    B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
+    Mask <- getGlobalAlignMask(tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
+    constrainSimMain(s, Mask, samples4gradient)
     Alignobj <- doAffineAlignment_S4(s, nrow(s), ncol(s), go = gapPenalty*goFactor, ge = gapPenalty*geFactor, OverlapAlignment = TRUE)
     AlignedIndices <- cbind(Alignobj@indexA_aligned, Alignobj@indexB_aligned, Alignobj@score)
     colnames(AlignedIndices) <- c("indexA_aligned", "indexB_aligned", "score")
