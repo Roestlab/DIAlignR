@@ -76,22 +76,6 @@ void clamp(std::vector<double>& vec, double minValue, double maxValue){
     i = (i < minValue) ? minValue : i;}
 }
 
-double getQuantile(std::vector<double> vec, float quantile){
-  int n = vec.size();
-  double p = quantile;
-  double m = 1-p; // Type 7 definition as implemented in R.
-  int j = floor(n*p + m);
-  double g = n*p + m - j;
-  double gamma = g;
-  // TODO : Precision and n_th element
-  //long double jh = 24884.16;
-  //Rcpp::Rcout << "g  = " << g << std::endl;
-  //std::nth_element(vec.begin(), vec.begin()+1, vec.end(), std::greater<double>());
-  sort(vec.begin(), vec.end());
-  double sampleQuant = (1.0 - gamma)*vec[j] + gamma*vec[j+1];
-  return sampleQuant;
-}
-
 std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d){
   // Calculate overall mean and divide by it.
   double mean_d = meanVecOfVec(d);
@@ -342,8 +326,8 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     SumOuterCosine(d1, d2, Normalization, s2);
     for(auto& i : s2.data) i = std::cos(2*std::acos(i));
     double Quant = getQuantile(s.data, dotProdThresh);
-    // Quant = 28.30092;
-    // Rcpp::Rcout << Quant << std::endl;
+    //Quant = 28.30092;
+    //Rcpp::Rcout << Quant << std::endl;
     std::vector<double> MASK;
     MASK.resize(s.n_row*s.n_col, 0.0);
     for(int i = 0; i < MASK.size(); i++){

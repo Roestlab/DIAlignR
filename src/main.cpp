@@ -3,6 +3,7 @@
 #include "interface.h"
 #include "chromSimMatrix.h"
 #include "alignment.h"
+#include "gapPenalty.h"
 #include "affinealignobj.h"
 #include "affinealignment.h"
 #include "constrainMat.h"
@@ -138,7 +139,6 @@ NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vecto
   return mask;
 }
 
-
 //' Constrain similarity matrix using mask and constrainValue.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -161,6 +161,25 @@ NumericMatrix constrainSimMain(const NumericMatrix& sim, const NumericMatrix& MA
   // sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col); // This code doesn't update sim matrix. Why?
   NumericMatrix s1 = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return s1;
+}
+
+//' Calculates gap penalty for dynamic programming based alignment.
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param ROW_SIZE (int) Number of rows of a matrix
+//' @param COL_SIZE (int) Number of columns of a matrix
+//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @examples
+//'
+//' @export
+// [[Rcpp::export]]
+double getGapPenaltyMain(const NumericMatrix& sim, std::string SimType, double gapQuantile = 0.5){
+  SimMatrix s = NumericMatrix2Vec(sim);
+  double gapPenalty = getGapPenalty(s, gapQuantile, SimType);
+  return gapPenalty;
 }
 
 //' Get a dummy S4 object of C++ class AffineAlignObj

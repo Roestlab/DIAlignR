@@ -43,4 +43,6 @@ struct SimMatrix
   int n_col;
 };
 
+double getQuantile(std::vector<double> vec, double quantile);
+
 #endif // SIMPLEFCN_H

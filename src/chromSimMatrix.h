@@ -32,8 +32,6 @@ void distToSim(SimMatrix& s, double offset, double Numerator);
 
 void clamp(std::vector<double>& vec, double minValue, double maxValue);
 
-double getQuantile(std::vector<double> vec, float quantile);
-
 std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d);
 
 std::vector<std::vector<double>> L2NormalizeVecOfVec(const std::vector<std::vector<double>>& d);
