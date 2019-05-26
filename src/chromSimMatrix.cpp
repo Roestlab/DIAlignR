@@ -78,14 +78,17 @@ void clamp(std::vector<double>& vec, double minValue, double maxValue){
 
 double getQuantile(std::vector<double> vec, float quantile){
   int n = vec.size();
-  float p = quantile;
-  float m = 1-p; // Type 7 definition as implemented in R.
+  double p = quantile;
+  double m = 1-p; // Type 7 definition as implemented in R.
   int j = floor(n*p + m);
-  float g = n*p + m - j;
-  float gamma = g;
-  int idx = floor((1.0-quantile)*vec.size()); // make it ceil
-  std::nth_element(vec.begin(), vec.begin()+1, vec.end(), std::greater<double>());
-  float sampleQuant = (1.0 - gamma)*vec[n-j] + gamma*vec[n-j-1];
+  double g = n*p + m - j;
+  double gamma = g;
+  // TODO : Precision and n_th element
+  //long double jh = 24884.16;
+  //Rcpp::Rcout << "g  = " << g << std::endl;
+  //std::nth_element(vec.begin(), vec.begin()+1, vec.end(), std::greater<double>());
+  sort(vec.begin(), vec.end());
+  double sampleQuant = (1.0 - gamma)*vec[j] + gamma*vec[j+1];
   return sampleQuant;
 }
 
@@ -330,6 +333,7 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   s.n_col = d2[0].size();
   s.data.resize(s.n_row*s.n_col, 0.0);
   if (SimType == "dotProductMasked"){
+    //Rcpp::Rcout << "dotProductMasked" << std::endl;
     SumOuterProd(d1, d2, Normalization, s);
     SimMatrix s2;
     s2.n_row = s.n_row;
@@ -338,6 +342,7 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     SumOuterCosine(d1, d2, Normalization, s2);
     for(auto& i : s2.data) i = std::cos(2*std::acos(i));
     double Quant = getQuantile(s.data, dotProdThresh);
+    // Quant = 28.30092;
     // Rcpp::Rcout << Quant << std::endl;
     std::vector<double> MASK;
     MASK.resize(s.n_row*s.n_col, 0.0);

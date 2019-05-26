@@ -321,14 +321,6 @@ S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float
 // Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 // Match=10; MisMatch=-2; go=22; ge=7; gap=go
 // seq1 = "GCAT"; seq2 = "CAGTG"
-// s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
-// s <- matrix(NA, nrow = 4, ncol = 5)
-// s[, 1] <- c(-2, 10, -2, -2)
-// s[, 2] <- c(-2, -2, 10, -2)
-// s[, 3] <- c(10, -2, -2, -2)
-// s[, 4] <- c(-2, -2, -2, 10)
-// s[, 5] <- c(10, -2, -2, -2)
-// doAlignment_S4(s, 4, 5, 22, F)
 // library(Biostrings)
 // mat <- nucleotideSubstitutionMatrix(match = Match, mismatch = MisMatch, baseOnly = TRUE)
 // pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
@@ -365,8 +357,8 @@ s <- s1*(1*AngleGreat)
 gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
 run_pair <- c("run1", "run2")
-  Err <- matrix(NA, nrow = length(peptides), ncol = 1)
-  rownames(Err) <- peptides
+Err <- matrix(NA, nrow = length(peptides), ncol = 1)
+rownames(Err) <- peptides
   for(peptide in peptides){
     r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
     r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
