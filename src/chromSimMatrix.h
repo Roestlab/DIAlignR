@@ -4,13 +4,6 @@
 #include <vector>
 #include "simpleFcn.h"
 
-struct SimMatrix
-{
-  std::vector<double> data;
-  int n_row;
-  int n_col;
-};
-
 // functor for getting sum of previous result and square of current element.
 // TODO: Need to understand the implementation.
 template<typename T>

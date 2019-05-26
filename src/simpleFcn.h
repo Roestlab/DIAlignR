@@ -36,4 +36,11 @@ void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
   }
 }
 
+struct SimMatrix
+{
+  std::vector<double> data;
+  int n_row;
+  int n_col;
+};
+
 #endif // SIMPLEFCN_H

@@ -117,15 +117,16 @@ NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normaliza
 //' @param COL_SIZE (int) Number of columns of a matrix
 //' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
 //' @examples
-//'
-//' B1p <- predict(Loess.fit, tRunAVec[1])
-//' B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-//' m <- getGlobalAlignMask(s, tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
-//' x <- setAffineAlignObj_S4(4, 5)
-//' x@signalA_len # 3
+//' tA <- c(3353.2, 3356.6, 3360.0, 3363.5)
+//' tB <- c(3325.9, 3329.3, 3332.7, 3336.1)
+//' B1p <- 3325.751; B2p <- 3336.119
+//' noBeef <- 1
+//' m <- getGlobalAlignMask(tA, tB, B1p, B2p, noBeef, FALSE)
+//' matrix(c(0.0000, 0.0000, 0.7071, 1.4142, 0.0000, 0.0000, 0.0000, 0.7071, 0.7071, 0.0000,
+//' 0.0000, 0.0000, 1.4142, 0.7071, 0.0000, 0.0000), 4, 4, byrow = F)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getGlobalAlignMask(NumericMatrix s, const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef = 50, bool hardConstrain = false){
+NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef = 50, bool hardConstrain = false){
   SimMatrix MASK;
   MASK.n_row = tA.size();
   MASK.n_col = tB.size();
@@ -133,11 +134,34 @@ NumericMatrix getGlobalAlignMask(NumericMatrix s, const std::vector<double>& tA,
   double A1 = tA[0], A2 = tA[MASK.n_row-1];
   double B1 = tB[0], B2 = tB[MASK.n_col-1];
   calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
-  //auto maxIt = max_element(std::begin(s.data), std::end(s.data));
-  //double maxVal = *maxIt;
-  //constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
+  //
+  //
+  //
   NumericMatrix mask = Vec2NumericMatrix(MASK.data, MASK.n_row, MASK.n_col);
   return mask;
+}
+
+
+//' Constrain similarity matrix using mask and constrainValue.
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param ROW_SIZE (int) Number of rows of a matrix
+//' @param COL_SIZE (int) Number of columns of a matrix
+//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @examples
+//'
+//' @export
+// [[Rcpp::export]]
+void constrainSimMain(NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient = 100.0){
+  SimMatrix s = NumericMatrix2Vec(sim);
+  SimMatrix mask = NumericMatrix2Vec(MASK);
+  auto maxIt = max_element(std::begin(s.data), std::end(s.data));
+  double maxVal = *maxIt;
+  constrainSimilarity(s, mask, -2.0*maxVal/samples4gradient);
+  sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
 }
 
 //' Get a dummy S4 object of C++ class AffineAlignObj

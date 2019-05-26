@@ -28,3 +28,13 @@ NumericMatrix Vec2NumericMatrix(std::vector<double> vec, int nrow, int ncol){
   mat = transpose(mat);
   return mat;
 }
+
+SimMatrix NumericMatrix2Vec(Rcpp::NumericMatrix mat){
+  mat = transpose(mat);
+  SimMatrix s;
+  // Cast to std vector
+  s.data = Rcpp::as<std::vector<double> >(mat);
+  s.n_row = mat.nrow();
+  s.n_col = mat.ncol();
+  return s;
+}

@@ -3,6 +3,7 @@
 export(OuterProdMeanNormAll6Func)
 export(calcNoBeefMaskGlobal)
 export(calcNoBeefMaskGlobalWSlope)
+export(constrainSimMain)
 export(constrainSimilarity)
 export(doAffineAlignment_S4)
 export(doAlignment_S4)

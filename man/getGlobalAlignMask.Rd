@@ -4,7 +4,7 @@
 \alias{getGlobalAlignMask}
 \title{Get a mask for constraining similarity matrix.}
 \usage{
-getGlobalAlignMask(s, tA, tB, B1p, B2p, noBeef = 50L,
+getGlobalAlignMask(tA, tB, B1p, B2p, noBeef = 50L,
   hardConstrain = FALSE)
 }
 \arguments{
@@ -22,12 +22,13 @@ of matrix are either equally weighted or weighted proportional to distance
 from window-boundry.
 }
 \examples{
-
-B1p <- predict(Loess.fit, tRunAVec[1])
-B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-m <- getGlobalAlignMask(s, tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
-x <- setAffineAlignObj_S4(4, 5)
-x@signalA_len # 3
+tA <- c(3353.2, 3356.6, 3360.0, 3363.5)
+tB <- c(3325.9, 3329.3, 3332.7, 3336.1)
+B1p <- 3325.751; B2p <- 3336.119
+noBeef <- 1
+m <- getGlobalAlignMask(tA, tB, B1p, B2p, noBeef, FALSE)
+matrix(c(0.0000, 0.0000, 0.7071, 1.4142, 0.0000, 0.0000, 0.0000, 0.7071, 0.7071, 0.0000,
+0.0000, 0.0000, 1.4142, 0.7071, 0.0000, 0.0000), 4, 4, byrow = F)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
