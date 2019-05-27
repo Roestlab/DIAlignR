@@ -1,7 +1,7 @@
 #include "alignment.h"
 
 // This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
-AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
+AlignObj doAlignment(SimMatrix s, int signalA_len, int signalB_len, double gap, bool OverlapAlignment){
   AlignObj alignObj(signalA_len+1, signalB_len+1); // initialize AlignObj struct
   alignObj.FreeEndGaps = OverlapAlignment;
   alignObj.GapOpen = gap;
@@ -9,7 +9,10 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   alignObj.signalA_len = signalA_len;
   alignObj.signalB_len = signalB_len;
 
-  NumericMatrix M = initializeMatrix(0, signalA_len+1, signalB_len+1); // get a NumericMatrix filled with zeros.
+  SimMatrix M;
+  M.n_row = signalA_len+1;
+  M.n_col = signalB_len+1;
+  M.data.resize(M.n_row*M.n_col, 0.0);// get a NumericMatrix filled with zeros.
   std::vector<TracebackType> Traceback;
   Traceback.resize((signalA_len+1)*(signalB_len+1), SS); // Fill Traceback matrix with SS.
 
@@ -17,11 +20,11 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   if(alignObj.FreeEndGaps){
     // For Overlap alignment, First row and first column of M matrix is filled with zeros.
     for(int i = 0; i<=signalA_len; i++){
-      M(i, 0) = 0;
+      M.data[i*M.n_col + 0] = 0;
       Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
     }
     for(int j = 0; j<=signalB_len; j++){
-      M(0, j) = 0;
+      M.data[0*M.n_col + j] = 0;
       Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
     }
     Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
@@ -29,41 +32,41 @@ AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float ga
   else{
     // For global alignment, top-row and left-column cells are filled with values indicating distance from top-left corner.
     for(int i = 0; i<=signalA_len; i++){
-      M(i, 0) = -i*gap;
+      M.data[i*M.n_col + 0] = -i*gap;
       Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
     }
     for(int j = 0; j<=signalB_len; j++){
-      M(0, j) = -j*gap;
+      M.data[0*M.n_col + j] = -j*gap;
       Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
     }
     Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
   }
 
   // Perform dynamic programming for alignment
-  float Diago, gapInA, gapInB; // signalA is along the rows, signalB is along the columns
+  double Diago, gapInA, gapInB; // signalA is along the rows, signalB is along the columns
   for(int i=1; i<=signalA_len; i++ ){
     for(int j=1; j<=signalB_len; j++){
-      Diago = M(i-1, j-1) + s(i-1, j-1);
-      gapInB= M(i-1, j) - gap; // Travelling from Top. signalA is along the rows, signalB is along the columns
-      gapInA = M(i, j-1) - gap; // Travelling from Left. signalA is along the rows, signalB is along the columns
+      Diago = M.data[(i-1)*M.n_col + j-1] + s.data[(i-1)*s.n_col + j-1];
+      gapInB= M.data[(i-1)*M.n_col + j] - gap; // Travelling from Top. signalA is along the rows, signalB is along the columns
+      gapInA = M.data[i*M.n_col + j-1] - gap; // Travelling from Left. signalA is along the rows, signalB is along the columns
       if(Diago>=gapInA && Diago>=gapInB){
         Traceback[i*(signalB_len+1) + j] = DM; // D: Diagonal
-        M(i, j) = Diago;
+        M.data[i*M.n_col + j] = Diago;
       }
       else if (gapInA>=Diago && gapInA>=gapInB){
         Traceback[i*(signalB_len+1) + j] = LM; // L: Left
-        M(i, j) = gapInA;
+        M.data[i*M.n_col + j] = gapInA;
       }
       else{
         Traceback[i*(signalB_len+1) + j] = TM; // T: Top
-        M(i, j) = gapInB;
+        M.data[i*M.n_col + j] = gapInB;
       }
     }
   }
   alignObj.Traceback = Traceback; // Copy traceback to alignObj
   for (int i = 0; i < signalA_len+1; i++) {
     for (int j = 0; j < signalB_len+1; j++) {
-      alignObj.M[i*(signalB_len+1) + j] = M(i, j); // Copy NumericMatrix M to alignObj.M vector
+      alignObj.M[i*(signalB_len+1) + j] = M.data[i*M.n_col + j]; // Copy NumericMatrix M to alignObj.M vector
     }
   }
   // printMatrix(alignObj.M, signalA_len+1, signalB_len+1);

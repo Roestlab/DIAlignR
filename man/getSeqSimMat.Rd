@@ -11,9 +11,9 @@ getSeqSimMat(seq1, seq2, Match, MisMatch)
 
 \item{seq2}{(char) A single string}
 
-\item{Match}{(float) Score for character match}
+\item{Match}{(double) Score for character match}
 
-\item{MisMatch}{(float) score for character mismatch}
+\item{MisMatch}{(double) score for character mismatch}
 }
 \value{
 s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively

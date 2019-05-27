@@ -20,8 +20,8 @@ using namespace Rcpp;
 //' Date: 2019-03-05
 //' @param seq1 (char) A single string
 //' @param seq2 (char) A single string
-//' @param Match (float) Score for character match
-//' @param MisMatch (float) score for character mismatch
+//' @param Match (double) Score for character match
+//' @param MisMatch (double) score for character mismatch
 //' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
 //' @examples
 //' # Get sequence similarity of two DNA strings
@@ -30,7 +30,7 @@ using namespace Rcpp;
 //' getSeqSimMat(seq1, seq2, Match, MisMatch)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, float Match, float MisMatch){
+NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double Match, double MisMatch){
   int ROW_SIZE = seq1.size();
   int COL_SIZE = seq2.size();
   NumericMatrix s(ROW_SIZE, COL_SIZE);
@@ -182,6 +182,71 @@ double getGapPenaltyMain(const NumericMatrix& sim, std::string SimType, double g
   return gapPenalty;
 }
 
+//' Outputs aligned chromatograms.
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param ROW_SIZE (int) Number of rows of a matrix
+//' @param COL_SIZE (int) Number of columns of a matrix
+//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @examples
+//' simMeasure <- "dotProductMasked"
+//' run_pair <- c("run1", "run2")
+//' peptide <- peptides[1]
+//' r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
+//' r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
+//' tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
+//' tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
+//' noBeef <- 6
+//' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
+//' Alignobj <- alignChromatograms_cpp(r1, r2, tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
+//'
+//' @export
+// [[Rcpp::export]]
+S4 alignChromatograms_cpp(Rcpp::List l1, Rcpp::List l2,
+                            const std::vector<double>& tA, const std::vector<double>& tB,
+                            std::string Normalization, std::string SimType,
+                            double B1p, double B2p, int noBeef,
+                            double goFactor = 0.125, double geFactor = 40,
+                            double cosAngleThresh = 0.3, bool OverlapAlignment = true,
+                            double dotProdThresh = 0.96, double gapQuantile = 0.5,
+                            bool hardConstrain = false, double samples4gradient = 100.0){
+  std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
+  std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
+  SimMatrix s = getSimilarityMatrix(r1, r2, Normalization, SimType, cosAngleThresh, dotProdThresh);
+  double gapPenalty = getGapPenalty(s, gapQuantile, SimType);
+  SimMatrix MASK;
+  MASK.n_row = tA.size();
+  MASK.n_col = tB.size();
+  MASK.data.resize(MASK.n_row*MASK.n_col, 0.0);
+  double A1 = tA[0], A2 = tA[MASK.n_row-1];
+  double B1 = tB[0], B2 = tB[MASK.n_col-1];
+  calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
+  auto maxIt = max_element(std::begin(s.data), std::end(s.data));
+  double maxVal = *maxIt;
+  constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
+  AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
+  obj = doAffineAlignment(s, s.n_row, s.n_col, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+  getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
+  S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
+  // Copying values to slots
+  x.slot("M")  = obj.M;
+  x.slot("A")  = obj.A;
+  x.slot("B")  = obj.B;
+  x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("signalA_len") = obj.signalA_len;
+  x.slot("signalB_len") = obj.signalB_len;
+  x.slot("GapOpen") = obj.GapOpen;
+  x.slot("GapExten") = obj.GapExten;
+  x.slot("FreeEndGaps") = obj.FreeEndGaps;
+  x.slot("indexA_aligned") = obj.indexA_aligned;
+  x.slot("indexB_aligned") = obj.indexB_aligned;
+  x.slot("score") = obj.score;
+  return(x);
+}
+
 //' Get a dummy S4 object of C++ class AffineAlignObj
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -249,10 +314,10 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param s (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
+//' @param sim (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
 //' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
 //' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
-//' @param gap (float) Penalty for introducing gaps in alignment
+//' @param gap (double) Penalty for introducing gaps in alignment
 //' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
 //' @return AlignObj (S4class) An object from C++ class of AlignObj
 //' @examples
@@ -266,8 +331,9 @@ S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
 //' obj_Olap@score # 0 10 20 18 18 18
 //' @export
 // [[Rcpp::export]]
-S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment){
+S4 doAlignment_S4(NumericMatrix sim, int signalA_len, int signalB_len, double gap, bool OverlapAlignment){
   AlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AlignObj struct
+  SimMatrix s = NumericMatrix2Vec(sim);
   obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment); // Performs alignment on s matrix and returns AlignObj struct
   getAlignedIndices(obj); // Performs traceback and fills aligned indices in AlignObj struct
   S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
@@ -291,11 +357,11 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param s (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
+//' @param sim (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
 //' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
 //' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
-//' @param go (float) Penalty for introducing first gap in alignment
-//' @param ge (float) Penalty for introducing subsequent gaps in alignment
+//' @param go (double) Penalty for introducing first gap in alignment
+//' @param ge (double) Penalty for introducing subsequent gaps in alignment
 //' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
 //' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
 //' @examples
@@ -316,8 +382,10 @@ S4 doAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float gap, 
 //' objAffine_Olap@score # 10 20 18 18 18
 //' @export
 // [[Rcpp::export]]
-S4 doAffineAlignment_S4(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
+S4 doAffineAlignment_S4(NumericMatrix sim, int signalA_len, int signalB_len, double go, double ge, bool OverlapAlignment){
   AffineAlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AffineAlignObj struct
+  SimMatrix s = NumericMatrix2Vec(sim);
+  // printMatrix(s.data, s.n_row, s.n_col);
   obj = doAffineAlignment(s, signalA_len, signalB_len, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
@@ -381,12 +449,13 @@ rownames(Err) <- peptides
   for(peptide in peptides){
     r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
     r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
-    s <- getChromSimMat(r1, r2, Normalization = "mean", SimType = simMeasure)
-    gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
     tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
     tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
     noBeef <- ceiling(RSEdistFactor*min(globalStrep["RSE", pair], meanRSE)/samplingTime)
     B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
+    Alignobj <- alignChromatograms_cpp(r1, r2, tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
+    s <- getChromSimMat(r1, r2, Normalization = "mean", SimType = simMeasure)
+    gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
     Mask <- getGlobalAlignMask(tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
     constrainSimMain(s, Mask, samples4gradient)
     Alignobj <- doAffineAlignment_S4(s, nrow(s), ncol(s), go = gapPenalty*goFactor, ge = gapPenalty*geFactor, OverlapAlignment = TRUE)

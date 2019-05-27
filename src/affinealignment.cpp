@@ -2,7 +2,7 @@
 // Do not inclue cpp file otherwise compiler will build the Obj through two different path.
 
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
-AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_len, float go, float ge, bool OverlapAlignment){
+AffineAlignObj doAffineAlignment(SimMatrix s, int signalA_len, int signalB_len, double go, double ge, bool OverlapAlignment){
   AffineAlignObj affineAlignObj(signalA_len+1, signalB_len+1); // Initialize AffineAlignObj
   affineAlignObj.FreeEndGaps = OverlapAlignment;
   affineAlignObj.GapOpen = go;
@@ -77,10 +77,11 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
     }
 
   // Perform dynamic programming to fill matrix M, A and B for affine alignment
-  float Diago, InsertInA, InsertInB;
+  double Diago, InsertInA, InsertInB;
   for(int i=1; i<=signalA_len; i++){
     for(int j=1; j<=signalB_len; j++){
-      float sI_1J_1 = s(i-1, j-1); // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
+      // Rcpp::Rcout << s.data[(i-1)*s.n_col + j-1] << std::endl;
+      double sI_1J_1 = s.data[(i-1)*s.n_col + j-1]; // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
       Diago = affineAlignObj.M[(i-1)*(signalB_len+1)+j-1] + sI_1J_1; // M(i-1, j-1) means Ai-1 is aligned to Bj-1.
       InsertInA = affineAlignObj.A[(i-1)*(signalB_len+1)+j-1] + sI_1J_1; // A(i-1, j-1) means Ai-1 is aligned to a gap in B.
       InsertInB = affineAlignObj.B[(i-1)*(signalB_len+1)+j-1] + sI_1J_1; // B(i-1, j-1) means Bj-1 is aligned to a gap in A.
@@ -103,9 +104,9 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
         }
 
       // Calculate recursively for insert in signalA. signalA is along rows, hence entries would be either TM, TA or TB.
-      float AfromM = affineAlignObj.M[(i-1)*(signalB_len+1)+j] - go; // Signal Ai-1 is aligned to Bj. Ai is aligned to a gap. So gap opening penalty is subtracted.
-      float AfromA = affineAlignObj.A[(i-1)*(signalB_len+1)+j] - ge; // Signal Ai-1 is already aligned to a gap. Ai is aligned to a gap. So gap extension penalty is subtracted.
-      float AfromB = affineAlignObj.B[(i-1)*(signalB_len+1)+j] - go; // Signal Ai-1 (gap) is aligned to signal Bj. Ai is aligned to a gap in B. So a gap in B is introduced, thus, gap opening penalty is subtracted.
+      double AfromM = affineAlignObj.M[(i-1)*(signalB_len+1)+j] - go; // Signal Ai-1 is aligned to Bj. Ai is aligned to a gap. So gap opening penalty is subtracted.
+      double AfromA = affineAlignObj.A[(i-1)*(signalB_len+1)+j] - ge; // Signal Ai-1 is already aligned to a gap. Ai is aligned to a gap. So gap extension penalty is subtracted.
+      double AfromB = affineAlignObj.B[(i-1)*(signalB_len+1)+j] - go; // Signal Ai-1 (gap) is aligned to signal Bj. Ai is aligned to a gap in B. So a gap in B is introduced, thus, gap opening penalty is subtracted.
       if(AfromM >= AfromA && AfromM >= AfromB){
         // Given signal Ai is aligned to gap and signal Ai-1 is aligned to Bj, The way to traceback is TM (Top from A to M).
         affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = TM; // TM: Top TrM
@@ -123,9 +124,9 @@ AffineAlignObj doAffineAlignment(NumericMatrix s, int signalA_len, int signalB_l
         }
 
       // Calculate recursively for insert in signalB. signalB is along rows, hence entries would be either LM, LA or LB.
-      float BfromM = affineAlignObj.M[i*(signalB_len+1)+j-1] - go; // Signal Ai is aligned to Bj-1. Because Bj is aligned to a gap, so gap opening penalty is subtracted.
-      float BfromA = affineAlignObj.A[i*(signalB_len+1)+j-1] - go; // Signal Ai is aligned to signal Bj-1(gap). Because Bj is aligned to a gap, so a gap in A is introduced, thus, gap opening penalty is subtracted.
-      float BfromB = affineAlignObj.B[i*(signalB_len+1)+j-1] - ge; // Signal Bj-1 is already aligned to a gap. Because  Bj is aligned to a gap also, so gap extension penalty is subtracted.
+      double BfromM = affineAlignObj.M[i*(signalB_len+1)+j-1] - go; // Signal Ai is aligned to Bj-1. Because Bj is aligned to a gap, so gap opening penalty is subtracted.
+      double BfromA = affineAlignObj.A[i*(signalB_len+1)+j-1] - go; // Signal Ai is aligned to signal Bj-1(gap). Because Bj is aligned to a gap, so a gap in A is introduced, thus, gap opening penalty is subtracted.
+      double BfromB = affineAlignObj.B[i*(signalB_len+1)+j-1] - ge; // Signal Bj-1 is already aligned to a gap. Because  Bj is aligned to a gap also, so gap extension penalty is subtracted.
       if(BfromM >= BfromA && BfromM >= BfromB){
         // Given signal Bj is aligned to gap and signal Ai is aligned to Bj-1, The way to traceback is LM (Left from B to M).
         affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+j] = LM; // LM: Left TrM
@@ -158,7 +159,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   AlignedIndices alignedIdx; // initialize empty struct.
   TracebackType TracebackPointer;
   tbJump MatName; // Matrix name M = 0, A = 1 or B = 2
-  float affineAlignmentScore;
+  double affineAlignmentScore;
   int ROW_IDX = affineAlignObj.signalA_len;
   int COL_IDX = affineAlignObj.signalB_len;
   int ROW_SIZE = (affineAlignObj.signalA_len)+1;
@@ -189,9 +190,9 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   else {
     // Global Alignment, traceback starts at the bottom-right corner.
     // Search for the matrix which has the highest score at bottom-right corner.
-    float Mscore = affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX];
-    float Ascore = affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX];
-    float Bscore = affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX];
+    double Mscore = affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX];
+    double Ascore = affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX];
+    double Bscore = affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX];
     if (Mscore >= Ascore && Mscore >= Bscore){
       affineAlignmentScore = Mscore;
       MatName = M;
@@ -321,7 +322,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
 
 // It finds start indices and matrix for tracebackin in case of overlap affine alignment.
 template<class T>
-float getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, tbJump &MatrixName){
+double getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, tbJump &MatrixName){
   float maxScore = -std::numeric_limits<float>::infinity(); //- Inf
   int MaxRowIndex, MaxColIndex;
   for(int i = 0; i < ROW_SIZE; i++){

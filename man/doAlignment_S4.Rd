@@ -4,16 +4,16 @@
 \alias{doAlignment_S4}
 \title{Perform non-affine global and overlap alignment on a similarity matrix}
 \usage{
-doAlignment_S4(s, signalA_len, signalB_len, gap, OverlapAlignment)
+doAlignment_S4(sim, signalA_len, signalB_len, gap, OverlapAlignment)
 }
 \arguments{
-\item{s}{(NumericMatrix) A numeric matrix with similarity values of two sequences or signals}
+\item{sim}{(NumericMatrix) A numeric matrix with similarity values of two sequences or signals}
 
 \item{signalA_len}{(int) Length of signalA or sequenceA. Expresses along the rows of s}
 
 \item{signalB_len}{(int) Length of signalB or sequenceB. Expresses along the columns of s}
 
-\item{gap}{(float) Penalty for introducing gaps in alignment}
+\item{gap}{(double) Penalty for introducing gaps in alignment}
 
 \item{OverlapAlignment}{(bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment}
 }

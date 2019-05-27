@@ -13,21 +13,21 @@
 struct AlignedIndices{
     std::vector<int> indexA_aligned;
     std::vector<int> indexB_aligned;
-    std::vector<float> score;
+    std::vector<double> score;
 };
 
 struct AlignObj
 {
     std::vector<TracebackType> Traceback;
-    std::vector<float> M;
+    std::vector<double> M;
     int signalA_len;
     int signalB_len;
-    float GapOpen;
-    float GapExten;
+    double GapOpen;
+    double GapExten;
     bool FreeEndGaps;
     std::vector<int> indexA_aligned;
     std::vector<int> indexB_aligned;
-    std::vector<float> score;
+    std::vector<double> score;
 
     // Not a default constructor
     AlignObj(int ROW_SIZE, int COL_SIZE)
@@ -50,7 +50,7 @@ struct AlignObj
 };
 
 // This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
-AlignObj doAlignment(NumericMatrix s, int signalA_len, int signalB_len, float gap, bool OverlapAlignment);
+AlignObj doAlignment(SimMatrix s, int signalA_len, int signalB_len, double gap, bool OverlapAlignment);
 
 // This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
 void getAlignedIndices(AlignObj &alignObj);
