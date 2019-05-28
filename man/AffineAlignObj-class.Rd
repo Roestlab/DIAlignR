@@ -4,7 +4,7 @@
 \name{AffineAlignObj-class}
 \alias{AffineAlignObj-class}
 \alias{AffineAlignObj}
-\title{An S4 object for class Person}
+\title{An S4 object for class AffineAlignObj}
 \description{
-An S4 object for class Person
+An S4 object for class AffineAlignObj
 }

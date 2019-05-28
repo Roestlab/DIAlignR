@@ -12,19 +12,7 @@
 #' @export
 NeedleObjAffine <- setClass(Class="NeedleObjAffine", representation(Traceback = "list", M = "matrix", A = "matrix", B = "matrix", GapOpen = "numeric", GapExten = "numeric", FreeEndGaps = "logical") )
 
-#' An S4 object for class Person
-#'
-#' @importFrom methods setClass
-#' @export
-Person <- setClass(Class="Person",
-                   representation(name="character", birth="Date"),
-                   # Initializing slots
-                   prototype = list(
-                     name = as.character(NULL),
-                     birth = as.Date(as.character(NULL))
-                   ))
-
-#' An S4 object for class Person
+#' An S4 object for class AffineAlignObj
 #'
 #' @importFrom methods setClass
 #' @export
@@ -37,7 +25,7 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
                                   score = "numeric")
                    )
 
-#' An S4 object for class Person
+#' An S4 object for class AlignObj
 #'
 #' @importFrom methods setClass
 #' @export

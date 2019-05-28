@@ -4,7 +4,7 @@
 \name{AlignObj-class}
 \alias{AlignObj-class}
 \alias{AlignObj}
-\title{An S4 object for class Person}
+\title{An S4 object for class AlignObj}
 \description{
-An S4 object for class Person
+An S4 object for class AlignObj
 }
