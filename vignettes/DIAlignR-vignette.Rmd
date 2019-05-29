@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this document we are presenting workflow of DIAlignR for retention time (RT) alignment of targeted proteomics (e.g. DIA, SWATH-MS) runs. This tool works with MS2 chromatograms and uses a hybrid approach of global and local alignment to establish correspondence between peaks.
+In this document we are presenting workflow of DIAlignR for retention time (RT) alignment of targeted proteomics (e.g. DIA, SWATH-MS, PRM, SRM) runs. This tool works with MS2 chromatograms and provides a hybrid approach of global and local alignment to establish correspondence between peaks.
 
 # Install DIAlignR
 ```{r installDIAlignR, eval=FALSE}
@@ -28,8 +28,23 @@ install_github("Roestlab/DIAlignR")
 library(DIAlignR)
 ```
 
+## Citation
+Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 
 
-# Load MS2 chromatograms from mzML files
+# Prepare chromatograms from Spectra
+Mass-spec output file mostly contains spectra. Targeted proteomics works on identifying analytes from their chromatographic elutions. DIAlignR extends the same concept for retention-time alignment. Open-source software tools e.g. OpenSWATH can be used to extract features and extracted-ion chromatograms (XICs) from spectra file. A detailed [tutorial](http://openswath.org/en/latest/docs/openswath.html) to run OpenSWATH is availabe. In short, following command can be used:
+```{bash, eval=FALSE}
+./bin/OpenSwathWorkflow -in Spectra.mzML.gz -tr library.TraML -
+swath_windows_file swathsWindows.txt -sort_swath_maps -tr_irt
+iRTassays.TraML -out_tsv Feature.tsv -out_chrom XIC.chrom.mzML -readOptions cacheWorkingInMemory -tempDirectory temp/ -min_upper_edge_dist 1
+```
+
+Output files **Feature.tsv** and **XIC.chrom.mzML** are needed to perform hybrid alignment through DIAlignR. Some chromatograms are stored in compressed form and could be difficult to have accessed by `mzR`. In such cases `mzR` would throw an error indicating `Invalid cvParam accession "1002746"`. To avoid this issue, uncompress chromatograms using OpenMS.
+```{bash, eval=FALSE}
+./bin/FileConverter -in XIC.chrom.mzML -in_type 'mzML' -out XIC.chrom.mzML
+```
+
+# Load MS2 chromatograms using mzR
 MS2 chromatograms can be extracted from mzML files using [mzR](https://bioconductor.org/packages/release/bioc/html/mzR.html) package. The workflow of extraction of a few chromatograms for this paper is provided below. From the FTP link provided [here](http://www.peptideatlas.org/PASS/PASS01280) download `mzML` files from these directories:   
 
 * Spyogenes/raw/hroest_K120808_Strep10PlasmaBiolRepl2_R02_SW   
@@ -105,29 +120,15 @@ plotErrorCurve(abs(Err), "blue", xlab = "Retention time difference (in sec)", yl
 
 # Fit a local alignment between chromatogram groups
 ```{r localFit, eval=TRUE}
-gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
-run_pair <- c("run1", "run2")
-Err <- matrix(NA, nrow = length(peptides), ncol = 1)
-rownames(Err) <- peptides
-for(peptide in peptides){
-  s <- getSimilarityMatrix(StrepChroms, peptide, run_pair[1], run_pair[2], type = simMeasure)
-  gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
-  Alignobj <- getAffineAlignObj(s, go = gapPenalty*goFactor, ge = gapPenalty*geFactor)
-  AlignedIndices <- getAlignment(Alignobj)
-  tA <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-  tB <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-  tA.aligned <- mapIdxToTime(tA, AlignedIndices[[1]][,"indexA_aligned"])
-  tB.aligned <- mapIdxToTime(tB, AlignedIndices[[1]][,"indexB_aligned"])
-  predictTime <- tB.aligned[which.min(abs(tA.aligned - StrepAnnot[peptide, run_pair[1]]))]
-  deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
-  Err[peptide, 1] <- deltaT
-}
+pair <- "run1_run2"
+MappedTimeLocal <- getPepPeakCorp(StrepAnnot, pair, StrepChroms[["run1"]], StrepChroms[["run2"]], "local", oswOutStrep)
+Err_local <- StrepAnnot[,"run2"] - MappedTimeLocal
 ```
 
 
 ```{r plotLocal, fig.width=6, fig.align='center', fig.height=6, fig.show='hold'}
-plotErrorCurve(abs(Err), "darkgreen", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
+plotErrorCurve(abs(Err_local), "darkgreen", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 ```
 
 
@@ -135,62 +136,24 @@ plotErrorCurve(abs(Err), "darkgreen", SameGraph = FALSE, xlab = "Retention time 
 ```{r hybridAlignParam}
 samplingTime <-3.4 # In example dataset, all points are acquired at 3.4 second interval.
 samples4gradient <- 100; RSEdistFactor <- 3.5; hardConstrain <- FALSE
-pair_names <- vector(); runs <- names(StrepChroms)
-for (i in 1:(length(runs)-1)){
-    for (j in (i+1): length(runs)){
-        pair_names <- c(paste(runs[i], runs[j], sep = "_"), pair_names)
-    }}
-globalStrep <- matrix(NA, nrow = 1, ncol = length(pair_names))
-colnames(globalStrep) <- pair_names
-rownames(globalStrep) <- c("RSE")
-
-for(pair in pair_names){
-  run_pair <- strsplit(pair, split = "_")[[1]]
-  Loess.fit <- getLOESSfit(run_pair, peptides, oswOutStrep, 0.1)
-  globalStrep["RSE", pair] <- Loess.fit$s
-}
-meanRSE <- mean(globalStrep["RSE",])
+meanRSE <- 7.4
+gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
+simMeasure <- "dotProductMasked"
+pair <- "run1_run2"
 ```
 
 
 ```{r hybridAlign, eval=TRUE}
-gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
-simMeasure <- "dotProductMasked"
-run_pair <- c("run1", "run2"); pair <- "run1_run2"
-Err <- matrix(NA, nrow = length(peptides), ncol = 1)
-rownames(Err) <- peptides
-Loess.fit <- getLOESSfit(run_pair, peptides, oswOutStrep, 0.1)
-for(peptide in peptides){
-  s <- getSimilarityMatrix(StrepChroms, peptide, run_pair[1], run_pair[2], type = simMeasure)
-  gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
-  tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-  tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-  noBeef <- ceiling(RSEdistFactor*min(globalStrep["RSE", pair], meanRSE)/samplingTime)
-  if(hardConstrain) {
-    MASK <- calcNoBeefMaskGlobal(tRunAVec, tRunBVec, Fit = Loess.fit, noBeef)
-    s <- constrainSimilarity(s, MASK, -2*max(s))
-    } else {
-      MASK <- calcNoBeefMaskGlobalWSlope(tRunAVec, tRunBVec, Fit = Loess.fit, noBeef)
-      s <- constrainSimilarity(s, MASK, -2*max(s)/samples4gradient) # it will take 100 time points to reach -2max
-    }
-  Alignobj <- getAffineAlignObj(s, go = gapPenalty*goFactor, ge = gapPenalty*geFactor)
-  AlignedIndices <- getAlignment(Alignobj)
-  tA <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-  tB <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-  tA.aligned <- mapIdxToTime(tA, AlignedIndices[[1]][,"indexA_aligned"])
-  tB.aligned <- mapIdxToTime(tB, AlignedIndices[[1]][,"indexB_aligned"])
-  predictTime <- tB.aligned[which.min(abs(tA.aligned - StrepAnnot[peptide, run_pair[1]]))]
-  deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
-  Err[peptide, 1] <- deltaT
-}
+MappedTimeHybrid <- getPepPeakCorp(StrepAnnot, pair, StrepChroms[["run1"]], StrepChroms[["run2"]], "hybrid", oswOutStrep, meanRSE)
+Err_hybrid <- StrepAnnot[,"run2"] - MappedTimeHybrid
 ```
 
 ```{r plotHybrid, fig.width=6, fig.align='center', fig.height=6}
-plotErrorCurve(abs(Err), "red", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
+plotErrorCurve(abs(Err_hybrid), "red", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 ```
 
 ## Visualize chromatograms, similarity matrix and alignment path
-```{r VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=TRUE}
+```{r VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=FALSE}
 library(lattice)
 library(ggplot2)
 library(reshape2)

@@ -69,99 +69,47 @@ plotErrorCurve <- function(x, clr = "black", SameGraph = FALSE, xmax = 120, ...)
 plotErrorCurve(abs(Err), "blue", xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 
 ## ----localFit, eval=TRUE-------------------------------------------------
-gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
-run_pair <- c("run1", "run2")
-Err <- matrix(NA, nrow = length(peptides), ncol = 1)
-rownames(Err) <- peptides
-for(peptide in peptides){
-  s <- getSimilarityMatrix(StrepChroms, peptide, run_pair[1], run_pair[2], type = simMeasure)
-  gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
-  Alignobj <- getAffineAlignObj(s, go = gapPenalty*goFactor, ge = gapPenalty*geFactor)
-  AlignedIndices <- getAlignment(Alignobj)
-  tA <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-  tB <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-  tA.aligned <- mapIdxToTime(tA, AlignedIndices[[1]][,"indexA_aligned"])
-  tB.aligned <- mapIdxToTime(tB, AlignedIndices[[1]][,"indexB_aligned"])
-  predictTime <- tB.aligned[which.min(abs(tA.aligned - StrepAnnot[peptide, run_pair[1]]))]
-  deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
-  Err[peptide, 1] <- deltaT
-}
+pair <- "run1_run2"
+MappedTimeLocal <- getPepPeakCorp(StrepAnnot, pair, StrepChroms[["run1"]], StrepChroms[["run2"]], "local", oswOutStrep)
+Err_local <- StrepAnnot[,"run2"] - MappedTimeLocal
 
 ## ----plotLocal, fig.width=6, fig.align='center', fig.height=6, fig.show='hold'----
-plotErrorCurve(abs(Err), "darkgreen", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
+plotErrorCurve(abs(Err_local), "darkgreen", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 
 ## ----hybridAlignParam----------------------------------------------------
 samplingTime <-3.4 # In example dataset, all points are acquired at 3.4 second interval.
 samples4gradient <- 100; RSEdistFactor <- 3.5; hardConstrain <- FALSE
-pair_names <- vector(); runs <- names(StrepChroms)
-for (i in 1:(length(runs)-1)){
-    for (j in (i+1): length(runs)){
-        pair_names <- c(paste(runs[i], runs[j], sep = "_"), pair_names)
-    }}
-globalStrep <- matrix(NA, nrow = 1, ncol = length(pair_names))
-colnames(globalStrep) <- pair_names
-rownames(globalStrep) <- c("RSE")
-
-for(pair in pair_names){
-  run_pair <- strsplit(pair, split = "_")[[1]]
-  Loess.fit <- getLOESSfit(run_pair, peptides, oswOutStrep, 0.1)
-  globalStrep["RSE", pair] <- Loess.fit$s
-}
-meanRSE <- mean(globalStrep["RSE",])
-
-## ----hybridAlign, eval=TRUE----------------------------------------------
+meanRSE <- 7.4
 gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
 simMeasure <- "dotProductMasked"
-run_pair <- c("run1", "run2"); pair <- "run1_run2"
-Err <- matrix(NA, nrow = length(peptides), ncol = 1)
-rownames(Err) <- peptides
-Loess.fit <- getLOESSfit(run_pair, peptides, oswOutStrep, 0.1)
-for(peptide in peptides){
-  s <- getSimilarityMatrix(StrepChroms, peptide, run_pair[1], run_pair[2], type = simMeasure)
-  gapPenalty <- getGapPenalty(s, gapQuantile, type = simMeasure)
-  tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-  tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-  noBeef <- ceiling(RSEdistFactor*min(globalStrep["RSE", pair], meanRSE)/samplingTime)
-  if(hardConstrain) {
-    MASK <- calcNoBeefMaskGlobal(tRunAVec, tRunBVec, Fit = Loess.fit, noBeef)
-    s <- constrainSimilarity(s, MASK, -2*max(s))
-    } else {
-      MASK <- calcNoBeefMaskGlobalWSlope(tRunAVec, tRunBVec, Fit = Loess.fit, noBeef)
-      s <- constrainSimilarity(s, MASK, -2*max(s)/samples4gradient) # it will take 100 time points to reach -2max
-    }
-  Alignobj <- getAffineAlignObj(s, go = gapPenalty*goFactor, ge = gapPenalty*geFactor)
-  AlignedIndices <- getAlignment(Alignobj)
-  tA <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-  tB <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-  tA.aligned <- mapIdxToTime(tA, AlignedIndices[[1]][,"indexA_aligned"])
-  tB.aligned <- mapIdxToTime(tB, AlignedIndices[[1]][,"indexB_aligned"])
-  predictTime <- tB.aligned[which.min(abs(tA.aligned - StrepAnnot[peptide, run_pair[1]]))]
-  deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
-  Err[peptide, 1] <- deltaT
-}
+pair <- "run1_run2"
+
+## ----hybridAlign, eval=TRUE----------------------------------------------
+MappedTimeHybrid <- getPepPeakCorp(StrepAnnot, pair, StrepChroms[["run1"]], StrepChroms[["run2"]], "hybrid", oswOutStrep, meanRSE)
+Err_hybrid <- StrepAnnot[,"run2"] - MappedTimeHybrid
 
 ## ----plotHybrid, fig.width=6, fig.align='center', fig.height=6-----------
-plotErrorCurve(abs(Err), "red", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
+plotErrorCurve(abs(Err_hybrid), "red", SameGraph = FALSE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
 
-## ----VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=TRUE----
-library(lattice)
-library(ggplot2)
-library(reshape2)
-
-plotChromatogram <- function(data, run, peptide, StrepAnnot, printTitle =TRUE){
-  df <- do.call("cbind", data[[run]][[peptide]])
-  df <- df[,!duplicated(colnames(df))]
-  df <- melt(df, id.vars="time", value.name = "Intensity")
-  g <- ggplot(df, aes(time, Intensity, col=variable)) + geom_line(show.legend = FALSE) + theme_bw()
-  if(printTitle) g <- g + ggtitle(paste0(run, ", ",peptide)) + theme(plot.title = element_text(hjust = 0.5))
-  g <- g + geom_vline(xintercept=StrepAnnot[peptide, run], lty="dotted", size = 0.4)
-  return(g)
-}
-
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index")
-Path <- getAlignmentPath(AlignedIndices[[1]], s)
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index", main = paste0("Alignment path through the ", simMeasure, " similarity matrix\n for ", peptide)) + latticeExtra::as.layer(levelplot(Path, col.regions = c("transparent", "green"), alpha = 1, axes = FALSE))
+## ----VisualizeAlignment, fig.width=6, fig.align='center', fig.height=6, eval=FALSE----
+#  library(lattice)
+#  library(ggplot2)
+#  library(reshape2)
+#  
+#  plotChromatogram <- function(data, run, peptide, StrepAnnot, printTitle =TRUE){
+#    df <- do.call("cbind", data[[run]][[peptide]])
+#    df <- df[,!duplicated(colnames(df))]
+#    df <- melt(df, id.vars="time", value.name = "Intensity")
+#    g <- ggplot(df, aes(time, Intensity, col=variable)) + geom_line(show.legend = FALSE) + theme_bw()
+#    if(printTitle) g <- g + ggtitle(paste0(run, ", ",peptide)) + theme(plot.title = element_text(hjust = 0.5))
+#    g <- g + geom_vline(xintercept=StrepAnnot[peptide, run], lty="dotted", size = 0.4)
+#    return(g)
+#  }
+#  
+#  levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index")
+#  Path <- getAlignmentPath(AlignedIndices[[1]], s)
+#  levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index", main = paste0("Alignment path through the ", simMeasure, " similarity matrix\n for ", peptide)) + latticeExtra::as.layer(levelplot(Path, col.regions = c("transparent", "green"), alpha = 1, axes = FALSE))
 
 ## ----sessionInfo, eval=TRUE----------------------------------------------
 devtools::session_info()

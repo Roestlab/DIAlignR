@@ -4,10 +4,11 @@
 \alias{alignChromatograms_cpp}
 \title{Outputs aligned chromatograms.}
 \usage{
-alignChromatograms_cpp(l1, l2, tA, tB, Normalization, SimType, B1p, B2p,
-  noBeef, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-  hardConstrain = FALSE, samples4gradient = 100)
+alignChromatograms_cpp(l1, l2, alignType, tA, tB, Normalization, SimType,
+  B1p = 0, B2p = 0, noBeef = 0L, goFactor = 0.125, geFactor = 40,
+  cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+  samples4gradient = 100)
 }
 \arguments{
 \item{ROW_SIZE}{(int) Number of rows of a matrix}
@@ -30,7 +31,7 @@ tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
 tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
 noBeef <- 6
 B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-Alignobj <- alignChromatograms_cpp(r1, r2, tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
+Alignobj <- alignChromatograms_cpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
 
 }
 \author{

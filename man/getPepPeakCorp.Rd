@@ -5,10 +5,10 @@
 \title{Establishes pairwise correspondence between extracted-ion chromatograms.}
 \usage{
 getPepPeakCorp(featureTable, pairName, XICs.A, XICs.B, alignType,
-  oswFeatureList, expRSE, samplingTime = 3.4, samples4gradient = 100,
-  RSEdistFactor = 3.5, hardConstrain = FALSE, gapQuantile = 0.5,
-  goFactor = 0.125, geFactor = 40, normalization = "mean",
-  simMeasure = "dotProductMasked")
+  oswFeatureList, expRSE = 0, samplingTime = 3.4,
+  samples4gradient = 100, RSEdistFactor = 3.5, hardConstrain = FALSE,
+  gapQuantile = 0.5, goFactor = 0.125, geFactor = 40,
+  normalization = "mean", simMeasure = "dotProductMasked")
 }
 \arguments{
 \item{featureTable}{A table of retention time identifications for each peptides.}
