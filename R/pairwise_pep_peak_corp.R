@@ -4,22 +4,25 @@
 #' similarity matrix and affine gap opening and gap closing penalties. An
 #' implementation of Needleman-Wunsch alignment and overlap alignment is also
 #' provided. All three matrices are clubbed together in an output S4 object.
-#' @param featureTable A numeric matrix
-#' @param pairName A numeric value
-#' @param XICs.A A numeric value
-#' @param XICs.B A logical scalar
-#' @param alignType A logical scalar
-#' @param oswFeatureList A logical scalar
-#' @param expRSE A logical scalar
-#' @param samplingTime A logical scalar
+#' @param featureTable A table of retention time identifications for each peptides.
+#' @param pairName Pair names joined with underscore. e.g. runA_runB, This will allow
+#' alignment of runB to runA.
+#' @param XICs.A List of extracted ion chromatograms of runA.
+#' @param XICs.B List of extracted ion chromatograms of runB.
+#' @param alignType Available alignment methods are "global", "local" and "hybrid".
+#' @param oswFeatureList List of features identified in each run. For feature identification
+#' OpenSWATH, Spectrodive, Skyline etc can be used.
+#' @param expRSE Expected residual standard error for constraining hybrid alignment.
+#' @param samplingTime Sampling time of runs.
 #' @param samples4gradient A logical scalar
 #' @param RSEdistFactor A logical scalar
 #' @param hardConstrain A logical scalar
 #' @param gapQuantile A logical scalar
 #' @param goFactor A logical scalar
 #' @param geFactor A logical scalar
-#' @param normalization A logical scalar
-#' @param simMeasure A logical scalar
+#' @param normalization A character string. Must be selected from (mean, l2)
+#' @param simMeasure A character string. Must be selected from (dotProduct, cosineAngle,
+#' cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation)
 #' @return A numeric matrix
 #' @examples
 #' pair <- "run1_run2"

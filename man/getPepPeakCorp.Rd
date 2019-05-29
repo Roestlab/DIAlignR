@@ -11,21 +11,23 @@ getPepPeakCorp(featureTable, pairName, XICs.A, XICs.B, alignType,
   simMeasure = "dotProductMasked")
 }
 \arguments{
-\item{featureTable}{A numeric matrix}
+\item{featureTable}{A table of retention time identifications for each peptides.}
 
-\item{pairName}{A numeric value}
+\item{pairName}{Pair names joined with underscore. e.g. runA_runB, This will allow
+alignment of runB to runA.}
 
-\item{XICs.A}{A numeric value}
+\item{XICs.A}{List of extracted ion chromatograms of runA.}
 
-\item{XICs.B}{A logical scalar}
+\item{XICs.B}{List of extracted ion chromatograms of runB.}
 
-\item{alignType}{A logical scalar}
+\item{alignType}{Available alignment methods are "global", "local" and "hybrid".}
 
-\item{oswFeatureList}{A logical scalar}
+\item{oswFeatureList}{List of features identified in each run. For feature identification
+OpenSWATH, Spectrodive, Skyline etc can be used.}
 
-\item{expRSE}{A logical scalar}
+\item{expRSE}{Expected residual standard error for constraining hybrid alignment.}
 
-\item{samplingTime}{A logical scalar}
+\item{samplingTime}{Sampling time of runs.}
 
 \item{samples4gradient}{A logical scalar}
 
@@ -39,9 +41,10 @@ getPepPeakCorp(featureTable, pairName, XICs.A, XICs.B, alignType,
 
 \item{geFactor}{A logical scalar}
 
-\item{normalization}{A logical scalar}
+\item{normalization}{A character string. Must be selected from (mean, l2)}
 
-\item{simMeasure}{A logical scalar}
+\item{simMeasure}{A character string. Must be selected from (dotProduct, cosineAngle,
+cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation)}
 }
 \value{
 A numeric matrix
