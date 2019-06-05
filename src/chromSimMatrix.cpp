@@ -1,5 +1,7 @@
 #include "chromSimMatrix.h"
-#include <Rcpp.h>
+#include <functional>
+#include <algorithm>
+#include <cmath>
 
 double meanVecOfVec(const std::vector<std::vector<double> >& vec){
   double average = 0.0;

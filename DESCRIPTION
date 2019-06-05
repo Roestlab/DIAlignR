@@ -22,3 +22,4 @@ Suggests:
 VignetteBuilder: knitr
 LinkingTo: 
     Rcpp
+SystemRequirements: C++11

@@ -6,7 +6,11 @@
 #include "affinealignobj.h"
 using namespace Rcpp;
 
+#ifdef USE_PRECONDITION
 #define PRECONDITION(condition, message) assert(condition); // If you don't put the message, C++ will output the code.
+#else
+#define PRECONDITION(condition, message) ; // If you don't put the message, C++ will output the code.
+#endif
 
 //' Outputs a NumericMatrix of given row and column size.
 //'
