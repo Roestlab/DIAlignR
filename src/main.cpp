@@ -57,40 +57,38 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double Match, dou
 //' # Get similarity matrix of dummy chromatograms
 //' r1 <- list(c(1.0,3.0,2.0,4.0), c(0.0,0.0,0.0,1.0), c(4.0,4.0,4.0,5.0))
 //' r2 <- list(c(1.4,2.0,1.5,4.0), c(0.0,0.5,0.0,0.0), c(2.0,3.0,4.0,0.9))
-//' getChromSimMat(r1, r2, "L2", "dotProductMasked")
-//' matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509, 0.2395940,
-//' 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048, 0.3460802, 0.1011619,
-//' 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "dotProductMasked"), 3)
+//' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186, 0.240,
+//' 0.213, 0.313, 0.233, 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "dotProduct")
-//' matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509,
-//'  0.2395940, 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048,
-//'   0.3460802, 0.1011619, 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "dotProduct"), 3)
+//' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186,0.240, 0.213, 0.313, 0.233,
+//' 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "cosineAngle")
-//' matrix(c(0.9338568, 0.9994629, 0.9892035, 0.9859998, 0.9328152, 0.9889961,
-//'  0.9828722, 0.9961742, 0.9935327, 0.9597374, 0.9945055, 0.9391117, 0.4495782,
-//'  0.7609756, 0.6326436, 0.7715167), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "cosineAngle"), 3)
+//' matrix(c(0.934, 0.999, 0.989, 0.986, 0.933, 0.989,
+//'  0.983, 0.996, 0.994, 0.960, 0.995, 0.939, 0.450,
+//'  0.761, 0.633, 0.772), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "cosine2Angle")
-//' matrix(c(0.7441769, 0.9978523, 0.9570470, 0.9443912, 0.7402886, 0.9562264, 0.9320755,
-//' 0.9847260, 0.9742143, 0.8421918, 0.9780822, 0.7638617, -0.5957588, 0.1581678,
-//' -0.1995241, 0.1904762), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "cosine2Angle"), 3)
+//' matrix(c(0.744, 0.998, 0.957, 0.944, 0.740, 0.956, 0.932,
+//' 0.985, 0.974, 0.842, 0.978, 0.764, -0.596, 0.158,
+//' -0.200, 0.190), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "euclidianDist")
-//' matrix(c(0.7387025, 0.7127694, 0.7250831, 0.6869622, 0.6984783, 0.6713737,
-//' 0.6842335, 0.6413183, 0.6744739, 0.6568703, 0.6653819, 0.6296096, 0.7586910,
-//' 0.6869622, 0.7179039, 0.6568703), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "mean", "euclidianDist"), 3)
+//' matrix(c(0.608, 0.614, 0.680, 0.434, 0.530, 0.742,
+//' 0.659, 0.641, 0.520, 0.541, 0.563, 0.511, 0.298,
+//' 0.375, 0.334, 0.355), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "covariance")
-//' matrix(c(0.016564523, 0.018930883, 0.017747703, 0.018930883, 0.021445141, 0.022924117,
-//' 0.022184629, 0.022924117, 0.036974382, 0.034016431, 0.035495406, 0.034016431,
-//' -0.002514258, 0.018487191, 0.007986466, 0.018487191), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "covariance"), 3)
+//' matrix(c(0.025, 0.028, 0.027, 0.028, 0.032, 0.034,
+//' 0.033, 0.034, 0.055, 0.051, 0.053, 0.051,
+//' -0.004, 0.028, 0.012, 0.028), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "correlation")
-//' matrix(c(0.87372107, 0.99853837, 0.97435470, 0.99853837, 0.92261291, 0.98624138, 0.99339927,
-//' 0.98624138, 0.99053606, 0.91129318, 0.98974332, 0.91129318, -0.06486282, 0.47693252,
-//' 0.21444787, 0.47693252), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "correlation"), 3)
+//' matrix(c(0.874, 0.999, 0.974, 0.999, 0.923, 0.986, 0.993,
+//' 0.986, 0.991, 0.911, 0.990, 0.911, -0.065, 0.477,
+//' 0.214, 0.477), 4, 4, byrow = F)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normalization, std::string SimType, double cosAngleThresh = 0.3, double dotProdThresh = 0.96){
@@ -422,15 +420,11 @@ MeanNormA <- sapply(r1, function(x) sum(x)/4)
 MeanNormA <- mean(MeanNormA)
 MeanNormB <- sapply(r2, function(x) sum(x)/4)
 MeanNormB <- mean(MeanNormB)
-L2NormA <- sapply(r1, function(x) x)
-L2NormA <- sqrt(rowSums(L2NormA^2))
-L2NormB <- sapply(r2, function(x) x)
-L2NormB <- sqrt(rowSums(L2NormB^2))
 outerProdList <- list()
 for (i in 1:3){
-  NormIntensityA <- r1[[i]]/L2NormA
-  NormIntensityB <- r2[[i]]/L2NormB
-  outerProdList[[i]] <- outer(NormIntensityA, NormIntensityB)
+  NormIntensityA <- r1[[i]]/MeanNormA
+  NormIntensityB <- r2[[i]]/MeanNormB
+  outerProdList[[i]] <- (outer(NormIntensityA, NormIntensityB, FUN = "-"))**2
   }
 add <- function(x) Reduce("+", x)
 add(outerProdList)
