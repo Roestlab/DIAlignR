@@ -347,9 +347,9 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     for(auto& i : s.data) i = std::cos(2*std::acos(i));
     clamp(s.data, -1.0, 1.0); // Clamp the cosine similarity between -1.0 and 1.0
   }
-  else if(SimType == "euclidianDist") // This is not correct.
+  else if(SimType == "euclidianDist")
     SumOuterEucl(d1, d2, Normalization, s);
-  else if(SimType == "covariance") // This is not correct.
+  else if(SimType == "covariance")
     SumOuterCov(d1, d2, Normalization, s);
   else if(SimType == "correlation")
     SumOuterCorr(d1, d2, Normalization, s);

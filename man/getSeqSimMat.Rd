@@ -2,30 +2,31 @@
 % Please edit documentation in R/RcppExports.R
 \name{getSeqSimMat}
 \alias{getSeqSimMat}
-\title{Calculate similarity matrix for two sequences}
+\title{Calculates similarity matrix for two sequences}
 \usage{
-getSeqSimMat(seq1, seq2, Match, MisMatch)
+getSeqSimMat(seq1, seq2, match, misMatch)
 }
 \arguments{
-\item{seq1}{(char) A single string}
+\item{seq1}{(char) A single string.}
 
-\item{seq2}{(char) A single string}
+\item{seq2}{(char) A single string.}
 
-\item{Match}{(double) Score for character match}
+\item{match}{(double) Score for character match.}
 
-\item{MisMatch}{(double) score for character mismatch}
+\item{misMatch}{(double) score for character mismatch.}
 }
 \value{
-s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
+s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively.
 }
 \description{
-Calculate similarity matrix for two sequences
+Calculates similarity matrix for two sequences
 }
 \examples{
 # Get sequence similarity of two DNA strings
 Match=10; MisMatch=-2
 seq1 = "GCAT"; seq2 = "CAGTG"
 getSeqSimMat(seq1, seq2, Match, MisMatch)
+matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2), 4, 5, byrow = F)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

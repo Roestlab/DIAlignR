@@ -2,9 +2,9 @@
 % Please edit documentation in R/RcppExports.R
 \name{getChromSimMat}
 \alias{getChromSimMat}
-\title{Calculate similarity matrix of two fragment-ion chromatogram group.}
+\title{Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms(XICs)}
 \usage{
-getChromSimMat(l1, l2, Normalization, SimType, cosAngleThresh = 0.3,
+getChromSimMat(l1, l2, normalization, simType, cosAngleThresh = 0.3,
   dotProdThresh = 0.96)
 }
 \arguments{
@@ -12,15 +12,22 @@ getChromSimMat(l1, l2, Normalization, SimType, cosAngleThresh = 0.3,
 
 \item{l2}{(list) A list of vectors. Length should be same as of l1.}
 
-\item{Normalization}{(char) A character string. Normalization must be selected from (L2, mean).}
+\item{normalization}{(char) A character string. Normalization must be selected from (L2, mean or none).}
 
-\item{SimType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).}
+\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+Mask = s > quantile(s, dotProdThresh)\cr
+AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
+s_new= s × AllowDotProd}
+
+\item{cosAngleThresh}{(numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.}
+
+\item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
 }
 \value{
-s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
+s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively.
 }
 \description{
-Calculate similarity matrix of two fragment-ion chromatogram group.
+Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms(XICs)
 }
 \examples{
 # Get similarity matrix of dummy chromatograms
