@@ -1,7 +1,7 @@
 # DIAlignR
 This is a R package for alignment of DIA mass-spec data
 
-For documentation please see [our vignette](http://htmlpreview.github.io/?https://github.com/Roestlab/DIAlignR/blob/master/vignettes/DIAlignR-vignette.html).
+For documentation please see [our vignette](http://htmlpreview.github.io/?https://github.com/shubham1637/DIAlignR/blob/master/vignettes/DIAlignR-vignette.html).
 
 If you use available algorithms or the package, please cite our paper:
 Shubham Gupta, Sara Ahadi, Wenyu Zhou, Hannes L. Rost. DIAlignR provides precise retention time alignment across distant runs in DIA and targeted proteomics
