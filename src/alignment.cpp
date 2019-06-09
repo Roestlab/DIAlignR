@@ -1,13 +1,13 @@
 #include "alignment.h"
 
 // This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
-AlignObj doAlignment(SimMatrix s, int signalA_len, int signalB_len, double gap, bool OverlapAlignment){
+AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
+  int signalA_len = s.n_row;
+  int signalB_len = s.n_col;
   AlignObj alignObj(signalA_len+1, signalB_len+1); // initialize AlignObj struct
   alignObj.FreeEndGaps = OverlapAlignment;
   alignObj.GapOpen = gap;
   alignObj.GapExten = gap;
-  alignObj.signalA_len = signalA_len;
-  alignObj.signalB_len = signalB_len;
 
   SimMatrix M;
   M.n_row = signalA_len+1;

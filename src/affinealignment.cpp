@@ -2,7 +2,9 @@
 // Do not inclue cpp file otherwise compiler will build the Obj through two different path.
 
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
-AffineAlignObj doAffineAlignment(SimMatrix s, int signalA_len, int signalB_len, double go, double ge, bool OverlapAlignment){
+AffineAlignObj doAffineAlignment(SimMatrix s, double go, double ge, bool OverlapAlignment){
+  int signalA_len = s.n_row;
+  int signalB_len = s.n_col;
   AffineAlignObj affineAlignObj(signalA_len+1, signalB_len+1); // Initialize AffineAlignObj
   affineAlignObj.FreeEndGaps = OverlapAlignment;
   affineAlignObj.GapOpen = go;
@@ -164,6 +166,11 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   int COL_IDX = affineAlignObj.signalB_len;
   int ROW_SIZE = (affineAlignObj.signalA_len)+1;
   int COL_SIZE = (affineAlignObj.signalB_len)+1;
+  // Initializing path matrix that would represent alignment path as binary-hot encoding.
+  SimMatrix_bool path;
+  path.n_col = affineAlignObj.signalA_len;
+  path.n_row = affineAlignObj.signalB_len;
+  path.data.resize(path.n_row*path.n_col, false);
 
   if(affineAlignObj.FreeEndGaps == true){
     // Overlap Alignment
@@ -176,6 +183,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
         alignedIdx.indexA_aligned.push_back(i);
         alignedIdx.indexB_aligned.push_back(NA); // Insert NA in signalB.
         alignedIdx.score.push_back(affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
+        path.data[i*(path.n_col-1) + (path.n_row-1)] = true;
         }
       }
     else if (COL_IDX != affineAlignObj.signalB_len){
@@ -184,6 +192,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
         alignedIdx.indexA_aligned.push_back(NA); // Insert NA in signalA.
         alignedIdx.indexB_aligned.push_back(j);
         alignedIdx.score.push_back(affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
+        path.data[(path.n_row-1)*(path.n_col-1) + j] = true;
         }
       }
     }

@@ -54,12 +54,12 @@ getPepPeakCorp <- function(featureTable, pairName, XICs.A, XICs.B, alignType, os
         noBeef <- ceiling(RSEdistFactor*min(rse, expRSE)/samplingTime)
         B1p <- predict(Loess.fit, tAVec[1])
         B2p <- predict(Loess.fit, tAVec[length(tAVec)])
-        Alignobj <- alignChromatograms_cpp(intensityListA, intensityListB, alignType,
+        Alignobj <- alignChromatogramsCpp(intensityListA, intensityListB, alignType,
                                            tAVec, tBVec, normalization, simMeasure,
                                            B1p, B2p, noBeef)
       }
       else{
-        Alignobj <- alignChromatograms_cpp(intensityListA, intensityListB, alignType,
+        Alignobj <- alignChromatogramsCpp(intensityListA, intensityListB, alignType,
                                            tAVec, tBVec, normalization, simMeasure)
       }
       AlignedIndices <- cbind(Alignobj@indexA_aligned, Alignobj@indexB_aligned, Alignobj@score)

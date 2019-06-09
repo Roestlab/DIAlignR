@@ -1,66 +1,68 @@
 #include "chromSimMatrix.h"
-#include <Rcpp.h>
+#include <functional>
+#include <algorithm>
+#include <cmath>
 
-double meanVecOfVec(const std::vector<std::vector<double> >& vec){
+double meanVecOfVec(const std::vector<std::vector<double> >& vov){
   double average = 0.0;
   // Sum-up mean of each vector using Range-based for loop.
   // const makes sure we do not accidentally chnage v. auto allows compiler to find type of v. & makes sure we are referening to v instead of making a copy that could cause performance loss.
-  // for (auto&& v : vec) average += std::accumulate( v.begin(), v.end(), 0.0)/v.size();
-  for (const auto& v : vec) average += std::accumulate( v.begin(), v.end(), 0.0)/v.size();
-  return average / vec.size();
+  // for (auto&& v : vov) average += std::accumulate( v.begin(), v.end(), 0.0)/v.size();
+  for (const auto& v : vov) average += std::accumulate( v.begin(), v.end(), 0.0)/v.size();
+  return average / vov.size();
 }
 
-double eucLenVecOfVec(const std::vector<std::vector<double> >& vec){
+double eucLenVecOfVec(const std::vector<std::vector<double> >& vov){
   double sos = 0.0; // sum of squares
-  for (const auto& v : vec) sos += std::accumulate( v.begin(), v.end(), 0.0, square<double>());
+  for (const auto& v : vov) sos += std::accumulate( v.begin(), v.end(), 0.0, square<double>());
   return std::sqrt(sos);
 }
 
-std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double> >& vec){
+std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double> >& vov){
   std::vector<double> mag;
-  mag.resize(vec[0].size(), 0.0);
-  int n_frag = vec.size();
+  mag.resize(vov[0].size(), 0.0);
+  int n_frag = vov.size();
   for (int i = 0; i < mag.size(); i++){
     for (int fragIon = 0; fragIon < n_frag; fragIon++){
-      mag[i] += vec[fragIon][i] * vec[fragIon][i];
+      mag[i] += vov[fragIon][i] * vov[fragIon][i];
     }
     mag[i] = std::sqrt(mag[i]);
   }
   return mag;
 }
 
-std::vector<double> perSampleSqrSumVecOfVec(const std::vector<std::vector<double> >& vec){
+std::vector<double> perSampleSqrSumVecOfVec(const std::vector<std::vector<double> >& vov){
   std::vector<double> mag;
-  mag.resize(vec[0].size(), 0.0);
-  int n_frag = vec.size();
+  mag.resize(vov[0].size(), 0.0);
+  int n_frag = vov.size();
   for (int i = 0; i < mag.size(); i++){
     for (int fragIon = 0; fragIon < n_frag; fragIon++){
-      mag[i] += vec[fragIon][i] * vec[fragIon][i];
+      mag[i] += vov[fragIon][i] * vov[fragIon][i];
     }
   }
   return mag;
 }
 
-std::vector<double> perSampleMeanVecOfVec(const std::vector<std::vector<double> >& vec){
+std::vector<double> perSampleMeanVecOfVec(const std::vector<std::vector<double> >& vov){
   std::vector<double> mean;
-  mean.resize(vec[0].size(), 0.0);
-  int n_frag = vec.size();
+  mean.resize(vov[0].size(), 0.0);
+  int n_frag = vov.size();
   for (int i = 0; i < mean.size(); i++){
     for (int fragIon = 0; fragIon < n_frag; fragIon++){
-      mean[i] += vec[fragIon][i];
+      mean[i] += vov[fragIon][i];
     }
     mean[i] = mean[i]/n_frag;
   }
   return mean;
 }
 
-std::vector<double> perSampleSumVecOfVec(const std::vector<std::vector<double> >& vec){
+std::vector<double> perSampleSumVecOfVec(const std::vector<std::vector<double> >& vov){
   std::vector<double> sum;
-  sum.resize(vec[0].size(), 0.0);
-  int n_frag = vec.size();
+  sum.resize(vov[0].size(), 0.0);
+  int n_frag = vov.size();
   for (int i = 0; i < sum.size(); i++){
     for (int fragIon = 0; fragIon < n_frag; fragIon++){
-      sum[i] += vec[fragIon][i];
+      sum[i] += vov[fragIon][i];
     }
   }
   return sum;
@@ -76,18 +78,18 @@ void clamp(std::vector<double>& vec, double minValue, double maxValue){
     i = (i < minValue) ? minValue : i;}
 }
 
-std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d){
+std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& vov){
   // Calculate overall mean and divide by it.
-  double mean_d = meanVecOfVec(d);
-  std::vector<std::vector<double>> d_new = divideVecOfVec(d, mean_d);
-  return d_new;
+  double mean_d = meanVecOfVec(vov);
+  std::vector<std::vector<double>> vov_new = divideVecOfVec(vov, mean_d);
+  return vov_new;
 }
 
-std::vector<std::vector<double>> L2NormalizeVecOfVec(const std::vector<std::vector<double>>& d){
+std::vector<std::vector<double>> L2NormalizeVecOfVec(const std::vector<std::vector<double>>& vov){
   // Calculate overall mean and divide by it.
-  double eucLen_d = eucLenVecOfVec(d);
-  std::vector<std::vector<double>> d_new = divideVecOfVec(d, eucLen_d);
-  return d_new;
+  double eucLen_d = eucLenVecOfVec(vov);
+  std::vector<std::vector<double>> vov_new = divideVecOfVec(vov, eucLen_d);
+  return vov_new;
 }
 
 std::vector<std::vector<double>> divideVecOfVec(const std::vector<std::vector<double>>& d, double num){
@@ -200,7 +202,7 @@ void SumOuterCov(const std::vector<std::vector<double>>& d1, const std::vector<s
   for (int fragIon = 0; fragIon < n_frag; fragIon++){
     ElemWiseSumOuterProdMeanSub(d1_new[fragIon], d2_new[fragIon], s, d1_mean, d2_mean);
   }
-  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::divides<double>(), std::placeholders::_1, n_frag));
+  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::divides<double>(), std::placeholders::_1, n_frag-1));
 }
 
 void SumOuterCorr(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s){
@@ -239,7 +241,7 @@ void SumOuterCorr(const std::vector<std::vector<double>>& d1, const std::vector<
       var2 = n_frag*d2_squareSum[j]-d2_sum[j]*d2_sum[j];
       if(var1 < 0.0 | var2 <= 0.0){
         Rcpp::Rcout << "In SumOuterCorr the standard deviation is zero" << std::endl;
-        s.data[i*s.n_col+j] = -20; // TODO: What to output in this case?
+        s.data[i*s.n_col+j] = 0; // TODO: What to output in this case?
       }
       else
         s.data[i*s.n_col+j] = (n_frag*s.data[i*s.n_col+j] - d1_sum[i]*d2_sum[j])/sqrt(var1*var2); // Summing outer product of vectors across fragment-ions.
@@ -269,7 +271,7 @@ void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<
   // Calculate outer-euclidean distance for each sample.
   int n_frag = d1.size();
   for (int fragIon = 0; fragIon < n_frag; fragIon++){
-    ElemWiseSumOuterProd(d1_new[fragIon], d2_new[fragIon], s);
+    ElemWiseSumOuterEucl(d1_new[fragIon], d2_new[fragIon], s);
   }
   // Take sqrt to get eucledian distance from the sum of squared-differences.
   // TODO std::ptr_fun<double, double> Why? Effectively calls std::pointer_to_unary_function<Arg,Result>(f)

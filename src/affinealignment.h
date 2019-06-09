@@ -7,7 +7,7 @@
 #include <limits>
 
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
-AffineAlignObj doAffineAlignment(SimMatrix s, int signalA_len, int signalB_len, double go, double ge, bool OverlapAlignment);
+AffineAlignObj doAffineAlignment(SimMatrix s, double go, double ge, bool OverlapAlignment);
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj);
 

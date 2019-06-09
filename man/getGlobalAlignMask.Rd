@@ -2,33 +2,43 @@
 % Please edit documentation in R/RcppExports.R
 \name{getGlobalAlignMask}
 \alias{getGlobalAlignMask}
-\title{Get a mask for constraining similarity matrix.}
+\title{Outputs a mask for constraining similarity matrix}
 \usage{
 getGlobalAlignMask(tA, tB, B1p, B2p, noBeef = 50L,
   hardConstrain = FALSE)
 }
 \arguments{
-\item{ROW_SIZE}{(int) Number of rows of a matrix}
+\item{tA}{(numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.}
 
-\item{COL_SIZE}{(int) Number of columns of a matrix}
+\item{tB}{(numeric) A numeric vector. This vector has equally spaced timepoints of XIC B.}
+
+\item{B1p}{(numeric) Timepoint mapped by global fit for tA[1].}
+
+\item{B2p}{(numeric) Timepoint mapped by global fit for tA[length(tA)].}
+
+\item{noBeef}{(integer) It defines the distance from the global fit, upto which no penalization is performed.\cr
+The window length = 2*noBeef.}
+
+\item{hardConstrain}{(logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.}
 }
 \value{
-affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+mask (matrix) A numeric matrix.
 }
 \description{
-This function takes in timeVectors from both runs, a global-fit object and
-sample-length of window of no constraining. Outside of window, all elements
-of matrix are either equally weighted or weighted proportional to distance
-from window-boundry.
+This function takes in timeVectors from both runs, global-fit mapped values
+of end-points of first time vector and sample-length of window of no constraining.
+Outside of window, all elements of matrix are either equally weighted or weighted
+proportional to distance from window-boundry.
 }
 \examples{
 tA <- c(3353.2, 3356.6, 3360.0, 3363.5)
 tB <- c(3325.9, 3329.3, 3332.7, 3336.1)
 B1p <- 3325.751; B2p <- 3336.119
 noBeef <- 1
-m <- getGlobalAlignMask(tA, tB, B1p, B2p, noBeef, FALSE)
-matrix(c(0.0000, 0.0000, 0.7071, 1.4142, 0.0000, 0.0000, 0.0000, 0.7071, 0.7071, 0.0000,
-0.0000, 0.0000, 1.4142, 0.7071, 0.0000, 0.0000), 4, 4, byrow = F)
+mask <- getGlobalAlignMask(tA, tB, B1p, B2p, noBeef, FALSE)
+round(mask, 3)
+matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
+0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

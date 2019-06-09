@@ -12,37 +12,37 @@ using namespace Rcpp;
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
 // [[Rcpp::plugins(cpp11)]]
 
-//' Calculate similarity matrix for two sequences
+//' Calculates similarity matrix for two sequences
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-05
-//' @param seq1 (char) A single string
-//' @param seq2 (char) A single string
-//' @param Match (double) Score for character match
-//' @param MisMatch (double) score for character mismatch
-//' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
+//' @param seq1 (char) A single string.
+//' @param seq2 (char) A single string.
+//' @param match (double) Score for character match.
+//' @param misMatch (double) score for character mismatch.
+//' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively.
 //' @examples
 //' # Get sequence similarity of two DNA strings
 //' Match=10; MisMatch=-2
 //' seq1 = "GCAT"; seq2 = "CAGTG"
 //' getSeqSimMat(seq1, seq2, Match, MisMatch)
+//' matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2), 4, 5, byrow = F)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double Match, double MisMatch){
+NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, double misMatch){
   int ROW_SIZE = seq1.size();
   int COL_SIZE = seq2.size();
   NumericMatrix s(ROW_SIZE, COL_SIZE);
-  for(int j = 0; j < COL_SIZE; j++){
-    for(int i = 0; i < ROW_SIZE; i++){
-      seq1[i] == seq2[j] ?  s(i, j) = Match : s(i, j) = MisMatch;
-    }
-  }
+  // NUmericMatrix pointer moves along the rows faster that's why iterating over i first then j.
+  for(int j = 0; j < COL_SIZE; j++)
+    for(int i = 0; i < ROW_SIZE; i++)
+      seq1[i] == seq2[j] ?  s(i, j) = match : s(i, j) = misMatch;
   return(s);
 }
 
-//' Calculate similarity matrix of two fragment-ion chromatogram group.
+//' Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms(XICs)
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
@@ -50,147 +50,194 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double Match, dou
 //' Date: 2019-03-05
 //' @param l1 (list) A list of vectors. Length should be same as of l2.
 //' @param l2 (list) A list of vectors. Length should be same as of l1.
-//' @param Normalization (char) A character string. Normalization must be selected from (L2, mean).
-//' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).
-//' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively
+//' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+//' Mask = s > quantile(s, dotProdThresh)\cr
+//' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
+//' s_new= s × AllowDotProd
+//' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+//' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+//' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively.
 //' @examples
 //' # Get similarity matrix of dummy chromatograms
 //' r1 <- list(c(1.0,3.0,2.0,4.0), c(0.0,0.0,0.0,1.0), c(4.0,4.0,4.0,5.0))
 //' r2 <- list(c(1.4,2.0,1.5,4.0), c(0.0,0.5,0.0,0.0), c(2.0,3.0,4.0,0.9))
-//' getChromSimMat(r1, r2, "L2", "dotProductMasked")
-//' matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509, 0.2395940,
-//' 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048, 0.3460802, 0.1011619,
-//' 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "dotProductMasked"), 3)
+//' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186, 0.240,
+//' 0.213, 0.313, 0.233, 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "dotProduct")
-//' matrix(c(0.1251213, 0.1623915, 0.1437564, 0.2076481, 0.1863509,
-//'  0.2395940, 0.2129724, 0.3128033, 0.2329386, 0.2728709, 0.2529048,
-//'   0.3460802, 0.1011619, 0.2076481, 0.1544050, 0.2728709), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "dotProduct"), 3)
+//' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186,0.240, 0.213, 0.313, 0.233,
+//' 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "cosineAngle")
-//' matrix(c(0.9338568, 0.9994629, 0.9892035, 0.9859998, 0.9328152, 0.9889961,
-//'  0.9828722, 0.9961742, 0.9935327, 0.9597374, 0.9945055, 0.9391117, 0.4495782,
-//'  0.7609756, 0.6326436, 0.7715167), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "cosineAngle"), 3)
+//' matrix(c(0.934, 0.999, 0.989, 0.986, 0.933, 0.989,
+//'  0.983, 0.996, 0.994, 0.960, 0.995, 0.939, 0.450,
+//'  0.761, 0.633, 0.772), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "cosine2Angle")
-//' matrix(c(0.7441769, 0.9978523, 0.9570470, 0.9443912, 0.7402886, 0.9562264, 0.9320755,
-//' 0.9847260, 0.9742143, 0.8421918, 0.9780822, 0.7638617, -0.5957588, 0.1581678,
-//' -0.1995241, 0.1904762), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "cosine2Angle"), 3)
+//' matrix(c(0.744, 0.998, 0.957, 0.944, 0.740, 0.956, 0.932,
+//' 0.985, 0.974, 0.842, 0.978, 0.764, -0.596, 0.158,
+//' -0.200, 0.190), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "euclidianDist")
-//' matrix(c(0.7387025, 0.7127694, 0.7250831, 0.6869622, 0.6984783, 0.6713737,
-//' 0.6842335, 0.6413183, 0.6744739, 0.6568703, 0.6653819, 0.6296096, 0.7586910,
-//' 0.6869622, 0.7179039, 0.6568703), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "mean", "euclidianDist"), 3)
+//' matrix(c(0.608, 0.614, 0.680, 0.434, 0.530, 0.742,
+//' 0.659, 0.641, 0.520, 0.541, 0.563, 0.511, 0.298,
+//' 0.375, 0.334, 0.355), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "covariance")
-//' matrix(c(0.016564523, 0.018930883, 0.017747703, 0.018930883, 0.021445141, 0.022924117,
-//' 0.022184629, 0.022924117, 0.036974382, 0.034016431, 0.035495406, 0.034016431,
-//' -0.002514258, 0.018487191, 0.007986466, 0.018487191), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "covariance"), 3)
+//' matrix(c(0.025, 0.028, 0.027, 0.028, 0.032, 0.034,
+//' 0.033, 0.034, 0.055, 0.051, 0.053, 0.051,
+//' -0.004, 0.028, 0.012, 0.028), 4, 4, byrow = F)
 //'
-//' getChromSimMat(r1, r2, "L2", "correlation")
-//' matrix(c(0.87372107, 0.99853837, 0.97435470, 0.99853837, 0.92261291, 0.98624138, 0.99339927,
-//' 0.98624138, 0.99053606, 0.91129318, 0.98974332, 0.91129318, -0.06486282, 0.47693252,
-//' 0.21444787, 0.47693252), 4, 4, byrow = F)
+//' round(getChromSimMat(r1, r2, "L2", "correlation"), 3)
+//' matrix(c(0.874, 0.999, 0.974, 0.999, 0.923, 0.986, 0.993,
+//' 0.986, 0.991, 0.911, 0.990, 0.911, -0.065, 0.477,
+//' 0.214, 0.477), 4, 4, byrow = F)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string Normalization, std::string SimType, double cosAngleThresh = 0.3, double dotProdThresh = 0.96){
+NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string normalization, std::string simType, double cosAngleThresh = 0.3, double dotProdThresh = 0.96){
+  // C++ code is compatible with vector of vector input, therefore, converting list to vector of vectors.
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
+  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
   // printVecOfVec(l1);
-  SimMatrix s = getSimilarityMatrix(r1, r2, Normalization, SimType, cosAngleThresh, dotProdThresh);
   // printMatrix(s.data, s.n_row, s.n_col);
+  // Proceessing in R is done with matrix-format, therefore, converting STL vector into NumericMatrix.
   NumericMatrix simMat = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return simMat;
 }
 
-//' Get a mask for constraining similarity matrix.
+//' Outputs a mask for constraining similarity matrix
 //'
-//' This function takes in timeVectors from both runs, a global-fit object and
-//' sample-length of window of no constraining. Outside of window, all elements
-//' of matrix are either equally weighted or weighted proportional to distance
-//' from window-boundry.
+//' This function takes in timeVectors from both runs, global-fit mapped values
+//' of end-points of first time vector and sample-length of window of no constraining.
+//' Outside of window, all elements of matrix are either equally weighted or weighted
+//' proportional to distance from window-boundry.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param ROW_SIZE (int) Number of rows of a matrix
-//' @param COL_SIZE (int) Number of columns of a matrix
-//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @param tA (numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.
+//' @param tB (numeric) A numeric vector. This vector has equally spaced timepoints of XIC B.
+//' @param B1p (numeric) Timepoint mapped by global fit for tA[1].
+//' @param B2p (numeric) Timepoint mapped by global fit for tA[length(tA)].
+//' @param noBeef (integer) It defines the distance from the global fit, upto which no penalization is performed.\cr
+//' The window length = 2*noBeef.
+//' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
+//' @return mask (matrix) A numeric matrix.
 //' @examples
 //' tA <- c(3353.2, 3356.6, 3360.0, 3363.5)
 //' tB <- c(3325.9, 3329.3, 3332.7, 3336.1)
 //' B1p <- 3325.751; B2p <- 3336.119
 //' noBeef <- 1
-//' m <- getGlobalAlignMask(tA, tB, B1p, B2p, noBeef, FALSE)
-//' matrix(c(0.0000, 0.0000, 0.7071, 1.4142, 0.0000, 0.0000, 0.0000, 0.7071, 0.7071, 0.0000,
-//' 0.0000, 0.0000, 1.4142, 0.7071, 0.0000, 0.0000), 4, 4, byrow = F)
+//' mask <- getGlobalAlignMask(tA, tB, B1p, B2p, noBeef, FALSE)
+//' round(mask, 3)
+//' matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
+//' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef = 50, bool hardConstrain = false){
-  SimMatrix MASK;
+NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vector<double>& tB,
+                                 double B1p, double B2p, int noBeef = 50, bool hardConstrain = false){
+  SimMatrix MASK; // Initializing MASK
   MASK.n_row = tA.size();
   MASK.n_col = tB.size();
   MASK.data.resize(MASK.n_row*MASK.n_col, 0.0);
   double A1 = tA[0], A2 = tA[MASK.n_row-1];
   double B1 = tB[0], B2 = tB[MASK.n_col-1];
   calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
+  // Proceessing in R is done with matrix-format, therefore, converting STL vector into NumericMatrix.
   NumericMatrix mask = Vec2NumericMatrix(MASK.data, MASK.n_row, MASK.n_col);
   return mask;
 }
 
-//' Constrain similarity matrix using mask and constrainValue.
+//' Constrain similarity matrix with a mask
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param ROW_SIZE (int) Number of rows of a matrix
-//' @param COL_SIZE (int) Number of columns of a matrix
-//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @param sim (matrix) A numeric matrix. Input similarity matrix.
+//' @param MASK (matrix) A numeric matrix. Masked indices have non-zero values.
+//' @param samples4gradient (numeric) This paarameter modulates penalization of masked indices.
+//' @return s_new (matrix) A constrained similarity matrix.
 //' @examples
-//'
+//' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10), 4, 4, byrow = F)
+//' MASK <- matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
+//' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
+//' constrainSim(sim, MASK, 10)
+//' matrix(c(-2, 10, -3.414, -4.828, -2, -2, 10, -3.414, 8.586, -2, -2, -2, -4.828,
+//' -3.414, -2, 10), 4, 4, byrow = F)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix constrainSimMain(const NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient = 100.0){
-  SimMatrix s = NumericMatrix2Vec(sim);
+NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient = 100.0){
+  SimMatrix s = NumericMatrix2Vec(sim); // converting NumericMatrix to STL vector because of C++ compatibility.
   SimMatrix mask = NumericMatrix2Vec(MASK);
+  // Calculating maximum value of similarity matrix.
+  // TODO: Use abs values
   auto maxIt = max_element(std::begin(s.data), std::end(s.data));
   double maxVal = *maxIt;
   constrainSimilarity(s, mask, -2.0*maxVal/samples4gradient);
   // sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col); // This code doesn't update sim matrix. Why?
-  NumericMatrix s1 = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
-  return s1;
+  // Proceessing in R is done with matrix-format, therefore, converting STL vector into NumericMatrix.
+  NumericMatrix s_new = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+  return s_new;
 }
 
 //' Calculates gap penalty for dynamic programming based alignment.
 //'
+//' This function outputs base gap-penalty depending on simType used. In case of getting base gap-penalty
+//' from similarity matrix distribution, gapQuantile will be used to pick the value.
+//'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param ROW_SIZE (int) Number of rows of a matrix
-//' @param COL_SIZE (int) Number of columns of a matrix
-//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @param sim (matrix) A numeric matrix. Input similarity matrix.
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).
+//' @param gapQuantile (numeric) Must be between 0 and 1.
+//' @return baseGapPenalty (numeric).
 //' @examples
-//'
+//' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = F)
+//' getBaseGapPenalty(sim, dotProductMasked, 0.5) # -0.25
 //' @export
 // [[Rcpp::export]]
-double getGapPenaltyMain(const NumericMatrix& sim, std::string SimType, double gapQuantile = 0.5){
-  SimMatrix s = NumericMatrix2Vec(sim);
+double getBaseGapPenalty(const NumericMatrix& sim, std::string SimType, double gapQuantile = 0.5){
+  SimMatrix s = NumericMatrix2Vec(sim); // converting NumericMatrix to STL vector because of C++ compatibility.
   double gapPenalty = getGapPenalty(s, gapQuantile, SimType);
   return gapPenalty;
 }
 
-//' Outputs aligned chromatograms.
+//' Aligns MS2 XICs pair
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param ROW_SIZE (int) Number of rows of a matrix
-//' @param COL_SIZE (int) Number of columns of a matrix
-//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
+//' @param l1 (list) A list of numeric vectors. l1 and l2 should have same length.
+//' @param l2 (list) A list of numeric vectors. l1 and l2 should have same length.
+//' @param alignType (char) A character string. Available alignment methods are "global", "local" and "hybrid".
+//' @param tA (numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.
+//' @param tB (numeric) A numeric vector. This vector has equally spaced timepoints of XIC B.
+//' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+//' Mask = s > quantile(s, dotProdThresh)\cr
+//' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
+//' s_new= s × AllowDotProd
+//' @param B1p (numeric) Timepoint mapped by global fit for tA[1].
+//' @param B2p (numeric) Timepoint mapped by global fit for tA[length(tA)].
+//' @param noBeef (integer) It defines the distance from the global fit, upto which no penalization is performed.\cr
+//' The window length = 2*noBeef.
+//' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
+//' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+//' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+//' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
+//' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+//' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+//' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
+//' @param samples4gradient (numeric) This paarameter modulates penalization of masked indices.
+//' @return affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 //' @examples
 //' simMeasure <- "dotProductMasked"
 //' run_pair <- c("run1", "run2")
@@ -201,13 +248,12 @@ double getGapPenaltyMain(const NumericMatrix& sim, std::string SimType, double g
 //' tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
 //' noBeef <- 6
 //' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-//' Alignobj <- alignChromatograms_cpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
-//'
+//' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
 //' @export
 // [[Rcpp::export]]
-S4 alignChromatograms_cpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
+S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             const std::vector<double>& tA, const std::vector<double>& tB,
-                            std::string Normalization, std::string SimType,
+                            std::string normalization, std::string simType,
                             double B1p = 0.0, double B2p =0.0, int noBeef = 0,
                             double goFactor = 0.125, double geFactor = 40,
                             double cosAngleThresh = 0.3, bool OverlapAlignment = true,
@@ -215,8 +261,8 @@ S4 alignChromatograms_cpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             bool hardConstrain = false, double samples4gradient = 100.0){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
-  SimMatrix s = getSimilarityMatrix(r1, r2, Normalization, SimType, cosAngleThresh, dotProdThresh);
-  double gapPenalty = getGapPenalty(s, gapQuantile, SimType);
+  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
+  double gapPenalty = getGapPenalty(s, gapQuantile, simType);
   if (alignType == "hybrid"){
     SimMatrix MASK;
     MASK.n_row = tA.size();
@@ -230,7 +276,7 @@ S4 alignChromatograms_cpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
     constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
   }
   AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
-  obj = doAffineAlignment(s, s.n_row, s.n_col, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+  obj = doAffineAlignment(s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
@@ -249,94 +295,33 @@ S4 alignChromatograms_cpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   return(x);
 }
 
-//' Get a dummy S4 object of C++ class AffineAlignObj
-//'
-//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-//' ORCID: 0000-0003-3500-8152
-//' License: (c) Author (2019) + MIT
-//' Date: 2019-03-08
-//' @param ROW_SIZE (int) Number of rows of a matrix
-//' @param COL_SIZE (int) Number of columns of a matrix
-//' @return affineAlignObj (S4class) A S4class dummy object from C++ AffineAlignObj struct
-//' @examples
-//' x <- setAffineAlignObj_S4(4, 5)
-//' x@signalA_len # 3
-//' @export
-// [[Rcpp::export]]
-S4 setAffineAlignObj_S4(int ROW_SIZE, int COL_SIZE){
-  AffineAlignObj obj(ROW_SIZE, COL_SIZE); // Initializing C++ AffineAlignObj struct
-  S4 x("AffineAlignObj"); // Creating an empty S4 object of AffineAlignObj class
-  // Setting values to the slots
-  x.slot("M")  = obj.M;
-  x.slot("A")  = obj.A;
-  x.slot("B")  = obj.B;
-  x.slot("Traceback")  = EnumToChar(obj.Traceback); // EnumToChar adds 48 to get ASCII character value of single-digit numeral.
-  x.slot("signalA_len") = obj.signalA_len;
-  x.slot("signalB_len") = obj.signalB_len;
-  x.slot("GapOpen") = obj.GapOpen;
-  x.slot("GapExten") = obj.GapExten;
-  x.slot("FreeEndGaps") = obj.FreeEndGaps;
-  return(x);
-}
-
-//' Get a dummy S4 object of C++ class AlignObj
-//'
-//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-//' ORCID: 0000-0003-3500-8152
-//' License: (c) Author (2019) + MIT
-//' Date: 2019-03-08
-//' @param ROW_SIZE (int) Number of rows of a matrix
-//' @param COL_SIZE (int) Number of columns of a matrix
-//' @return AlignObj (S4class) A S4class dummy object from C++ AlignObj struct
-//' @examples
-//' x <- setAlignObj_S4(4, 5)
-//' x@signalA_len # 3
-//' @export
-// [[Rcpp::export]]
-S4 setAlignObj_S4(int ROW_SIZE, int COL_SIZE){
-  AlignObj obj(ROW_SIZE, COL_SIZE); // Initializing C++ AlignObj struct
-  S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
-  // Setting values to the slots
-  x.slot("M")  = obj.M;
-  x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  x.slot("signalA_len") = obj.signalA_len;
-  x.slot("signalB_len") = obj.signalB_len;
-  x.slot("GapOpen") = obj.GapOpen;
-  x.slot("GapExten") = obj.GapExten;
-  x.slot("FreeEndGaps") = obj.FreeEndGaps;
-  x.slot("indexA_aligned") = obj.indexA_aligned;
-  x.slot("indexB_aligned") = obj.indexB_aligned;
-  x.slot("score") = obj.score;
-  return(x);
-}
-
 //' Perform non-affine global and overlap alignment on a similarity matrix
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param sim (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
-//' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
-//' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
-//' @param gap (double) Penalty for introducing gaps in alignment
-//' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
-//' @return AlignObj (S4class) An object from C++ class of AlignObj
+//' @param sim (NumericMatrix) A numeric matrix with similarity values of two sequences or signals.
+//' @param gap (double) Penalty for introducing gaps in alignment.
+//' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
+//' @return AlignObj (S4class) An object from C++ class of AlignObj.
 //' @examples
 //' # Get sequence similarity of two DNA strings
 //' Match=10; MisMatch=-2
 //' seq1 = "GCAT"; seq2 = "CAGTG"
 //' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
-//' obj_Global <- doAlignment_S4(s, 4, 5, 22, FALSE)
+//' obj_Global <- doAlignmentCpp(s, 22, FALSE)
 //' obj_Global@score # -2 -4 -6 4 -18
-//' obj_Olap <- doAlignment_S4(s, 4, 5, 22, TRUE)
+//' obj_Olap <- doAlignmentCpp(s, 22, TRUE)
 //' obj_Olap@score # 0 10 20 18 18 18
 //' @export
 // [[Rcpp::export]]
-S4 doAlignment_S4(NumericMatrix sim, int signalA_len, int signalB_len, double gap, bool OverlapAlignment){
+S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
+  int signalA_len = sim.nrow(); // Length of signalA or sequenceA. Expresses along the rows of s
+  int signalB_len = sim.ncol(); // Length of signalB or sequenceB. Expresses along the columns of s
   AlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AlignObj struct
   SimMatrix s = NumericMatrix2Vec(sim);
-  obj = doAlignment(s, signalA_len, signalB_len, gap, OverlapAlignment); // Performs alignment on s matrix and returns AlignObj struct
+  obj = doAlignment(s, gap, OverlapAlignment); // Performs alignment on s matrix and returns AlignObj struct
   getAlignedIndices(obj); // Performs traceback and fills aligned indices in AlignObj struct
   S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
   // Copying values to slots
@@ -359,36 +344,36 @@ S4 doAlignment_S4(NumericMatrix sim, int signalA_len, int signalB_len, double ga
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param sim (NumericMatrix) A numeric matrix with similarity values of two sequences or signals
-//' @param signalA_len (int) Length of signalA or sequenceA. Expresses along the rows of s
-//' @param signalB_len (int) Length of signalB or sequenceB. Expresses along the columns of s
-//' @param go (double) Penalty for introducing first gap in alignment
-//' @param ge (double) Penalty for introducing subsequent gaps in alignment
-//' @param OverlapAlignment (bool) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment
-//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj
+//' @param sim (NumericMatrix) A numeric matrix with similarity values of two sequences or signals.
+//' @param go (numeric) Penalty for introducing first gap in alignment.
+//' @param ge (numeric) Penalty for introducing subsequent gaps in alignment.
+//' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
+//' @return affineAlignObj (S4class) An object from C++ class of AffineAlignObj.
 //' @examples
 //' # Get sequence similarity of two DNA strings
 //' Match=10; MisMatch=-2
 //' seq1 = "GCAT"; seq2 = "CAGTG"
 //' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
-//' objAffine_Global <- doAffineAlignment_S4(s, 4, 5, 22, 7, FALSE)
+//' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 //' objAffine_Global@score # -2  -4  -6  4 -18
-//' objAffine_Olap <- doAffineAlignment_S4(s, 4, 5, 22, 7, TRUE)
+//' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 //' objAffine_Olap@score # 0 10 20 18 18 18
 //'
 //' seq1 = "CAT"; seq2 = "CAGTG"
 //' s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
-//' objAffine_Global <- doAffineAlignment_S4(s, 3, 5, 22, 7, FALSE)
+//' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 //' objAffine_Global@score # 10  20  -2  -9 -11
-//' objAffine_Olap <- doAffineAlignment_S4(s, 3, 5, 22, 7, TRUE)
+//' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 //' objAffine_Olap@score # 10 20 18 18 18
 //' @export
 // [[Rcpp::export]]
-S4 doAffineAlignment_S4(NumericMatrix sim, int signalA_len, int signalB_len, double go, double ge, bool OverlapAlignment){
+S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAlignment){
+  int signalA_len = sim.nrow(); // Length of signalA or sequenceA. Expresses along the rows of s.
+  int signalB_len = sim.ncol(); // Length of signalB or sequenceB. Expresses along the columns of s.
   AffineAlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AffineAlignObj struct
   SimMatrix s = NumericMatrix2Vec(sim);
   // printMatrix(s.data, s.n_row, s.n_col);
-  obj = doAffineAlignment(s, signalA_len, signalB_len, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
+  obj = doAffineAlignment(s, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
@@ -422,15 +407,11 @@ MeanNormA <- sapply(r1, function(x) sum(x)/4)
 MeanNormA <- mean(MeanNormA)
 MeanNormB <- sapply(r2, function(x) sum(x)/4)
 MeanNormB <- mean(MeanNormB)
-L2NormA <- sapply(r1, function(x) x)
-L2NormA <- sqrt(rowSums(L2NormA^2))
-L2NormB <- sapply(r2, function(x) x)
-L2NormB <- sqrt(rowSums(L2NormB^2))
 outerProdList <- list()
 for (i in 1:3){
-  NormIntensityA <- r1[[i]]/L2NormA
-  NormIntensityB <- r2[[i]]/L2NormB
-  outerProdList[[i]] <- outer(NormIntensityA, NormIntensityB)
+  NormIntensityA <- r1[[i]]/MeanNormA
+  NormIntensityB <- r2[[i]]/MeanNormB
+  outerProdList[[i]] <- (outer(NormIntensityA, NormIntensityB, FUN = "-"))**2
   }
 add <- function(x) Reduce("+", x)
 add(outerProdList)
