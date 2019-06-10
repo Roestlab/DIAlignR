@@ -75,6 +75,8 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
 }
 
 // This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
+// It calculates row and column index pair associated with the highest scoring path through similarity
+// matrix. Output is a list of row-column index pairs of all highest scoring traceback paths.
 void getAlignedIndices(AlignObj &alignObj){
   AlignedIndices alignedIdx; // initialize empty struct
   TracebackType TracebackPointer;

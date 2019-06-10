@@ -51,7 +51,7 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, dou
 //' @param l1 (list) A list of vectors. Length should be same as of l2.
 //' @param l2 (list) A list of vectors. Length should be same as of l1.
 //' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
 //' Mask = s > quantile(s, dotProdThresh)\cr
 //' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 //' s_new= s × AllowDotProd
@@ -80,7 +80,7 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, dou
 //' 0.985, 0.974, 0.842, 0.978, 0.764, -0.596, 0.158,
 //' -0.200, 0.190), 4, 4, byrow = F)
 //'
-//' round(getChromSimMat(r1, r2, "mean", "euclidianDist"), 3)
+//' round(getChromSimMat(r1, r2, "mean", "euclideanDist"), 3)
 //' matrix(c(0.608, 0.614, 0.680, 0.434, 0.530, 0.742,
 //' 0.659, 0.641, 0.520, 0.541, 0.563, 0.511, 0.298,
 //' 0.375, 0.334, 0.355), 4, 4, byrow = F)
@@ -195,7 +195,7 @@ NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, 
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
 //' @param sim (matrix) A numeric matrix. Input similarity matrix.
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
 //' @param gapQuantile (numeric) Must be between 0 and 1.
 //' @return baseGapPenalty (numeric).
 //' @examples
@@ -221,7 +221,7 @@ double getBaseGapPenalty(const NumericMatrix& sim, std::string SimType, double g
 //' @param tA (numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.
 //' @param tB (numeric) A numeric vector. This vector has equally spaced timepoints of XIC B.
 //' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
 //' Mask = s > quantile(s, dotProdThresh)\cr
 //' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 //' s_new= s × AllowDotProd
@@ -327,6 +327,7 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   // Copying values to slots
   x.slot("M")  = obj.M;
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("path") = obj.Path;
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -381,6 +382,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("A")  = obj.A;
   x.slot("B")  = obj.B;
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("path") = obj.Path;
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;

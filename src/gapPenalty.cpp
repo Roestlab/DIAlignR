@@ -10,7 +10,7 @@ double getGapPenalty(const SimMatrix& s, double gapQuantile, std::string SimType
     gapPenalty = 0.95;
   else if(SimType == "cosine2Angle")
     gapPenalty = 0.95;
-  else if(SimType == "euclidianDist")
+  else if(SimType == "euclideanDist")
     gapPenalty = getQuantile(s.data, gapQuantile);
   else if(SimType == "covariance")
     gapPenalty = getQuantile(s.data, gapQuantile);
