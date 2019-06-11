@@ -175,11 +175,12 @@ NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, 
   SimMatrix s = NumericMatrix2Vec(sim); // converting NumericMatrix to STL vector because of C++ compatibility.
   SimMatrix mask = NumericMatrix2Vec(MASK);
   // Calculating maximum value of similarity matrix.
-  // TODO: Use abs values
-  auto maxIt = max_element(std::begin(s.data), std::end(s.data));
+  auto maxIt = max_element(std::begin(s.data), std::end(s.data),
+                           [](double const x, double const y) {return std::abs(x) < std::abs(y);});
+  // This is a lambda function because it doesn't have a name and is anonymous. [] is a capture group.
+  // [=] defines capture by value. [&] defines capture by reference.
   double maxVal = *maxIt;
   constrainSimilarity(s, mask, -2.0*maxVal/samples4gradient);
-  // sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col); // This code doesn't update sim matrix. Why?
   // Proceessing in R is done with matrix-format, therefore, converting STL vector into NumericMatrix.
   NumericMatrix s_new = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return s_new;
@@ -404,3 +405,10 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
 // pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
+
+
+// gnu -> gcc -> g++ compiler
+// -I means include path. DNDEBUG includes debug symbols. Position-independent code (PIC): E.g. jumps would be generated as relative rather than absolute.
+// -02 : Maximum optimization. -W warnings, -L path to the library,
+// Wl,-z,relro Where to define read-only. Writing in read-only would be segmentation fault. Mostly it is after stack.
+// -D_FORTIFY_SOURCE=2 To protect against buffer overflow.
