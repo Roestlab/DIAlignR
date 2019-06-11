@@ -14,7 +14,7 @@ getChromSimMat(l1, l2, normalization, simType, cosAngleThresh = 0.3,
 
 \item{normalization}{(char) A character string. Normalization must be selected from (L2, mean or none).}
 
-\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
 Mask = s > quantile(s, dotProdThresh)\cr
 AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 s_new= s × AllowDotProd}
@@ -51,7 +51,7 @@ matrix(c(0.744, 0.998, 0.957, 0.944, 0.740, 0.956, 0.932,
 0.985, 0.974, 0.842, 0.978, 0.764, -0.596, 0.158,
 -0.200, 0.190), 4, 4, byrow = F)
 
-round(getChromSimMat(r1, r2, "mean", "euclidianDist"), 3)
+round(getChromSimMat(r1, r2, "mean", "euclideanDist"), 3)
 matrix(c(0.608, 0.614, 0.680, 0.434, 0.530, 0.742,
 0.659, 0.641, 0.520, 0.541, 0.563, 0.511, 0.298,
 0.375, 0.334, 0.355), 4, 4, byrow = F)

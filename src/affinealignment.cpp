@@ -166,7 +166,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   int COL_IDX = affineAlignObj.signalB_len;
   int ROW_SIZE = (affineAlignObj.signalA_len)+1;
   int COL_SIZE = (affineAlignObj.signalB_len)+1;
-  // Initializing path matrix that would represent alignment path as binary-hot encoding.
+  // Initializing path matrix that would represent alignment path through similarity matrix as binary-hot encoding.
   SimMatrix_bool path;
   path.n_col = affineAlignObj.signalA_len;
   path.n_row = affineAlignObj.signalB_len;

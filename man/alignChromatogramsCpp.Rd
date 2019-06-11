@@ -23,7 +23,7 @@ alignChromatogramsCpp(l1, l2, alignType, tA, tB, normalization, simType,
 
 \item{normalization}{(char) A character string. Normalization must be selected from (L2, mean or none).}
 
-\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
 Mask = s > quantile(s, dotProdThresh)\cr
 AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 s_new= s × AllowDotProd}

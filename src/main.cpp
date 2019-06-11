@@ -51,7 +51,7 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, dou
 //' @param l1 (list) A list of vectors. Length should be same as of l2.
 //' @param l2 (list) A list of vectors. Length should be same as of l1.
 //' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
 //' Mask = s > quantile(s, dotProdThresh)\cr
 //' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 //' s_new= s × AllowDotProd
@@ -80,7 +80,7 @@ NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, dou
 //' 0.985, 0.974, 0.842, 0.978, 0.764, -0.596, 0.158,
 //' -0.200, 0.190), 4, 4, byrow = F)
 //'
-//' round(getChromSimMat(r1, r2, "mean", "euclidianDist"), 3)
+//' round(getChromSimMat(r1, r2, "mean", "euclideanDist"), 3)
 //' matrix(c(0.608, 0.614, 0.680, 0.434, 0.530, 0.742,
 //' 0.659, 0.641, 0.520, 0.541, 0.563, 0.511, 0.298,
 //' 0.375, 0.334, 0.355), 4, 4, byrow = F)
@@ -175,11 +175,12 @@ NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, 
   SimMatrix s = NumericMatrix2Vec(sim); // converting NumericMatrix to STL vector because of C++ compatibility.
   SimMatrix mask = NumericMatrix2Vec(MASK);
   // Calculating maximum value of similarity matrix.
-  // TODO: Use abs values
-  auto maxIt = max_element(std::begin(s.data), std::end(s.data));
+  auto maxIt = max_element(std::begin(s.data), std::end(s.data),
+                           [](double const x, double const y) {return std::abs(x) < std::abs(y);});
+  // This is a lambda function because it doesn't have a name and is anonymous. [] is a capture group.
+  // [=] defines capture by value. [&] defines capture by reference.
   double maxVal = *maxIt;
   constrainSimilarity(s, mask, -2.0*maxVal/samples4gradient);
-  // sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col); // This code doesn't update sim matrix. Why?
   // Proceessing in R is done with matrix-format, therefore, converting STL vector into NumericMatrix.
   NumericMatrix s_new = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return s_new;
@@ -195,7 +196,7 @@ NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, 
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
 //' @param sim (matrix) A numeric matrix. Input similarity matrix.
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
 //' @param gapQuantile (numeric) Must be between 0 and 1.
 //' @return baseGapPenalty (numeric).
 //' @examples
@@ -221,7 +222,7 @@ double getBaseGapPenalty(const NumericMatrix& sim, std::string SimType, double g
 //' @param tA (numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.
 //' @param tB (numeric) A numeric vector. This vector has equally spaced timepoints of XIC B.
 //' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).\cr
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
 //' Mask = s > quantile(s, dotProdThresh)\cr
 //' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 //' s_new= s × AllowDotProd
@@ -280,9 +281,9 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
-  x.slot("M")  = obj.M;
-  x.slot("A")  = obj.A;
-  x.slot("B")  = obj.B;
+  x.slot("M")  = Vec2NumericMatrix(obj.M, s.n_col+1, s.n_row+1);
+  x.slot("A")  = Vec2NumericMatrix(obj.A, s.n_col+1, s.n_row+1);
+  x.slot("B")  = Vec2NumericMatrix(obj.B, s.n_col+1, s.n_row+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
@@ -325,8 +326,10 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   getAlignedIndices(obj); // Performs traceback and fills aligned indices in AlignObj struct
   S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
   // Copying values to slots
-  x.slot("M")  = obj.M;
+  x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  //NumericMatrix mat = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
+  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -377,10 +380,11 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
-  x.slot("M")  = obj.M;
-  x.slot("A")  = obj.A;
-  x.slot("B")  = obj.B;
+  x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
+  x.slot("A") = Vec2NumericMatrix(obj.A, signalB_len+1, signalA_len+1);
+  x.slot("B") = Vec2NumericMatrix(obj.B, signalB_len+1, signalA_len+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len, signalA_len);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -402,56 +406,9 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
 // pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
 
-/***
-MeanNormA <- sapply(r1, function(x) sum(x)/4)
-MeanNormA <- mean(MeanNormA)
-MeanNormB <- sapply(r2, function(x) sum(x)/4)
-MeanNormB <- mean(MeanNormB)
-outerProdList <- list()
-for (i in 1:3){
-  NormIntensityA <- r1[[i]]/MeanNormA
-  NormIntensityB <- r2[[i]]/MeanNormB
-  outerProdList[[i]] <- (outer(NormIntensityA, NormIntensityB, FUN = "-"))**2
-  }
-add <- function(x) Reduce("+", x)
-add(outerProdList)
-s1 <- getChromSimMat(r1, r2, "L2", "dotProduct")
-s2 <- getChromSimMat(r1, r2, "L2", "cosine2Angle")
-MASK <- (s1 > quantile(s1, 0.96))
-AngleGreat <- (((1*MASK)*s2) + (1-MASK)) > 0.3
-s <- s1*(1*AngleGreat)
-***/
 
-// Comparing the alignment with
-/***
-gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
-simMeasure <- "dotProductMasked"
-run_pair <- c("run1", "run2")
-Err <- matrix(NA, nrow = length(peptides), ncol = 1)
-rownames(Err) <- peptides
-  for(peptide in peptides){
-    r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
-    r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
-    tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-    tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-    noBeef <- ceiling(RSEdistFactor*min(globalStrep["RSE", pair], meanRSE)/samplingTime)
-    B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-    # Alignobj <- alignChromatograms_cpp(r1, r2, tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
-    s1 <- getChromSimMat(r1, r2, Normalization = "mean", SimType = simMeasure)
-    gapPenalty <- getGapPenalty(s1, gapQuantile, type = simMeasure)
-    Mask <- getGlobalAlignMask(tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
-    s1 <- constrainSimMain(s1, Mask, samples4gradient)
-    Alignobj <- doAffineAlignment_S4(s, nrow(s), ncol(s), go = gapPenalty*goFactor, ge = gapPenalty*geFactor, OverlapAlignment = TRUE)
-    AlignedIndices <- cbind(Alignobj@indexA_aligned, Alignobj@indexB_aligned, Alignobj@score)
-    colnames(AlignedIndices) <- c("indexA_aligned", "indexB_aligned", "score")
-    AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
-    tA <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-    tB <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-    tA.aligned <- mapIdxToTime(tA, AlignedIndices[,"indexA_aligned"])
-    tB.aligned <- mapIdxToTime(tB, AlignedIndices[,"indexB_aligned"])
-    predictTime <- tB.aligned[which.min(abs(tA.aligned - StrepAnnot[peptide, run_pair[1]]))]
-    deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
-    Err[peptide, 1] <- deltaT
-  }
-sum(abs(Err[,1])) # 49.2
-***/
+// gnu -> gcc -> g++ compiler
+// -I means include path. DNDEBUG includes debug symbols. Position-independent code (PIC): E.g. jumps would be generated as relative rather than absolute.
+// -02 : Maximum optimization. -W warnings, -L path to the library,
+// Wl,-z,relro Where to define read-only. Writing in read-only would be segmentation fault. Mostly it is after stack.
+// -D_FORTIFY_SOURCE=2 To protect against buffer overflow.

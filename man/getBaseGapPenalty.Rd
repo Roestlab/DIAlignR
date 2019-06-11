@@ -11,7 +11,7 @@ getBaseGapPenalty(sim, SimType, gapQuantile = 0.5)
 
 \item{gapQuantile}{(numeric) Must be between 0 and 1.}
 
-\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclidianDist, covariance, correlation).}
+\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).}
 }
 \value{
 baseGapPenalty (numeric).

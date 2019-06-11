@@ -21,14 +21,6 @@ void printVecOfVec(Rcpp::List l){
   // Rcpp::Rcout << typeid(l).name() << std::endl; // N4Rcpp6VectorILi19ENS_15PreserveStorageEEE
 }
 
-NumericMatrix Vec2NumericMatrix(std::vector<double> vec, int nrow, int ncol){
-  NumericMatrix mat(nrow, ncol, vec.begin());
-  // STL vector has matrix stored as rowwise, but, NumericMatrix are filled columnwise.
-  // Hence, matrix transposition is needed for similar representation.
-  mat = transpose(mat);
-  return mat;
-}
-
 SimMatrix NumericMatrix2Vec(Rcpp::NumericMatrix mat){
   SimMatrix s;
   s.n_row = mat.nrow();
