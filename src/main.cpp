@@ -280,9 +280,9 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
-  x.slot("M")  = obj.M;
-  x.slot("A")  = obj.A;
-  x.slot("B")  = obj.B;
+  x.slot("M")  = Vec2NumericMatrix(obj.M, s.n_col+1, s.n_row+1);
+  x.slot("A")  = Vec2NumericMatrix(obj.A, s.n_col+1, s.n_row+1);
+  x.slot("B")  = Vec2NumericMatrix(obj.B, s.n_col+1, s.n_row+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
@@ -325,9 +325,10 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   getAlignedIndices(obj); // Performs traceback and fills aligned indices in AlignObj struct
   S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
   // Copying values to slots
-  x.slot("M")  = obj.M;
+  x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  x.slot("path") = obj.Path;
+  //NumericMatrix mat = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
+  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -378,11 +379,11 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
-  x.slot("M")  = obj.M;
-  x.slot("A")  = obj.A;
-  x.slot("B")  = obj.B;
+  x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
+  x.slot("A") = Vec2NumericMatrix(obj.A, signalB_len+1, signalA_len+1);
+  x.slot("B") = Vec2NumericMatrix(obj.B, signalB_len+1, signalA_len+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  x.slot("path") = obj.Path;
+  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len, signalA_len);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -403,57 +404,3 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
 // pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
 // pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
-
-/***
-MeanNormA <- sapply(r1, function(x) sum(x)/4)
-MeanNormA <- mean(MeanNormA)
-MeanNormB <- sapply(r2, function(x) sum(x)/4)
-MeanNormB <- mean(MeanNormB)
-outerProdList <- list()
-for (i in 1:3){
-  NormIntensityA <- r1[[i]]/MeanNormA
-  NormIntensityB <- r2[[i]]/MeanNormB
-  outerProdList[[i]] <- (outer(NormIntensityA, NormIntensityB, FUN = "-"))**2
-  }
-add <- function(x) Reduce("+", x)
-add(outerProdList)
-s1 <- getChromSimMat(r1, r2, "L2", "dotProduct")
-s2 <- getChromSimMat(r1, r2, "L2", "cosine2Angle")
-MASK <- (s1 > quantile(s1, 0.96))
-AngleGreat <- (((1*MASK)*s2) + (1-MASK)) > 0.3
-s <- s1*(1*AngleGreat)
-***/
-
-// Comparing the alignment with
-/***
-gapQuantile <- 0.5; goFactor <- 1/8; geFactor <- 40
-simMeasure <- "dotProductMasked"
-run_pair <- c("run1", "run2")
-Err <- matrix(NA, nrow = length(peptides), ncol = 1)
-rownames(Err) <- peptides
-  for(peptide in peptides){
-    r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
-    r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
-    tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-    tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-    noBeef <- ceiling(RSEdistFactor*min(globalStrep["RSE", pair], meanRSE)/samplingTime)
-    B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-    # Alignobj <- alignChromatograms_cpp(r1, r2, tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
-    s1 <- getChromSimMat(r1, r2, Normalization = "mean", SimType = simMeasure)
-    gapPenalty <- getGapPenalty(s1, gapQuantile, type = simMeasure)
-    Mask <- getGlobalAlignMask(tRunAVec, tRunBVec, B1p, B2p, noBeef, FALSE)
-    s1 <- constrainSimMain(s1, Mask, samples4gradient)
-    Alignobj <- doAffineAlignment_S4(s, nrow(s), ncol(s), go = gapPenalty*goFactor, ge = gapPenalty*geFactor, OverlapAlignment = TRUE)
-    AlignedIndices <- cbind(Alignobj@indexA_aligned, Alignobj@indexB_aligned, Alignobj@score)
-    colnames(AlignedIndices) <- c("indexA_aligned", "indexB_aligned", "score")
-    AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
-    tA <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-    tB <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-    tA.aligned <- mapIdxToTime(tA, AlignedIndices[,"indexA_aligned"])
-    tB.aligned <- mapIdxToTime(tB, AlignedIndices[,"indexB_aligned"])
-    predictTime <- tB.aligned[which.min(abs(tA.aligned - StrepAnnot[peptide, run_pair[1]]))]
-    deltaT <- predictTime - StrepAnnot[peptide, run_pair[2]]
-    Err[peptide, 1] <- deltaT
-  }
-sum(abs(Err[,1])) # 49.2
-***/

@@ -21,7 +21,7 @@ struct AffineAlignObj
   std::vector<double> A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
   std::vector<double> B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
   std::vector<TracebackType> Traceback;
-  std::vector<bool> Path;
+  std::vector<bool> Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
   int signalA_len; // Number of data-points in signal A
   int signalB_len; // Number of data-points in signal B
   double GapOpen; // Penalty for Gap opening
@@ -41,9 +41,9 @@ struct AffineAlignObj
     A.resize(ROW_SIZE * COL_SIZE, 0);
     B.resize(ROW_SIZE * COL_SIZE, 0);
     Traceback.resize(3 * ROW_SIZE * COL_SIZE, SS);
-    Path.resize(3 * ROW_SIZE * COL_SIZE, false);
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
+    Path.resize(signalA_len * signalB_len, false);
     GapOpen = 0.0;
     GapExten = 0.0;
     FreeEndGaps = true;
