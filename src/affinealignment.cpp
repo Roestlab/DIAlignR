@@ -166,11 +166,6 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   int COL_IDX = affineAlignObj.signalB_len;
   int ROW_SIZE = (affineAlignObj.signalA_len)+1;
   int COL_SIZE = (affineAlignObj.signalB_len)+1;
-  // Initializing path matrix that would represent alignment path through similarity matrix as binary-hot encoding.
-  SimMatrix_bool path;
-  path.n_col = affineAlignObj.signalA_len;
-  path.n_row = affineAlignObj.signalB_len;
-  path.data.resize(path.n_row*path.n_col, false);
 
   if(affineAlignObj.FreeEndGaps == true){
     // Overlap Alignment
@@ -183,7 +178,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
         alignedIdx.indexA_aligned.push_back(i);
         alignedIdx.indexB_aligned.push_back(NA); // Insert NA in signalB.
         alignedIdx.score.push_back(affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
-        path.data[i*(path.n_col-1) + (path.n_row-1)] = true;
+        affineAlignObj.Path[i*COL_SIZE+COL_IDX] = true;
         }
       }
     else if (COL_IDX != affineAlignObj.signalB_len){
@@ -192,7 +187,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
         alignedIdx.indexA_aligned.push_back(NA); // Insert NA in signalA.
         alignedIdx.indexB_aligned.push_back(j);
         alignedIdx.score.push_back(affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
-        path.data[(path.n_row-1)*(path.n_col-1) + j] = true;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+j] = true;
         }
       }
     }
@@ -218,6 +213,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
 
   alignedIdx.score.push_back(affineAlignmentScore);
   TracebackPointer = affineAlignObj.Traceback[MatName*ROW_SIZE*COL_SIZE+ROW_IDX*COL_SIZE+COL_IDX];
+  affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
   // Traceback path and align row indices to column indices.
 
   while(TracebackPointer != SS){
@@ -235,6 +231,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     case DA:
@@ -245,6 +242,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     case DB:
@@ -255,6 +253,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     case TM:
@@ -264,6 +263,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       ROW_IDX = ROW_IDX-1;
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     case TA:
@@ -273,6 +273,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       ROW_IDX = ROW_IDX-1;
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     case TB:
@@ -282,6 +283,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       ROW_IDX = ROW_IDX-1;
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     case LM:
@@ -291,6 +293,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;
       }
 
@@ -301,6 +304,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     case LB:
@@ -310,6 +314,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
+      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       break;}
 
     }
@@ -320,7 +325,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   std::reverse(std::begin(alignedIdx.indexA_aligned), std::end(alignedIdx.indexA_aligned));
   std::reverse(std::begin(alignedIdx.indexB_aligned), std::end(alignedIdx.indexB_aligned));
   std::reverse(std::begin(alignedIdx.score), std::end(alignedIdx.score));
-  // remove the firat index, since the score-traceback is ahead of aligned indices.
+  // remove the first index, since the score-traceback is ahead of aligned indices.
   alignedIdx.score.erase(alignedIdx.score.begin());
   // Copy aligned indices to alignObj.
   affineAlignObj.indexA_aligned = alignedIdx.indexA_aligned;

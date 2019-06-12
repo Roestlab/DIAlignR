@@ -281,6 +281,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
+  x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);;
   x.slot("M")  = Vec2NumericMatrix(obj.M, s.n_col+1, s.n_row+1);
   x.slot("A")  = Vec2NumericMatrix(obj.A, s.n_col+1, s.n_row+1);
   x.slot("B")  = Vec2NumericMatrix(obj.B, s.n_col+1, s.n_row+1);
@@ -326,6 +327,7 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   getAlignedIndices(obj); // Performs traceback and fills aligned indices in AlignObj struct
   S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
   // Copying values to slots
+  x.slot("s") = sim;
   x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
   //NumericMatrix mat = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
@@ -380,11 +382,12 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
+  x.slot("s") = sim;
   x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
   x.slot("A") = Vec2NumericMatrix(obj.A, signalB_len+1, signalA_len+1);
   x.slot("B") = Vec2NumericMatrix(obj.B, signalB_len+1, signalA_len+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len, signalA_len);
+  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -395,17 +398,6 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("score") = obj.score;
   return(x);
 }
-
-// Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
-// Match=10; MisMatch=-2; go=22; ge=7; gap=go
-// seq1 = "GCAT"; seq2 = "CAGTG"
-// library(Biostrings)
-// mat <- nucleotideSubstitutionMatrix(match = Match, mismatch = MisMatch, baseOnly = TRUE)
-// pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
-// pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 0, gapExtension = 22)
-// pairwiseAlignment(seq1, subject = seq2, type = "global", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
-// pairwiseAlignment(seq1, subject = seq2, type = "overlap", substitutionMatrix = mat, gapOpening = 15, gapExtension = 7)
-
 
 // gnu -> gcc -> g++ compiler
 // -I means include path. DNDEBUG includes debug symbols. Position-independent code (PIC): E.g. jumps would be generated as relative rather than absolute.

@@ -85,11 +85,6 @@ void getAlignedIndices(AlignObj &alignObj){
   int ROW_SIZE = alignObj.signalA_len + 1;
   int COL_SIZE = alignObj.signalB_len + 1;
 
-  SimMatrix_bool path;
-  path.n_col = alignObj.signalA_len;
-  path.n_row = alignObj.signalB_len;
-  path.data.resize(path.n_row*path.n_col, false);
-
   if(alignObj.FreeEndGaps){
     // For overlap alignment find maximum score in matrix "M" along last column and long row.
     float maxScore = -std::numeric_limits<float>::infinity();
@@ -175,7 +170,6 @@ void getAlignedIndices(AlignObj &alignObj){
     // Read traceback for the next iteration.
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
   }
-  printMatrix(alignObj.Path, alignObj.signalA_len+1, alignObj.signalB_len+1);
   // push_back adds values at the end of vector, therefore, reverse the vector.
   std::reverse(std::begin(alignedIdx.indexA_aligned), std::end(alignedIdx.indexA_aligned));
   std::reverse(std::begin(alignedIdx.indexB_aligned), std::end(alignedIdx.indexB_aligned));
