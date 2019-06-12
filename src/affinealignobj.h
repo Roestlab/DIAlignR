@@ -41,9 +41,9 @@ struct AffineAlignObj
     A.resize(ROW_SIZE * COL_SIZE, 0);
     B.resize(ROW_SIZE * COL_SIZE, 0);
     Traceback.resize(3 * ROW_SIZE * COL_SIZE, SS);
+    Path.resize(ROW_SIZE * COL_SIZE, false);
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
-    Path.resize(signalA_len * signalB_len, false);
     GapOpen = 0.0;
     GapExten = 0.0;
     FreeEndGaps = true;
