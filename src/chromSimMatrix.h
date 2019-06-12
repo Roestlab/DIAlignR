@@ -2,7 +2,8 @@
 #define CHROMSIMMATRIX_H
 
 #include <vector>
-#include "simpleFcn.h"
+#include "utils.h"
+#include "similarityMatrix.h"
 
 // functor for getting sum of previous result and square of current element.
 // TODO: Need to understand the implementation.

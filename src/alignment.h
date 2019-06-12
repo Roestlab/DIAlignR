@@ -6,7 +6,8 @@
 #include <vector>
 #include <limits>
 
-#include "simpleFcn.h"
+#include "utils.h"
+#include "similarityMatrix.h"
 #include "affinealignobj.h"
 #define NA 0
 

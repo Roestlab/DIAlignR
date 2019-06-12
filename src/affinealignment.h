@@ -3,7 +3,8 @@
 
 #include "affinealignobj.h"
 #include "alignment.h"
-#include "simpleFcn.h"
+#include "utils.h"
+#include "similarityMatrix.h"
 #include <limits>
 
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
