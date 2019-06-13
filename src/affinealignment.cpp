@@ -1,6 +1,8 @@
 #include "affinealignment.h"
 // Do not inclue cpp file otherwise compiler will build the Obj through two different path.
 
+namespace DIAlign 
+{
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
 AffineAlignObj doAffineAlignment(SimMatrix s, double go, double ge, bool OverlapAlignment){
   int signalA_len = s.n_row;
@@ -397,3 +399,5 @@ double getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_S
  * Biological Sequence Analysis (Chapter 2) by Durbin, Eddy, Krogh, and Mitchison
  *
  ***/
+
+} // namespace DIAlign

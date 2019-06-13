@@ -8,6 +8,8 @@
 
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
+using namespace DIAlign;
+
 void test_doAlignment(){
 }
 

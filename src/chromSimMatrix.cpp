@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+namespace DIAlign 
+{
 double meanVecOfVec(const std::vector<std::vector<double> >& vov){
   double average = 0.0;
   // Sum-up mean of each vector using Range-based for loop.
@@ -368,3 +370,4 @@ stuff.push_back({0,0,0});
 stuff.push_back({4,4,4});
 ***/
 
+} // namespace DIAlign

@@ -9,6 +9,9 @@
 #define PRECONDITION(condition, message) ; // If you don't put the message, C++ will output the code.
 #endif
 
-double getQuantile(std::vector<double> vec, double quantile);
+namespace DIAlign 
+{
+  double getQuantile(std::vector<double> vec, double quantile);
+} // namespace DIAlign
 
 #endif // UTILS_H

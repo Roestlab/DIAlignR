@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 
+namespace DIAlign 
+{
 enum TracebackType {SS = 0, DM = 1, DA = 2, DB = 3, TM = 4, TA = 5, TB = 6, LM = 7, LA = 8, LB = 9};
 enum tbJump {M = 0, A = 1, B = 2};
 
@@ -56,5 +58,6 @@ struct AffineAlignObj
   ~AffineAlignObj()
   {  }
 };
+} // namespace DIAlign
 
 #endif // AFFINEALIGNOBJ_H

@@ -1,5 +1,7 @@
 #include "interface.h"
 
+namespace DIAlign 
+{
 std::vector<std::vector<double> > list2VecOfVec (Rcpp::List l){
   int len = l.size();
   std::vector<std::vector<double> > VecOfVec;
@@ -30,3 +32,4 @@ SimMatrix NumericMatrix2Vec(Rcpp::NumericMatrix mat){
   s.data = Rcpp::as<std::vector<double> >(mat);
   return s;
 }
+} // namespace DIAlign

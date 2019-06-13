@@ -4,6 +4,7 @@
 #include <Rcpp.h>
 
 using namespace Rcpp;
+using namespace DIAlign;
 
 // getSeqSimMat
 NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, double misMatch);

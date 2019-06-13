@@ -1,7 +1,12 @@
 #include <cmath>
 #include <algorithm>
+#include <iostream>
+#include <iomanip>
 
 #include "utils.h"
+
+namespace DIAlign 
+{
 
 double getQuantile(std::vector<double> vec, double quantile){
   int n = vec.size();
@@ -17,3 +22,5 @@ double getQuantile(std::vector<double> vec, double quantile){
   double sampleQuant = (1.0 - gamma)*vec[j-1] + gamma*vec[j];
   return sampleQuant;
 }
+
+} // namespace DIAlign

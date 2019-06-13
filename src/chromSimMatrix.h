@@ -5,6 +5,8 @@
 #include "utils.h"
 #include "similarityMatrix.h"
 
+namespace DIAlign 
+{
 // functor for getting sum of previous result and square of current element.
 // TODO: Need to understand the implementation.
 template<typename T>
@@ -58,5 +60,7 @@ void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<
 void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
 
 SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType, double cosAngleThresh, double dotProdThresh);
+
+} // namespace DIAlign
 
 #endif // CHROMSIMMATRIX_H

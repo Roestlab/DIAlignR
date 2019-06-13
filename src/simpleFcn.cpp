@@ -1,5 +1,8 @@
 #include "simpleFcn.h"
 
+namespace DIAlign 
+{
+
 // Outputs a NumericMatrix of given row and column size.
 NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE){
   NumericMatrix s(ROW_SIZE, COL_SIZE);
@@ -11,3 +14,4 @@ NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE){
   return s;
 }
 
+} // namespace DIAlign

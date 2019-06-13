@@ -8,6 +8,8 @@
 #include "utils.h"
 using namespace Rcpp;
 
+namespace DIAlign 
+{
 
 //' Outputs a NumericMatrix of given row and column size.
 //'
@@ -36,5 +38,6 @@ void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
     Rcpp::Rcout << std::endl;
   }
 }
+} // namespace DIAlign
 
 #endif // SIMPLEFCN_H
