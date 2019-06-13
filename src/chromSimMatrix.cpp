@@ -328,7 +328,23 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     s2.n_col = s.n_col;
     s2.data.resize(s.n_row*s.n_col, 0.0);
     SumOuterCosine(d1, d2, Normalization, s2);
+#if 1
+    // Optimization: store all values between 0 and 1/2*pi (1.57) in a lookup
+    // table spaced 0.01 instead of re-computing for each value
+    // TODO: make this a static table that is only computed once
+    int N = 157;
+    std::vector<double> lookup_table;
+    lookup_table.resize(N, 0);
+    for (int k = 0; k < N; k++) lookup_table[k] = std::cos(2*std::acos(k/100.0));
+    for (auto& i : s2.data)
+    {
+      // i = std::cos(2*std::acos(i));
+      if (std::fabs(i) < N/100.0) i = lookup_table[ std::floor(std::fabs(i)*100) ];
+      else i = -1;
+    }
+#else
     for(auto& i : s2.data) i = std::cos(2*std::acos(i));
+#endif
     double Quant = getQuantile(s.data, dotProdThresh);
     //Quant = 28.30092;
     //Rcpp::Rcout << Quant << std::endl;
