@@ -17,23 +17,14 @@ std::ostream& operator<<(std::ostream& out, const TracebackType value);
 // This function converts TracebackType Enum to characters.
 std::vector<char> EnumToChar(std::vector<TracebackType> v);
 
-#define USE_VECTOR
-
 struct AffineAlignObj
 {
-#ifdef USE_VECTOR
-  std::vector<double> M; // Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
-  std::vector<double> A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
-  std::vector<double> B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
-  std::vector<TracebackType> Traceback;
-  std::vector<bool> Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
-#else
   double* M; // Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
   double* A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
   double* B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
   TracebackType* Traceback;
   bool* Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
-#endif
+
   int signalA_len; // Number of data-points in signal A
   int signalB_len; // Number of data-points in signal B
   double GapOpen; // Penalty for Gap opening
@@ -49,13 +40,6 @@ struct AffineAlignObj
   // Not a default constructor
   AffineAlignObj(int ROW_SIZE, int COL_SIZE)
   {
-#ifdef USE_VECTOR
-    M.resize(ROW_SIZE * COL_SIZE, 0);
-    A.resize(ROW_SIZE * COL_SIZE, 0);
-    B.resize(ROW_SIZE * COL_SIZE, 0);
-    Traceback.resize(3 * ROW_SIZE * COL_SIZE, SS);
-    Path.resize(ROW_SIZE * COL_SIZE, false);
-#else
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
     B = new double[ROW_SIZE * COL_SIZE];
@@ -67,7 +51,6 @@ struct AffineAlignObj
     std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
     std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
-#endif
 
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
@@ -77,8 +60,6 @@ struct AffineAlignObj
 
   }
 
-#ifdef USE_VECTOR
-#else
   AffineAlignObj& operator=(const AffineAlignObj& rhs)
   {
     delete[] M;
@@ -112,6 +93,7 @@ struct AffineAlignObj
     std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
   }
+
   AffineAlignObj(const AffineAlignObj& rhs)
   {
     signalA_len = rhs.signalA_len;
@@ -138,18 +120,14 @@ struct AffineAlignObj
     std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
   }
-#endif
 
   ~AffineAlignObj()
   {
-#ifdef USE_VECTOR
-#else
   delete[] M;
   delete[] A;
   delete[] B;
   delete[] Traceback;
   delete[] Path;
-#endif
   }
 
 };
