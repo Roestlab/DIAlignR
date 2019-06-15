@@ -354,7 +354,10 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   else if(SimType == "correlation")
     SumOuterCorr(d1, d2, Normalization, s);
   else
+  {
     // Rcpp::Rcout << "getChromSimMat should have value from given choices only!" << std::endl;
+  }
+
   return s;
 }
 
