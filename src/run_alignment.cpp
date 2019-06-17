@@ -117,7 +117,7 @@ void doAlignment()
   const std::vector<double> tA;
   const std::vector<double> tB;
   int noBeef = 5; // nr of matrix cells w/o penalty
-  AffineAlignObj obj(256, 256); // Initialize AffineAlignObj
+  AffineAlignObj obj(data1.data[0].size()+1, data2.data[0].size()+1, false); // Initialize AffineAlignObj
   alignChromatogramsCpp(obj, data1.data, data2.data, "hybrid", 
       data1.rt_data, data2.rt_data, "mean", "dotProductMasked", data2.rt_data.front(), data2.rt_data.back(), noBeef);
 }
