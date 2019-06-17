@@ -19,6 +19,11 @@ std::vector<char> EnumToChar(std::vector<TracebackType> v);
 
 struct AffineAlignObj
 {
+private:
+  int signalA_capacity; // Capacity of matrix for signal A (rows) 
+  int signalB_capacity; // Capacity of matrix for signal B (columns)
+
+public:
   double* M; // Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
   double* A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
   double* B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
@@ -59,6 +64,34 @@ struct AffineAlignObj
     GapExten = 0.0;
     FreeEndGaps = true;
 
+    signalA_capacity = ROW_SIZE-1;
+    signalB_capacity = COL_SIZE-1;
+  }
+
+  void reset(int ROW_SIZE, int COL_SIZE)
+  {
+    if (ROW_SIZE >= signalA_capacity || COL_SIZE >= signalB_capacity)
+    {
+      std::cout << "Error: cannot reset an object beyond capacity" << std::endl;
+      throw 1;
+    }
+
+    std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+    std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
+
+    signalA_len = ROW_SIZE-1;
+    signalB_len = COL_SIZE-1;
+
+    GapOpen = 0.0;
+    GapExten = 0.0;
+    FreeEndGaps = true;
+
+    indexA_aligned.clear();
+    indexB_aligned.clear();
+    score.clear();
   }
 
   AffineAlignObj& operator=(const AffineAlignObj& rhs)
@@ -71,7 +104,10 @@ struct AffineAlignObj
 
     //std::cout << " this " << this << std::endl;
     signalA_len = rhs.signalA_len;
+    signalA_capacity = rhs.signalA_capacity;
     signalB_len = rhs.signalB_len;
+    signalB_capacity = rhs.signalB_capacity;
+
     GapOpen = rhs.GapOpen;
     GapExten = rhs.GapExten;
     FreeEndGaps = rhs.FreeEndGaps;
@@ -97,8 +133,17 @@ struct AffineAlignObj
 
   AffineAlignObj(const AffineAlignObj& rhs)
   {
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+
     signalA_len = rhs.signalA_len;
+    signalA_capacity = rhs.signalA_capacity;
     signalB_len = rhs.signalB_len;
+    signalB_capacity = rhs.signalB_capacity;
+
     GapOpen = rhs.GapOpen;
     GapExten = rhs.GapExten;
     FreeEndGaps = rhs.FreeEndGaps;
@@ -124,11 +169,11 @@ struct AffineAlignObj
 
   ~AffineAlignObj()
   {
-  delete[] M;
-  delete[] A;
-  delete[] B;
-  delete[] Traceback;
-  delete[] Path;
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
   }
 
 };
