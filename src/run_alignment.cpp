@@ -75,7 +75,7 @@ ChromData readFile(std::string inputfile)
   return res;
 }
 
-AffineAlignObj alignChromatogramsCpp(
+void alignChromatogramsCpp( AffineAlignObj& obj,
                             const std::vector<std::vector<double> > & r1,
                             const std::vector<std::vector<double> > & r2,
                             std::string alignType,
@@ -89,6 +89,8 @@ AffineAlignObj alignChromatogramsCpp(
 {
 
   SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
+  obj.reset(s.n_row + 1, s.n_col + 1);
+
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
   if (alignType == "hybrid")
   {
@@ -103,9 +105,8 @@ AffineAlignObj alignChromatogramsCpp(
     double maxVal = *maxIt;
     constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
   }
-  AffineAlignObj obj = doAffineAlignment(s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+  doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
-  return obj;
 }
 
 void doAlignment()
@@ -115,8 +116,10 @@ void doAlignment()
 
   const std::vector<double> tA;
   const std::vector<double> tB;
-  auto align = alignChromatogramsCpp(data1.data, data2.data, "hybrid", 
-  data1.rt_data, data2.rt_data, "mean", "dotProductMasked");
+  int noBeef = 5; // nr of matrix cells w/o penalty
+  AffineAlignObj obj(256, 256); // Initialize AffineAlignObj
+  alignChromatogramsCpp(obj, data1.data, data2.data, "hybrid", 
+      data1.rt_data, data2.rt_data, "mean", "dotProductMasked", data2.rt_data.front(), data2.rt_data.back(), noBeef);
 }
 
 int main(){
