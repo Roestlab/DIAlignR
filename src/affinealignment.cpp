@@ -4,10 +4,9 @@
 namespace DIAlign 
 {
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
-AffineAlignObj doAffineAlignment(const SimMatrix& s, double go, double ge, bool OverlapAlignment){
+void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, double go, double ge, bool OverlapAlignment){
   int signalA_len = s.n_row;
   int signalB_len = s.n_col;
-  AffineAlignObj affineAlignObj(signalA_len+1, signalB_len+1); // Initialize AffineAlignObj
   affineAlignObj.FreeEndGaps = OverlapAlignment;
   affineAlignObj.GapOpen = go;
   affineAlignObj.GapExten = ge;
@@ -156,7 +155,6 @@ AffineAlignObj doAffineAlignment(const SimMatrix& s, double go, double ge, bool 
   // printMatrix(TracebackA, signalA_len+1, signalB_len+1);
   // std::vector<TracebackType> TracebackB(affineAlignObj.Traceback.begin()+(Traceback_B_index*(signalA_len+1)*(signalB_len+1)), affineAlignObj.Traceback.end());
   // printMatrix(TracebackB, signalA_len+1, signalB_len+1);
-  return affineAlignObj;
   }
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){

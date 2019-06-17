@@ -10,7 +10,7 @@
 namespace DIAlign 
 {
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
-AffineAlignObj doAffineAlignment(const SimMatrix& s, double go, double ge, bool OverlapAlignment);
+void doAffineAlignment(AffineAlignObj&,const SimMatrix& s, double go, double ge, bool OverlapAlignment);
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj);
 
