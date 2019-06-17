@@ -44,7 +44,7 @@ public:
 
   // Not a default constructor
   AffineAlignObj() {}
-  AffineAlignObj(int ROW_SIZE, int COL_SIZE)
+  AffineAlignObj(int ROW_SIZE, int COL_SIZE, bool clearMemory = true)
   {
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
@@ -52,11 +52,14 @@ public:
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
 
-    std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
-    std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
+    if (clearMemory)
+    {
+      std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+      std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
+    }
 
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
