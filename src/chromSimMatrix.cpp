@@ -244,7 +244,7 @@ void SumOuterCorr(const std::vector<std::vector<double>>& d1, const std::vector<
     for(int j = 0; j < s.n_col; j++){
       var1 = n_frag*d1_squareSum[i]-d1_sum[i]*d1_sum[i];
       var2 = n_frag*d2_squareSum[j]-d2_sum[j]*d2_sum[j];
-      if(var1 < 0.0 | var2 <= 0.0){
+      if(var1 < 0.0 || var2 <= 0.0){
         // Rcpp::Rcout << "In SumOuterCorr the standard deviation is zero" << std::endl;
         s.data[i*s.n_col+j] = 0; // TODO: What to output in this case?
       }

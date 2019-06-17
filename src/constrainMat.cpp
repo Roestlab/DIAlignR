@@ -37,7 +37,7 @@ void calcNoBeefMask(SimMatrix& MASK, double A1, double A2, double B1, double B2,
       for(int y = 0; y < MASK.n_row; y++){
         lessThanLeftTri = y-leftTri1[1] - (leftTri2[1]-leftTri1[1])*(x-leftTri1[0])/(leftTri2[0]-leftTri1[0]);
         greaterThanRightTri = y-rightTri1[1] - (rightTri2[1]-rightTri1[1])*(x-rightTri1[0])/(rightTri2[0]-rightTri1[0]);
-        if(lessThanLeftTri<=0 & greaterThanRightTri>=0)
+        if(lessThanLeftTri<=0 && greaterThanRightTri>=0)
           MASK.data[y*MASK.n_col + x] = 0.0;
         else
           MASK.data[y*MASK.n_col + x] = 1.0;
@@ -54,7 +54,7 @@ void calcNoBeefMask(SimMatrix& MASK, double A1, double A2, double B1, double B2,
           leftTri2[1]*leftTri1[0])/sqrt((leftTri2[1]-leftTri1[1])*(leftTri2[1]-leftTri1[1]) + (leftTri2[0]-leftTri1[0])*(leftTri2[0]-leftTri1[0]));
         distFromRightBndry = -((rightTri2[1]-rightTri1[1])*x - (rightTri2[0]-rightTri1[0])*y + rightTri2[0]*rightTri1[1] -
           rightTri2[1]*rightTri1[0])/sqrt((rightTri2[1]-rightTri1[1])*(rightTri2[1]-rightTri1[1]) + (rightTri2[0]-rightTri1[0])*(rightTri2[0]-rightTri1[0]));
-        if(distFromLeftBndry<=0 & distFromRightBndry>=0)
+        if(distFromLeftBndry<=0 && distFromRightBndry>=0)
           MASK.data[y*MASK.n_col + x] = 0.0;
         else if(distFromLeftBndry > 0.0)
           MASK.data[y*MASK.n_col + x] = distFromLeftBndry;
@@ -67,7 +67,7 @@ void calcNoBeefMask(SimMatrix& MASK, double A1, double A2, double B1, double B2,
 
 // TODO Make sure s and MASK have same size
 void constrainSimilarity(SimMatrix& s, const SimMatrix& MASK, double constrainVal){
-  for(int i = 0; i < s.data.size(); i++)
+  for(std::size_t i = 0; i < s.data.size(); i++)
     s.data[i] += constrainVal*MASK.data[i];
 }
 } // namespace DIAlign
