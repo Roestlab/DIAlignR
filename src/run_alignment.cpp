@@ -122,6 +122,25 @@ void doAlignment()
       data1.rt_data, data2.rt_data, "mean", "dotProductMasked", data2.rt_data.front(), data2.rt_data.back(), noBeef);
 }
 
+void doAlignment_small()
+{
+  auto data1 = readFile("test_small.tsv");
+  auto data2 = readFile("test_small.tsv");
+
+  const std::vector<double> tA;
+  const std::vector<double> tB;
+  int noBeef = 5; // nr of matrix cells w/o penalty
+  AffineAlignObj obj(256, 256, false); // Initialize AffineAlignObj
+  for (int k = 0; k < 1e3; k++)
+  {
+    alignChromatogramsCpp(obj, data1.data, data2.data, 
+        "hybrid", // "none", 
+        data1.rt_data, data2.rt_data, "mean", "dotProductMasked",
+        data2.rt_data.front(), data2.rt_data.back(), noBeef);
+  }
+
+}
+
 int main(){
   doAlignment();
   return 0;
