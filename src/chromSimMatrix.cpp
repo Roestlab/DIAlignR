@@ -334,11 +334,16 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
 #if 1
     // Optimization: store all values between 0 and 1/2*pi (1.57) in a lookup
     // table spaced 0.01 instead of re-computing for each value
-    // TODO: make this a static table that is only computed once
     int N = 157;
-    std::vector<double> lookup_table;
-    lookup_table.resize(N, 0);
-    for (int k = 0; k < N; k++) lookup_table[k] = std::cos(2*std::acos(k/100.0));
+    static std::vector<double> lookup_table;
+    static bool filled = false;
+    if (!filled)
+    {
+      lookup_table.resize(N, 0);
+      for (int k = 0; k < N; k++) lookup_table[k] = std::cos(2*std::acos(k/100.0));
+      filled = true;
+    }
+
     for (auto& i : s2.data)
     {
       // i = std::cos(2*std::acos(i));
