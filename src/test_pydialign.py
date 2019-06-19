@@ -66,19 +66,6 @@ class TestMSDIAlign(unittest.TestCase):
     def test_affineAlignObj(self):
         obj = PyDIAlign.AffineAlignObj(0,0)
 
-    def test_doAlignment_fail(self):
-
-        obj = PyDIAlign.AffineAlignObj(0, 0) # this should fail
-        catche = False
-        try:
-            PyDIAlign.alignChromatogramsCppSimple(obj, self.chromatograms, self.chromatograms,
-                    b"none", self.data, self.data, b"mean", b"cosineAngle")
-        except Exception:
-            catche = True
-
-        self.assertTrue(catche)
-
-
     def test_doAlignment(self):
         obj = PyDIAlign.AffineAlignObj(256, 256); 
         PyDIAlign.alignChromatogramsCppSimple(obj, self.chromatograms, self.chromatograms,

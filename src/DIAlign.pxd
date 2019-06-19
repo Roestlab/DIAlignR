@@ -25,11 +25,11 @@ from libcpp.vector cimport vector as libcpp_vector
 from libcpp.string cimport string as libcpp_string
 from libcpp cimport bool
 
-cdef extern from "utils.h" namespace "DIAlign":
+cdef extern from "utils.h":
 
     double getQuantile(libcpp_vector[double] vec, double quantile) nogil except +
 
-cdef extern from "affinealignobj.h" namespace "DIAlign":
+cdef extern from "affinealignobj.h":
 
     cdef cppclass AffineAlignObj:
         AffineAlignObj(int row, int col) nogil except +
@@ -41,7 +41,7 @@ cdef extern from "affinealignobj.h" namespace "DIAlign":
 
 cdef extern from "CppInterface.hpp" namespace "DIAlign":
 
-    void alignChromatogramsCpp( AffineAlignObj& obj,
+    AffineAlignObj alignChromatogramsCpp( 
                                 libcpp_vector[libcpp_vector[double] ] & r1,
                                 libcpp_vector[libcpp_vector[double] ] & r2,
                                 libcpp_string alignType,
@@ -50,7 +50,7 @@ cdef extern from "CppInterface.hpp" namespace "DIAlign":
                                 libcpp_string & normalization,
                                 libcpp_string simType) nogil except +
 
-    void alignChromatogramsCpp( AffineAlignObj& obj,
+    AffineAlignObj alignChromatogramsCpp(
                                 libcpp_vector[libcpp_vector[double] ] & r1,
                                 libcpp_vector[libcpp_vector[double] ] & r2,
                                 libcpp_string alignType,
