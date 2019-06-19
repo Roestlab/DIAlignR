@@ -35,6 +35,7 @@ struct AffineAlignObj
   std::vector<double> score;  // Score along the aligned path
 
   // Not a default constructor
+  AffineAlignObj() {}
   AffineAlignObj(int ROW_SIZE, int COL_SIZE)
   {
     M.resize(ROW_SIZE * COL_SIZE, 0);

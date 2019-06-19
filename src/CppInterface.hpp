@@ -14,13 +14,11 @@
 #include "affinealignment.h"
 #include "constrainMat.h"
 
-using namespace DIAlign;
-
 
 namespace DIAlign
 {
 
-  void alignChromatogramsCpp(AffineAlignObj& obj,
+  AffineAlignObj alignChromatogramsCpp(
                              const std::vector<std::vector<double> > & r1,
                              const std::vector<std::vector<double> > & r2,
                              std::string alignType,
@@ -33,7 +31,6 @@ namespace DIAlign
                              bool hardConstrain = false, double samples4gradient = 100.0)
   {
     SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
-    obj.reset(s.n_row + 1, s.n_col + 1);
     double gapPenalty = getGapPenalty(s, gapQuantile, simType);
     if (alignType == "hybrid")
     {
@@ -48,8 +45,9 @@ namespace DIAlign
       double maxVal = *maxIt;
       constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
     }
-    doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+    auto obj = doAffineAlignment(s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
     getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
+    return obj;
   }
 
 }
