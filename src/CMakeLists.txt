@@ -10,8 +10,11 @@ alignment.cpp
 chromSimMatrix.cpp
 constrainMat.cpp
 gapPenalty.cpp
+CInterface.cpp
 utils.cpp
 )
+
+add_library(DIAlign SHARED ${SOURCE_FILES})
 
 # Test executables
 add_executable(FullTest 
