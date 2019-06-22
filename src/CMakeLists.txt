@@ -11,9 +11,12 @@ chromSimMatrix.cpp
 constrainMat.cpp
 gapPenalty.cpp
 utils.cpp
+simpleFcn.cpp
 )
 
 add_library(DIAAlignment SHARED ${SOURCE_FILES})
+# SHARED libraries are linked dynamically and loaded at runtime. Other options are
+# STATIC or MODULE
 
 # Test executables
 add_executable(FullTest test_alignment.cpp)
@@ -22,3 +25,5 @@ target_link_libraries(FullTest DIAAlignment)
 target_link_libraries(runTest1 DIAAlignment)
 add_test(RunTest FullTest)
 add_test(RunTest1 runTest1)
+
+# https://stackoverflow.com/questions/39598323/how-to-properly-link-libraries-with-cmake
