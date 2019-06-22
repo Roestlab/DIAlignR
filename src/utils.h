@@ -6,6 +6,8 @@
 // iostream is required for std::string why?
 #include <iostream>
 
+#define USE_Rcpp //TODO: Why moving from simpleFcn.h to utils.h solves multiple main() definition problem when build in R?
+
 #ifdef USE_PRECONDITION
 #define PRECONDITION(condition, message) assert(condition); // If you don't put the message, C++ will output the code.
 #else

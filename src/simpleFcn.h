@@ -6,8 +6,6 @@
 #include "similarityMatrix.h"
 #include "utils.h"
 
-#define USE_Rcpp
-
 #ifdef USE_Rcpp
 #include <Rcpp.h>
 using namespace Rcpp;
