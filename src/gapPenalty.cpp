@@ -17,6 +17,8 @@ double getGapPenalty(const SimMatrix& s, double gapQuantile, std::string SimType
   else if(SimType == "correlation")
     gapPenalty = getQuantile(s.data, gapQuantile);
   else
+  {
     // Rcpp::Rcout << "getChromSimMat should have value from given choices only!" << std::endl;
+  }
   return gapPenalty;
 }
