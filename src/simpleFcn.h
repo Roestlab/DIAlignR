@@ -37,4 +37,6 @@ void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
   }
 }
 
+SimMatrix getseqSim(std::string seq1, std::string seq2, double match, double misMatch);
+
 #endif // SIMPLEFCN_H

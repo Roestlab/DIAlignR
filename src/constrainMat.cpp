@@ -7,6 +7,7 @@ void calcNoBeefMask(SimMatrix& MASK, double A1, double A2, double B1, double B2,
   // adjacent sides. If the slope comes out to be deviating too much from 1,
   // then this equation will fail and also in that case better to fit
   // non-linear boundaries for No-Beef region.
+  // Use ascii art
   /***
    * mmB1pmmmmmmmB2pmmm
    * A1mmmmmmmmmmmmmmmm

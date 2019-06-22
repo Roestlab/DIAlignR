@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+// #define USE_PRECONDITION 1
+
 double meanVecOfVec(const std::vector<std::vector<double> >& vov){
   double average = 0.0;
   // Sum-up mean of each vector using Range-based for loop.
@@ -353,11 +355,9 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     SumOuterCov(d1, d2, Normalization, s);
   else if(SimType == "correlation")
     SumOuterCorr(d1, d2, Normalization, s);
-  else
-  {
+  else{
     // Rcpp::Rcout << "getChromSimMat should have value from given choices only!" << std::endl;
   }
-
   return s;
 }
 

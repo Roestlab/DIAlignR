@@ -32,14 +32,10 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, double misMatch){
-  int ROW_SIZE = seq1.size();
-  int COL_SIZE = seq2.size();
-  NumericMatrix s(ROW_SIZE, COL_SIZE);
-  // NUmericMatrix pointer moves along the rows faster that's why iterating over i first then j.
-  for(int j = 0; j < COL_SIZE; j++)
-    for(int i = 0; i < ROW_SIZE; i++)
-      seq1[i] == seq2[j] ?  s(i, j) = match : s(i, j) = misMatch;
-  return(s);
+  SimMatrix s = getseqSim(seq1, seq2, match, misMatch);
+  printMatrix(s.data, s.n_row, s.n_col);
+  NumericMatrix sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+  return(sim);
 }
 
 //' Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms(XICs)
@@ -286,6 +282,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("A")  = Vec2NumericMatrix(obj.A, s.n_col+1, s.n_row+1);
   x.slot("B")  = Vec2NumericMatrix(obj.B, s.n_col+1, s.n_row+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("path") = Vec2NumericMatrix(obj.Path, s.n_col+1, s.n_row+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
