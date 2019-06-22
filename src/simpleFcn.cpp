@@ -1,7 +1,8 @@
 #include "simpleFcn.h"
 
+// TODO Write unit test for it.
 // Outputs a NumericMatrix of given row and column size.
-NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE){
+NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE){
   NumericMatrix s(ROW_SIZE, COL_SIZE);
   for(int i = 0; i < ROW_SIZE; i++){
     for(int j = 0; j < COL_SIZE; j++){

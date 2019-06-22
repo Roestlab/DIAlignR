@@ -133,12 +133,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // initializeMatrix
-NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE);
+NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE);
 RcppExport SEXP _DIAlignR_initializeMatrix(SEXP initValSEXP, SEXP ROW_SIZESEXP, SEXP COL_SIZESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< float >::type initVal(initValSEXP);
+    Rcpp::traits::input_parameter< double >::type initVal(initValSEXP);
     Rcpp::traits::input_parameter< int >::type ROW_SIZE(ROW_SIZESEXP);
     Rcpp::traits::input_parameter< int >::type COL_SIZE(COL_SIZESEXP);
     rcpp_result_gen = Rcpp::wrap(initializeMatrix(initVal, ROW_SIZE, COL_SIZE));

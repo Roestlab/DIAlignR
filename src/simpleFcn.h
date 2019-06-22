@@ -24,7 +24,7 @@ using namespace Rcpp;
 //' initializeMatrix(0, ROW_SIZE = 4, COL_SIZE = 5)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE);
+NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE);
 
 // Template definitions should always be in header file.
 template<class T>

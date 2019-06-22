@@ -33,7 +33,6 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, double misMatch){
   SimMatrix s = getseqSim(seq1, seq2, match, misMatch);
-  printMatrix(s.data, s.n_row, s.n_col);
   NumericMatrix sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
   return(sim);
 }

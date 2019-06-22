@@ -12,9 +12,9 @@ void printVecOfVec(Rcpp::List l);
 
 template<class T>
 NumericMatrix Vec2NumericMatrix(std::vector<T> vec, int nrow, int ncol){
-  NumericMatrix mat(nrow, ncol, vec.begin());
+  NumericMatrix mat(ncol, nrow, vec.begin());
   // STL vector has matrix stored as rowwise, but, NumericMatrix are filled columnwise.
-  // Hence, matrix transposition is needed for similar representation.
+  // Therefore, we first switch rows and column and then take transposition.
   mat = transpose(mat);
   return mat;
 }
