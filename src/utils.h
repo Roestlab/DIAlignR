@@ -2,6 +2,9 @@
 #define UTILS_H
 
 #include <vector>
+//#include <cstring>
+// iostream is required for std::string why?
+#include <iostream>
 
 #ifdef USE_PRECONDITION
 #define PRECONDITION(condition, message) assert(condition); // If you don't put the message, C++ will output the code.

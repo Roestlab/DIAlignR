@@ -13,10 +13,12 @@ gapPenalty.cpp
 utils.cpp
 )
 
+add_library(DIAAlignment SHARED ${SOURCE_FILES})
+
 # Test executables
-add_executable(FullTest
-  test_alignment.cpp
-  ${SOURCE_FILES})
+add_executable(FullTest test_alignment.cpp)
 add_executable(runTest1 test_simpleFcn.cpp)
+target_link_libraries(FullTest DIAAlignment)
+target_link_libraries(runTest1 DIAAlignment)
 add_test(RunTest FullTest)
 add_test(RunTest1 runTest1)

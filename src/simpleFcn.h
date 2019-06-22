@@ -1,13 +1,16 @@
 #ifndef SIMPLEFCN_H
 #define SIMPLEFCN_H
 
-#include <Rcpp.h>
 #include <vector>
 #include "affinealignobj.h"
 #include "similarityMatrix.h"
 #include "utils.h"
-using namespace Rcpp;
 
+#define USE_Rcpp
+
+#ifdef USE_Rcpp
+#include <Rcpp.h>
+using namespace Rcpp;
 
 //' Outputs a NumericMatrix of given row and column size.
 //'
@@ -36,6 +39,7 @@ void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
     Rcpp::Rcout << std::endl;
   }
 }
+#endif
 
 SimMatrix getseqSim(std::string seq1, std::string seq2, double match, double misMatch);
 

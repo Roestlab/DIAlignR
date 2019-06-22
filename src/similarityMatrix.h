@@ -2,7 +2,6 @@
 #define SIMILARITY_MATRIX_H
 
 #include <vector>
-#include "affinealignobj.h"
 
 struct SimMatrix
 {
