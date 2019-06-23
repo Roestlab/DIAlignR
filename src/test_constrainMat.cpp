@@ -5,6 +5,8 @@
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
+using namespace DIAlign;
+
 void test_calcNoBeefMask(){
   double A1 = 3353.2, A2 = 3363.5;
   double B1 = 3325.9, B2 = 3339.5;
