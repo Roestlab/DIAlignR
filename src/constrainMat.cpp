@@ -1,6 +1,8 @@
 #include "constrainMat.h"
 
 // TODO Use ascii art
+// TODO Make sure A1 < A2, B1 < B2 and B1p < B2p
+// TODO Make sure same deltaTime
 void calcNoBeefMask(SimMatrix& MASK, double A1, double A2, double B1, double B2, double B1p, double B2p, int noBeef, bool hardConstrain){
   // This eqution is to from parallel lines: slope = (A2-A1)/(B2-B1) =
   // (y-A1)/(x- B1). Also, we are considering a very simple linear fit with
@@ -58,6 +60,7 @@ void calcNoBeefMask(SimMatrix& MASK, double A1, double A2, double B1, double B2,
   }
 }
 
+// TODO Make sure s and MASK have same size
 void constrainSimilarity(SimMatrix& s, const SimMatrix& MASK, double constrainVal){
   for(int i = 0; i < s.data.size(); i++)
     s.data[i] += constrainVal*MASK.data[i];

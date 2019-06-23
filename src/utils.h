@@ -12,7 +12,7 @@
 #define PRECONDITION(condition, message); // If USE_PRECONDITION is defined, compiler will replace calls with empty.
 #endif
 
-#define USE_Rcpp //TODO: Why moving from simpleFcn.h to utils.h solves multiple main() definition problem when build in R?
+// #define USE_Rcpp //TODO: Why moving from simpleFcn.h to utils.h solves multiple main() definition problem when build in R?
 
 double getQuantile(std::vector<double> vec, double quantile);
 

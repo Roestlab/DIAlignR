@@ -78,7 +78,7 @@ void test_getGapPenalty(){
     -0.00072662, 0.0, 0.0, 0.0
   };
 
-  std::cout.precision(10);
+  // std::cout.precision(10);
 
   gPM70 = getGapPenalty(s, 0.7, "dotProductMasked");
   gP80 = getGapPenalty(s, 0.8, "dotProduct");
