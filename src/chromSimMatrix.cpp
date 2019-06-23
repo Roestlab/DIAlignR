@@ -78,6 +78,7 @@ void distToSim(SimMatrix& s, double offset, double Numerator){
   std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::divides<double>(), Numerator, std::placeholders::_1));
 }
 
+// TODO make sure minVal < maxVal
 void clamp(std::vector<double>& vec, double minValue, double maxValue){
   for (auto& i : vec) {i = (i > maxValue) ? maxValue : i;
     i = (i < minValue) ? minValue : i;}
@@ -97,6 +98,7 @@ std::vector<std::vector<double>> L2NormalizeVecOfVec(const std::vector<std::vect
   return vov_new;
 }
 
+// TODO: Protect against divide-by-zero
 std::vector<std::vector<double>> divideVecOfVec(const std::vector<std::vector<double>>& d, double num){
   std::vector<std::vector<double>> result;
   result = d;
