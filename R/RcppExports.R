@@ -150,7 +150,7 @@ constrainSim <- function(sim, MASK, samples4gradient = 100.0) {
 #' @return baseGapPenalty (numeric).
 #' @examples
 #' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = F)
-#' getBaseGapPenalty(sim, dotProductMasked, 0.5) # -0.25
+#' getBaseGapPenalty(sim, "dotProductMasked", 0.5) # -0.25
 #' @export
 getBaseGapPenalty <- function(sim, SimType, gapQuantile = 0.5) {
     .Call(`_DIAlignR_getBaseGapPenalty`, sim, SimType, gapQuantile)

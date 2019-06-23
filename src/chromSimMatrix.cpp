@@ -20,6 +20,7 @@ double eucLenVecOfVec(const std::vector<std::vector<double> >& vov){
   return std::sqrt(sos);
 }
 
+// Eucledian length at each time-point.
 std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double> >& vov){
   std::vector<double> mag;
   mag.resize(vov[0].size(), 0.0);
@@ -70,8 +71,9 @@ std::vector<double> perSampleSumVecOfVec(const std::vector<std::vector<double> >
   return sum;
 }
 
+// TODO Understand this code
 void distToSim(SimMatrix& s, double offset, double Numerator){
-  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::plus<double>(), std::placeholders::_1, offset));
+  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::plus<double>(), std::placeholders::_1, offset+1e-06)); // 1e-06 added in denumerator to avoid divide-by-zero
   std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::divides<double>(), Numerator, std::placeholders::_1));
 }
 
