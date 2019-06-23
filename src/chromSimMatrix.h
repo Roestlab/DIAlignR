@@ -23,6 +23,7 @@ double meanVecOfVec(const std::vector<std::vector<double>>& vec);
 
 double eucLenVecOfVec(const std::vector<std::vector<double>>& vec);
 
+// Eucledian length at each time-point.
 std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double>>& vec);
 
 std::vector<double> perSampleSqrSumVecOfVec(const std::vector<std::vector<double>>& vec);

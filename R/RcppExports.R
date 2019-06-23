@@ -124,12 +124,12 @@ getGlobalAlignMask <- function(tA, tB, B1p, B2p, noBeef = 50L, hardConstrain = F
 #' @param samples4gradient (numeric) This paarameter modulates penalization of masked indices.
 #' @return s_new (matrix) A constrained similarity matrix.
 #' @examples
-#' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10), 4, 4, byrow = F)
+#' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2), 4, 5, byrow = F)
 #' MASK <- matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
-#' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
+#' 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = F)
 #' constrainSim(sim, MASK, 10)
 #' matrix(c(-2, 10, -3.414, -4.828, -2, -2, 10, -3.414, 8.586, -2, -2, -2, -4.828,
-#' -3.414, -2, 10), 4, 4, byrow = F)
+#' -3.414, -2, 10, 5.758, -4.828, -2, -2), 4, 5, byrow = F)
 #' @export
 constrainSim <- function(sim, MASK, samples4gradient = 100.0) {
     .Call(`_DIAlignR_constrainSim`, sim, MASK, samples4gradient)
@@ -150,7 +150,7 @@ constrainSim <- function(sim, MASK, samples4gradient = 100.0) {
 #' @return baseGapPenalty (numeric).
 #' @examples
 #' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = F)
-#' getBaseGapPenalty(sim, dotProductMasked, 0.5) # -0.25
+#' getBaseGapPenalty(sim, "dotProductMasked", 0.5) # -0.25
 #' @export
 getBaseGapPenalty <- function(sim, SimType, gapQuantile = 0.5) {
     .Call(`_DIAlignR_getBaseGapPenalty`, sim, SimType, gapQuantile)

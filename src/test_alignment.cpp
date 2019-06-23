@@ -11,6 +11,8 @@
 using namespace DIAlign;
 
 void test_doAlignment(){
+  AlignObj obj(3,4);
+  std::cout << "test alignment successfu1l" << std::endl;
 }
 
 void test_quantile()
@@ -51,9 +53,9 @@ void test_quantile()
   ASSERT( std::abs(q95 -  1.4508532 ) < 1e-5);
 }
 
-int main()
-{
+int main(){
   test_doAlignment();
   test_quantile();
+  std::cout << "test alignment successful" << std::endl;
   return 0;
 }

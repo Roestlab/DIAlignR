@@ -1,15 +1,21 @@
 #ifndef SIMPLEFCN_H
 #define SIMPLEFCN_H
 
-#include <Rcpp.h>
 #include <vector>
 #include "affinealignobj.h"
 #include "similarityMatrix.h"
 #include "utils.h"
-using namespace Rcpp;
+
+#ifdef USE_Rcpp
+#include <Rcpp.h>
+#endif
+
 
 namespace DIAlign 
 {
+
+#ifdef USE_Rcpp
+using namespace Rcpp;
 
 //' Outputs a NumericMatrix of given row and column size.
 //'
@@ -26,7 +32,7 @@ namespace DIAlign
 //' initializeMatrix(0, ROW_SIZE = 4, COL_SIZE = 5)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix initializeMatrix(float initVal, int ROW_SIZE, int COL_SIZE);
+NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE);
 
 // Template definitions should always be in header file.
 template<class T>
@@ -38,6 +44,11 @@ void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
     Rcpp::Rcout << std::endl;
   }
 }
+
+#endif
+
+SimMatrix getseqSim(std::string seq1, std::string seq2, double match, double misMatch);
+
 } // namespace DIAlign
 
 #endif // SIMPLEFCN_H

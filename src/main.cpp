@@ -33,14 +33,9 @@ using namespace DIAlign;
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, double misMatch){
-  int ROW_SIZE = seq1.size();
-  int COL_SIZE = seq2.size();
-  NumericMatrix s(ROW_SIZE, COL_SIZE);
-  // NUmericMatrix pointer moves along the rows faster that's why iterating over i first then j.
-  for(int j = 0; j < COL_SIZE; j++)
-    for(int i = 0; i < ROW_SIZE; i++)
-      seq1[i] == seq2[j] ?  s(i, j) = match : s(i, j) = misMatch;
-  return(s);
+  SimMatrix s = getseqSim(seq1, seq2, match, misMatch);
+  NumericMatrix sim = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+  return(sim);
 }
 
 //' Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms(XICs)
@@ -164,12 +159,12 @@ NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vecto
 //' @param samples4gradient (numeric) This paarameter modulates penalization of masked indices.
 //' @return s_new (matrix) A constrained similarity matrix.
 //' @examples
-//' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10), 4, 4, byrow = F)
+//' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2), 4, 5, byrow = F)
 //' MASK <- matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
-//' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
+//' 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = F)
 //' constrainSim(sim, MASK, 10)
 //' matrix(c(-2, 10, -3.414, -4.828, -2, -2, 10, -3.414, 8.586, -2, -2, -2, -4.828,
-//' -3.414, -2, 10), 4, 4, byrow = F)
+//' -3.414, -2, 10, 5.758, -4.828, -2, -2), 4, 5, byrow = F)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient = 100.0){
@@ -202,7 +197,7 @@ NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, 
 //' @return baseGapPenalty (numeric).
 //' @examples
 //' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = F)
-//' getBaseGapPenalty(sim, dotProductMasked, 0.5) # -0.25
+//' getBaseGapPenalty(sim, "dotProductMasked", 0.5) # -0.25
 //' @export
 // [[Rcpp::export]]
 double getBaseGapPenalty(const NumericMatrix& sim, std::string SimType, double gapQuantile = 0.5){
@@ -287,6 +282,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("A")  = Vec2NumericMatrix(obj.A, s.n_col+1, s.n_row+1);
   x.slot("B")  = Vec2NumericMatrix(obj.B, s.n_col+1, s.n_row+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
+  x.slot("path") = Vec2NumericMatrix(obj.Path, s.n_col+1, s.n_row+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;

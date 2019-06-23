@@ -5,6 +5,7 @@
 
 namespace DIAlign 
 {
+
 double meanVecOfVec(const std::vector<std::vector<double> >& vov){
   double average = 0.0;
   // Sum-up mean of each vector using Range-based for loop.
@@ -20,6 +21,7 @@ double eucLenVecOfVec(const std::vector<std::vector<double> >& vov){
   return std::sqrt(sos);
 }
 
+// Eucledian length at each time-point.
 std::vector<double> perSampleEucLenVecOfVec(const std::vector<std::vector<double> >& vov){
   std::vector<double> mag;
   mag.resize(vov[0].size(), 0.0);
@@ -70,8 +72,9 @@ std::vector<double> perSampleSumVecOfVec(const std::vector<std::vector<double> >
   return sum;
 }
 
+// TODO Understand this code
 void distToSim(SimMatrix& s, double offset, double Numerator){
-  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::plus<double>(), std::placeholders::_1, offset));
+  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::plus<double>(), std::placeholders::_1, offset+1e-06)); // 1e-06 added in denumerator to avoid divide-by-zero
   std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::bind(std::divides<double>(), Numerator, std::placeholders::_1));
 }
 
@@ -371,11 +374,9 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     SumOuterCov(d1, d2, Normalization, s);
   else if(SimType == "correlation")
     SumOuterCorr(d1, d2, Normalization, s);
-  else
-  {
+  else{
     // Rcpp::Rcout << "getChromSimMat should have value from given choices only!" << std::endl;
   }
-
   return s;
 }
 
