@@ -273,16 +273,17 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
     constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
   }
   AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
-  obj = doAffineAlignment(s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+  doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
   x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);;
-  x.slot("M")  = Vec2NumericMatrix(obj.M, s.n_col+1, s.n_row+1);
-  x.slot("A")  = Vec2NumericMatrix(obj.A, s.n_col+1, s.n_row+1);
-  x.slot("B")  = Vec2NumericMatrix(obj.B, s.n_col+1, s.n_row+1);
-  x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  x.slot("path") = Vec2NumericMatrix(obj.Path, s.n_col+1, s.n_row+1);
+  x.slot("M")  = NumericMatrix(s.n_col+1, s.n_row+1, obj.M);
+  x.slot("A")  = NumericMatrix(s.n_col+1, s.n_row+1, obj.A);
+  x.slot("B")  = NumericMatrix(s.n_col+1, s.n_row+1, obj.B);
+  std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
+  x.slot("Traceback")  = EnumToChar(tmp);
+  x.slot("path") = NumericMatrix(s.n_col+1, s.n_row+1, obj.Path);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -327,7 +328,6 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   x.slot("s") = sim;
   x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
   x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  //NumericMatrix mat = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
   x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
@@ -339,6 +339,7 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   x.slot("score") = obj.score;
   return(x);
 }
+
 
 //' Perform affine global and overlap alignment on a similarity matrix
 //'
@@ -375,16 +376,17 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   AffineAlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AffineAlignObj struct
   SimMatrix s = NumericMatrix2Vec(sim);
   // printMatrix(s.data, s.n_row, s.n_col);
-  obj = doAffineAlignment(s, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
+  doAffineAlignment(obj, s, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
   x.slot("s") = sim;
-  x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
-  x.slot("A") = Vec2NumericMatrix(obj.A, signalB_len+1, signalA_len+1);
-  x.slot("B") = Vec2NumericMatrix(obj.B, signalB_len+1, signalA_len+1);
-  x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
+  x.slot("M") = NumericMatrix(signalB_len+1, signalA_len+1, obj.M);
+  x.slot("A") = NumericMatrix(signalB_len+1, signalA_len+1, obj.A);
+  x.slot("B") = NumericMatrix(signalB_len+1, signalA_len+1, obj.B);
+  std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(signalB_len+1) *(signalA_len+1) );
+  x.slot("Traceback")  = EnumToChar(tmp);
+  x.slot("path") = NumericMatrix( signalB_len+1, signalA_len+1, obj.Path);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
