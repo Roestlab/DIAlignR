@@ -53,7 +53,11 @@ void test_quantile()
   ASSERT( std::abs(q95 -  1.4508532 ) < 1e-5);
 }
 
+#ifdef USE_Rcpp
+int main_aligment(){
+#else
 int main(){
+#endif
   test_doAlignment();
   test_quantile();
   std::cout << "test alignment successful" << std::endl;
