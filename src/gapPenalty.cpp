@@ -1,5 +1,7 @@
 #include "gapPenalty.h"
 
+namespace DIAlign 
+{
 double getGapPenalty(const SimMatrix& s, double gapQuantile, std::string SimType){
   double gapPenalty;
   if (SimType == "dotProductMasked")
@@ -22,3 +24,4 @@ double getGapPenalty(const SimMatrix& s, double gapQuantile, std::string SimType
   }
   return gapPenalty;
 }
+} // namespace DIAlign

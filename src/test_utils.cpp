@@ -6,6 +6,8 @@
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
+using namespace DIAlign;
+
 void test_getQuantile(){
   std::vector<double> vec = {
     -2.19074364,  1.05454755,  5.26353599, -2.89112702,  0.25924473,  0.89726085,

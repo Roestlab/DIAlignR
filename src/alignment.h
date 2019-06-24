@@ -11,6 +11,8 @@
 #include "affinealignobj.h"
 #define NA 0
 
+namespace DIAlign 
+{
 struct AlignedIndices{
     std::vector<int> indexA_aligned;
     std::vector<int> indexB_aligned;
@@ -57,5 +59,6 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment);
 
 // This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
 void getAlignedIndices(AlignObj &alignObj);
+}
 
 #endif // ALIGNMENT_H

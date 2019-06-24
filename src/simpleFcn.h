@@ -8,8 +8,15 @@
 
 #ifdef USE_Rcpp
 #include <Rcpp.h>
-using namespace Rcpp;
+#endif
 
+
+namespace DIAlign
+{
+
+#ifdef USE_Rcpp
+using namespace Rcpp;
+/***
 //' Outputs a NumericMatrix of given row and column size.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -26,7 +33,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE);
-
+***/
 // Template definitions should always be in header file.
 template<class T>
 void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
@@ -37,8 +44,11 @@ void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
     Rcpp::Rcout << std::endl;
   }
 }
+
 #endif
 
 SimMatrix getseqSim(std::string seq1, std::string seq2, double match, double misMatch);
+
+} // namespace DIAlign
 
 #endif // SIMPLEFCN_H

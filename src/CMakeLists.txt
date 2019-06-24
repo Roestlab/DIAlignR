@@ -1,6 +1,10 @@
 project(DIAlign)
 include(CTest)
 cmake_minimum_required(VERSION 2.8)
+
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+SET(CMAKE_CXX_FLAGS  "-march=native")  # about a 10% improvement
+
 aux_source_directory(. SRC_LIST)
 set (CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES
@@ -17,6 +21,11 @@ simpleFcn.cpp
 add_library(DIAlign SHARED ${SOURCE_FILES})
 # SHARED libraries are linked dynamically and loaded at runtime. Other options are
 # STATIC or MODULE
+
+
+# Actual executables
+add_executable(runAlignment run_alignment.cpp)
+target_link_libraries(runAlignment DIAAlignment)
 
 # Test executables
 add_executable(FullTest test_alignment.cpp)

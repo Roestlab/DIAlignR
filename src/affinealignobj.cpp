@@ -1,5 +1,7 @@
 #include "affinealignobj.h"
 
+namespace DIAlign 
+{
 // This function overloads << to display TracebackType.
 std::ostream& operator<<(std::ostream& out, const TracebackType value){
     const char* s = 0;
@@ -28,3 +30,4 @@ std::vector<char> EnumToChar(std::vector<TracebackType> v) {
   //std::transform(v.begin(), v.end(), nv.begin(), [](TracebackType c) -> char {return (c + 48); });
   return nv;
 }
+} // namespace DIAlign

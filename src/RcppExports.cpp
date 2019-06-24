@@ -132,19 +132,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// initializeMatrix
-NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE);
-RcppExport SEXP _DIAlignR_initializeMatrix(SEXP initValSEXP, SEXP ROW_SIZESEXP, SEXP COL_SIZESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type initVal(initValSEXP);
-    Rcpp::traits::input_parameter< int >::type ROW_SIZE(ROW_SIZESEXP);
-    Rcpp::traits::input_parameter< int >::type COL_SIZE(COL_SIZESEXP);
-    rcpp_result_gen = Rcpp::wrap(initializeMatrix(initVal, ROW_SIZE, COL_SIZE));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_getSeqSimMat", (DL_FUNC) &_DIAlignR_getSeqSimMat, 4},
@@ -155,7 +142,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_alignChromatogramsCpp", (DL_FUNC) &_DIAlignR_alignChromatogramsCpp, 18},
     {"_DIAlignR_doAlignmentCpp", (DL_FUNC) &_DIAlignR_doAlignmentCpp, 3},
     {"_DIAlignR_doAffineAlignmentCpp", (DL_FUNC) &_DIAlignR_doAffineAlignmentCpp, 4},
-    {"_DIAlignR_initializeMatrix", (DL_FUNC) &_DIAlignR_initializeMatrix, 3},
     {NULL, NULL, 0}
 };
 

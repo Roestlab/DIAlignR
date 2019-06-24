@@ -257,21 +257,3 @@ doAffineAlignmentCpp <- function(sim, go, ge, OverlapAlignment) {
     .Call(`_DIAlignR_doAffineAlignmentCpp`, sim, go, ge, OverlapAlignment)
 }
 
-#' Outputs a NumericMatrix of given row and column size.
-#'
-#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-#' ORCID: 0000-0003-3500-8152
-#' License: (c) Author (2019) + MIT
-#' Date: 2019-03-05
-#' @param initVal (char) Matrix intialization value
-#' @param ROW_SIZE (int) Number of rows
-#' @param COL_SIZE (int) Number of columns
-#' @return s (NumericMatrix) A matrix
-#' @examples
-#' # Get a matrix of type NumericMatrix
-#' initializeMatrix(0, ROW_SIZE = 4, COL_SIZE = 5)
-#' @export
-initializeMatrix <- function(initVal, ROW_SIZE, COL_SIZE) {
-    .Call(`_DIAlignR_initializeMatrix`, initVal, ROW_SIZE, COL_SIZE)
-}
-

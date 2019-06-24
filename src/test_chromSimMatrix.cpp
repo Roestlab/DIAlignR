@@ -6,6 +6,8 @@
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
+using namespace DIAlign;
+
 void test_meanVecOfVec(){
   std::vector< std::vector< double > > vov;
   std::vector< double > tmp;
