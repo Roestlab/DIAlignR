@@ -1,4 +1,4 @@
-project(DIAAlignment)
+project(DIAlign)
 include(CTest)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
@@ -14,7 +14,7 @@ utils.cpp
 simpleFcn.cpp
 )
 
-add_library(DIAAlignment SHARED ${SOURCE_FILES})
+add_library(DIAlign SHARED ${SOURCE_FILES})
 # SHARED libraries are linked dynamically and loaded at runtime. Other options are
 # STATIC or MODULE
 
@@ -26,12 +26,12 @@ add_executable(runTest3 test_gapPenalty.cpp)
 add_executable(runTest4 test_constrainMat.cpp)
 add_executable(runTest5 test_chromSimMatrix.cpp)
 
-target_link_libraries(FullTest DIAAlignment)
-target_link_libraries(runTest1 DIAAlignment)
-target_link_libraries(runTest2 DIAAlignment)
-target_link_libraries(runTest3 DIAAlignment)
-target_link_libraries(runTest4 DIAAlignment)
-target_link_libraries(runTest5 DIAAlignment)
+target_link_libraries(FullTest DIAlign)
+target_link_libraries(runTest1 DIAlign)
+target_link_libraries(runTest2 DIAlign)
+target_link_libraries(runTest3 DIAlign)
+target_link_libraries(runTest4 DIAlign)
+target_link_libraries(runTest5 DIAlign)
 
 add_test(RunTest FullTest)
 add_test(RunTest1 runTest1)
