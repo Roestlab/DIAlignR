@@ -151,7 +151,7 @@ void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double
   int ncol = s.n_col;
   for (int i = 0; i < nrow; i++){
     for(int j = 0; j < ncol; j++){
-      s.data[i*ncol + j] += d1[i]*d2[j]/(d1_mag[i]*d2_mag[j]); // Summing outer product of vectors across fragment-ions.
+      s.data[i*ncol + j] += d1[i]*d2[j]/((d1_mag[i]+1e-06)*(d2_mag[j]+1e-06)); // Summing outer product of vectors across fragment-ions.
     }
   }
 }
@@ -364,11 +364,3 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   }
   return s;
 }
-
-/***
-vector<vector<double> > stuff;
-stuff.push_back({1,3,2});
-stuff.push_back({0,0,0});
-stuff.push_back({4,4,4});
-***/
-

@@ -10,7 +10,11 @@ void test_doAlignment(){
   std::cout << "test alignment successfu1l" << std::endl;
 }
 
+#ifdef USE_Rcpp
+int main_alignment(){
+#else
 int main(){
+#endif
   test_doAlignment();
   std::cout << "test alignment successful" << std::endl;
   return 0;
