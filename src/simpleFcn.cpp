@@ -1,9 +1,10 @@
 #include "simpleFcn.h"
 
-namespace DIAlign 
+namespace DIAlign
 {
 
 #ifdef USE_Rcpp
+/***
 // TODO Write unit test for it.
 // Outputs a NumericMatrix of given row and column size.
 NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE){
@@ -14,7 +15,7 @@ NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE){
     }
   }
   return s;
-}
+}***/
 #endif
 
 SimMatrix getseqSim(std::string seq1, std::string seq2, double match, double misMatch){

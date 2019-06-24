@@ -11,12 +11,12 @@
 #endif
 
 
-namespace DIAlign 
+namespace DIAlign
 {
 
 #ifdef USE_Rcpp
 using namespace Rcpp;
-
+/***
 //' Outputs a NumericMatrix of given row and column size.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -33,7 +33,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE);
-
+***/
 // Template definitions should always be in header file.
 template<class T>
 void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
