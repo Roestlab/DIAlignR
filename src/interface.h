@@ -6,6 +6,8 @@
 #include "simpleFcn.h"
 using namespace Rcpp;
 
+namespace DIAlign 
+{
 std::vector<std::vector<double> > list2VecOfVec (Rcpp::List l);
 
 void printVecOfVec(Rcpp::List l);
@@ -20,5 +22,6 @@ NumericMatrix Vec2NumericMatrix(std::vector<T> vec, int nrow, int ncol){
 }
 
 SimMatrix NumericMatrix2Vec(Rcpp::NumericMatrix mat);
+} // namespace DIAlign
 
 #endif // INTERFACE_H

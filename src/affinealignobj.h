@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 
+namespace DIAlign 
+{
 enum TracebackType {SS = 0, DM = 1, DA = 2, DB = 3, TM = 4, TA = 5, TB = 6, LM = 7, LA = 8, LB = 9};
 enum tbJump {M = 0, A = 1, B = 2};
 
@@ -17,11 +19,17 @@ std::vector<char> EnumToChar(std::vector<TracebackType> v);
 
 struct AffineAlignObj
 {
-  std::vector<double> M; // Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
-  std::vector<double> A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
-  std::vector<double> B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
-  std::vector<TracebackType> Traceback;
-  std::vector<bool> Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
+private:
+  int signalA_capacity; // Capacity of matrix for signal A (rows) 
+  int signalB_capacity; // Capacity of matrix for signal B (columns)
+
+public:
+  double* M; // Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
+  double* A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
+  double* B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
+  TracebackType* Traceback;
+  bool* Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
+
   int signalA_len; // Number of data-points in signal A
   int signalB_len; // Number of data-points in signal B
   double GapOpen; // Penalty for Gap opening
@@ -36,26 +44,143 @@ struct AffineAlignObj
 
   // Not a default constructor
   AffineAlignObj() {}
-  AffineAlignObj(int ROW_SIZE, int COL_SIZE)
+  AffineAlignObj(int ROW_SIZE, int COL_SIZE, bool clearMemory = true)
   {
-    M.resize(ROW_SIZE * COL_SIZE, 0);
-    A.resize(ROW_SIZE * COL_SIZE, 0);
-    B.resize(ROW_SIZE * COL_SIZE, 0);
-    Traceback.resize(3 * ROW_SIZE * COL_SIZE, SS);
-    Path.resize(ROW_SIZE * COL_SIZE, false);
+    M = new double[ROW_SIZE * COL_SIZE];
+    A = new double[ROW_SIZE * COL_SIZE];
+    B = new double[ROW_SIZE * COL_SIZE];
+    Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
+    Path = new bool[ROW_SIZE * COL_SIZE];
+
+    if (clearMemory)
+    {
+      std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+      std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
+    }
+
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
     GapOpen = 0.0;
     GapExten = 0.0;
     FreeEndGaps = true;
+
+    signalA_capacity = ROW_SIZE-1;
+    signalB_capacity = COL_SIZE-1;
   }
 
-  // Rule 1 Copy constructor and Rule 2 Copy assignment operator are not needed.
-  // C++ auto-create them and will do the right-thing compared to manual code.
+  void reset(int ROW_SIZE, int COL_SIZE)
+  {
+    if (ROW_SIZE -1 > signalA_capacity || COL_SIZE -1 > signalB_capacity)
+    {
+      std::cout << "Error: cannot reset an object beyond capacity" << std::endl;
+      std::cout << ROW_SIZE << " vs " << signalA_capacity << std::endl;
+      throw 1;
+    }
 
-  // Rule 3 Not a default destructor
+    std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+    std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
+
+    signalA_len = ROW_SIZE-1;
+    signalB_len = COL_SIZE-1;
+
+    GapOpen = 0.0;
+    GapExten = 0.0;
+    FreeEndGaps = true;
+
+    indexA_aligned.clear();
+    indexB_aligned.clear();
+    score.clear();
+  }
+
+  AffineAlignObj& operator=(const AffineAlignObj& rhs)
+  {
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+
+    //std::cout << " this " << this << std::endl;
+    signalA_len = rhs.signalA_len;
+    signalA_capacity = rhs.signalA_capacity;
+    signalB_len = rhs.signalB_len;
+    signalB_capacity = rhs.signalB_capacity;
+
+    GapOpen = rhs.GapOpen;
+    GapExten = rhs.GapExten;
+    FreeEndGaps = rhs.FreeEndGaps;
+    indexA_aligned = rhs.indexA_aligned;
+    indexB_aligned = rhs.indexB_aligned;
+    score = rhs.score;
+
+    int ROW_SIZE = rhs.signalA_len + 1;
+    int COL_SIZE = rhs.signalB_len + 1;
+
+    M = new double[ROW_SIZE * COL_SIZE];
+    A = new double[ROW_SIZE * COL_SIZE];
+    B = new double[ROW_SIZE * COL_SIZE];
+    Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
+    Path = new bool[ROW_SIZE * COL_SIZE];
+    
+    std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+    std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
+  }
+
+  AffineAlignObj(const AffineAlignObj& rhs)
+  {
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+
+    signalA_len = rhs.signalA_len;
+    signalA_capacity = rhs.signalA_capacity;
+    signalB_len = rhs.signalB_len;
+    signalB_capacity = rhs.signalB_capacity;
+
+    GapOpen = rhs.GapOpen;
+    GapExten = rhs.GapExten;
+    FreeEndGaps = rhs.FreeEndGaps;
+    indexA_aligned = rhs.indexA_aligned;
+    indexB_aligned = rhs.indexB_aligned;
+    score = rhs.score;
+
+    int ROW_SIZE = rhs.signalA_len + 1;
+    int COL_SIZE = rhs.signalB_len + 1;
+
+    M = new double[ROW_SIZE * COL_SIZE];
+    A = new double[ROW_SIZE * COL_SIZE];
+    B = new double[ROW_SIZE * COL_SIZE];
+    Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
+    Path = new bool[ROW_SIZE * COL_SIZE];
+    
+    std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+    std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
+  }
+
   ~AffineAlignObj()
-  {  }
+  {
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+  }
+
 };
+} // namespace DIAlign
 
 #endif // AFFINEALIGNOBJ_H
