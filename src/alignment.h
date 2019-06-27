@@ -11,7 +11,7 @@
 #include "affinealignobj.h"
 #define NA 0
 
-namespace DIAlign 
+namespace DIAlign
 {
 struct AlignedIndices{
     std::vector<int> indexA_aligned;
@@ -21,6 +21,7 @@ struct AlignedIndices{
 
 struct AlignObj
 {
+    std::vector<double> s_data;
     std::vector<TracebackType> Traceback;
     std::vector<double> M;
     std::vector<bool> Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
@@ -41,6 +42,7 @@ struct AlignObj
       Path.resize(ROW_SIZE * COL_SIZE, false);
       signalA_len = ROW_SIZE-1;
       signalB_len = COL_SIZE-1;
+      s_data.resize(signalA_len * signalB_len, 0.0);
       GapOpen = 0.0;
       GapExten = 0.0;
       FreeEndGaps = true;

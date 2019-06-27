@@ -1,6 +1,6 @@
 #include "alignment.h"
 
-namespace DIAlign 
+namespace DIAlign
 {
 
 // This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
@@ -11,6 +11,7 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
   alignObj.FreeEndGaps = OverlapAlignment;
   alignObj.GapOpen = gap;
   alignObj.GapExten = gap;
+  alignObj.s_data = s.data;
 
   SimMatrix M;
   M.n_row = signalA_len+1;
@@ -138,6 +139,7 @@ void getAlignedIndices(AlignObj &alignObj){
   while(TracebackPointer != SS){
     // SS: STOP when top-left corner of the matrix is reached
     // D: Diagonal, T: Top, L: Left
+    // TODO Have statement for all conditions.
     switch(TracebackPointer){
     case DM: {
       // Go diagonal (Up-Left) in the matrix M.
@@ -181,6 +183,5 @@ void getAlignedIndices(AlignObj &alignObj){
   alignObj.indexA_aligned = alignedIdx.indexA_aligned;
   alignObj.indexB_aligned = alignedIdx.indexB_aligned;
   alignObj.score = alignedIdx.score;
-  return;
 }
 } // namespace DIAlign

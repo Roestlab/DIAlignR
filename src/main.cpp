@@ -326,9 +326,9 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   S4 x("AlignObj"); // Creating an empty S4 object of AlignObj class
   // Copying values to slots
   x.slot("s") = sim;
-  x.slot("M") = Vec2NumericMatrix(obj.M, signalB_len+1, signalA_len+1);
-  x.slot("Traceback")  = EnumToChar(obj.Traceback);
-  x.slot("path") = Vec2NumericMatrix(obj.Path, signalB_len+1, signalA_len+1);
+  x.slot("M") = Vec2NumericMatrix(obj.M, signalA_len+1, signalB_len+1);
+  x.slot("Traceback") = Vec2NumericMatrix(EnumToChar(obj.Traceback), signalA_len+1, signalB_len+1);
+  x.slot("path") = Vec2NumericMatrix(obj.Path, signalA_len+1, signalB_len+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
