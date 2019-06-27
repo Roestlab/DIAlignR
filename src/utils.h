@@ -6,7 +6,7 @@
 // iostream is required for std::string why?
 #include <iostream>
 
-//#define USE_Rcpp
+#define USE_Rcpp
 
 #ifdef USE_PRECONDITION
 #define PRECONDITION(condition, message) assert(condition); // If you don't put the message, C++ will output the code.

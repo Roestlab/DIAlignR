@@ -5,7 +5,7 @@
 
 #include "utils.h"
 
-namespace DIAlign 
+namespace DIAlign
 {
 
 double getQuantile(std::vector<double> vec, double quantile){
@@ -13,30 +13,29 @@ double getQuantile(std::vector<double> vec, double quantile){
   double p = quantile;
   double m = 1-p; // Type 7 definition as implemented in R.
   int j = floor(n*p + m);
-  double g = n*p + m - j; // Replacing n*p with 24884.16 outputs correct result.
+  double g = n*p + m - j;
   double gamma = g;
 
-#if 0
-  sort(vec.begin(), vec.end());
-  double sampleQuant = (1.0 - gamma)*vec[j-1] + gamma*vec[j];
-#else
-
-  // do a simple approximation (saves us from calling nth two times)
+  // sort(vec.begin(), vec.end()); This algorithm is O(n^2).
+  // nth_element does partial sorting and take O(n) in worst case. With having if condition
+  // we are utilizing its O(log(n)) performance. With one nth_element, we get substantial error
+  // in certain edge cases if results are compared to R output.
   double sampleQuant;
   if (p <= 0.5)
   {
-    int idx = n*p;
-    std::nth_element(vec.begin(), vec.begin()+idx, vec.end(), std::less<double>());
-    sampleQuant = vec[idx];
+    std::nth_element(vec.begin(), vec.begin()+j, vec.end(), std::less<double>());
+    sampleQuant = gamma*vec[j];
+    std::nth_element(vec.begin(), vec.begin()+j-1, vec.end(), std::less<double>());
+    sampleQuant = sampleQuant + (1.0 - gamma)*vec[j-1];
   }
   else
   {
     int idx = n*(1-p);
-    std::nth_element(vec.begin(), vec.begin()+idx, vec.end(), std::greater<double>());
-    sampleQuant = vec[idx];
+    std::nth_element(vec.begin(), vec.begin()+n-j-1, vec.end(), std::greater<double>());
+    sampleQuant = gamma*vec[n-j-1];
+    std::nth_element(vec.begin(), vec.begin()+n-j, vec.end(), std::greater<double>());
+    sampleQuant = sampleQuant + (1.0-gamma)*vec[n-j];
   }
-#endif
-
   return sampleQuant;
 }
 
