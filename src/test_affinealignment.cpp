@@ -8,15 +8,15 @@
 
 using namespace DIAlign;
 
-void test_getOlapAffineAlignStartIndices(){
-
-}
-
 void test_getAffineAlignedIndices(){
 
 }
 
 void test_doAffineAlignment(){
+
+}
+
+void test_getOlapAffineAlignStartIndices(){
 
 }
 

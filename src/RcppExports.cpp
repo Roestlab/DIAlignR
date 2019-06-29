@@ -5,9 +5,9 @@
 
 using namespace Rcpp;
 
-// getSeqSimMat
-NumericMatrix getSeqSimMat(std::string seq1, std::string seq2, double match, double misMatch);
-RcppExport SEXP _DIAlignR_getSeqSimMat(SEXP seq1SEXP, SEXP seq2SEXP, SEXP matchSEXP, SEXP misMatchSEXP) {
+// getSeqSimMatCpp
+NumericMatrix getSeqSimMatCpp(std::string seq1, std::string seq2, double match, double misMatch);
+RcppExport SEXP _DIAlignR_getSeqSimMatCpp(SEXP seq1SEXP, SEXP seq2SEXP, SEXP matchSEXP, SEXP misMatchSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -15,13 +15,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type seq2(seq2SEXP);
     Rcpp::traits::input_parameter< double >::type match(matchSEXP);
     Rcpp::traits::input_parameter< double >::type misMatch(misMatchSEXP);
-    rcpp_result_gen = Rcpp::wrap(getSeqSimMat(seq1, seq2, match, misMatch));
+    rcpp_result_gen = Rcpp::wrap(getSeqSimMatCpp(seq1, seq2, match, misMatch));
     return rcpp_result_gen;
 END_RCPP
 }
-// getChromSimMat
-NumericMatrix getChromSimMat(Rcpp::List l1, Rcpp::List l2, std::string normalization, std::string simType, double cosAngleThresh, double dotProdThresh);
-RcppExport SEXP _DIAlignR_getChromSimMat(SEXP l1SEXP, SEXP l2SEXP, SEXP normalizationSEXP, SEXP simTypeSEXP, SEXP cosAngleThreshSEXP, SEXP dotProdThreshSEXP) {
+// getChromSimMatCpp
+NumericMatrix getChromSimMatCpp(Rcpp::List l1, Rcpp::List l2, std::string normalization, std::string simType, double cosAngleThresh, double dotProdThresh);
+RcppExport SEXP _DIAlignR_getChromSimMatCpp(SEXP l1SEXP, SEXP l2SEXP, SEXP normalizationSEXP, SEXP simTypeSEXP, SEXP cosAngleThreshSEXP, SEXP dotProdThreshSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -31,13 +31,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type simType(simTypeSEXP);
     Rcpp::traits::input_parameter< double >::type cosAngleThresh(cosAngleThreshSEXP);
     Rcpp::traits::input_parameter< double >::type dotProdThresh(dotProdThreshSEXP);
-    rcpp_result_gen = Rcpp::wrap(getChromSimMat(l1, l2, normalization, simType, cosAngleThresh, dotProdThresh));
+    rcpp_result_gen = Rcpp::wrap(getChromSimMatCpp(l1, l2, normalization, simType, cosAngleThresh, dotProdThresh));
     return rcpp_result_gen;
 END_RCPP
 }
-// getGlobalAlignMask
-NumericMatrix getGlobalAlignMask(const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef, bool hardConstrain);
-RcppExport SEXP _DIAlignR_getGlobalAlignMask(SEXP tASEXP, SEXP tBSEXP, SEXP B1pSEXP, SEXP B2pSEXP, SEXP noBeefSEXP, SEXP hardConstrainSEXP) {
+// getGlobalAlignMaskCpp
+NumericMatrix getGlobalAlignMaskCpp(const std::vector<double>& tA, const std::vector<double>& tB, double B1p, double B2p, int noBeef, bool hardConstrain);
+RcppExport SEXP _DIAlignR_getGlobalAlignMaskCpp(SEXP tASEXP, SEXP tBSEXP, SEXP B1pSEXP, SEXP B2pSEXP, SEXP noBeefSEXP, SEXP hardConstrainSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -47,33 +47,33 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type B2p(B2pSEXP);
     Rcpp::traits::input_parameter< int >::type noBeef(noBeefSEXP);
     Rcpp::traits::input_parameter< bool >::type hardConstrain(hardConstrainSEXP);
-    rcpp_result_gen = Rcpp::wrap(getGlobalAlignMask(tA, tB, B1p, B2p, noBeef, hardConstrain));
+    rcpp_result_gen = Rcpp::wrap(getGlobalAlignMaskCpp(tA, tB, B1p, B2p, noBeef, hardConstrain));
     return rcpp_result_gen;
 END_RCPP
 }
-// constrainSim
-NumericMatrix constrainSim(const NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient);
-RcppExport SEXP _DIAlignR_constrainSim(SEXP simSEXP, SEXP MASKSEXP, SEXP samples4gradientSEXP) {
+// constrainSimCpp
+NumericMatrix constrainSimCpp(const NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient);
+RcppExport SEXP _DIAlignR_constrainSimCpp(SEXP simSEXP, SEXP MASKSEXP, SEXP samples4gradientSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix& >::type sim(simSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type MASK(MASKSEXP);
     Rcpp::traits::input_parameter< double >::type samples4gradient(samples4gradientSEXP);
-    rcpp_result_gen = Rcpp::wrap(constrainSim(sim, MASK, samples4gradient));
+    rcpp_result_gen = Rcpp::wrap(constrainSimCpp(sim, MASK, samples4gradient));
     return rcpp_result_gen;
 END_RCPP
 }
-// getBaseGapPenalty
-double getBaseGapPenalty(const NumericMatrix& sim, std::string SimType, double gapQuantile);
-RcppExport SEXP _DIAlignR_getBaseGapPenalty(SEXP simSEXP, SEXP SimTypeSEXP, SEXP gapQuantileSEXP) {
+// getBaseGapPenaltyCpp
+double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, double gapQuantile);
+RcppExport SEXP _DIAlignR_getBaseGapPenaltyCpp(SEXP simSEXP, SEXP SimTypeSEXP, SEXP gapQuantileSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix& >::type sim(simSEXP);
     Rcpp::traits::input_parameter< std::string >::type SimType(SimTypeSEXP);
     Rcpp::traits::input_parameter< double >::type gapQuantile(gapQuantileSEXP);
-    rcpp_result_gen = Rcpp::wrap(getBaseGapPenalty(sim, SimType, gapQuantile));
+    rcpp_result_gen = Rcpp::wrap(getBaseGapPenaltyCpp(sim, SimType, gapQuantile));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -134,11 +134,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_DIAlignR_getSeqSimMat", (DL_FUNC) &_DIAlignR_getSeqSimMat, 4},
-    {"_DIAlignR_getChromSimMat", (DL_FUNC) &_DIAlignR_getChromSimMat, 6},
-    {"_DIAlignR_getGlobalAlignMask", (DL_FUNC) &_DIAlignR_getGlobalAlignMask, 6},
-    {"_DIAlignR_constrainSim", (DL_FUNC) &_DIAlignR_constrainSim, 3},
-    {"_DIAlignR_getBaseGapPenalty", (DL_FUNC) &_DIAlignR_getBaseGapPenalty, 3},
+    {"_DIAlignR_getSeqSimMatCpp", (DL_FUNC) &_DIAlignR_getSeqSimMatCpp, 4},
+    {"_DIAlignR_getChromSimMatCpp", (DL_FUNC) &_DIAlignR_getChromSimMatCpp, 6},
+    {"_DIAlignR_getGlobalAlignMaskCpp", (DL_FUNC) &_DIAlignR_getGlobalAlignMaskCpp, 6},
+    {"_DIAlignR_constrainSimCpp", (DL_FUNC) &_DIAlignR_constrainSimCpp, 3},
+    {"_DIAlignR_getBaseGapPenaltyCpp", (DL_FUNC) &_DIAlignR_getBaseGapPenaltyCpp, 3},
     {"_DIAlignR_alignChromatogramsCpp", (DL_FUNC) &_DIAlignR_alignChromatogramsCpp, 18},
     {"_DIAlignR_doAlignmentCpp", (DL_FUNC) &_DIAlignR_doAlignmentCpp, 3},
     {"_DIAlignR_doAffineAlignmentCpp", (DL_FUNC) &_DIAlignR_doAffineAlignmentCpp, 4},
