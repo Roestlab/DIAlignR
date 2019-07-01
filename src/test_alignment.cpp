@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "alignment.h"
+#include "utils.h" //To propagate #define USE_Rcpp
 
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 using namespace DIAlign;
