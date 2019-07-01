@@ -1,7 +1,8 @@
 #include "affinealignment.h"
+// #include "simpleFcn.h"
 // Do not inclue cpp file otherwise compiler will build the Obj through two different path.
 
-namespace DIAlign 
+namespace DIAlign
 {
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
 void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, double go, double ge, bool OverlapAlignment){
@@ -16,7 +17,7 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
   int Traceback_B_index = 2; // Third block of Traceback vector corresponds to B matrix.
 
   // Initialize first row and first column for affine alignment.
-  float Inf = std::numeric_limits<float>::infinity();
+  double Inf = std::numeric_limits<double>::infinity();
   for(int i = 0; i<=signalA_len; i++){
     // Aligning ith character of signal A with 0th character of signal B without a gap. Not possible, hence, First column of M is initialized with -Inf.
     affineAlignObj.M[i*(signalB_len+1)+0] = -Inf;
@@ -150,11 +151,9 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
   // printMatrix(affineAlignObj.M, signalA_len+1, signalB_len+1);
   // printMatrix(affineAlignObj.A, signalA_len+1, signalB_len+1);
   // printMatrix(affineAlignObj.B, signalA_len+1, signalB_len+1);
-  // printMatrix(affineAlignObj.Traceback, signalA_len+1, signalB_len+1);
-  // std::vector<TracebackType> TracebackA(affineAlignObj.Traceback.begin()+(Traceback_A_index*(signalA_len+1)*(signalB_len+1)), affineAlignObj.Traceback.end());
-  // printMatrix(TracebackA, signalA_len+1, signalB_len+1);
-  // std::vector<TracebackType> TracebackB(affineAlignObj.Traceback.begin()+(Traceback_B_index*(signalA_len+1)*(signalB_len+1)), affineAlignObj.Traceback.end());
-  // printMatrix(TracebackB, signalA_len+1, signalB_len+1);
+  //printMatrix(affineAlignObj.Traceback, signalA_len+1, signalB_len+1);
+  //printMatrix(affineAlignObj.Traceback + (Traceback_A_index*(signalA_len+1)*(signalB_len+1)), signalA_len+1, signalB_len+1);
+  //printMatrix(affineAlignObj.Traceback + (Traceback_B_index*(signalA_len+1)*(signalB_len+1)), signalA_len+1, signalB_len+1);
   }
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){

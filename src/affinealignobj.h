@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace DIAlign 
+namespace DIAlign
 {
 enum TracebackType {SS = 0, DM = 1, DA = 2, DB = 3, TM = 4, TA = 5, TB = 6, LM = 7, LA = 8, LB = 9};
 enum tbJump {M = 0, A = 1, B = 2};
@@ -20,7 +20,7 @@ std::vector<char> EnumToChar(std::vector<TracebackType> v);
 struct AffineAlignObj
 {
 private:
-  int signalA_capacity; // Capacity of matrix for signal A (rows) 
+  int signalA_capacity; // Capacity of matrix for signal A (rows)
   int signalB_capacity; // Capacity of matrix for signal B (columns)
 
 public:
@@ -98,6 +98,7 @@ public:
     score.clear();
   }
 
+  // Rule 2 Copy assignment operator
   AffineAlignObj& operator=(const AffineAlignObj& rhs)
   {
     delete[] M;
@@ -127,7 +128,7 @@ public:
     B = new double[ROW_SIZE * COL_SIZE];
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
-    
+
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -135,6 +136,7 @@ public:
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
   }
 
+  // Rule 1 Copy constructor
   AffineAlignObj(const AffineAlignObj& rhs)
   {
     delete[] M;
@@ -163,7 +165,7 @@ public:
     B = new double[ROW_SIZE * COL_SIZE];
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
-    
+
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -171,6 +173,7 @@ public:
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
   }
 
+  // Rule 3 Not a default destructor
   ~AffineAlignObj()
   {
     delete[] M;
@@ -184,3 +187,8 @@ public:
 } // namespace DIAlign
 
 #endif // AFFINEALIGNOBJ_H
+
+// brackets ([]) specify the index of an element of the array. In fact these brackets are a dereferencing operator known as offset operator.
+// We used bracked to work with STL containers. In case of arrays/ pointers, they work in the same way.
+// double* M;
+// M[i] == *(M+i);

@@ -9,10 +9,12 @@
 #include "utils.h"
 #include "similarityMatrix.h"
 #include "affinealignobj.h"
-#define NA 0
 
 namespace DIAlign
 {
+
+const int NA = 0;
+
 struct AlignedIndices{
     std::vector<int> indexA_aligned;
     std::vector<int> indexB_aligned;

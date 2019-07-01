@@ -23,7 +23,7 @@ Perform non-affine global and overlap alignment on a similarity matrix
 # Get sequence similarity of two DNA strings
 Match=10; MisMatch=-2
 seq1 = "GCAT"; seq2 = "CAGTG"
-s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 obj_Global <- doAlignmentCpp(s, 22, FALSE)
 obj_Global@score # -2 -4 -6 4 -18
 obj_Olap <- doAlignmentCpp(s, 22, TRUE)

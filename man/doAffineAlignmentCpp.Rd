@@ -25,14 +25,14 @@ Perform affine global and overlap alignment on a similarity matrix
 # Get sequence similarity of two DNA strings
 Match=10; MisMatch=-2
 seq1 = "GCAT"; seq2 = "CAGTG"
-s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 objAffine_Global@score # -2  -4  -6  4 -18
 objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 objAffine_Olap@score # 0 10 20 18 18 18
 
 seq1 = "CAT"; seq2 = "CAGTG"
-s <- getSeqSimMat(seq1, seq2, Match, MisMatch)
+s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 objAffine_Global@score # 10  20  -2  -9 -11
 objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
