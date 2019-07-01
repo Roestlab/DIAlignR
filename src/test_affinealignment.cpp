@@ -9,10 +9,6 @@
 
 using namespace DIAlign;
 
-void test_getAffineAlignedIndices(){
-
-}
-
 void test_doAffineAlignment(){
   double Inf = std::numeric_limits<double>::infinity();
   SimMatrix s;
@@ -264,6 +260,59 @@ void test_doAffineAlignment(){
   ASSERT(obj.score.size() == 0);
 
   //........................  CASE 3 ........................................
+}
+
+void test_getAffineAlignedIndices(){
+  double Inf = std::numeric_limits<double>::infinity();
+  AffineAlignObj obj(4+1, 5+1);
+  // How to define values for pointers in test case?
+  /***
+  obj.Traceback = {SS, SS, SS, SS, SS, SS,
+                   SS, DM, DB, DB, DB, DB,
+                   SS, DA, DM, DM, DM, DM,
+                   SS, DA, DM, DM, DM, DM,
+                   SS, DA, DM, DM, DB, DM,
+                   SS, SS, SS, SS, SS, SS,
+                   TM, TB, TB, TB, TB, TB,
+                   TA, TM, TM, TM, TM, TM,
+                   TA, TM, TM, TA, TM, TA,
+                   TA, TA, TM, TB, TA, TM,
+                   SS, LM, LB, LB, LB, LB,
+                   SS, LA, LM, LM, LM, LB,
+                   SS, LA, LM, LB, LM, LM,
+                   SS, LA, LM, LM, LB, LB,
+                   SS, LA, LM, LA, LM, LB
+  };
+  obj.M = {0.0, -Inf, -Inf, -Inf, -Inf, -Inf,
+            -Inf, -2, -2, 10, -2, 10,
+            -Inf, 10, -4, -4, 8, -4,
+            -Inf, -2, 20, -6, -6, 6,
+            -Inf, -2, -4, 18, 8, -8
+  };
+  obj.A = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf,
+           0, -22, -22, -22, -22, -22,
+           0, -24, -24, -12, -24, -12,
+           0, -12, -26, -19, -14, -19,
+           0, -19, -2, -24, -21, -16};
+  obj.B = {-Inf, 0, 0, 0, 0, 0,
+           -Inf, -22, -24, -24, -12, -19,
+           -Inf, -22, -12, -19, -26, -14,
+           -Inf, -22, -24, -2, -9, -16,
+           -Inf, -22, -24, -24, -4, -11
+           };
+  obj.Path = {0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0};
+  ***/
+  obj.signalA_len = 4;
+  obj.signalB_len = 5;
+  obj.GapOpen = 22.0;
+  obj.GapExten = 7.0;
+  obj.FreeEndGaps = true;
+
 }
 
 void test_getOlapAffineAlignStartIndices(){

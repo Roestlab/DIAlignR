@@ -24,6 +24,7 @@ private:
   int signalB_capacity; // Capacity of matrix for signal B (columns)
 
 public:
+  double* s_data; // similarity matrix
   double* M; // Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
   double* A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
   double* B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
@@ -46,6 +47,7 @@ public:
   AffineAlignObj() {}
   AffineAlignObj(int ROW_SIZE, int COL_SIZE, bool clearMemory = true)
   {
+    s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
     B = new double[ROW_SIZE * COL_SIZE];
@@ -54,6 +56,7 @@ public:
 
     if (clearMemory)
     {
+      std::memset(s_data, 0, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
       std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
       std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
       std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -80,6 +83,7 @@ public:
       throw 1;
     }
 
+    std::memset(s_data, 0, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
     std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -101,6 +105,7 @@ public:
   // Rule 2 Copy assignment operator
   AffineAlignObj& operator=(const AffineAlignObj& rhs)
   {
+    delete[] s_data;
     delete[] M;
     delete[] A;
     delete[] B;
@@ -123,12 +128,14 @@ public:
     int ROW_SIZE = rhs.signalA_len + 1;
     int COL_SIZE = rhs.signalB_len + 1;
 
+    s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
     B = new double[ROW_SIZE * COL_SIZE];
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
 
+    std::memcpy(s_data, rhs.s_data, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -139,6 +146,7 @@ public:
   // Rule 1 Copy constructor
   AffineAlignObj(const AffineAlignObj& rhs)
   {
+    delete[] s_data;
     delete[] M;
     delete[] A;
     delete[] B;
@@ -160,12 +168,14 @@ public:
     int ROW_SIZE = rhs.signalA_len + 1;
     int COL_SIZE = rhs.signalB_len + 1;
 
+    s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
     B = new double[ROW_SIZE * COL_SIZE];
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
 
+    std::memcpy(s_data, rhs.s_data, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -176,6 +186,7 @@ public:
   // Rule 3 Not a default destructor
   ~AffineAlignObj()
   {
+    delete[] s_data;
     delete[] M;
     delete[] A;
     delete[] B;

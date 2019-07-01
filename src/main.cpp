@@ -277,10 +277,10 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
-  x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);;
-  x.slot("M")  = NumericMatrix(s.n_col+1, s.n_row+1, obj.M);
-  x.slot("A")  = NumericMatrix(s.n_col+1, s.n_row+1, obj.A);
-  x.slot("B")  = NumericMatrix(s.n_col+1, s.n_row+1, obj.B);
+  x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+  x.slot("M")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.M));
+  x.slot("A")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.A));
+  x.slot("B")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.B));
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
   x.slot("path") = NumericMatrix(s.n_col+1, s.n_row+1, obj.Path);
