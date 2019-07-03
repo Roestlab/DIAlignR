@@ -1,11 +1,33 @@
 #include "affinealignment.h"
+#include <exception>
 // #include "simpleFcn.h"
 // Do not inclue cpp file otherwise compiler will build the Obj through two different path.
+
+namespace {
+  void validate(DIAlign::AffineAlignObj& affineAlignObj, const DIAlign::SimMatrix& s, double go, double ge) {
+    if(go < 0.0){
+      throw std::invalid_argument("Gap opening penalty should be non-negative");
+    }
+    if(ge < 0.0){
+      throw std::invalid_argument("Gap extension penalty should be non-negative");
+    }
+    if(affineAlignObj.signalA_len != s.n_row || affineAlignObj.signalB_len != s.n_col){
+      throw std::invalid_argument("AffineAlignObj should have number of rows and columns +1 each than that of similarity matrix s.");
+    }
+    if(affineAlignObj.signalA_len <= 1 || affineAlignObj.signalB_len <= 1){
+      throw std::invalid_argument("AffineAlignObj must have more than unit size.");
+    }
+    if(s.n_row <= 0 || s.n_col <= 0){
+      throw std::invalid_argument("similarity matrix s must have atleast unit size.");
+    }
+  }
+}
 
 namespace DIAlign
 {
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
 void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, double go, double ge, bool OverlapAlignment){
+  validate(affineAlignObj, s, go, ge);
   int signalA_len = s.n_row;
   int signalB_len = s.n_col;
   affineAlignObj.FreeEndGaps = OverlapAlignment;

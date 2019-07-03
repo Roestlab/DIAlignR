@@ -20,7 +20,6 @@ void test_doAffineAlignment(){
   s.n_col = 5;
   double gapOpen = 22.0, gapExten = 7.0;
   AffineAlignObj obj(4+1, 5+1);
-  // AffineAlignObj obj(0, 0); // There is a bug here that we need to address.
   //........................  CASE 1 ........................................
   doAffineAlignment(obj, s, gapOpen, gapExten, true);
 
@@ -141,7 +140,6 @@ void test_doAffineAlignment(){
   // score
   ASSERT(obj.score.size() == 0);
 
-
   //........................  CASE 2 ........................................
   doAffineAlignment(obj, s, gapOpen, gapExten, false);
 
@@ -260,14 +258,15 @@ void test_doAffineAlignment(){
   ASSERT(obj.score.size() == 0);
 
   //........................  CASE 3 ........................................
+  AffineAlignObj obj1(1, 1); // There is a bug here that we need to address.
 }
 
 void test_getAffineAlignedIndices(){
   double Inf = std::numeric_limits<double>::infinity();
   AffineAlignObj obj(4+1, 5+1);
-  // How to define values for pointers in test case?
-  /***
-  obj.Traceback = {SS, SS, SS, SS, SS, SS,
+
+  // Initializer list
+  TracebackType test_tb[] {SS, SS, SS, SS, SS, SS,
                    SS, DM, DB, DB, DB, DB,
                    SS, DA, DM, DM, DM, DM,
                    SS, DA, DM, DM, DM, DM,
@@ -283,35 +282,41 @@ void test_getAffineAlignedIndices(){
                    SS, LA, LM, LM, LB, LB,
                    SS, LA, LM, LA, LM, LB
   };
-  obj.M = {0.0, -Inf, -Inf, -Inf, -Inf, -Inf,
-            -Inf, -2, -2, 10, -2, 10,
-            -Inf, 10, -4, -4, 8, -4,
-            -Inf, -2, 20, -6, -6, 6,
-            -Inf, -2, -4, 18, 8, -8
+  /***obj.Traceback = test_tb; // Just copying a pointer.
+  double test_M[] = {0.0, -Inf, -Inf, -Inf, -Inf, -Inf,
+               -Inf, -2, -2, 10, -2, 10,
+               -Inf, 10, -4, -4, 8, -4,
+               -Inf, -2, 20, -6, -6, 6,
+               -Inf, -2, -4, 18, 8, -8
   };
-  obj.A = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf,
+  obj.M = test_M;
+  double test_A[] {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf,
            0, -22, -22, -22, -22, -22,
            0, -24, -24, -12, -24, -12,
            0, -12, -26, -19, -14, -19,
            0, -19, -2, -24, -21, -16};
-  obj.B = {-Inf, 0, 0, 0, 0, 0,
+  obj.A = test_A;
+  double test_B[] {-Inf, 0, 0, 0, 0, 0,
            -Inf, -22, -24, -24, -12, -19,
            -Inf, -22, -12, -19, -26, -14,
            -Inf, -22, -24, -2, -9, -16,
            -Inf, -22, -24, -24, -4, -11
            };
-  obj.Path = {0, 0, 0, 0, 0, 0,
+  obj.B = test_B;
+  bool test_Path[] {0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0};
-  ***/
+  obj.Path = test_Path;
   obj.signalA_len = 4;
   obj.signalB_len = 5;
   obj.GapOpen = 22.0;
   obj.GapExten = 7.0;
-  obj.FreeEndGaps = true;
+  obj.FreeEndGaps = true;***/
+
+  //getAffineAlignedIndices(obj);
 
 }
 

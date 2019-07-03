@@ -10,7 +10,6 @@
 #include <Rcpp.h>
 #endif
 
-
 namespace DIAlign
 {
 
