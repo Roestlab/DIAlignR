@@ -30,7 +30,8 @@ public:
   double* B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
   TracebackType* Traceback;
   bool* Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
-
+  // s_data, M, A and B should be private. Now there is a possibility of memory-leak.
+  // TODO Make above variables private.
   int signalA_len; // Number of data-points in signal A
   int signalB_len; // Number of data-points in signal B
   double GapOpen; // Penalty for Gap opening
@@ -47,6 +48,9 @@ public:
   AffineAlignObj() {}
   AffineAlignObj(int ROW_SIZE, int COL_SIZE, bool clearMemory = true)
   {
+    // new allocate memory in heap. Here we just keep the memory address in our object's member.
+    // Memory will remain valid outside of this constructor's scope.
+    // Therefore, we need to explicitly free it.
     s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
@@ -54,6 +58,9 @@ public:
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
 
+    // clearMemory means having default zero values.
+    // We could use a for-loop but memset is faster for contiguous location in memory.
+    // It makes byte value = unsigned(int_0)
     if (clearMemory)
     {
       std::memset(s_data, 0, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
@@ -83,6 +90,8 @@ public:
       throw 1;
     }
 
+    // resetting all values to zero.
+    // We could use a for-loop but memset is faster for contiguous location in memory.
     std::memset(s_data, 0, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
     std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -92,11 +101,9 @@ public:
 
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
-
     GapOpen = 0.0;
     GapExten = 0.0;
     FreeEndGaps = true;
-
     indexA_aligned.clear();
     indexB_aligned.clear();
     score.clear();
