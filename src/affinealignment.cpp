@@ -356,8 +356,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
 }
 
 // It finds start indices and matrix for tracebackin in case of overlap affine alignment.
-template<class T>
-double getOlapAffineAlignStartIndices(T MatrixM, T MatrixA, T MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, tbJump &MatrixName){
+double getOlapAffineAlignStartIndices(double* MatrixM, double* MatrixA, double* MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, tbJump &MatrixName){
   double maxScore = -std::numeric_limits<double>::infinity(); //- Inf
   int MaxRowIndex, MaxColIndex;
   for(int i = 0; i < ROW_SIZE; i++){
