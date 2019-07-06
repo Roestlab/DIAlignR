@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{alignChromatogramsCpp}
 \alias{alignChromatogramsCpp}
-\title{Aligns MS2 XICs pair}
+\title{Aligns MS2 extracted-ion chromatograms(XICs) pair.}
 \usage{
 alignChromatogramsCpp(l1, l2, alignType, tA, tB, normalization, simType,
   B1p = 0, B2p = 0, noBeef = 0L, goFactor = 0.125, geFactor = 40,
@@ -49,13 +49,13 @@ The window length = 2*noBeef.}
 
 \item{hardConstrain}{(logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.}
 
-\item{samples4gradient}{(numeric) This paarameter modulates penalization of masked indices.}
+\item{samples4gradient}{(numeric) This parameter modulates penalization of masked indices.}
 }
 \value{
 affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 }
 \description{
-Aligns MS2 XICs pair
+Aligns MS2 extracted-ion chromatograms(XICs) pair.
 }
 \examples{
 simMeasure <- "dotProductMasked"

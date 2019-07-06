@@ -206,7 +206,7 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
   return gapPenalty;
 }
 
-//' Aligns MS2 XICs pair
+//' Aligns MS2 extracted-ion chromatograms(XICs) pair.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 //' ORCID: 0000-0003-3500-8152
@@ -233,7 +233,7 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
 //' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 //' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
 //' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
-//' @param samples4gradient (numeric) This paarameter modulates penalization of masked indices.
+//' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
 //' @return affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 //' @examples
 //' simMeasure <- "dotProductMasked"

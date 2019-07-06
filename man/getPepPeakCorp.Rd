@@ -4,16 +4,19 @@
 \alias{getPepPeakCorp}
 \title{Establishes pairwise correspondence between extracted-ion chromatograms.}
 \usage{
-getPepPeakCorp(featureTable, pairName, XICs.A, XICs.B, alignType,
-  oswFeatureList, expRSE = 0, samplingTime = 3.4,
-  samples4gradient = 100, RSEdistFactor = 3.5, hardConstrain = FALSE,
-  gapQuantile = 0.5, goFactor = 0.125, geFactor = 40,
-  normalization = "mean", simMeasure = "dotProductMasked")
+getPepPeakCorp(featureTable, pairName, XICs.A = NULL, XICs.B = NULL,
+  alignType, oswFeatureList = NULL, spanvalue = 0.1,
+  normalization = "mean", simMeasure = "dotProductMasked",
+  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
+  hardConstrain = FALSE, samples4gradient = 100, expRSE = 8,
+  samplingTime = 3.4, RSEdistFactor = 3.5)
 }
 \arguments{
-\item{featureTable}{A table of retention time identifications for each peptides.}
+\item{featureTable}{A table of retention time identifications for each peptides. The retention times
+could be annotated manually or through softwares like OpenSWATH.}
 
-\item{pairName}{Pair names joined with underscore. e.g. runA_runB, This will allow
+\item{pairName}{Names of runs joined with underscore. e.g. runA_runB, This will allow
 alignment of runB to runA.}
 
 \item{XICs.A}{List of extracted ion chromatograms of runA.}
@@ -22,29 +25,37 @@ alignment of runB to runA.}
 
 \item{alignType}{Available alignment methods are "global", "local" and "hybrid".}
 
-\item{oswFeatureList}{List of features identified in each run. For feature identification
-OpenSWATH, Spectrodive, Skyline etc can be used.}
+\item{oswFeatureList}{List of features detected in each run. For feature detection
+OpenSWATH, Spectronaut, Skyline etc can be used.}
 
-\item{expRSE}{Expected residual standard error for constraining hybrid alignment.}
-
-\item{samplingTime}{Sampling time of runs.}
-
-\item{samples4gradient}{A logical scalar}
-
-\item{RSEdistFactor}{A logical scalar}
-
-\item{hardConstrain}{A logical scalar}
-
-\item{gapQuantile}{A logical scalar}
-
-\item{goFactor}{A logical scalar}
-
-\item{geFactor}{A logical scalar}
+\item{spanvalue}{A numeric Spanvalue for LOESS fit.}
 
 \item{normalization}{A character string. Must be selected from (mean, l2)}
 
 \item{simMeasure}{A character string. Must be selected from (dotProduct, cosineAngle,
 cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation)}
+
+\item{goFactor}{A numeric scalar. Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
+
+\item{geFactor}{A numeric scalar. Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.}
+
+\item{cosAngleThresh}{(numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.}
+
+\item{OverlapAlignment}{(logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.}
+
+\item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
+
+\item{gapQuantile}{A numeric scalar. Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
+
+\item{hardConstrain}{A logical scalar. if false; indices farther from noBeef distance are filled with distance from linear fit line.}
+
+\item{samples4gradient}{A numeric scalar. This parameter modulates penalization of masked indices.}
+
+\item{expRSE}{Expected residual standard error(rse) for constraining hybrid alignment, if rse from LOESS fit comes out to be large.}
+
+\item{samplingTime}{Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.}
+
+\item{RSEdistFactor}{A numeric scalar. This defines how much distance in the unit of rse remains a noBeef zone.}
 }
 \value{
 A numeric matrix
