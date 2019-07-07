@@ -375,7 +375,6 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   int signalB_len = sim.ncol(); // Length of signalB or sequenceB. Expresses along the columns of s.
   AffineAlignObj obj(signalA_len+1, signalB_len+1); // Initializing C++ AffineAlignObj struct
   SimMatrix s = NumericMatrix2Vec(sim);
-  // printMatrix(s.data, s.n_row, s.n_col);
   doAffineAlignment(obj, s, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class

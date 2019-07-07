@@ -14,9 +14,9 @@ LazyData: true
 RoxygenNote: 6.1.1
 Imports:
     methods,
+    zoo (>= 1.8-3),
     Rcpp
 Suggests:
-    zoo (>= 1.8-3),
     knitr,
     rmarkdown
 VignetteBuilder: knitr
