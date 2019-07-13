@@ -4,17 +4,18 @@
 \alias{getLinearfit}
 \title{calculates linear fit between RT of two runs}
 \usage{
-getLinearfit(run_pair, peptides, oswOutput)
+getLinearfit(pairName, peptides, oswOutput)
 }
 \arguments{
-\item{run_pair}{A vector of length 2 with run names}
+\item{pairName}{Names of runs joined with underscore. e.g. runA_runB, This will allow
+alignment of runB to runA.}
 
-\item{peptides}{Test peptides' names}
+\item{peptides}{Test peptides' names.}
 
-\item{oswOutput}{list of list (OpenSWATH output)}
+\item{oswOutput}{list of list (OpenSWATH output).}
 }
 \value{
-An object of class "lm"
+An object of class "lm".
 }
 \description{
 This function takes in run-pairs, names of test peptides, output of OpenSWATH

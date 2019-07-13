@@ -1,4 +1,18 @@
+Meta
+doc
+# Rstudio files
 .Rproj.user
+
+# Histpry files
 .Rhistory
+# Session data files
 .RData
+# User specific files
 .Ruserdata
+# Rcpp build file
+src/*.o
+src/*.so
+src/*.dll
+# Cpp build file
+src/build
+src/build/*
