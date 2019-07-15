@@ -1,5 +1,6 @@
 #include "affinealignment.h"
 #include <exception>
+#include <stdexcept>
 // #include "simpleFcn.h"
 // Do not inclue cpp file otherwise compiler will build the Obj through two different path.
 
