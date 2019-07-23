@@ -353,7 +353,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   affineAlignObj.indexA_aligned = alignedIdx.indexA_aligned;
   affineAlignObj.indexB_aligned = alignedIdx.indexB_aligned;
   affineAlignObj.score = alignedIdx.score;
-  return;
+  //return;
 }
 
 // It finds start indices and matrix for tracebackin in case of overlap affine alignment.
