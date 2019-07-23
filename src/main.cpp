@@ -314,6 +314,13 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
 //' obj_Global@score # -2 -4 -6 4 -18
 //' obj_Olap <- doAlignmentCpp(s, 22, TRUE)
 //' obj_Olap@score # 0 10 20 18 18 18
+//'
+//' Match=1; MisMatch=-1
+//' seq1 = "TTTC"; seq2 = "TGC"
+//' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+//' obj_Global <- doAlignmentCpp(s, 2, FALSE)
+//' obj_Global@optionalPaths
+//' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
 //' @export
 // [[Rcpp::export]]
 S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
@@ -329,6 +336,7 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   x.slot("M") = Vec2NumericMatrix(obj.M, signalA_len+1, signalB_len+1);
   x.slot("Traceback") = Vec2NumericMatrix(EnumToChar(obj.Traceback), signalA_len+1, signalB_len+1);
   x.slot("path") = Vec2NumericMatrix(obj.Path, signalA_len+1, signalB_len+1);
+  x.slot("optionalPaths") = Vec2NumericMatrix(obj.OptionalPaths, signalA_len+1, signalB_len+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;

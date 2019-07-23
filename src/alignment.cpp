@@ -19,6 +19,8 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
   M.data.resize(M.n_row*M.n_col, 0.0);// get a NumericMatrix filled with zeros.
   std::vector<TracebackType> Traceback;
   Traceback.resize((signalA_len+1)*(signalB_len+1), SS); // Fill Traceback matrix with SS.
+  std::vector<int> OptionalPaths;
+  OptionalPaths.resize((signalA_len+1)*(signalB_len+1), 0);
 
   // Initialize first row and first column for global and overlap alignment.
   if(alignObj.FreeEndGaps){
@@ -26,10 +28,12 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
     for(int i = 0; i<=signalA_len; i++){
       M.data[i*M.n_col + 0] = 0;
       Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
+      OptionalPaths[i*(signalB_len+1)+0] = 1;
     }
     for(int j = 0; j<=signalB_len; j++){
       M.data[0*M.n_col + j] = 0;
       Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
+      OptionalPaths[0*(signalB_len+1)+j] = 1;
     }
     Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
   }
@@ -38,10 +42,12 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
     for(int i = 0; i<=signalA_len; i++){
       M.data[i*M.n_col + 0] = -i*gap;
       Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
+      OptionalPaths[i*(signalB_len+1)+0] = 1;
     }
     for(int j = 0; j<=signalB_len; j++){
       M.data[0*M.n_col + j] = -j*gap;
       Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
+      OptionalPaths[0*(signalB_len+1)+j] = 1;
     }
     Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
   }
@@ -53,21 +59,27 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
       Diago = M.data[(i-1)*M.n_col + j-1] + s.data[(i-1)*s.n_col + j-1];
       gapInB= M.data[(i-1)*M.n_col + j] - gap; // Travelling from Top. signalA is along the rows, signalB is along the columns
       gapInA = M.data[i*M.n_col + j-1] - gap; // Travelling from Left. signalA is along the rows, signalB is along the columns
+      int optimalPathCntr = 0;
+      if(gapInA>=Diago && gapInA>=gapInB){
+        Traceback[i*(signalB_len+1) + j] = LM; // L: Left
+        M.data[i*M.n_col + j] = gapInA;
+        optimalPathCntr += OptionalPaths[i*(signalB_len+1) + j-1];
+      }
+      if(gapInB>=Diago && gapInB>=gapInA){
+        Traceback[i*(signalB_len+1) + j] = TM; // T: Top
+        M.data[i*M.n_col + j] = gapInB;
+        optimalPathCntr += OptionalPaths[(i-1)*(signalB_len+1) + j];
+      }
       if(Diago>=gapInA && Diago>=gapInB){
         Traceback[i*(signalB_len+1) + j] = DM; // D: Diagonal
         M.data[i*M.n_col + j] = Diago;
+        optimalPathCntr += OptionalPaths[(i-1)*(signalB_len+1) + j-1];
       }
-      else if (gapInA>=Diago && gapInA>=gapInB){
-        Traceback[i*(signalB_len+1) + j] = LM; // L: Left
-        M.data[i*M.n_col + j] = gapInA;
-      }
-      else{
-        Traceback[i*(signalB_len+1) + j] = TM; // T: Top
-        M.data[i*M.n_col + j] = gapInB;
-      }
+      OptionalPaths[i*(signalB_len+1) + j] = optimalPathCntr;
     }
   }
   alignObj.Traceback = Traceback; // Copy traceback to alignObj
+  alignObj.OptionalPaths = OptionalPaths; // Copy OptionalPaths to alignObj
   for (int i = 0; i < signalA_len+1; i++) {
     for (int j = 0; j < signalB_len+1; j++) {
       alignObj.M[i*(signalB_len+1) + j] = M.data[i*M.n_col + j]; // Copy NumericMatrix M to alignObj.M vector

@@ -16,10 +16,11 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
 #' @importFrom methods setClass
 #' @export
 AlignObj <- setClass(Class="AlignObj",
-                            representation(s = "matrix", M = "matrix", Traceback = "matrix", path = "matrix",
-                                           signalA_len = "numeric", signalB_len = "numeric",
-                                           GapOpen = "numeric", GapExten = "numeric",
-                                           FreeEndGaps = "logical",
-                                           indexA_aligned = "numeric", indexB_aligned = "numeric",
-                                           score = "numeric")
+                     representation(s = "matrix", M = "matrix", Traceback = "matrix",
+                                    path = "matrix", optionalPaths = "matrix",
+                                    signalA_len = "numeric", signalB_len = "numeric",
+                                    GapOpen = "numeric", GapExten = "numeric",
+                                    FreeEndGaps = "logical",
+                                    indexA_aligned = "numeric", indexB_aligned = "numeric",
+                                    score = "numeric")
 )
