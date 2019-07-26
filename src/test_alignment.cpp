@@ -47,6 +47,21 @@ void test_doAlignment(){
   tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
   tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
 
+  std::vector< std::vector<int> > cmp_arr_OptionalPaths;
+  std::vector<int> tmp_i;
+  tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+  tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+  tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+  tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+  tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+
+  std::vector< std::vector< double > > cmp_arr_M_forw;
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {0, -46, -48, -36, -36, -36}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {0, -36, -40, -42, -42, -30}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {0, -36, -30, -34, -44, -48}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {0, -48, -30, -30, -24, -38}; cmp_arr_M_forw.push_back(tmp);
+
   // s_data
   for (int i = 0; i < 4; i++){
     for (int j = 0; j < 5; j++){
@@ -69,6 +84,18 @@ void test_doAlignment(){
   for (int i = 0; i < 5; i++){
     for (int j = 0; j < 6; j++){
       ASSERT(obj.Path[i*6+j] == cmp_arr_Path[i][j]);
+    }
+  }
+  // OptionalPaths
+  for (int i = 0; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(obj.OptionalPaths[i*6+j] == cmp_arr_OptionalPaths[i][j]);
+    }
+  }
+  // M_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -111,6 +138,20 @@ void test_doAlignment(){
   tmp_b = {0, 0, 0, false, 0, 0}; cmp_arr_Path2.push_back(tmp_b);
   tmp_b = {0, 0, 0, 0, false, false}; cmp_arr_Path2.push_back(tmp_b);
 
+  std::vector< std::vector<int> > cmp_arr_OptionalPaths2;
+  tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths2.push_back(tmp_i);
+  tmp_i = {1, 1, 2, 1, 1, 2}; cmp_arr_OptionalPaths2.push_back(tmp_i);
+  tmp_i = {1, 1, 1, 3, 1, 2}; cmp_arr_OptionalPaths2.push_back(tmp_i);
+  tmp_i = {1, 1, 1, 1, 4, 1}; cmp_arr_OptionalPaths2.push_back(tmp_i);
+  tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths2.push_back(tmp_i);
+
+  std::vector< std::vector< double > > cmp_arr_M_forw2;
+  tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-22, -90, -114, -168, -234, -288}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-44, -102, -84, -108, -162, -216}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-66, -168, -84, -78, -114, -168}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-88, -234, -138, -78, -72, -108}; cmp_arr_M_forw2.push_back(tmp);
+
   // s_data
   for (int i = 0; i < 4; i++){
     for (int j = 0; j < 5; j++){
@@ -133,6 +174,18 @@ void test_doAlignment(){
   for (int i = 0; i < 5; i++){
     for (int j = 0; j < 6; j++){
       ASSERT(obj.Path[i*6+j] == cmp_arr_Path2[i][j]);
+    }
+  }
+  // OptionalPaths
+  for (int i = 0; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(obj.OptionalPaths[i*6+j] == cmp_arr_OptionalPaths2[i][j]);
+    }
+  }
+  // M_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw2[i][j]) < 1e-06);
     }
   }
   // signalA_len

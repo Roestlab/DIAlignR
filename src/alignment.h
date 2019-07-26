@@ -26,6 +26,7 @@ struct AlignObj
     std::vector<double> s_data;
     std::vector<TracebackType> Traceback;
     std::vector<double> M;
+    std::vector<double> M_forw;
     std::vector<bool> Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
     std::vector<int> OptionalPaths;// Highlight all optimal paths
     int signalA_len;
@@ -41,6 +42,7 @@ struct AlignObj
     AlignObj(int ROW_SIZE, int COL_SIZE)
     {
       M.resize(ROW_SIZE * COL_SIZE, 0);
+      M_forw.resize(ROW_SIZE * COL_SIZE, 0);
       Traceback.resize(ROW_SIZE * COL_SIZE, SS);
       Path.resize(ROW_SIZE * COL_SIZE, false);
       OptionalPaths.resize(ROW_SIZE * COL_SIZE, 0);
