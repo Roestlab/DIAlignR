@@ -253,6 +253,7 @@ doAlignmentCpp <- function(sim, gap, OverlapAlignment) {
 #' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 #' objAffine_Olap@score # 0 10 20 18 18 18
 #'
+#' Match=10; MisMatch=-2
 #' seq1 = "CAT"; seq2 = "CAGTG"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)

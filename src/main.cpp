@@ -284,6 +284,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
   x.slot("path") = NumericMatrix(s.n_col+1, s.n_row+1, obj.Path);
+  x.slot("optionalPaths") = NumericMatrix(s.n_col+1, s.n_row+1, obj.optionalPaths);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -371,6 +372,7 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
 //' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 //' objAffine_Olap@score # 0 10 20 18 18 18
 //'
+//' Match=10; MisMatch=-2
 //' seq1 = "CAT"; seq2 = "CAGTG"
 //' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 //' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
@@ -395,6 +397,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(signalB_len+1) *(signalA_len+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
   x.slot("path") = transpose(NumericMatrix( signalB_len+1, signalA_len+1, obj.Path));
+  x.slot("optionalPaths") = transpose(NumericMatrix( signalB_len+1, signalA_len+1, obj.optionalPaths));
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;

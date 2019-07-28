@@ -4,7 +4,8 @@
 #' @export
 AffineAlignObj <- setClass(Class="AffineAlignObj",
                    representation(s = "matrix", M = "matrix", A = "matrix", B = "matrix",
-                                  Traceback = "matrix", path = "matrix",
+                                  Traceback = "matrix",
+                                  path = "matrix", optionalPaths = "matrix",
                                   signalA_len = "numeric", signalB_len = "numeric",
                                   GapOpen = "numeric", GapExten = "numeric",
                                   FreeEndGaps = "logical",

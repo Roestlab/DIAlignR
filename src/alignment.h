@@ -28,7 +28,7 @@ struct AlignObj
     std::vector<double> M;
     std::vector<double> M_forw;
     std::vector<bool> Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
-    std::vector<int> OptionalPaths;// Highlight all optimal paths
+    std::vector<int> OptionalPaths; // Highlight the number of all optimal paths.
     int signalA_len;
     int signalB_len;
     double GapOpen;
