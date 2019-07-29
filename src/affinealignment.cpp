@@ -74,6 +74,7 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     }
   affineAlignObj.M[0*(signalB_len+1)+0] = 0; // Match state (0,0) should have zero to begin the alignment.
   oPathsM[0*(signalB_len+1)+0] = 1;
+  affineAlignObj.M_forw[0*(signalB_len+1)+0] = 0;
 
   // Fill up remaining cells of first row and first column for global and overlap alignment.
   if(affineAlignObj.FreeEndGaps == true){
@@ -85,6 +86,7 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       affineAlignObj.A[i*(signalB_len+1) + 0] = 0;
       affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
       oPathsA[i*(signalB_len+1) + 0] = 1;
+      affineAlignObj.M_forw[i*(signalB_len+1) + 0] = 0;
       }
     affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ 1*(signalB_len+1)+0] = TM; //TOP M
     // For overlap alignment, there is no gap penalty for alignment of zero characters of A to jth characters of B that results a gap in A.
@@ -95,6 +97,7 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       affineAlignObj.B[0*(signalB_len+1)+j] = 0;
       affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
       oPathsB[0*(signalB_len+1)+j] = 1;
+      affineAlignObj.M_forw[0*(signalB_len+1)+j] = 0;
       }
     affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+1] = LM; //LEFT M
     }
@@ -107,6 +110,7 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       affineAlignObj.A[i*(signalB_len+1) + 0] = -(i-1)*ge - go;
       affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
       oPathsA[i*(signalB_len+1) + 0] = 1;
+      affineAlignObj.M_forw[i*(signalB_len+1) + 0] = -(i-1)*ge - go;
       }
     affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ 1*(signalB_len+1)+0] = TM; //TOP M
     // In global alignment, penalty for the alignment of zero characters of A to jth characters of B that results a gap in A =
@@ -117,6 +121,7 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       affineAlignObj.B[0*(signalB_len+1)+j] = -(j-1)*ge - go;
       affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
       oPathsB[0*(signalB_len+1)+j] = 1;
+      affineAlignObj.M_forw[0*(signalB_len+1)+j] = -(j-1)*ge - go;
       }
     affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+1] = LM; //LEFT M
     }
@@ -216,6 +221,8 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
         optimalPathCntr += oPathsB[i*(signalB_len+1) + j];
       }
       affineAlignObj.optionalPaths[i*(signalB_len+1) + j] = optimalPathCntr;
+
+      affineAlignObj.M_forw[i*(signalB_len+1)+j] = affineAlignObj.M[i*(signalB_len+1)+j] +  affineAlignObj.A[i*(signalB_len+1)+j] + affineAlignObj.B[i*(signalB_len+1)+j];
       }
     }
   // printMatrix(affineAlignObj.M, signalA_len+1, signalB_len+1);
