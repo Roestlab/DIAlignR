@@ -36,8 +36,19 @@ seq1 = "CAT"; seq2 = "CAGTG"
 s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 objAffine_Global@score # 10  20  -2  -9 -11
+objAffine_Global@optionalPaths
+matrix(data = c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2), nrow = 4, ncol =6, byrow = TRUE)
 objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 objAffine_Olap@score # 10 20 18 18 18
+
+Match=1; MisMatch=-1
+seq1 = "TTTC"; seq2 = "TGC"
+s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+obj_Global <- doAffineAlignmentCpp(s, 2, 2, FALSE)
+obj_Global@optionalPaths
+matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
+obj_Global@M_forw
+matrix(data = c(0,-2,-4,-6,-2,-7,-10,16,-4,-8,-6,-9,-6,-14,-9,-9,-8,-22,-15,-10), nrow = 5, ncol =4, byrow = TRUE)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
