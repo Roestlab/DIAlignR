@@ -166,6 +166,8 @@ void test_doAffineAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 
   //........................  CASE 2 ........................................
   obj.reset(4+1, 5+1);
@@ -310,6 +312,8 @@ void test_doAffineAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 
   //........................  CASE 3 ........................................
   s.data = {0.0, 0.0, 0.0, 0.0, 0.0,
@@ -460,6 +464,8 @@ void test_doAffineAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 
   //........................  CASE 4 ........................................
   s.data = {0.0, 0.0, 0.0, 0.0, 0.0,
@@ -610,6 +616,8 @@ void test_doAffineAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 }
 
 void test_getAffineAlignedIndices(){
@@ -826,6 +834,8 @@ void test_getAffineAlignedIndices(){
   for(int i = 0; i < obj.score.size(); i++){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - -30.0) < 1e-6);
 
   //........................  CASE 2 ........................................
   obj.reset(4+1, 5+1);
@@ -1028,6 +1038,8 @@ void test_getAffineAlignedIndices(){
   for(int i = 0; i < obj.score.size(); i++){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - -93.0) < 1e-6);
 
   //........................  CASE 3 ........................................
   obj.reset(4+1, 5+1);
@@ -1230,6 +1242,8 @@ void test_getAffineAlignedIndices(){
   for(int i = 0; i < obj.score.size(); i++){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - -95.0) < 1e-6);
 
   //........................  CASE 4 ........................................
   obj.reset(4+1, 5+1);
@@ -1633,12 +1647,14 @@ void test_getOlapAffineAlignStartIndices(){
   ASSERT(obj.indexA_aligned.size() == 0);
   // indexB_aligned
   ASSERT(obj.indexB_aligned.size() == 0);
-  // score
+
   ASSERT(obj.score.size() == 0);
   ASSERT(OlapStartRow == 4);
   ASSERT(OlapStartCol == 3);
   ASSERT(MatrixName == M);
   ASSERT(std::abs(affineAlignmentScore - 18.0) < 1e-6);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 
   //........................  CASE 4 ........................................
   obj.reset(4+1, 5+1);
@@ -1836,6 +1852,8 @@ void test_getOlapAffineAlignStartIndices(){
   ASSERT(OlapStartCol == 5);
   ASSERT(MatrixName == M);
   ASSERT(std::abs(affineAlignmentScore - 0.0) < 1e-6);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 }
 
 #ifdef USE_Rcpp

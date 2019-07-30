@@ -294,6 +294,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
+  x.slot("score_forw") = obj.score_forw;
   return(x);
 }
 
@@ -350,6 +351,7 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
+  x.slot("score_forw") = obj.score_forw;
   return(x);
 }
 
@@ -421,6 +423,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
+  x.slot("score_forw") = obj.score_forw;
   return(x);
 }
 

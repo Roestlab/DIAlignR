@@ -114,6 +114,8 @@ void test_doAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 
   //........................  CASE 2 ........................................
   obj = doAlignment(s, gap, false);
@@ -204,6 +206,8 @@ void test_doAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 
 
   //........................  CASE 3 ........................................
@@ -302,6 +306,8 @@ void test_doAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 
   //........................  CASE 4 ........................................
   s.data = {0.0, 0.0, 0.0, 0.0, 0.0,
@@ -399,6 +405,8 @@ void test_doAlignment(){
   ASSERT(obj.indexB_aligned.size() == 0);
   // score
   ASSERT(obj.score.size() == 0);
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 }
 
 void test_getAlignedIndices(){
@@ -547,6 +555,8 @@ void test_getAlignedIndices(){
   for(int i = 0; i < obj.score.size(); i++){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - -30.0) < 1e-6);
 
   //........................  CASE 2 ........................................
 
@@ -679,6 +689,8 @@ void test_getAlignedIndices(){
   for(int i = 0; i < obj.score.size(); i++){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - -108) < 1e-6);
 
   //........................  CASE 3 ........................................
   obj.s_data = {0.0, 0.0, 0.0, 0.0, 0.0,
@@ -815,6 +827,8 @@ void test_getAlignedIndices(){
   for(int i = 0; i < obj.score.size(); i++){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - -110.0) < 1e-6);
 
   //........................  CASE 4 ........................................
   obj.s_data = {0.0, 0.0, 0.0, 0.0, 0.0,
@@ -950,6 +964,8 @@ void test_getAlignedIndices(){
   for(int i = 0; i < obj.score.size(); i++){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
+  // score_forw
+  ASSERT(std::abs(obj.score_forw - 0.0) < 1e-6);
 }
 
 #ifdef USE_Rcpp

@@ -157,6 +157,7 @@ void getAlignedIndices(AlignObj &alignObj){
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
     alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
   }
+  alignObj.score_forw = alignObj.M_forw[ROW_IDX*COL_SIZE+COL_IDX];
 
   while(TracebackPointer != SS){
     // SS: STOP when top-left corner of the matrix is reached

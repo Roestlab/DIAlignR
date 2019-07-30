@@ -287,6 +287,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       }
     }
 
+  affineAlignObj.score_forw = affineAlignObj.M_forw[ROW_IDX*COL_SIZE+COL_IDX];
   alignedIdx.score.push_back(affineAlignmentScore);
   TracebackPointer = affineAlignObj.Traceback[MatName*ROW_SIZE*COL_SIZE+ROW_IDX*COL_SIZE+COL_IDX];
   affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
