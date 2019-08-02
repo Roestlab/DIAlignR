@@ -50,7 +50,7 @@ getPepPeakCorp <- function(featureTable, pairName, XICs.A=NULL, XICs.B=NULL, ali
       print("oswFeatureList can't be NULL for non-local alignment")
     }
     # In finding global fit, peptides are removed while training the fit.
-    Loess.fit <- getLOESSfit(pairName, peptides, oswFeatureList, spanvalue)
+    Loess.fit <- getLOESSfit(oswFeatureList[[run_pair[1]]], oswFeatureList[[run_pair[2]]], peptides, spanvalue)
     rse <- Loess.fit$s # Residual Standard Error
   }
   for(peptide in peptides){

@@ -11,15 +11,15 @@
 #'   0.1 could be used.
 #' @return An object of class "loess".
 #' @export
-getLOESSfit <- function(pairName, peptides, oswOutput, spanvalue = 0.1){
+getLOESSfit <- function(oswRef, oswExp, peptides, spanvalue = 0.1){
   run_pair <- strsplit(pairName, split = "_")[[1]]
   RUN1 <- oswOutput[[run_pair[1]]]; RUN2 <- oswOutput[[run_pair[2]]]
-  cmp <- intersect(RUN1[,1], RUN2[,1]) # First column corresponds to transition_group_record
-  RUN1 <- RUN1[which(RUN1[,1] %in% cmp), ]
-  RUN2 <- RUN2[which(RUN2[,1] %in% cmp), ]
-  RUN1 <- RUN1[match(cmp, RUN1[,1]),]
-  RUN2 <- RUN2[match(cmp, RUN2[,1]),]
-  RUNS_RT <- data.frame( "transition_group_record" = RUN1[,1], "RUN1" = RUN1$RT, "RUN2" = RUN2$RT)
+  cmp <- intersect(oswRef[,1], oswExp[,1]) # First column corresponds to transition_group_record
+  oswRef <- oswRef[which(oswRef[,1] %in% cmp), ]
+  oswExp <- oswExp[which(oswExp[,1] %in% cmp), ]
+  oswRef <- oswRef[match(cmp, oswRef[,1]),]
+  oswExp <- oswExp[match(cmp, oswExp[,1]),]
+  RUNS_RT <- data.frame( "transition_group_record" = RUN1[,1], "RUN1" = oswRef$RT, "RUN2" = oswExp$RT)
   RUNS_RT <- RUNS_RT[order(RUNS_RT$RUN1), ]
   testPeptides <-intersect(cmp, peptides)
   # For testing we want to avoid validation peptides getting used in the fit.
