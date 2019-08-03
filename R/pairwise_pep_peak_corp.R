@@ -135,7 +135,7 @@ getAlignedObj <- function(peptide, pairName, XICs.A=NULL, XICs.B=NULL, alignType
         print("oswFeatureList can't be NULL for non-local alignment")
       }
       # In finding global fit, peptides are removed while training the fit.
-      Loess.fit <- getLOESSfit(pairName, peptide, oswFeatureList, spanvalue)
+      getLOESSfit(oswFeatureList[[run_pair[1]]], oswFeatureList[[run_pair[2]]], peptides, spanvalue)
       rse <- Loess.fit$s # Residual Standard Error
     }
     intensityListA <- lapply(XICs.A[[peptide]], `[[`, 2) # Extracting intensity values

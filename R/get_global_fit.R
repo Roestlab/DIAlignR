@@ -12,14 +12,12 @@
 #' @return An object of class "loess".
 #' @export
 getLOESSfit <- function(oswRef, oswExp, peptides, spanvalue = 0.1){
-  run_pair <- strsplit(pairName, split = "_")[[1]]
-  RUN1 <- oswOutput[[run_pair[1]]]; RUN2 <- oswOutput[[run_pair[2]]]
   cmp <- intersect(oswRef[,1], oswExp[,1]) # First column corresponds to transition_group_record
   oswRef <- oswRef[which(oswRef[,1] %in% cmp), ]
   oswExp <- oswExp[which(oswExp[,1] %in% cmp), ]
   oswRef <- oswRef[match(cmp, oswRef[,1]),]
   oswExp <- oswExp[match(cmp, oswExp[,1]),]
-  RUNS_RT <- data.frame( "transition_group_record" = RUN1[,1], "RUN1" = oswRef$RT, "RUN2" = oswExp$RT)
+  RUNS_RT <- data.frame( "transition_group_record" = oswRef[,1], "RUN1" = oswRef$RT, "RUN2" = oswExp$RT)
   RUNS_RT <- RUNS_RT[order(RUNS_RT$RUN1), ]
   testPeptides <-intersect(cmp, peptides)
   # For testing we want to avoid validation peptides getting used in the fit.
