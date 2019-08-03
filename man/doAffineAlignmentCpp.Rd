@@ -49,6 +49,12 @@ obj_Global@optionalPaths
 matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
 obj_Global@M_forw
 matrix(data = c(0,-2,-4,-6,-2,-7,-10,16,-4,-8,-6,-9,-6,-14,-9,-9,-8,-22,-15,-10), nrow = 5, ncol =4, byrow = TRUE)
+
+Match=10; MisMatch=-2
+seq1 = "CA"; seq2 = "AG"
+s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
+obj_Global@score_forw #-618
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

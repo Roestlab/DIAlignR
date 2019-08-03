@@ -83,12 +83,25 @@ void test_doAffineAlignment(){
   tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
 
   std::vector< std::vector< double > > cmp_arr_M_forw;
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -46, -48, -36, -36, -31}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -36, -40, -35, -42, -30}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -36, -30, -27, -29, -29}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -43, -30, -30, -17, -35}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {0, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2, -2, 10, -2, 10}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, 10,  -52, -127,  -190,  -265}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2,  -86, -397,  -810, -1361}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2, -279, -858, -2125, -4428}; cmp_arr_M_forw.push_back(tmp);
 
+  std::vector< std::vector< double > > cmp_arr_A_forw;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -22, -22, -22 ,-22, -22}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -97, -172, -235, -310, -373}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -167, -442, -855, -1406, -2095}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -324, -903, -2206, -4473, -7980}; cmp_arr_A_forw.push_back(tmp);
+
+  std::vector< std::vector< double > > cmp_arr_B_forw;
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf,  -22, -97, -172, -235, -310}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -29, -167, -442, -855, -1406}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -104, -324, -903, -2206, -4473}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -174, -551, -1784, -4899, -11548}; cmp_arr_B_forw.push_back(tmp);
   // s_data
   for (int i = 0; i < 4; i++){
     for (int j = 0; j < 5; j++){
@@ -145,9 +158,21 @@ void test_doAffineAlignment(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -229,11 +254,25 @@ void test_doAffineAlignment(){
   tmp_i = {1, 2, 1, 1, 1, 1}; cmp_arr_OptionalPaths2.push_back(tmp_i);
 
   std::vector< std::vector< double > > cmp_arr_M_forw2;
-  tmp = {0, -22, -29, -36, -43, -50}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-22, -90, -99, -108, -141, -150}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-29, -87, -84, -93, -114, -135}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-36, -120, -81, -78, -99, -120}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-43, -141, -117, -78, -72, -93}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {0, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -2, -24, -19, -38, -33}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -12, -96, -222, -350, -504}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -31, -174, -624, -1292, -2242}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -38, -440, -1334, -3310, -6976}; cmp_arr_M_forw2.push_back(tmp);
+
+  std::vector< std::vector< double > > cmp_arr_A_forw2;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-22, -44, -51, -58, -65, -72}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-29, -141, -267, -395, -549, -705}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-36, -255, -669, -1337, -2287, -3547}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-43, -485, -1379, -3391, -7021, -12861}; cmp_arr_A_forw2.push_back(tmp);
+
+  std::vector< std::vector< double > > cmp_arr_B_forw2;
+  tmp = {-Inf, -22, -29, -36, -43, -50}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -44, -141, -267, -395, -549}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -51, -255, -669, -1337, -2287}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -148, -485, -1379, -3391, -7021}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -262, -836, -2706, -7482, -17864}; cmp_arr_B_forw2.push_back(tmp);
 
   // s_data
   for (int i = 0; i < 4; i++){
@@ -291,9 +330,21 @@ void test_doAffineAlignment(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw2[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw2[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw2[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -381,11 +432,25 @@ void test_doAffineAlignment(){
   tmp_i = {1, 2, 3, 4, 1, 5}; cmp_arr_OptionalPaths3.push_back(tmp_i);
 
   std::vector< std::vector< double > > cmp_arr_M_forw3;
-  tmp = {0, -22, -29, -36, -43, -50}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-22, -88, -95, -116, -137, -158}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-29, -95, -88, -95, -116, -137}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-36, -116, -95, -88, -95, -116}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-43, -137, -116, -95, -88, -95}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {0, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, 0, -22, -29, -36, -43}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, -22, -88, -212, -350, -502}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, -29, -212, -614, -1278, -2232}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, -36, -438, -1366, -3360, -6972}; cmp_arr_M_forw3.push_back(tmp);
+
+  std::vector< std::vector< double > > cmp_arr_A_forw3;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-22, -44, -51, -58, -65, -72}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-29, -139, -263, -401, -553, -719}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-36, -263, -665, -1329, -2283, -3555}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-43, -489, -1417, -3411, -7023, -12861}; cmp_arr_A_forw3.push_back(tmp);
+
+  std::vector< std::vector< double > > cmp_arr_B_forw3;
+  tmp = {-Inf, -22, -29, -36, -43, -50}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -44, -139, -263, -401, -553}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -51, -263, -665, -1329, -2283}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -146, -489, -1417, -3411, -7023}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -270, -846, -2752, -7580, -18014}; cmp_arr_B_forw3.push_back(tmp);
 
   // s_data
   for (int i = 0; i < 4; i++){
@@ -443,9 +508,21 @@ void test_doAffineAlignment(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw3[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw3[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw3[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -533,11 +610,26 @@ void test_doAffineAlignment(){
   tmp_i = {1, 9, 41, 129, 321, 681}; cmp_arr_OptionalPaths4.push_back(tmp_i);
 
   std::vector< std::vector< double > > cmp_arr_M_forw4;
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {0,-Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+
+  std::vector< std::vector< double > > cmp_arr_A_forw4;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+
+  std::vector< std::vector< double > > cmp_arr_B_forw4;
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+
 
   // s_data
   for (int i = 0; i < 4; i++){
@@ -595,9 +687,21 @@ void test_doAffineAlignment(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw4[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw4[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw4[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -719,16 +823,44 @@ void test_getAffineAlignedIndices(){
   }
 
   std::vector< std::vector< double > > cmp_arr_M_forw;
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -46, -48, -36, -36, -31}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -36, -40, -35, -42, -30}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -36, -30, -27, -29, -29}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -43, -30, -30, -17, -35}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {0, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2, -2, 10, -2, 10}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, 10,  -52, -127,  -190,  -265}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2,  -86, -397,  -810, -1361}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2, -279, -858, -2125, -4428}; cmp_arr_M_forw.push_back(tmp);
   obj.M_forw = new double[5*6]; // This causes memory leak. Should be fixed.
   // Can't use initializer list, because of certain issues.
   for(int i = 0; i < 5; i++){
     for(int j = 0; j < 6; j++){
       obj.M_forw[i*6+j] = cmp_arr_M_forw[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_A_forw;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -22, -22, -22 ,-22, -22}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -97, -172, -235, -310, -373}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -167, -442, -855, -1406, -2095}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -324, -903, -2206, -4473, -7980}; cmp_arr_A_forw.push_back(tmp);
+  obj.A_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.A_forw[i*6+j] = cmp_arr_A_forw[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_B_forw;
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf,  -22, -97, -172, -235, -310}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -29, -167, -442, -855, -1406}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -104, -324, -903, -2206, -4473}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -174, -551, -1784, -4899, -11548}; cmp_arr_B_forw.push_back(tmp);
+  obj.B_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.B_forw[i*6+j] = cmp_arr_B_forw[i][j];
     }
   }
 
@@ -807,9 +939,21 @@ void test_getAffineAlignedIndices(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -835,7 +979,7 @@ void test_getAffineAlignedIndices(){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
   // score_forw
-  ASSERT(std::abs(obj.score_forw - -30.0) < 1e-6);
+  ASSERT(std::abs(obj.score_forw - -4848) < 1e-6);
 
   //........................  CASE 2 ........................................
   obj.reset(4+1, 5+1);
@@ -924,16 +1068,44 @@ void test_getAffineAlignedIndices(){
   }
 
   std::vector< std::vector< double > > cmp_arr_M_forw2;
-  tmp = {0, -22, -29, -36, -43, -50}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-22, -90, -99, -108, -141, -150}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-29, -87, -84, -93, -114, -135}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-36, -120, -81, -78, -99, -120}; cmp_arr_M_forw2.push_back(tmp);
-  tmp = {-43, -141, -117, -78, -72, -93}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {0, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -2, -24, -19, -38, -33}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -12, -96, -222, -350, -504}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -31, -174, -624, -1292, -2242}; cmp_arr_M_forw2.push_back(tmp);
+  tmp = {-Inf, -38, -440, -1334, -3310, -6976}; cmp_arr_M_forw2.push_back(tmp);
   obj.M_forw = new double[5*6]; // This causes memory leak. Should be fixed.
   // Can't use initializer list, because of certain issues.
   for(int i = 0; i < 5; i++){
     for(int j = 0; j < 6; j++){
       obj.M_forw[i*6+j] = cmp_arr_M_forw2[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_A_forw2;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-22, -44, -51, -58, -65, -72}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-29, -141, -267, -395, -549, -705}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-36, -255, -669, -1337,-2287, -3547}; cmp_arr_A_forw2.push_back(tmp);
+  tmp = {-43, -485, -1379, -3391, -7021, -12861}; cmp_arr_A_forw2.push_back(tmp);
+  obj.A_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.A_forw[i*6+j] = cmp_arr_A_forw2[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_B_forw2;
+  tmp = {-Inf, -22, -29, -36, -43, -50}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -44, -141, -267, -395, -549}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -51, -255, -669, -1337, -2287}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -148, -485, -1379, -3391, -7021}; cmp_arr_B_forw2.push_back(tmp);
+  tmp = {-Inf, -262, -836, -2706, -7482, -17864}; cmp_arr_B_forw2.push_back(tmp);
+  obj.B_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.B_forw[i*6+j] = cmp_arr_B_forw2[i][j];
     }
   }
 
@@ -1011,9 +1183,21 @@ void test_getAffineAlignedIndices(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw2[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw2[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw2[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -1039,7 +1223,7 @@ void test_getAffineAlignedIndices(){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
   // score_forw
-  ASSERT(std::abs(obj.score_forw - -93.0) < 1e-6);
+  ASSERT(std::abs(obj.score_forw - -37701) < 1e-6);
 
   //........................  CASE 3 ........................................
   obj.reset(4+1, 5+1);
@@ -1128,16 +1312,43 @@ void test_getAffineAlignedIndices(){
   }
 
   std::vector< std::vector< double > > cmp_arr_M_forw3;
-  tmp = {0, -22, -29, -36, -43, -50}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-22, -88, -95, -116, -137, -158}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-29, -95, -88, -95, -116, -137}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-36, -116, -95, -88, -95, -116}; cmp_arr_M_forw3.push_back(tmp);
-  tmp = {-43, -137, -116, -95, -88, -95}; cmp_arr_M_forw3.push_back(tmp);
-  obj.M_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  tmp = {0, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, 0, -22, -29, -36, -43}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, -22, -88, -212, -350, -502}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, -29, -212, -614, -1278, -2232}; cmp_arr_M_forw3.push_back(tmp);
+  tmp = {-Inf, -36, -438, -1366, -3360, -6972}; cmp_arr_M_forw3.push_back(tmp);
   // Can't use initializer list, because of certain issues.
   for(int i = 0; i < 5; i++){
     for(int j = 0; j < 6; j++){
       obj.M_forw[i*6+j] = cmp_arr_M_forw3[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_A_forw3;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-22, -44, -51, -58, -65, -72}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-29, -139, -263, -401, -553, -719}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-36, -263, -665, -1329, -2283, -3555}; cmp_arr_A_forw3.push_back(tmp);
+  tmp = {-43, -489, -1417, -3411, -7023, -12861}; cmp_arr_A_forw3.push_back(tmp);
+  obj.A_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.A_forw[i*6+j] = cmp_arr_A_forw3[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_B_forw3;
+  tmp = {-Inf, -22, -29, -36, -43, -50}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -44, -139, -263, -401, -553}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -51, -263, -665, -1329, -2283}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -146, -489, -1417, -3411, -7023}; cmp_arr_B_forw3.push_back(tmp);
+  tmp = {-Inf, -270, -846, -2752, -7580, -18014}; cmp_arr_B_forw3.push_back(tmp);
+  obj.B_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.B_forw[i*6+j] = cmp_arr_B_forw3[i][j];
     }
   }
 
@@ -1215,9 +1426,21 @@ void test_getAffineAlignedIndices(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw3[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw3[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw3[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -1243,7 +1466,7 @@ void test_getAffineAlignedIndices(){
     ASSERT(std::abs(obj.score[i] - cmp_score[i]) < 1e-06);
   }
   // score_forw
-  ASSERT(std::abs(obj.score_forw - -95.0) < 1e-6);
+  ASSERT(std::abs(obj.score_forw - -37847) < 1e-6);
 
   //........................  CASE 4 ........................................
   obj.reset(4+1, 5+1);
@@ -1332,16 +1555,44 @@ void test_getAffineAlignedIndices(){
   }
 
   std::vector< std::vector< double > > cmp_arr_M_forw4;
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {0,-Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
   obj.M_forw = new double[5*6]; // This causes memory leak. Should be fixed.
   // Can't use initializer list, because of certain issues.
   for(int i = 0; i < 5; i++){
     for(int j = 0; j < 6; j++){
       obj.M_forw[i*6+j] = cmp_arr_M_forw4[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_A_forw4;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  obj.A_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.A_forw[i*6+j] = cmp_arr_A_forw4[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_B_forw4;
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  obj.B_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.B_forw[i*6+j] = cmp_arr_B_forw4[i][j];
     }
   }
 
@@ -1419,9 +1670,21 @@ void test_getAffineAlignedIndices(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw4[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw4[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw4[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -1543,16 +1806,44 @@ void test_getOlapAffineAlignStartIndices(){
   }
 
   std::vector< std::vector< double > > cmp_arr_M_forw;
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -46, -48, -36, -36, -31}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -36, -40, -35, -42, -30}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -36, -30, -27, -29, -29}; cmp_arr_M_forw.push_back(tmp);
-  tmp = {0, -43, -30, -30, -17, -35}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {0, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2, -2, 10, -2, 10}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, 10,  -52, -127,  -190,  -265}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2,  -86, -397,  -810, -1361}; cmp_arr_M_forw.push_back(tmp);
+  tmp = {-Inf, -2, -279, -858, -2125, -4428}; cmp_arr_M_forw.push_back(tmp);
   obj.M_forw = new double[5*6]; // This causes memory leak. Should be fixed.
   // Can't use initializer list, because of certain issues.
   for(int i = 0; i < 5; i++){
     for(int j = 0; j < 6; j++){
       obj.M_forw[i*6+j] = cmp_arr_M_forw[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_A_forw;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -22, -22, -22 ,-22, -22}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -97, -172, -235, -310, -373}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -167, -442, -855, -1406, -2095}; cmp_arr_A_forw.push_back(tmp);
+  tmp = {0, -324, -903, -2206, -4473, -7980}; cmp_arr_A_forw.push_back(tmp);
+  obj.A_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.A_forw[i*6+j] = cmp_arr_A_forw[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_B_forw;
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf,  -22, -97, -172, -235, -310}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -29, -167, -442, -855, -1406}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -104, -324, -903, -2206, -4473}; cmp_arr_B_forw.push_back(tmp);
+  tmp = {-Inf, -174, -551, -1784, -4899, -11548}; cmp_arr_B_forw.push_back(tmp);
+  obj.B_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.B_forw[i*6+j] = cmp_arr_B_forw[i][j];
     }
   }
 
@@ -1628,9 +1919,21 @@ void test_getOlapAffineAlignStartIndices(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw[i][j]) < 1e-06);
     }
   }
   // signalA_len
@@ -1743,16 +2046,44 @@ void test_getOlapAffineAlignStartIndices(){
   }
 
   std::vector< std::vector< double > > cmp_arr_M_forw4;
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
-  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {0,-Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_M_forw4.push_back(tmp);
   obj.M_forw = new double[5*6]; // This causes memory leak. Should be fixed.
   // Can't use initializer list, because of certain issues.
   for(int i = 0; i < 5; i++){
     for(int j = 0; j < 6; j++){
       obj.M_forw[i*6+j] = cmp_arr_M_forw4[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_A_forw4;
+  tmp = {-Inf, -Inf, -Inf, -Inf, -Inf, -Inf}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_A_forw4.push_back(tmp);
+  obj.A_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.A_forw[i*6+j] = cmp_arr_A_forw4[i][j];
+    }
+  }
+
+  std::vector< std::vector< double > > cmp_arr_B_forw4;
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  tmp = {-Inf, 0, 0, 0, 0, 0}; cmp_arr_B_forw4.push_back(tmp);
+  obj.B_forw = new double[5*6]; // This causes memory leak. Should be fixed.
+  // Can't use initializer list, because of certain issues.
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 6; j++){
+      obj.B_forw[i*6+j] = cmp_arr_B_forw4[i][j];
     }
   }
 
@@ -1827,9 +2158,21 @@ void test_getOlapAffineAlignStartIndices(){
     }
   }
   // M_forw
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
+  for (int i = 1; i < 5; i++){
+    for (int j = 1; j < 6; j++){
       ASSERT(std::abs(obj.M_forw[i*6+j] - cmp_arr_M_forw4[i][j]) < 1e-06);
+    }
+  }
+  // A_forw
+  for (int i = 1; i < 5; i++){
+    for (int j = 0; j < 6; j++){
+      ASSERT(std::abs(obj.A_forw[i*6+j] - cmp_arr_A_forw4[i][j]) < 1e-06);
+    }
+  }
+  // B_forw
+  for (int i = 0; i < 5; i++){
+    for (int j = 1; j < 6; j++){
+      ASSERT(std::abs(obj.B_forw[i*6+j] - cmp_arr_B_forw4[i][j]) < 1e-06);
     }
   }
   // signalA_len

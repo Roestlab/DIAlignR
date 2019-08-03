@@ -32,6 +32,8 @@ public:
   bool* Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
   int* optionalPaths; // Highlight the number of all optimal paths.
   double* M_forw;
+  double* A_forw;
+  double* B_forw;
   // s_data, M, A and B should be private. Now there is a possibility of memory-leak.
   // TODO Make above variables private.
   int signalA_len; // Number of data-points in signal A
@@ -62,6 +64,8 @@ public:
     Path = new bool[ROW_SIZE * COL_SIZE];
     optionalPaths = new int[ROW_SIZE * COL_SIZE];
     M_forw = new double[ROW_SIZE * COL_SIZE];
+    A_forw = new double[ROW_SIZE * COL_SIZE];
+    B_forw = new double[ROW_SIZE * COL_SIZE];
 
     // clearMemory means having default zero values.
     // We could use a for-loop but memset is faster for contiguous location in memory.
@@ -76,6 +80,8 @@ public:
       std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
       std::memset(optionalPaths, 0, ROW_SIZE * COL_SIZE * sizeof(int));
       std::memset(M_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(A_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+      std::memset(B_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     }
 
     signalA_len = ROW_SIZE-1;
@@ -108,6 +114,8 @@ public:
     std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memset(optionalPaths, 0, ROW_SIZE * COL_SIZE * sizeof(int));
     std::memset(M_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(A_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memset(B_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
 
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
@@ -131,6 +139,8 @@ public:
     delete[] Path;
     delete[] optionalPaths;
     delete[] M_forw;
+    delete[] A_forw;
+    delete[] B_forw;
 
     //std::cout << " this " << this << std::endl;
     signalA_len = rhs.signalA_len;
@@ -157,6 +167,8 @@ public:
     Path = new bool[ROW_SIZE * COL_SIZE];
     optionalPaths = new int[ROW_SIZE * COL_SIZE];
     M_forw = new double[ROW_SIZE * COL_SIZE];
+    A_forw = new double[ROW_SIZE * COL_SIZE];
+    B_forw = new double[ROW_SIZE * COL_SIZE];
 
     std::memcpy(s_data, rhs.s_data, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -166,6 +178,8 @@ public:
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memcpy(optionalPaths, rhs.optionalPaths, ROW_SIZE * COL_SIZE * sizeof(int));
     std::memcpy(M_forw, rhs.M_forw, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(A_forw, rhs.M_forw, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(B_forw, rhs.M_forw, ROW_SIZE * COL_SIZE * sizeof(double));
   }
 
   // Rule 1 Copy constructor
@@ -179,6 +193,8 @@ public:
     delete[] Path;
     delete[] optionalPaths;
     delete[] M_forw;
+    delete[] A_forw;
+    delete[] B_forw;
 
     signalA_len = rhs.signalA_len;
     signalA_capacity = rhs.signalA_capacity;
@@ -204,6 +220,8 @@ public:
     Path = new bool[ROW_SIZE * COL_SIZE];
     optionalPaths = new int[ROW_SIZE * COL_SIZE];
     M_forw = new double[ROW_SIZE * COL_SIZE];
+    A_forw = new double[ROW_SIZE * COL_SIZE];
+    B_forw = new double[ROW_SIZE * COL_SIZE];
 
     std::memcpy(s_data, rhs.s_data, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -213,6 +231,8 @@ public:
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memcpy(optionalPaths, rhs.optionalPaths, ROW_SIZE * COL_SIZE * sizeof(int));
     std::memcpy(M_forw, rhs.M_forw, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(A_forw, rhs.A_forw, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(B_forw, rhs.B_forw, ROW_SIZE * COL_SIZE * sizeof(double));
   }
 
   // Rule 3 Not a default destructor
@@ -226,6 +246,8 @@ public:
     delete[] Path;
     delete[] optionalPaths;
     delete[] M_forw;
+    delete[] A_forw;
+    delete[] B_forw;
   }
 
 };
