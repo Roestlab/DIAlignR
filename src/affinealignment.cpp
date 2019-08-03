@@ -1,6 +1,7 @@
 #include "affinealignment.h"
 #include <exception>
 #include <stdexcept>
+
 // #include "simpleFcn.h"
 // Do not inclue cpp file otherwise compiler will build the Obj through two different path.
 
@@ -229,42 +230,66 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     }
 
   // Forward algorithm
+  int nPathsM_forw[(signalA_len+1)*(signalB_len+1)];
+  std::memset(nPathsM_forw, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
+  int nPathsA_forw[(signalA_len+1)*(signalB_len+1)];
+  std::memset(nPathsA_forw, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
+  int nPathsB_forw[(signalA_len+1)*(signalB_len+1)];
+  std::memset(nPathsB_forw, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
+
   affineAlignObj.M_forw[1*(signalB_len+1)+1] = affineAlignObj.M_forw[0] + s.data[0];
+  nPathsM_forw[1*(signalB_len+1)+1] = 1;
   affineAlignObj.A_forw[1*(signalB_len+1)+1] = affineAlignObj.B_forw[0*(signalB_len+1)+1] - go;
+  nPathsA_forw[1*(signalB_len+1)+1] = 1;
   affineAlignObj.B_forw[1*(signalB_len+1)+1] = affineAlignObj.A_forw[1*(signalB_len+1)+0] - go;
+  nPathsB_forw[1*(signalB_len+1)+1] = 1;
   for(int j=2; j<=signalB_len; j++){
     double sI_1J_1 = s.data[j-1]; // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
     affineAlignObj.M_forw[1*(signalB_len+1)+j] = affineAlignObj.B_forw[0*(signalB_len+1)+j-1] + sI_1J_1;
+    nPathsM_forw[1*(signalB_len+1)+j] = 1;
     affineAlignObj.A_forw[1*(signalB_len+1)+j] = affineAlignObj.B_forw[0*(signalB_len+1)+j] - go;
+    nPathsA_forw[1*(signalB_len+1)+j] = 1;
     affineAlignObj.B_forw[1*(signalB_len+1)+j] = affineAlignObj.M_forw[1*(signalB_len+1)+j-1] - go
       + affineAlignObj.A_forw[1*(signalB_len+1)+j-1] - go
       + affineAlignObj.B_forw[1*(signalB_len+1)+j-1] - ge;
+    nPathsB_forw[1*(signalB_len+1)+j] = 3;
   }
   for(int i=2; i<=signalA_len; i++){
     double sI_1J_1 = s.data[(i-1)*s.n_col + 0]; // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
     affineAlignObj.M_forw[i*(signalB_len+1)+1] =affineAlignObj.A_forw[(i-1)*(signalB_len+1)] + sI_1J_1;
+    nPathsM_forw[i*(signalB_len+1)+1] = 1;
     affineAlignObj.A_forw[i*(signalB_len+1)+1] =affineAlignObj.M_forw[(i-1)*(signalB_len+1)+1] - go
        + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+1] - ge
        + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+1] - go;
+    nPathsA_forw[i*(signalB_len+1)+1] = 3;
     affineAlignObj.B_forw[i*(signalB_len+1)+1] = affineAlignObj.A_forw[(i-1)*(signalB_len+1)+1] - ge;
+    nPathsB_forw[i*(signalB_len+1)+1] = 1;
   }
+  for(int i=0; i<=signalA_len; i++){
+    for(int j=0; j<=signalB_len; j++){
+      Rcpp::Rcout << nPathsA_forw[(i)*(signalB_len+1)+j] << "  ";
+    }
+    Rcpp::Rcout << std::endl;
+  }
+
   for(int i=2; i<=signalA_len; i++){
     for(int j=2; j<=signalB_len; j++){
       double sI_1J_1 = s.data[(i-1)*s.n_col + j-1]; // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
-      affineAlignObj.M_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[(i-1)*(signalB_len+1)+j-1] + sI_1J_1
-        + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+j-1] + sI_1J_1
-        + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+j-1] + sI_1J_1;
-
-      affineAlignObj.A_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[(i-1)*(signalB_len+1)+j] - go
-        + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+j] - ge
-        + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+j] - go;
-
-      affineAlignObj.B_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[i*(signalB_len+1)+j-1] - go
-        + affineAlignObj.A_forw[i*(signalB_len+1)+j-1] - go
-        + affineAlignObj.B_forw[i*(signalB_len+1)+j-1] - ge;
+      affineAlignObj.M_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[(i-1)*(signalB_len+1)+j-1] + (nPathsM_forw[(i-1)*(signalB_len+1)+j-1])*sI_1J_1
+        + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+j-1] + (nPathsA_forw[(i-1)*(signalB_len+1)+j-1])*sI_1J_1
+        + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+j-1] + (nPathsB_forw[(i-1)*(signalB_len+1)+j-1])*sI_1J_1;
+      nPathsM_forw[i*(signalB_len+1)+j] = 3;
+      affineAlignObj.A_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[(i-1)*(signalB_len+1)+j] - (nPathsM_forw[(i-1)*(signalB_len+1)+j])*go
+        + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+j] - (nPathsA_forw[(i-1)*(signalB_len+1)+j])*ge
+        + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+j] - (nPathsB_forw[(i-1)*(signalB_len+1)+j])*go;
+      nPathsA_forw[i*(signalB_len+1)+j] = 3;
+      affineAlignObj.B_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[i*(signalB_len+1)+j-1] - (nPathsM_forw[i*(signalB_len+1)+j-1])*go
+        + affineAlignObj.A_forw[i*(signalB_len+1)+j-1] - (((double)(nPathsA_forw[i*(signalB_len+1)+j-1]))*go)
+        + affineAlignObj.B_forw[i*(signalB_len+1)+j-1] - (nPathsB_forw[i*(signalB_len+1)+j-1])*ge;
+      nPathsB_forw[i*(signalB_len+1)+j] = 3;
     }
   }
-  }
+}
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   AlignedIndices alignedIdx; // initialize empty struct.
