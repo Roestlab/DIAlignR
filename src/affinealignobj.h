@@ -48,6 +48,7 @@ public:
   std::vector<int> indexB_aligned; // Aligned signalB indices after affine alignment
   std::vector<double> score;  // Score along the aligned path
   double score_forw;
+  int nGaps;
 
   // Not a default constructor
   AffineAlignObj() {}
@@ -90,6 +91,7 @@ public:
     GapExten = 0.0;
     FreeEndGaps = true;
     score_forw = 0.0;
+    nGaps = 0;
 
     signalA_capacity = ROW_SIZE-1;
     signalB_capacity = COL_SIZE-1;
@@ -126,6 +128,7 @@ public:
     indexB_aligned.clear();
     score.clear();
     score_forw = 0.0;
+    nGaps = 0;
   }
 
   // Rule 2 Copy assignment operator
@@ -155,6 +158,7 @@ public:
     indexB_aligned = rhs.indexB_aligned;
     score = rhs.score;
     score_forw = rhs.score_forw;
+    nGaps = rhs.nGaps;
 
     int ROW_SIZE = rhs.signalA_len + 1;
     int COL_SIZE = rhs.signalB_len + 1;
@@ -208,6 +212,7 @@ public:
     indexB_aligned = rhs.indexB_aligned;
     score = rhs.score;
     score_forw = rhs.score_forw;
+    nGaps = rhs.nGaps;
 
     int ROW_SIZE = rhs.signalA_len + 1;
     int COL_SIZE = rhs.signalB_len + 1;

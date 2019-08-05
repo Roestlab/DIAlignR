@@ -297,6 +297,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
   x.slot("score_forw") = obj.score_forw;
+  x.slot("nGaps") = obj.nGaps;
   return(x);
 }
 
@@ -327,7 +328,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
 //' obj_Global@optionalPaths
 //' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
 //' obj_Global@M_forw
-//' matrix(data = c(0,-2,-4,-6,-2,-7,-10,-16,-4,-8,-6,-9,-6,-14,-9,-9,-8,-22,-15,-10), nrow = 5, ncol =4, byrow = TRUE)
+//' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274), nrow = 5, ncol =4, byrow = TRUE)
 //' @export
 // [[Rcpp::export]]
 S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
@@ -354,6 +355,7 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
   x.slot("score_forw") = obj.score_forw;
+  x.slot("nGaps") = obj.nGaps;
   return(x);
 }
 
@@ -392,17 +394,17 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
 //' Match=1; MisMatch=-1
 //' seq1 = "TTTC"; seq2 = "TGC"
 //' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
-//' obj_Global <- doAffineAlignmentCpp(s, 2, 2, FALSE)
-//' obj_Global@optionalPaths
+//' objAffine_Global <- doAffineAlignmentCpp(s, 2, 2, FALSE)
+//' objAffine_Global@optionalPaths
 //' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
-//' obj_Global@M_forw
-//' matrix(data = c(0,-2,-4,-6,-2,-7,-10,16,-4,-8,-6,-9,-6,-14,-9,-9,-8,-22,-15,-10), nrow = 5, ncol =4, byrow = TRUE)
+//' objAffine_Global@M_forw
+//' matrix(data = c(0,-Inf,-Inf,-Inf,-Inf,1,-3,-5,-Inf,-1,-10,-27,-Inf,-3,-25,-81,-Inf,-7,-49,-160), nrow = 5, ncol =4, byrow = TRUE)
 //'
 //' Match=10; MisMatch=-2
 //' seq1 = "CA"; seq2 = "AG"
 //' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 //' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
-//' obj_Global@score_forw #-618
+//' objAffine_Global@score_forw # -706
 //' @export
 // [[Rcpp::export]]
 S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAlignment){
@@ -434,6 +436,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
   x.slot("score_forw") = obj.score_forw;
+  x.slot("nGaps") = obj.nGaps;
   return(x);
 }
 

@@ -25,6 +25,8 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
   Traceback.resize((signalA_len+1)*(signalB_len+1), SS); // Fill Traceback matrix with SS.
   std::vector<int> OptionalPaths;
   OptionalPaths.resize((signalA_len+1)*(signalB_len+1), 0);
+  std::vector<int> nPathsM_forw; // To track number of all possible paths.
+  nPathsM_forw.resize((signalA_len+1)*(signalB_len+1), 0);
 
   // Initialize first row and first column for global and overlap alignment.
   if(alignObj.FreeEndGaps){
@@ -34,12 +36,14 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
       M_forw.data[i*M_forw.n_col + 0] = 0;
       Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
       OptionalPaths[i*(signalB_len+1)+0] = 1;
+      nPathsM_forw[i*(signalB_len+1)+0] = 1;
     }
     for(int j = 0; j<=signalB_len; j++){
       M.data[0*M.n_col + j] = 0;
       M_forw.data[0*M_forw.n_col + j] = 0;
       Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
       OptionalPaths[0*(signalB_len+1)+j] = 1;
+      nPathsM_forw[0*(signalB_len+1)+j] = 1;
     }
     Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
   }
@@ -50,12 +54,14 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
       M_forw.data[i*M_forw.n_col + 0] = -i*gap;
       Traceback[i*(signalB_len+1)+0] = TM; //Top. First column is filled with TM
       OptionalPaths[i*(signalB_len+1)+0] = 1;
+      nPathsM_forw[i*(signalB_len+1)+0] = 1;
     }
     for(int j = 0; j<=signalB_len; j++){
       M.data[0*M.n_col + j] = -j*gap;
       M_forw.data[0*M_forw.n_col + j] = -j*gap;
       Traceback[0*(signalB_len+1)+j] = LM; //Left. First row is filled with LM
       OptionalPaths[0*(signalB_len+1)+j] = 1;
+      nPathsM_forw[0*(signalB_len+1)+j] = 1;
     }
     Traceback[0*(signalB_len+1) + 0] = SS; //STOP. Top-Left cell of the traceback matrix indicates stop
   }
@@ -67,7 +73,11 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
       Diago = M.data[(i-1)*M.n_col + j-1] + s.data[(i-1)*s.n_col + j-1];
       gapInB= M.data[(i-1)*M.n_col + j] - gap; // Travelling from Top. signalA is along the rows, signalB is along the columns
       gapInA = M.data[i*M.n_col + j-1] - gap; // Travelling from Left. signalA is along the rows, signalB is along the columns
-      M_forw.data[i*M_forw.n_col + j] = Diago + gapInA + gapInB;
+      M_forw.data[i*M_forw.n_col + j] = M_forw.data[(i-1)*M.n_col + j-1] + (nPathsM_forw[(i-1)*M.n_col + j-1])*s.data[(i-1)*s.n_col + j-1]
+      + M_forw.data[(i-1)*M.n_col + j] - (nPathsM_forw[(i-1)*M.n_col + j])*gap
+        + M_forw.data[i*M.n_col + j-1] - (nPathsM_forw[i*M.n_col + j-1])*gap;
+      nPathsM_forw[i*M_forw.n_col + j] = nPathsM_forw[(i-1)*M.n_col + j-1] + nPathsM_forw[(i-1)*M.n_col + j] + nPathsM_forw[i*M.n_col + j-1];
+
       int optimalPathCntr = 0;
       if(gapInA>=Diago && gapInA>=gapInB){
         Traceback[i*(signalB_len+1) + j] = LM; // L: Left
@@ -95,8 +105,6 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
       alignObj.M_forw[i*(signalB_len+1) + j] = M_forw.data[i*M_forw.n_col + j]; // Copy NumericMatrix M_forw to alignObj.M_forw vector
     }
   }
-  // printMatrix(alignObj.M, signalA_len+1, signalB_len+1);
-  // printMatrix(alignObj.Traceback, signalA_len+1, signalB_len+1);
   return alignObj;
 }
 

@@ -38,6 +38,7 @@ struct AlignObj
     std::vector<int> indexB_aligned;
     std::vector<double> score;
     double score_forw;
+    int nGaps;
 
     // Not a default constructor
     AlignObj(int ROW_SIZE, int COL_SIZE)
@@ -54,6 +55,7 @@ struct AlignObj
       GapExten = 0.0;
       FreeEndGaps = true;
       score_forw = 0.0;
+      nGaps = 0;
     }
 
     // Rule 1 Copy constructor and Rule 2 Copy assignment operator are not needed.

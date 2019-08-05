@@ -265,12 +265,6 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     affineAlignObj.B_forw[i*(signalB_len+1)+1] = affineAlignObj.A_forw[(i-1)*(signalB_len+1)+1] - ge;
     nPathsB_forw[i*(signalB_len+1)+1] = 1;
   }
-  for(int i=0; i<=signalA_len; i++){
-    for(int j=0; j<=signalB_len; j++){
-      Rcpp::Rcout << nPathsA_forw[(i)*(signalB_len+1)+j] << "  ";
-    }
-    Rcpp::Rcout << std::endl;
-  }
 
   for(int i=2; i<=signalA_len; i++){
     for(int j=2; j<=signalB_len; j++){
