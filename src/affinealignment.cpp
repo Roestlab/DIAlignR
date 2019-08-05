@@ -395,6 +395,12 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      if(COL_IDX != 0){
+        affineAlignObj.nGaps += 1;
+      }
+      else if(!affineAlignObj.FreeEndGaps){
+        affineAlignObj.nGaps += 1;
+      }
       break;}
 
     case TA:
@@ -405,6 +411,12 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      if(COL_IDX != 0){
+        affineAlignObj.nGaps += 1;
+      }
+      else if(!affineAlignObj.FreeEndGaps){
+        affineAlignObj.nGaps += 1;
+      }
       break;}
 
     case TB:
@@ -415,6 +427,12 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      if(COL_IDX != 0){
+        affineAlignObj.nGaps += 1;
+      }
+      else if(!affineAlignObj.FreeEndGaps){
+        affineAlignObj.nGaps += 1;
+      }
       break;}
 
     case LM:
@@ -425,6 +443,12 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      if(ROW_IDX != 0){
+        affineAlignObj.nGaps += 1;
+      }
+      else if(!affineAlignObj.FreeEndGaps){
+        affineAlignObj.nGaps += 1;
+      }
       break;
       }
 
@@ -436,6 +460,12 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      if(ROW_IDX != 0){
+        affineAlignObj.nGaps += 1;
+      }
+      else if(!affineAlignObj.FreeEndGaps){
+        affineAlignObj.nGaps += 1;
+      }
       break;}
 
     case LB:
@@ -446,6 +476,12 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      if(ROW_IDX != 0){
+        affineAlignObj.nGaps += 1;
+      }
+      else if(!affineAlignObj.FreeEndGaps){
+        affineAlignObj.nGaps += 1;
+      }
       break;}
 
     }

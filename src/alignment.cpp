@@ -190,6 +190,12 @@ void getAlignedIndices(AlignObj &alignObj){
       alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       ROW_IDX = ROW_IDX - 1;
+      if(COL_IDX != 0){
+        alignObj.nGaps += 1;
+      }
+      else if(!alignObj.FreeEndGaps){
+        alignObj.nGaps += 1;
+      }
       break;
     }
     case LM:
@@ -200,6 +206,12 @@ void getAlignedIndices(AlignObj &alignObj){
       alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       COL_IDX = COL_IDX - 1;
+      if(ROW_IDX != 0){
+        alignObj.nGaps += 1;
+      }
+      else if(!alignObj.FreeEndGaps){
+        alignObj.nGaps += 1;
+      }
       break;
     }
     }
