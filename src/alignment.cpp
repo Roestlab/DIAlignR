@@ -118,11 +118,11 @@ void getAlignedIndices(AlignObj &alignObj){
   int COL_IDX = alignObj.signalB_len;
   int ROW_SIZE = alignObj.signalA_len + 1;
   int COL_SIZE = alignObj.signalB_len + 1;
+  int bandwidth = 2; // This is bandwidth along the path.
 
   if(alignObj.FreeEndGaps){
     // For overlap alignment find maximum score in matrix "M" along last column and long row.
     float maxScore = -std::numeric_limits<float>::infinity();
-    int MaxRowIndex, MaxColIndex;
     for(int i = 0; i < ROW_SIZE; i++){
       if(alignObj.M[i*COL_SIZE+COL_SIZE-1] >= maxScore){
         ROW_IDX = i;
@@ -140,6 +140,7 @@ void getAlignedIndices(AlignObj &alignObj){
     // Use the indices of maximum score as starting point for traceback procedure.
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
     alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+    fillsimPath(alignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
     // Align indices higher than max-score-index to NA
     if(ROW_IDX != alignObj.signalA_len){
       // Maximum score is obtained in last column. Align all row indices below max-score-index to NA.
@@ -148,6 +149,7 @@ void getAlignedIndices(AlignObj &alignObj){
         alignedIdx.indexB_aligned.push_back(NA); // Insert NA in signalB.
         alignedIdx.score.push_back(maxScore); // Insert maxScore instead of score from the matrix M.
         alignObj.Path[i*COL_SIZE+COL_IDX] = true;
+        fillsimPath(alignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
     }
     else if (COL_IDX != alignObj.signalB_len){
@@ -157,6 +159,7 @@ void getAlignedIndices(AlignObj &alignObj){
         alignedIdx.indexB_aligned.push_back(j);
         alignedIdx.score.push_back(maxScore); // Insert maxScore instead of score from the matrix M.
         alignObj.Path[ROW_IDX*COL_SIZE+j] = true;
+        fillsimPath(alignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
     }
   }
@@ -164,6 +167,7 @@ void getAlignedIndices(AlignObj &alignObj){
     // In Global alignment, traceback starts at the bottom-right corner.
     TracebackPointer = alignObj.Traceback[ROW_IDX*COL_SIZE+COL_IDX];
     alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+    fillsimPath(alignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
   }
   alignObj.score_forw = alignObj.M_forw[ROW_IDX*COL_SIZE+COL_IDX];
 
@@ -178,6 +182,7 @@ void getAlignedIndices(AlignObj &alignObj){
       alignedIdx.indexB_aligned.push_back(COL_IDX);
       alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      fillsimPath(alignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       ROW_IDX = ROW_IDX - 1;
       COL_IDX = COL_IDX - 1;
       break;
@@ -189,6 +194,7 @@ void getAlignedIndices(AlignObj &alignObj){
       alignedIdx.indexB_aligned.push_back(NA);
       alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      fillsimPath(alignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       ROW_IDX = ROW_IDX - 1;
       if(COL_IDX != 0){
         alignObj.nGaps += 1;
@@ -205,6 +211,7 @@ void getAlignedIndices(AlignObj &alignObj){
       alignedIdx.indexB_aligned.push_back(COL_IDX);
       alignedIdx.score.push_back(alignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       alignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      fillsimPath(alignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       COL_IDX = COL_IDX - 1;
       if(ROW_IDX != 0){
         alignObj.nGaps += 1;
@@ -227,4 +234,18 @@ void getAlignedIndices(AlignObj &alignObj){
   alignObj.indexB_aligned = alignedIdx.indexB_aligned;
   alignObj.score = alignedIdx.score;
 }
+
+void fillsimPath(std::vector<bool> &simPath, int bandwidth, int ROW_IDX, int COL_IDX, int ROW_SIZE, int COL_SIZE){
+  for (int i = ROW_IDX-bandwidth; i<=ROW_IDX+bandwidth; i++){
+    if(i>=0 && i<ROW_SIZE){
+      simPath[i*COL_SIZE+COL_IDX] = true;
+    }
+  }
+  for (int j = ROW_IDX-bandwidth; j<=ROW_IDX+bandwidth; j++){
+    if(j>=0 && j<COL_SIZE){
+      simPath[ROW_IDX*COL_SIZE+j] = true;
+    }
+  }
+}
+
 } // namespace DIAlign

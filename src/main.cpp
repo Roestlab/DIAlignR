@@ -255,7 +255,8 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             double goFactor = 0.125, double geFactor = 40,
                             double cosAngleThresh = 0.3, bool OverlapAlignment = true,
                             double dotProdThresh = 0.96, double gapQuantile = 0.5,
-                            bool hardConstrain = false, double samples4gradient = 100.0){
+                            bool hardConstrain = false, double samples4gradient = 100.0,
+                            int bandwidth = 9){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
   SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
@@ -274,7 +275,8 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   }
   AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
   doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
-  getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
+  getAffineAlignedIndices(obj, bandwidth); // Performs traceback and fills aligned indices in AffineAlignObj struct
+  obj.simScore_forw = getForwardSim(s, obj.simPath);
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
   x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
@@ -283,7 +285,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("B")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.B));
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
-  x.slot("path") = NumericMatrix(s.n_col+1, s.n_row+1, obj.Path);
+  x.slot("path") = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.Path));
   x.slot("optionalPaths") = NumericMatrix(s.n_col+1, s.n_row+1, obj.optionalPaths);
   x.slot("M_forw")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.M_forw));
   x.slot("A_forw")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.A_forw));
@@ -297,6 +299,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
   x.slot("score_forw") = obj.score_forw;
+  x.slot("simScore_forw") = obj.simScore_forw;
   x.slot("nGaps") = obj.nGaps;
   return(x);
 }
@@ -414,6 +417,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   SimMatrix s = NumericMatrix2Vec(sim);
   doAffineAlignment(obj, s, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
+  obj.simScore_forw = getForwardSim(s, obj.simPath);
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
   x.slot("s") = sim;
@@ -422,7 +426,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("B") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.B));
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(signalB_len+1) *(signalA_len+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
-  x.slot("path") = transpose(NumericMatrix( signalB_len+1, signalA_len+1, obj.Path));
+  x.slot("path") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.Path));
   x.slot("optionalPaths") = transpose(NumericMatrix( signalB_len+1, signalA_len+1, obj.optionalPaths));
   x.slot("M_forw") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.M_forw));
   x.slot("A_forw") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.A_forw));
@@ -436,6 +440,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
   x.slot("score_forw") = obj.score_forw;
+  x.slot("simScore_forw") = obj.simScore_forw;
   x.slot("nGaps") = obj.nGaps;
   return(x);
 }

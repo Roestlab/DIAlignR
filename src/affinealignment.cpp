@@ -229,7 +229,8 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       }
     }
 
-  // Forward algorithm
+  // Forward algorithm. Incorrect
+  /*
   int nPathsM_forw[(signalA_len+1)*(signalB_len+1)];
   std::memset(nPathsM_forw, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
   int nPathsA_forw[(signalA_len+1)*(signalB_len+1)];
@@ -283,9 +284,10 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       nPathsB_forw[i*(signalB_len+1)+j] = 3;
     }
   }
+  ***/
 }
 
-void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
+void getAffineAlignedIndices(AffineAlignObj &affineAlignObj, int bandwidth){
   AlignedIndices alignedIdx; // initialize empty struct.
   TracebackType TracebackPointer;
   tbJump MatName; // Matrix name M = 0, A = 1 or B = 2
@@ -306,7 +308,8 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
         alignedIdx.indexA_aligned.push_back(i);
         alignedIdx.indexB_aligned.push_back(NA); // Insert NA in signalB.
         alignedIdx.score.push_back(affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
-        affineAlignObj.Path[i*COL_SIZE+COL_IDX] = true;
+        //affineAlignObj.Path[i*COL_SIZE+COL_IDX] = true;
+        //fillSimPath(affineAlignObj.simPath, bandwidth, i, COL_IDX, ROW_SIZE, COL_SIZE);
         }
       }
     else if (COL_IDX != affineAlignObj.signalB_len){
@@ -315,7 +318,8 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
         alignedIdx.indexA_aligned.push_back(NA); // Insert NA in signalA.
         alignedIdx.indexB_aligned.push_back(j);
         alignedIdx.score.push_back(affineAlignmentScore); // Insert maxScore instead of score from the matrix M.
-        affineAlignObj.Path[ROW_IDX*COL_SIZE+j] = true;
+        //affineAlignObj.Path[ROW_IDX*COL_SIZE+j] = true;
+        //fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, j, ROW_SIZE, COL_SIZE);
         }
       }
     }
@@ -345,6 +349,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
   alignedIdx.score.push_back(affineAlignmentScore);
   TracebackPointer = affineAlignObj.Traceback[MatName*ROW_SIZE*COL_SIZE+ROW_IDX*COL_SIZE+COL_IDX];
   affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+  fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
   // Traceback path and align row indices to column indices.
 
   while(TracebackPointer != SS){
@@ -363,6 +368,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       break;}
 
     case DA:
@@ -374,6 +380,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       break;}
 
     case DB:
@@ -385,6 +392,7 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
       affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+      fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       break;}
 
     case TM:
@@ -394,12 +402,15 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       ROW_IDX = ROW_IDX-1;
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
-      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       if(COL_IDX != 0){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       else if(!affineAlignObj.FreeEndGaps){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       break;}
 
@@ -410,12 +421,15 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       ROW_IDX = ROW_IDX-1;
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
-      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       if(COL_IDX != 0){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       else if(!affineAlignObj.FreeEndGaps){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       break;}
 
@@ -426,12 +440,15 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       ROW_IDX = ROW_IDX-1;
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
-      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       if(COL_IDX != 0){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       else if(!affineAlignObj.FreeEndGaps){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       break;}
 
@@ -442,12 +459,15 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = M;
       alignedIdx.score.push_back(affineAlignObj.M[ROW_IDX*COL_SIZE+COL_IDX]);
-      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       if(ROW_IDX != 0){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       else if(!affineAlignObj.FreeEndGaps){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       break;
       }
@@ -459,12 +479,15 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = A;
       alignedIdx.score.push_back(affineAlignObj.A[ROW_IDX*COL_SIZE+COL_IDX]);
-      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       if(ROW_IDX != 0){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       else if(!affineAlignObj.FreeEndGaps){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       break;}
 
@@ -475,12 +498,15 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj){
       COL_IDX = COL_IDX-1;
       MatName = B;
       alignedIdx.score.push_back(affineAlignObj.B[ROW_IDX*COL_SIZE+COL_IDX]);
-      affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
       if(ROW_IDX != 0){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       else if(!affineAlignObj.FreeEndGaps){
         affineAlignObj.nGaps += 1;
+        affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;
+        fillSimPath(affineAlignObj.simPath, bandwidth, ROW_IDX, COL_IDX, ROW_SIZE, COL_SIZE);
       }
       break;}
 
@@ -555,6 +581,32 @@ double getOlapAffineAlignStartIndices(double* MatrixM, double* MatrixA, double* 
   OlapStartRow = MaxRowIndex;
   OlapStartCol = MaxColIndex;
   return maxScore;
+}
+
+void fillSimPath(bool* simPath, int bandwidth, int ROW_IDX, int COL_IDX, int ROW_SIZE, int COL_SIZE){
+  for (int i = ROW_IDX-bandwidth; i<=ROW_IDX+bandwidth; i++){
+    if(i>=0 && i<ROW_SIZE){
+      simPath[i*COL_SIZE+COL_IDX] = true;
+    }
+  }
+  for (int j = COL_IDX-bandwidth; j<=COL_IDX+bandwidth; j++){
+    if(j>=0 && j<COL_SIZE){
+      simPath[ROW_IDX*COL_SIZE+j] = true;
+    }
+  }
+}
+
+double getForwardSim(const SimMatrix& s, bool* simPath){
+  double forwardSim = 0;
+  int COL_SIZE = s.n_col+1;
+  for(int i=0; i<s.n_row; i++){
+    for(int j=0; j<s.n_col; j++){
+      if(simPath[(i+1)*COL_SIZE+(j+1)]){
+        forwardSim += s.data[i*s.n_col + j];
+      }
+    }
+  }
+  return forwardSim;
 }
 
 /***

@@ -11,7 +11,8 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
                                   GapOpen = "numeric", GapExten = "numeric",
                                   FreeEndGaps = "logical",
                                   indexA_aligned = "numeric", indexB_aligned = "numeric",
-                                  score = "numeric", score_forw = "numeric", nGaps = "numeric")
+                                  score = "numeric", score_forw = "numeric", simScore_forw = "numeric",
+                                  nGaps = "numeric")
                    )
 
 #' An S4 object for class AlignObj
@@ -26,5 +27,6 @@ AlignObj <- setClass(Class="AlignObj",
                                     GapOpen = "numeric", GapExten = "numeric",
                                     FreeEndGaps = "logical",
                                     indexA_aligned = "numeric", indexB_aligned = "numeric",
-                                    score = "numeric", score_forw = "numeric", nGaps = "numeric")
+                                    score = "numeric", score_forw = "numeric", simScore_forw = "numeric",
+                                    nGaps = "numeric")
 )

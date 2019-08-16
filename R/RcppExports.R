@@ -197,8 +197,8 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
 #' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
 #' @export
-alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0) {
-    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
+alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, bandwidth = 9L) {
+    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, bandwidth)
 }
 
 #' Perform non-affine global and overlap alignment on a similarity matrix
