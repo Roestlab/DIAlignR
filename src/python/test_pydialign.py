@@ -23,7 +23,7 @@ import unittest
 import numpy as np
 # from unittest import assertAlmostEqual        
 
-import PyDIAlign
+import DIAlignPy as PyDIAlign
 
 class TestMSDIAlign(unittest.TestCase):
 
@@ -71,8 +71,8 @@ class TestMSDIAlign(unittest.TestCase):
         PyDIAlign.alignChromatogramsCppSimple(obj, self.chromatograms, self.chromatograms,
                 b"none", self.data, self.data, b"mean", b"cosineAngle")
 
-        self.assertAlmostEqual(obj.score[0], 1.0)
-        self.assertAlmostEqual(obj.score[5], 6.0)
+        self.assertAlmostEqual(obj.score[0], 1.0, 4)
+        self.assertAlmostEqual(obj.score[5], 6.0, 4)
 
         self.assertEqual(obj.indexA_aligned[0], 1)
         self.assertEqual(obj.indexA_aligned[5], 6)
@@ -105,7 +105,7 @@ class TestMSDIAlign(unittest.TestCase):
 
         self.assertEqual(len(obj.score), 12)
         self.assertEqual(obj.score[0], 0.0)
-        self.assertEqual(obj.score[11], 76.99906921386719)
+        self.assertAlmostEqual(obj.score[11], 76.99906921386719, 5)
 
         # Now A has a gap in the middle.
         self.assertEqual(obj.indexA_aligned[0], 0)
