@@ -77,6 +77,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// areaIntegrator
+double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx);
+RcppExport SEXP _DIAlignR_areaIntegrator(SEXP l1SEXP, SEXP leftIdxSEXP, SEXP rightIdxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< int >::type leftIdx(leftIdxSEXP);
+    Rcpp::traits::input_parameter< int >::type rightIdx(rightIdxSEXP);
+    rcpp_result_gen = Rcpp::wrap(areaIntegrator(l1, leftIdx, rightIdx));
+    return rcpp_result_gen;
+END_RCPP
+}
 // alignChromatogramsCpp
 S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType, const std::vector<double>& tA, const std::vector<double>& tB, std::string normalization, std::string simType, double B1p, double B2p, int noBeef, double goFactor, double geFactor, double cosAngleThresh, bool OverlapAlignment, double dotProdThresh, double gapQuantile, bool hardConstrain, double samples4gradient, int bandwidth);
 RcppExport SEXP _DIAlignR_alignChromatogramsCpp(SEXP l1SEXP, SEXP l2SEXP, SEXP alignTypeSEXP, SEXP tASEXP, SEXP tBSEXP, SEXP normalizationSEXP, SEXP simTypeSEXP, SEXP B1pSEXP, SEXP B2pSEXP, SEXP noBeefSEXP, SEXP goFactorSEXP, SEXP geFactorSEXP, SEXP cosAngleThreshSEXP, SEXP OverlapAlignmentSEXP, SEXP dotProdThreshSEXP, SEXP gapQuantileSEXP, SEXP hardConstrainSEXP, SEXP samples4gradientSEXP, SEXP bandwidthSEXP) {
@@ -140,6 +153,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_getGlobalAlignMaskCpp", (DL_FUNC) &_DIAlignR_getGlobalAlignMaskCpp, 6},
     {"_DIAlignR_constrainSimCpp", (DL_FUNC) &_DIAlignR_constrainSimCpp, 3},
     {"_DIAlignR_getBaseGapPenaltyCpp", (DL_FUNC) &_DIAlignR_getBaseGapPenaltyCpp, 3},
+    {"_DIAlignR_areaIntegrator", (DL_FUNC) &_DIAlignR_areaIntegrator, 3},
     {"_DIAlignR_alignChromatogramsCpp", (DL_FUNC) &_DIAlignR_alignChromatogramsCpp, 19},
     {"_DIAlignR_doAlignmentCpp", (DL_FUNC) &_DIAlignR_doAlignmentCpp, 3},
     {"_DIAlignR_doAffineAlignmentCpp", (DL_FUNC) &_DIAlignR_doAffineAlignmentCpp, 4},

@@ -156,6 +156,24 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
     .Call(`_DIAlignR_getBaseGapPenaltyCpp`, sim, SimType, gapQuantile)
 }
 
+#' Calculates area between signal-boundaries.
+#'
+#' This function sums all the intensities between left-index and right-index.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-03-08
+#' @param l1 (list) A list of vectors. All vectors must be of same length.
+#' @param leftIdx (numeric) Left index of the boundary.
+#' @param rightIdx (numeric) Right index of the boundary.
+#' @return area (numeric).
+#' @examples
+#' @export
+areaIntegrator <- function(l1, leftIdx, rightIdx) {
+    .Call(`_DIAlignR_areaIntegrator`, l1, leftIdx, rightIdx)
+}
+
 #' Aligns MS2 extracted-ion chromatograms(XICs) pair.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

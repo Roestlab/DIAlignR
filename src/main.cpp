@@ -7,6 +7,7 @@
 #include "affinealignobj.h"
 #include "affinealignment.h"
 #include "constrainMat.h"
+#include "integrateArea.h"
 using namespace Rcpp;
 using namespace DIAlign;
 
@@ -204,6 +205,27 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
   SimMatrix s = NumericMatrix2Vec(sim); // converting NumericMatrix to STL vector because of C++ compatibility.
   double gapPenalty = getGapPenalty(s, gapQuantile, SimType);
   return gapPenalty;
+}
+
+//' Calculates area between signal-boundaries.
+//'
+//' This function sums all the intensities between left-index and right-index.
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param l1 (list) A list of vectors. All vectors must be of same length.
+//' @param leftIdx (numeric) Left index of the boundary.
+//' @param rightIdx (numeric) Right index of the boundary.
+//' @return area (numeric).
+//' @examples
+//' @export
+// [[Rcpp::export]]
+double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx){
+  std::vector<std::vector<double> > vov = list2VecOfVec(l1);
+  double area = areaBwBoundaries(vov, leftIdx, rightIdx);
+  return area;
 }
 
 //' Aligns MS2 extracted-ion chromatograms(XICs) pair.
