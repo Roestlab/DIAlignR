@@ -13,17 +13,17 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
   alignObj.GapExten = gap;
   alignObj.s_data = s.data;
 
-  SimMatrix M;
+  SimMatrix M; // Matrix stores best cumulative score for the alignment of Ai to Bj.
   M.n_row = signalA_len+1;
   M.n_col = signalB_len+1;
   M.data.resize(M.n_row*M.n_col, 0.0);// get a NumericMatrix filled with zeros.
-  SimMatrix M_forw;
+  SimMatrix M_forw; // Matrix stores the sum of scores for the all possible alignment of Ai to Bj.
   M_forw.n_row = signalA_len+1;
   M_forw.n_col = signalB_len+1;
   M_forw.data.resize(M_forw.n_row*M_forw.n_col, 0.0);// get a NumericMatrix filled with zeros.
-  std::vector<TracebackType> Traceback;
+  std::vector<TracebackType> Traceback; // Stores the alignment path pointers (End -> Start) for matrix M.
   Traceback.resize((signalA_len+1)*(signalB_len+1), SS); // Fill Traceback matrix with SS.
-  std::vector<int> OptionalPaths;
+  std::vector<int> OptionalPaths; // Number of same-scored paths for the alignment of Ai to Bj.
   OptionalPaths.resize((signalA_len+1)*(signalB_len+1), 0);
   std::vector<int> nPathsM_forw; // To track number of all possible paths.
   nPathsM_forw.resize((signalA_len+1)*(signalB_len+1), 0);
