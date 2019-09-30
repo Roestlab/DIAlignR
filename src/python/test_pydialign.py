@@ -35,7 +35,7 @@ data = [
             700.00010
         ]
 # 6 vectors of length 7
-chromatograms = np.array(data*6*28).reshape(6, len(data)*28)
+chromatograms = np.array(data*6).reshape(6, len(data))
 
 data2 = [ 
             0.0,
@@ -52,7 +52,7 @@ data2 = [
             700.00010
         ]
 # 5 vectors of length 12
-chromatograms2 = np.array(data2*6*16).reshape(6, len(data2)*16)
+chromatograms2 = np.array(data2*6).reshape(6, len(data2))
 
 data = np.ascontiguousarray(data)
 data2 = np.ascontiguousarray(data2)
