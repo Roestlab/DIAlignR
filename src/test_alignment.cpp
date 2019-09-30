@@ -10,382 +10,385 @@
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 using namespace DIAlign;
 
-std::vector< std::vector< TracebackType > > assertThisTraceback(int caseNum){
-  std::vector< std::vector< TracebackType > > cmp_arr_Traceback;
-  std::vector<TracebackType> tmp_tb;
-  switch(caseNum){
-  case 1: {
-    tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, LM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, TM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    break;
+// Anonymous namespace: Only valid for this file.
+namespace {
+  std::vector< std::vector< TracebackType > > assertThisTraceback(int caseNum){
+    std::vector< std::vector< TracebackType > > cmp_arr_Traceback;
+    std::vector<TracebackType> tmp_tb;
+    switch(caseNum){
+    case 1: {
+      tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, LM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, TM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      break;
+    }
+    case 2:{
+      tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, LM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, TM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, TM, TM, DM, DM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
+      break;
+    }
+    case 3: {
+      tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      break;
+    }
+    case 4:{
+      tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
+      break;
+    }
+    }
+    return cmp_arr_Traceback;
   }
-  case 2:{
-    tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, LM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, TM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, TM, TM, DM, DM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
-    break;
+  std::vector< std::vector< double > > assertThisM(int caseNum){
+    std::vector< std::vector< double > > cmp_arr_M;
+    std::vector<double> tmp;
+    switch(caseNum){
+    case 1:{
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
+      tmp = {0, -2, -2, 10, -2, 10}; cmp_arr_M.push_back(tmp);
+      tmp = {0, 10, -4, -4, 8, -4}; cmp_arr_M.push_back(tmp);
+      tmp = {0, -2, 20, -2, -6, 6}; cmp_arr_M.push_back(tmp);
+      tmp = {0, -2, -2, 18, 8, -8}; cmp_arr_M.push_back(tmp);
+      break;
+    }
+    case 2:{
+      tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M.push_back(tmp);
+      tmp = {-22, -2, -24, -34, -56, -78}; cmp_arr_M.push_back(tmp);
+      tmp = {-44, -12, -4, -26, -36, -58}; cmp_arr_M.push_back(tmp);
+      tmp = {-66, -34, -2, -6, -28, -38}; cmp_arr_M.push_back(tmp);
+      tmp = {-88, -56, -24, -4, 4, -18}; cmp_arr_M.push_back(tmp);
+      break;
+    }
+    case 3:{
+      tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M.push_back(tmp);
+      tmp = {-22, 0, -22, -44, -66, -88}; cmp_arr_M.push_back(tmp);
+      tmp = {-44, -22, 0, -22, -44, -66}; cmp_arr_M.push_back(tmp);
+      tmp = {-66, -44, -22, 0, -22, -44}; cmp_arr_M.push_back(tmp);
+      tmp = {-88, -66, -44, -22, 0, -22}; cmp_arr_M.push_back(tmp);
+      break;
+    }
+    case 4:{
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
+      break;
+    }
+    }
+    return cmp_arr_M;
   }
-  case 3: {
-    tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    break;
+  // Following Path assertion for test_doAlignment ONLY.
+  std::vector< std::vector< bool > > assertThisPath(int caseNum){
+    std::vector< std::vector<bool> > cmp_arr_Path;
+    std::vector<bool> tmp_b;
+    switch(caseNum){
+    case 1:{
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    case 2:{
+      tmp_b = {false, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, false, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, false, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, false, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, false, false}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    case 3:{
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    case 4:{
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    }
+
+    return cmp_arr_Path;
   }
-  case 4:{
-    tmp_tb = {SS, LM, LM, LM, LM, LM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    tmp_tb = {TM, DM, DM, DM, DM, DM}; cmp_arr_Traceback.push_back(tmp_tb);
-    break;
+  // Following Path assertion for test_getAlignedIndices ONLY.
+  std::vector< std::vector< bool > > assertThisPath2(int caseNum){
+    std::vector< std::vector<bool> > cmp_arr_Path;
+    std::vector<bool> tmp_b;
+    switch(caseNum){
+    case 1:{
+      tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {1, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 1, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 1, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 1, 1, 1}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    case 2:{
+      tmp_b = {false, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, true, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, true, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, true, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, true, true}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    case 3:{
+      tmp_b = {0, 1, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 1, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 1, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 1, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 1}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    case 4:{
+      tmp_b = {0, 1, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 1, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 1, 0, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 1, 0}; cmp_arr_Path.push_back(tmp_b);
+      tmp_b = {0, 0, 0, 0, 0, 1}; cmp_arr_Path.push_back(tmp_b);
+      break;
+    }
+    }
+
+    return cmp_arr_Path;
   }
+  std::vector< std::vector< int > > assertThisOptionalPaths(int caseNum){
+    std::vector< std::vector<int> > cmp_arr_OptionalPaths;
+    std::vector<int> tmp_i;
+    switch(caseNum){
+    case 1:{
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      break;
+    }
+    case 2:{
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 2, 1, 1, 2}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 1, 3, 1, 2}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 1, 1, 4, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      break;
+    }
+    case 3:{
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 1, 2, 3, 4, 5}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 2, 1, 3, 6, 10}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 3, 3, 1, 4, 10}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 4, 6, 4, 1, 5}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      break;
+    }
+    case 4:{
+      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 3, 5, 7, 9, 11}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 5, 13, 25, 41, 61}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 7, 25, 63, 129, 231}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      tmp_i = {1, 9, 41, 129, 321, 681}; cmp_arr_OptionalPaths.push_back(tmp_i);
+      break;
+    }
+    }
+    return cmp_arr_OptionalPaths;
   }
-  return cmp_arr_Traceback;
-}
-std::vector< std::vector< double > > assertThisM(int caseNum){
-  std::vector< std::vector< double > > cmp_arr_M;
-  std::vector<double> tmp;
-  switch(caseNum){
-  case 1:{
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
-    tmp = {0, -2, -2, 10, -2, 10}; cmp_arr_M.push_back(tmp);
-    tmp = {0, 10, -4, -4, 8, -4}; cmp_arr_M.push_back(tmp);
-    tmp = {0, -2, 20, -2, -6, 6}; cmp_arr_M.push_back(tmp);
-    tmp = {0, -2, -2, 18, 8, -8}; cmp_arr_M.push_back(tmp);
-    break;
+  std::vector< std::vector< double > > assertThisM_forw(int caseNum){
+    std::vector< std::vector< double > > cmp_arr_M_forw;
+    std::vector<double> tmp;
+    switch(caseNum){
+    case 1:{
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, -46, -136, -258, -436, -646}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, -124, -532, -1376, -2832, -5076}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, -258, -1304, -4338, -10884, -23054}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, -436, -2760, -10740, -31008, -77348}; cmp_arr_M_forw.push_back(tmp);
+      break;
+    }
+    case 2:{
+      tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-22, -90, -246, -478, -810, -1218}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-44, -234, -796, -1970, -4020, -7210}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-66, -478, -1898, -5790, -14118, -29610}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-88, -810, -3948, -13974, -38928, -95058}; cmp_arr_M_forw.push_back(tmp);
+      break;
+    }
+    case 3:{
+      tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-22, -88, -242, -484, -814, -1232}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-44, -242, -792, -1958, -4004, -7194}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-66, -484, -1958, -5808, -14058, -29436}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {-88, -814, -4004, -14058, -39600, -95238}; cmp_arr_M_forw.push_back(tmp);
+      break;
+    }
+    case 4:{
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
+      tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
+      break;
+    }
+    }
+    return cmp_arr_M_forw;
   }
-  case 2:{
-    tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M.push_back(tmp);
-    tmp = {-22, -2, -24, -34, -56, -78}; cmp_arr_M.push_back(tmp);
-    tmp = {-44, -12, -4, -26, -36, -58}; cmp_arr_M.push_back(tmp);
-    tmp = {-66, -34, -2, -6, -28, -38}; cmp_arr_M.push_back(tmp);
-    tmp = {-88, -56, -24, -4, 4, -18}; cmp_arr_M.push_back(tmp);
-    break;
+  bool assertThisFreeEndGaps(int caseNum){
+    bool tmp;
+    switch(caseNum){
+    case 1:
+    case 4: {
+      tmp = true;
+      break;
+    }
+    case 2:
+    case 3: {
+      tmp = false;
+      break;
+    }
+    }
+    return tmp;
   }
-  case 3:{
-    tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M.push_back(tmp);
-    tmp = {-22, 0, -22, -44, -66, -88}; cmp_arr_M.push_back(tmp);
-    tmp = {-44, -22, 0, -22, -44, -66}; cmp_arr_M.push_back(tmp);
-    tmp = {-66, -44, -22, 0, -22, -44}; cmp_arr_M.push_back(tmp);
-    tmp = {-88, -66, -44, -22, 0, -22}; cmp_arr_M.push_back(tmp);
-    break;
+  double assertThisGap(int caseNum){
+    double tmp;
+    switch(caseNum){
+    case 1:
+    case 2:
+    case 3:{
+      tmp = 22.0;
+      break;
+    }
+    case 4: {
+      tmp = 0.0;
+      break;
+    }
+    }
+    return tmp;
   }
-  case 4:{
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M.push_back(tmp);
-    break;
+  std::vector<int> assertThisindexA_aligned(int caseNum){
+    std::vector<int> tmp;
+    switch(caseNum){
+    case 1:{
+      tmp = {1, 2, 3, 4, 0, 0};
+      break;
+    }
+    case 2:{
+      tmp = {1, 2, 3, 4, 0};
+      break;
+    }
+    case 3:{
+      tmp = {0, 1, 2, 3, 4};
+      break;
+    }
+    case 4: {
+      tmp = {0, 1, 2, 3, 4};
+      break;
+    }
+    }
+    return tmp;
   }
+  std::vector<int> assertThisindexB_aligned(int caseNum){
+    std::vector<int> tmp;
+    switch(caseNum){
+    case 1:{
+      tmp = {0, 1, 2, 3, 4, 5};
+      break;
+    }
+    case 2:{
+      tmp = {1, 2, 3, 4, 5};
+      break;
+    }
+    case 3:{
+      tmp = {1, 2, 3, 4, 5};
+      break;
+    }
+    case 4: {
+      tmp = {1, 2, 3, 4, 5};
+      break;
+    }
+    }
+    return tmp;
   }
-  return cmp_arr_M;
-}
-// Following Path assertion for test_doAlignment ONLY.
-std::vector< std::vector< bool > > assertThisPath(int caseNum){
-  std::vector< std::vector<bool> > cmp_arr_Path;
-  std::vector<bool> tmp_b;
-  switch(caseNum){
-  case 1:{
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    break;
+  std::vector<double> assertThisscore(int caseNum){
+    std::vector<double> tmp;
+    switch(caseNum){
+    case 1:{
+      tmp = {0, 10, 20, 18, 18, 18};
+      break;
+    }
+    case 2:{
+      tmp = {-2.0, -4.0, -6.0, 4.0, -18};
+      break;
+    }
+    case 3:{
+      tmp = {-22.0, -22.0, -22.0, -22.0, -22.0};
+      break;
+    }
+    case 4: {
+      tmp = {0.0, 0.0, 0.0, 0.0, 0.0};
+      break;
+    }
+    }
+    return tmp;
   }
-  case 2:{
-    tmp_b = {false, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, false, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, false, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, false, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, false, false}; cmp_arr_Path.push_back(tmp_b);
-    break;
-  }
-  case 3:{
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    break;
-  }
-  case 4:{
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    break;
-  }
+  double assertThisscore_forw(int caseNum){
+    double tmp;
+    switch(caseNum){
+    case 1:{
+      tmp = -10740.0;
+      break;
+    }
+    case 2:{
+      tmp = -95058.0;
+      break;
+    }
+    case 3:{
+      tmp = -95238.0;
+      break;
+    }
+    case 4: {
+      tmp = 0.0;
+      break;
+    }
+    }
+    return tmp;
   }
 
-  return cmp_arr_Path;
-}
-// Following Path assertion for test_getAlignedIndices ONLY.
-std::vector< std::vector< bool > > assertThisPath2(int caseNum){
-  std::vector< std::vector<bool> > cmp_arr_Path;
-  std::vector<bool> tmp_b;
-  switch(caseNum){
-  case 1:{
-    tmp_b = {0, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {1, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 1, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 1, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 1, 1, 1}; cmp_arr_Path.push_back(tmp_b);
-    break;
+  template<class T>
+  std::vector<T> vov2v(std::vector< std::vector< T > > vov){
+    std::vector<T> vec;
+    for (const auto& v : vov) vec.insert(vec.end(), v.begin(), v.end());
+    return vec;
   }
-  case 2:{
-    tmp_b = {false, 0, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, true, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, true, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, true, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, true, true}; cmp_arr_Path.push_back(tmp_b);
-    break;
+  void fillAlignObj(AlignObj& obj, int caseNum){
+    obj.Traceback = vov2v(assertThisTraceback(caseNum));
+    obj.M = vov2v(assertThisM(caseNum));
+    obj.Path = vov2v(assertThisPath(caseNum));
+    obj.OptionalPaths = vov2v(assertThisOptionalPaths(caseNum));
+    obj.M_forw = vov2v(assertThisM_forw(caseNum));
+    obj.signalA_len = 4;
+    obj.signalB_len = 5;
+    obj.GapOpen = assertThisGap(caseNum);
+    obj.GapExten = assertThisGap(caseNum);
+    obj.FreeEndGaps = assertThisFreeEndGaps(caseNum);
   }
-  case 3:{
-    tmp_b = {0, 1, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 1, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 1, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 1, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 1}; cmp_arr_Path.push_back(tmp_b);
-    break;
-  }
-  case 4:{
-    tmp_b = {0, 1, 0, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 1, 0, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 1, 0, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 1, 0}; cmp_arr_Path.push_back(tmp_b);
-    tmp_b = {0, 0, 0, 0, 0, 1}; cmp_arr_Path.push_back(tmp_b);
-    break;
-  }
-  }
-
-  return cmp_arr_Path;
-}
-std::vector< std::vector< int > > assertThisOptionalPaths(int caseNum){
-  std::vector< std::vector<int> > cmp_arr_OptionalPaths;
-  std::vector<int> tmp_i;
-  switch(caseNum){
-  case 1:{
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    break;
-  }
-  case 2:{
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 2, 1, 1, 2}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 1, 3, 1, 2}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 1, 1, 4, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    break;
-  }
-  case 3:{
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 1, 2, 3, 4, 5}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 2, 1, 3, 6, 10}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 3, 3, 1, 4, 10}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 4, 6, 4, 1, 5}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    break;
-  }
-  case 4:{
-    tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 3, 5, 7, 9, 11}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 5, 13, 25, 41, 61}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 7, 25, 63, 129, 231}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    tmp_i = {1, 9, 41, 129, 321, 681}; cmp_arr_OptionalPaths.push_back(tmp_i);
-    break;
-  }
-  }
-  return cmp_arr_OptionalPaths;
-}
-std::vector< std::vector< double > > assertThisM_forw(int caseNum){
-  std::vector< std::vector< double > > cmp_arr_M_forw;
-  std::vector<double> tmp;
-  switch(caseNum){
-  case 1:{
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, -46, -136, -258, -436, -646}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, -124, -532, -1376, -2832, -5076}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, -258, -1304, -4338, -10884, -23054}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, -436, -2760, -10740, -31008, -77348}; cmp_arr_M_forw.push_back(tmp);
-    break;
-  }
-  case 2:{
-    tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-22, -90, -246, -478, -810, -1218}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-44, -234, -796, -1970, -4020, -7210}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-66, -478, -1898, -5790, -14118, -29610}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-88, -810, -3948, -13974, -38928, -95058}; cmp_arr_M_forw.push_back(tmp);
-    break;
-  }
-  case 3:{
-    tmp = {0, -22, -44, -66, -88, -110}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-22, -88, -242, -484, -814, -1232}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-44, -242, -792, -1958, -4004, -7194}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-66, -484, -1958, -5808, -14058, -29436}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {-88, -814, -4004, -14058, -39600, -95238}; cmp_arr_M_forw.push_back(tmp);
-    break;
-  }
-  case 4:{
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-    tmp = {0, 0, 0, 0, 0, 0}; cmp_arr_M_forw.push_back(tmp);
-    break;
-  }
-  }
-  return cmp_arr_M_forw;
-}
-bool assertThisFreeEndGaps(int caseNum){
-  bool tmp;
-  switch(caseNum){
-  case 1:
-  case 4: {
-    tmp = true;
-    break;
-  }
-  case 2:
-  case 3: {
-    tmp = false;
-    break;
-  }
-  }
-  return tmp;
-}
-double assertThisGap(int caseNum){
-  double tmp;
-  switch(caseNum){
-  case 1:
-  case 2:
-  case 3:{
-    tmp = 22.0;
-    break;
-  }
-  case 4: {
-    tmp = 0.0;
-    break;
-  }
-  }
-  return tmp;
-}
-std::vector<int> assertThisindexA_aligned(int caseNum){
-  std::vector<int> tmp;
-  switch(caseNum){
-  case 1:{
-    tmp = {1, 2, 3, 4, 0, 0};
-    break;
-  }
-  case 2:{
-    tmp = {1, 2, 3, 4, 0};
-    break;
-  }
-  case 3:{
-    tmp = {0, 1, 2, 3, 4};
-    break;
-  }
-  case 4: {
-    tmp = {0, 1, 2, 3, 4};
-    break;
-  }
-  }
-  return tmp;
-}
-std::vector<int> assertThisindexB_aligned(int caseNum){
-  std::vector<int> tmp;
-  switch(caseNum){
-  case 1:{
-    tmp = {0, 1, 2, 3, 4, 5};
-    break;
-  }
-  case 2:{
-    tmp = {1, 2, 3, 4, 5};
-    break;
-  }
-  case 3:{
-    tmp = {1, 2, 3, 4, 5};
-    break;
-  }
-  case 4: {
-    tmp = {1, 2, 3, 4, 5};
-    break;
-  }
-  }
-  return tmp;
-}
-std::vector<double> assertThisscore(int caseNum){
-  std::vector<double> tmp;
-  switch(caseNum){
-  case 1:{
-    tmp = {0, 10, 20, 18, 18, 18};
-    break;
-  }
-  case 2:{
-    tmp = {-2.0, -4.0, -6.0, 4.0, -18};
-    break;
-  }
-  case 3:{
-    tmp = {-22.0, -22.0, -22.0, -22.0, -22.0};
-    break;
-  }
-  case 4: {
-    tmp = {0.0, 0.0, 0.0, 0.0, 0.0};
-    break;
-  }
-  }
-  return tmp;
-}
-double assertThisscore_forw(int caseNum){
-  double tmp;
-  switch(caseNum){
-  case 1:{
-    tmp = -10740.0;
-    break;
-  }
-  case 2:{
-    tmp = -95058.0;
-    break;
-  }
-  case 3:{
-    tmp = -95238.0;
-    break;
-  }
-  case 4: {
-    tmp = 0.0;
-    break;
-  }
-  }
-  return tmp;
-}
-
-template<class T>
-std::vector<T> vov2v(std::vector< std::vector< T > > vov){
-  std::vector<T> vec;
-  for (const auto& v : vov) vec.insert(vec.end(), v.begin(), v.end());
-  return vec;
-}
-void fillAlignObj(AlignObj& obj, int caseNum){
-  obj.Traceback = vov2v(assertThisTraceback(caseNum));
-  obj.M = vov2v(assertThisM(caseNum));
-  obj.Path = vov2v(assertThisPath(caseNum));
-  obj.OptionalPaths = vov2v(assertThisOptionalPaths(caseNum));
-  obj.M_forw = vov2v(assertThisM_forw(caseNum));
-  obj.signalA_len = 4;
-  obj.signalB_len = 5;
-  obj.GapOpen = assertThisGap(caseNum);
-  obj.GapExten = assertThisGap(caseNum);
-  obj.FreeEndGaps = assertThisFreeEndGaps(caseNum);
 }
 
 void test_doAlignment_cases(AlignObj obj, int caseNum){
