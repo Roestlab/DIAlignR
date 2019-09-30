@@ -25,43 +25,48 @@ import numpy as np
 
 import DIAlignPy as PyDIAlign
 
+data = [ 
+            100.0,
+            200.0,
+            300.00005,
+            400.00010,
+            450.00010,
+            455.00010,
+            700.00010
+        ]
+# 6 vectors of length 7
+chromatograms = np.array(data*6*28).reshape(6, len(data)*28)
+
+data2 = [ 
+            0.0,
+            0.0,
+            0.0,
+            100.0,
+            200.0,
+            300.00005,
+            400.00010,
+            450.00010,
+            100.0,
+            100.0,
+            455.00010,
+            700.00010
+        ]
+# 5 vectors of length 12
+chromatograms2 = np.array(data2*6*16).reshape(6, len(data2)*16)
+
+data = np.ascontiguousarray(data)
+data2 = np.ascontiguousarray(data2)
+chromatograms = np.ascontiguousarray(chromatograms)
+chromatograms2 = np.ascontiguousarray(chromatograms2)
+
 class TestMSDIAlign(unittest.TestCase):
 
     def setUp(self):
 
-        self.data = [ 
-            100.0,
-            200.0,
-            300.00005,
-            400.00010,
-            450.00010,
-            455.00010,
-            700.00010
-        ]
-        # 6 vectors of length 7
-        self.chromatograms = np.array(self.data*6).reshape(6, len(self.data))
-
-        self.data2 = [ 
-            0.0,
-            0.0,
-            0.0,
-            100.0,
-            200.0,
-            300.00005,
-            400.00010,
-            450.00010,
-            100.0,
-            100.0,
-            455.00010,
-            700.00010
-        ]
-        # 6 vectors of length 12
-        self.chromatograms2 = np.array(self.data2*6).reshape(6, len(self.data2))
-
-        self.data = np.ascontiguousarray(self.data)
-        self.data2 = np.ascontiguousarray(self.data2)
-        self.chromatograms = np.ascontiguousarray(self.chromatograms)
-        self.chromatograms2 = np.ascontiguousarray(self.chromatograms2)
+        self.data = data
+        self.data2 = data2
+        self.chromatograms = chromatograms
+        self.chromatograms2 = chromatograms2
 
     def test_affineAlignObj(self):
         obj = PyDIAlign.AffineAlignObj(0,0)
@@ -120,7 +125,6 @@ class TestMSDIAlign(unittest.TestCase):
         self.assertEqual(obj.indexB_aligned[0], 1)
         self.assertEqual(obj.indexB_aligned[5], 6)
         self.assertEqual(obj.indexB_aligned[11], 12)
-
 
 if __name__ == '__main__':
     unittest.main()
