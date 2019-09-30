@@ -25,7 +25,8 @@ FACTOR = 16 # length 192
 FACTOR = 32 # length 384
 FACTOR = 128 # length 1536
 FACTOR = 256 # length 3072
-# FACTOR = 512 # length 6144
+FACTOR = 512 # length 6144
+FACTOR = 16 # length 192
 
 data = [ 
             100.0,

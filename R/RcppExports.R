@@ -156,6 +156,24 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
     .Call(`_DIAlignR_getBaseGapPenaltyCpp`, sim, SimType, gapQuantile)
 }
 
+#' Calculates area between signal-boundaries.
+#'
+#' This function sums all the intensities between left-index and right-index.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-03-08
+#' @param l1 (list) A list of vectors. All vectors must be of same length.
+#' @param leftIdx (numeric) Left index of the boundary.
+#' @param rightIdx (numeric) Right index of the boundary.
+#' @return area (numeric).
+#' @examples
+#' @export
+areaIntegrator <- function(l1, leftIdx, rightIdx) {
+    .Call(`_DIAlignR_areaIntegrator`, l1, leftIdx, rightIdx)
+}
+
 #' Aligns MS2 extracted-ion chromatograms(XICs) pair.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -197,8 +215,8 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
 #' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
 #' @export
-alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0) {
-    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
+alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, bandwidth = 9L) {
+    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, bandwidth)
 }
 
 #' Perform non-affine global and overlap alignment on a similarity matrix
@@ -220,6 +238,15 @@ alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simT
 #' obj_Global@score # -2 -4 -6 4 -18
 #' obj_Olap <- doAlignmentCpp(s, 22, TRUE)
 #' obj_Olap@score # 0 10 20 18 18 18
+#'
+#' Match=1; MisMatch=-1
+#' seq1 = "TTTC"; seq2 = "TGC"
+#' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+#' obj_Global <- doAlignmentCpp(s, 2, FALSE)
+#' obj_Global@optionalPaths
+#' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
+#' obj_Global@M_forw
+#' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274), nrow = 5, ncol =4, byrow = TRUE)
 #' @export
 doAlignmentCpp <- function(sim, gap, OverlapAlignment) {
     .Call(`_DIAlignR_doAlignmentCpp`, sim, gap, OverlapAlignment)
@@ -246,12 +273,30 @@ doAlignmentCpp <- function(sim, gap, OverlapAlignment) {
 #' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 #' objAffine_Olap@score # 0 10 20 18 18 18
 #'
+#' Match=10; MisMatch=-2
 #' seq1 = "CAT"; seq2 = "CAGTG"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 #' objAffine_Global@score # 10  20  -2  -9 -11
+#' objAffine_Global@optionalPaths
+#' matrix(data = c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2), nrow = 4, ncol =6, byrow = TRUE)
 #' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 #' objAffine_Olap@score # 10 20 18 18 18
+#'
+#' Match=1; MisMatch=-1
+#' seq1 = "TTTC"; seq2 = "TGC"
+#' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+#' objAffine_Global <- doAffineAlignmentCpp(s, 2, 2, FALSE)
+#' objAffine_Global@optionalPaths
+#' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
+#' objAffine_Global@M_forw
+#' matrix(data = c(0,-Inf,-Inf,-Inf,-Inf,1,-3,-5,-Inf,-1,-10,-27,-Inf,-3,-25,-81,-Inf,-7,-49,-160), nrow = 5, ncol =4, byrow = TRUE)
+#'
+#' Match=10; MisMatch=-2
+#' seq1 = "CA"; seq2 = "AG"
+#' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+#' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
+#' objAffine_Global@score_forw # -706
 #' @export
 doAffineAlignmentCpp <- function(sim, go, ge, OverlapAlignment) {
     .Call(`_DIAlignR_doAffineAlignmentCpp`, sim, go, ge, OverlapAlignment)

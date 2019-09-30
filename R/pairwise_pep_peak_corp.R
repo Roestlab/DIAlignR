@@ -50,7 +50,7 @@ getPepPeakCorp <- function(featureTable, pairName, XICs.A=NULL, XICs.B=NULL, ali
       print("oswFeatureList can't be NULL for non-local alignment")
     }
     # In finding global fit, peptides are removed while training the fit.
-    Loess.fit <- getLOESSfit(pairName, peptides, oswFeatureList, spanvalue)
+    Loess.fit <- getLOESSfit(oswFeatureList[[run_pair[1]]], oswFeatureList[[run_pair[2]]], peptides, spanvalue)
     rse <- Loess.fit$s # Residual Standard Error
   }
   for(peptide in peptides){
@@ -124,7 +124,8 @@ getAlignedObj <- function(peptide, pairName, XICs.A=NULL, XICs.B=NULL, alignType
                            goFactor = 0.125, geFactor = 40,
                            cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
                            hardConstrain = FALSE, samples4gradient = 100,
-                           expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5
+                           expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5,
+                          forwSimBw = 9
 ){
   if(alignType == "global"){
     print("AlignObj can only be returned for local and hybrid alignment.")
@@ -135,7 +136,7 @@ getAlignedObj <- function(peptide, pairName, XICs.A=NULL, XICs.B=NULL, alignType
         print("oswFeatureList can't be NULL for non-local alignment")
       }
       # In finding global fit, peptides are removed while training the fit.
-      Loess.fit <- getLOESSfit(pairName, peptide, oswFeatureList, spanvalue)
+      getLOESSfit(oswFeatureList[[run_pair[1]]], oswFeatureList[[run_pair[2]]], peptides, spanvalue)
       rse <- Loess.fit$s # Residual Standard Error
     }
     intensityListA <- lapply(XICs.A[[peptide]], `[[`, 2) # Extracting intensity values
@@ -148,11 +149,11 @@ getAlignedObj <- function(peptide, pairName, XICs.A=NULL, XICs.B=NULL, alignType
       B2p <- predict(Loess.fit, tAVec[length(tAVec)])
       Alignobj <- alignChromatogramsCpp(intensityListA, intensityListB, alignType,
                                         tAVec, tBVec, normalization, simMeasure,
-                                        B1p, B2p, noBeef)
+                                        B1p, B2p, noBeef, bandwidth = forwSimBw)
     }
     else{
       Alignobj <- alignChromatogramsCpp(intensityListA, intensityListB, alignType,
-                                        tAVec, tBVec, normalization, simMeasure)
+                                        tAVec, tBVec, normalization, simMeasure, bandwidth = forwSimBw)
     }
     return(Alignobj)
   }

@@ -68,5 +68,5 @@ cdef extern from "CppInterface.hpp" namespace "DIAlign":
                                 double dotProdThresh,
                                 double gapQuantile,
                                 bool hardConstrain,
-                                double samples4gradient)
+                                double samples4gradient) nogil except +
 

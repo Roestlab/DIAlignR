@@ -7,6 +7,7 @@
 #include "affinealignobj.h"
 #include "affinealignment.h"
 #include "constrainMat.h"
+#include "integrateArea.h"
 using namespace Rcpp;
 using namespace DIAlign;
 
@@ -206,6 +207,27 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
   return gapPenalty;
 }
 
+//' Calculates area between signal-boundaries.
+//'
+//' This function sums all the intensities between left-index and right-index.
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param l1 (list) A list of vectors. All vectors must be of same length.
+//' @param leftIdx (numeric) Left index of the boundary.
+//' @param rightIdx (numeric) Right index of the boundary.
+//' @return area (numeric).
+//' @examples
+//' @export
+// [[Rcpp::export]]
+double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx){
+  std::vector<std::vector<double> > vov = list2VecOfVec(l1);
+  double area = areaBwBoundaries(vov, leftIdx, rightIdx);
+  return area;
+}
+
 //' Aligns MS2 extracted-ion chromatograms(XICs) pair.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -255,7 +277,8 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             double goFactor = 0.125, double geFactor = 40,
                             double cosAngleThresh = 0.3, bool OverlapAlignment = true,
                             double dotProdThresh = 0.96, double gapQuantile = 0.5,
-                            bool hardConstrain = false, double samples4gradient = 100.0){
+                            bool hardConstrain = false, double samples4gradient = 100.0,
+                            int bandwidth = 9){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
   SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
@@ -274,7 +297,8 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   }
   AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
   doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
-  getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
+  getAffineAlignedIndices(obj, bandwidth); // Performs traceback and fills aligned indices in AffineAlignObj struct
+  obj.simScore_forw = getForwardSim(s, obj.simPath);
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
   x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
@@ -283,7 +307,11 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("B")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.B));
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
-  x.slot("path") = NumericMatrix(s.n_col+1, s.n_row+1, obj.Path);
+  x.slot("path") = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.Path));
+  x.slot("optionalPaths") = NumericMatrix(s.n_col+1, s.n_row+1, obj.optionalPaths);
+  x.slot("M_forw")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.M_forw));
+  x.slot("A_forw")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.A_forw));
+  x.slot("B_forw")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.B_forw));
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -292,6 +320,9 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
+  x.slot("score_forw") = obj.score_forw;
+  x.slot("simScore_forw") = obj.simScore_forw;
+  x.slot("nGaps") = obj.nGaps;
   return(x);
 }
 
@@ -314,6 +345,15 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
 //' obj_Global@score # -2 -4 -6 4 -18
 //' obj_Olap <- doAlignmentCpp(s, 22, TRUE)
 //' obj_Olap@score # 0 10 20 18 18 18
+//'
+//' Match=1; MisMatch=-1
+//' seq1 = "TTTC"; seq2 = "TGC"
+//' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+//' obj_Global <- doAlignmentCpp(s, 2, FALSE)
+//' obj_Global@optionalPaths
+//' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
+//' obj_Global@M_forw
+//' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274), nrow = 5, ncol =4, byrow = TRUE)
 //' @export
 // [[Rcpp::export]]
 S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
@@ -329,6 +369,8 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   x.slot("M") = Vec2NumericMatrix(obj.M, signalA_len+1, signalB_len+1);
   x.slot("Traceback") = Vec2NumericMatrix(EnumToChar(obj.Traceback), signalA_len+1, signalB_len+1);
   x.slot("path") = Vec2NumericMatrix(obj.Path, signalA_len+1, signalB_len+1);
+  x.slot("optionalPaths") = Vec2NumericMatrix(obj.OptionalPaths, signalA_len+1, signalB_len+1);
+  x.slot("M_forw") = Vec2NumericMatrix(obj.M_forw, signalA_len+1, signalB_len+1);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -337,6 +379,8 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
+  x.slot("score_forw") = obj.score_forw;
+  x.slot("nGaps") = obj.nGaps;
   return(x);
 }
 
@@ -362,12 +406,30 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
 //' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 //' objAffine_Olap@score # 0 10 20 18 18 18
 //'
+//' Match=10; MisMatch=-2
 //' seq1 = "CAT"; seq2 = "CAGTG"
 //' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 //' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 //' objAffine_Global@score # 10  20  -2  -9 -11
+//' objAffine_Global@optionalPaths
+//' matrix(data = c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2), nrow = 4, ncol =6, byrow = TRUE)
 //' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 //' objAffine_Olap@score # 10 20 18 18 18
+//'
+//' Match=1; MisMatch=-1
+//' seq1 = "TTTC"; seq2 = "TGC"
+//' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+//' objAffine_Global <- doAffineAlignmentCpp(s, 2, 2, FALSE)
+//' objAffine_Global@optionalPaths
+//' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
+//' objAffine_Global@M_forw
+//' matrix(data = c(0,-Inf,-Inf,-Inf,-Inf,1,-3,-5,-Inf,-1,-10,-27,-Inf,-3,-25,-81,-Inf,-7,-49,-160), nrow = 5, ncol =4, byrow = TRUE)
+//'
+//' Match=10; MisMatch=-2
+//' seq1 = "CA"; seq2 = "AG"
+//' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
+//' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
+//' objAffine_Global@score_forw # -706
 //' @export
 // [[Rcpp::export]]
 S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAlignment){
@@ -377,6 +439,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   SimMatrix s = NumericMatrix2Vec(sim);
   doAffineAlignment(obj, s, go, ge, OverlapAlignment);  // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
+  obj.simScore_forw = getForwardSim(s, obj.simPath);
   S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
   // Copying values to slots
   x.slot("s") = sim;
@@ -385,7 +448,11 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("B") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.B));
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(signalB_len+1) *(signalA_len+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
-  x.slot("path") = transpose(NumericMatrix( signalB_len+1, signalA_len+1, obj.Path));
+  x.slot("path") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.Path));
+  x.slot("optionalPaths") = transpose(NumericMatrix( signalB_len+1, signalA_len+1, obj.optionalPaths));
+  x.slot("M_forw") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.M_forw));
+  x.slot("A_forw") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.A_forw));
+  x.slot("B_forw") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.B_forw));
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -394,6 +461,9 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   x.slot("indexA_aligned") = obj.indexA_aligned;
   x.slot("indexB_aligned") = obj.indexB_aligned;
   x.slot("score") = obj.score;
+  x.slot("score_forw") = obj.score_forw;
+  x.slot("simScore_forw") = obj.simScore_forw;
+  x.slot("nGaps") = obj.nGaps;
   return(x);
 }
 
