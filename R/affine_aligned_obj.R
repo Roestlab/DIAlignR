@@ -6,12 +6,11 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
                    representation(s = "matrix", M = "matrix", A = "matrix", B = "matrix",
                                   Traceback = "matrix",
                                   path = "matrix", optionalPaths = "matrix",
-                                  M_forw = "matrix", A_forw = "matrix", B_forw = "matrix",
                                   signalA_len = "numeric", signalB_len = "numeric",
                                   GapOpen = "numeric", GapExten = "numeric",
                                   FreeEndGaps = "logical",
                                   indexA_aligned = "numeric", indexB_aligned = "numeric",
-                                  score = "numeric", score_forw = "numeric", simScore_forw = "numeric",
+                                  score = "numeric", simScore_forw = "numeric",
                                   nGaps = "numeric")
                    )
 

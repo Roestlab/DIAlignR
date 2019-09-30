@@ -52,10 +52,8 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
   for(int i = 0; i<=signalA_len; i++){
     // Aligning ith character of signal A with 0th character of signal B without a gap. Not possible, hence, First column of M is initialized with -Inf.
     affineAlignObj.M[i*(signalB_len+1)+0] = -Inf;
-    affineAlignObj.M_forw[i*(signalB_len+1)+0] = -Inf;
     // Score of the best alignment between ith character of A and 0th character of B that introduces a gap in A. Not possible, hence, First column of B is initialized with -Inf.
     affineAlignObj.B[i*(signalB_len+1)+0] = -Inf;
-    affineAlignObj.B_forw[i*(signalB_len+1)+0] = -Inf;
     // It is impossible for traceback to reach the cells modified above, however, STOP alignment if it happens.
     affineAlignObj.Traceback[Traceback_M_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = SS; //STOP
     affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1)) + i*(signalB_len+1)+0] = SS; //STOP
@@ -66,10 +64,8 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
   for(int j = 0; j<=signalB_len; j++){
     // Aligning 0th character of signal A with jth character of signal B without a gap. Not possible, hence, First row of M is initialized with -Inf.
     affineAlignObj.M[0*(signalB_len+1)+j] = -Inf;
-    affineAlignObj.M_forw[0*(signalB_len+1)+j] = -Inf;
     // Score of the best alignment between 0th character of A and jth character of B that results a gap in B. Not possible, hence, First row of A is initialized with -Inf.
     affineAlignObj.A[0*(signalB_len+1)+j] = -Inf;
-    affineAlignObj.A_forw[0*(signalB_len+1)+j] = -Inf;
     // It is impossible for traceback to reach the cells modified above, however, STOP alignment if it happens.
     affineAlignObj.Traceback[Traceback_M_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = SS; //STOP
     affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = SS; //STOP
@@ -79,7 +75,6 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     }
   affineAlignObj.M[0*(signalB_len+1)+0] = 0; // Match state (0,0) should have zero to begin the alignment.
   oPathsM[0*(signalB_len+1)+0] = 1;
-  affineAlignObj.M_forw[0*(signalB_len+1)+0] = 0;
 
   // Fill up remaining cells of first row and first column for global and overlap alignment.
   if(affineAlignObj.FreeEndGaps == true){
@@ -89,7 +84,6 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     // Hence Traceback_matrix_A should have TA for these cells, except for Traceback_matrix_A(1,0). This cell indicates first gap and is reached from M(0,0).
     for(int i = 1; i<=signalA_len; i++){
       affineAlignObj.A[i*(signalB_len+1) + 0] = 0;
-      affineAlignObj.A_forw[i*(signalB_len+1) + 0] = 0;
       affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
       oPathsA[i*(signalB_len+1) + 0] = 1;
       }
@@ -100,7 +94,6 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     // Hence Traceback_matrix_B should have LB for these cells, except for Traceback_matrix_B(0,1). This cell indicates first gap and is reached from M(0,0).
     for(int j = 1; j<=signalB_len; j++){
       affineAlignObj.B[0*(signalB_len+1)+j] = 0;
-      affineAlignObj.B_forw[0*(signalB_len+1)+j] = 0;
       affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
       oPathsB[0*(signalB_len+1)+j] = 1;
       }
@@ -113,7 +106,6 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     // Hence Traceback_matrix_A should have TA for these cells.
     for(int i = 1; i<=signalA_len; i++){
       affineAlignObj.A[i*(signalB_len+1) + 0] = -(i-1)*ge - go;
-      affineAlignObj.A_forw[i*(signalB_len+1) + 0] = -(i-1)*ge - go;
       affineAlignObj.Traceback[Traceback_A_index*((signalA_len+1)*(signalB_len+1))+ i*(signalB_len+1)+0] = TA; //TOP A
       oPathsA[i*(signalB_len+1) + 0] = 1;
       }
@@ -124,7 +116,6 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
     // Hence Traceback_matrix_B should have LB for these cells.
     for(int j = 1; j<=signalB_len; j++){
       affineAlignObj.B[0*(signalB_len+1)+j] = -(j-1)*ge - go;
-      affineAlignObj.B_forw[0*(signalB_len+1)+j] = -(j-1)*ge - go;
       affineAlignObj.Traceback[Traceback_B_index*((signalA_len+1)*(signalB_len+1))+ 0*(signalB_len+1)+j] = LB; //LEFT B
       oPathsB[0*(signalB_len+1)+j] = 1;
       }
@@ -228,63 +219,6 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       affineAlignObj.optionalPaths[i*(signalB_len+1) + j] = optimalPathCntr;
       }
     }
-
-  // Forward algorithm. Incorrect
-  /*
-  int nPathsM_forw[(signalA_len+1)*(signalB_len+1)];
-  std::memset(nPathsM_forw, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
-  int nPathsA_forw[(signalA_len+1)*(signalB_len+1)];
-  std::memset(nPathsA_forw, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
-  int nPathsB_forw[(signalA_len+1)*(signalB_len+1)];
-  std::memset(nPathsB_forw, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
-
-  affineAlignObj.M_forw[1*(signalB_len+1)+1] = affineAlignObj.M_forw[0] + s.data[0];
-  nPathsM_forw[1*(signalB_len+1)+1] = 1;
-  affineAlignObj.A_forw[1*(signalB_len+1)+1] = affineAlignObj.B_forw[0*(signalB_len+1)+1] - go;
-  nPathsA_forw[1*(signalB_len+1)+1] = 1;
-  affineAlignObj.B_forw[1*(signalB_len+1)+1] = affineAlignObj.A_forw[1*(signalB_len+1)+0] - go;
-  nPathsB_forw[1*(signalB_len+1)+1] = 1;
-  for(int j=2; j<=signalB_len; j++){
-    double sI_1J_1 = s.data[j-1]; // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
-    affineAlignObj.M_forw[1*(signalB_len+1)+j] = affineAlignObj.B_forw[0*(signalB_len+1)+j-1] + sI_1J_1;
-    nPathsM_forw[1*(signalB_len+1)+j] = 1;
-    affineAlignObj.A_forw[1*(signalB_len+1)+j] = affineAlignObj.B_forw[0*(signalB_len+1)+j] - go;
-    nPathsA_forw[1*(signalB_len+1)+j] = 1;
-    affineAlignObj.B_forw[1*(signalB_len+1)+j] = affineAlignObj.M_forw[1*(signalB_len+1)+j-1] - go
-      + affineAlignObj.A_forw[1*(signalB_len+1)+j-1] - go
-      + affineAlignObj.B_forw[1*(signalB_len+1)+j-1] - ge;
-    nPathsB_forw[1*(signalB_len+1)+j] = 3;
-  }
-  for(int i=2; i<=signalA_len; i++){
-    double sI_1J_1 = s.data[(i-1)*s.n_col + 0]; // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
-    affineAlignObj.M_forw[i*(signalB_len+1)+1] =affineAlignObj.A_forw[(i-1)*(signalB_len+1)] + sI_1J_1;
-    nPathsM_forw[i*(signalB_len+1)+1] = 1;
-    affineAlignObj.A_forw[i*(signalB_len+1)+1] =affineAlignObj.M_forw[(i-1)*(signalB_len+1)+1] - go
-       + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+1] - ge
-       + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+1] - go;
-    nPathsA_forw[i*(signalB_len+1)+1] = 3;
-    affineAlignObj.B_forw[i*(signalB_len+1)+1] = affineAlignObj.A_forw[(i-1)*(signalB_len+1)+1] - ge;
-    nPathsB_forw[i*(signalB_len+1)+1] = 1;
-  }
-
-  for(int i=2; i<=signalA_len; i++){
-    for(int j=2; j<=signalB_len; j++){
-      double sI_1J_1 = s.data[(i-1)*s.n_col + j-1]; // signal Ai is aligned to signal Bj. Hence, it will force match state or diagonal alignment.
-      affineAlignObj.M_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[(i-1)*(signalB_len+1)+j-1] + (nPathsM_forw[(i-1)*(signalB_len+1)+j-1])*sI_1J_1
-        + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+j-1] + (nPathsA_forw[(i-1)*(signalB_len+1)+j-1])*sI_1J_1
-        + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+j-1] + (nPathsB_forw[(i-1)*(signalB_len+1)+j-1])*sI_1J_1;
-      nPathsM_forw[i*(signalB_len+1)+j] = 3;
-      affineAlignObj.A_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[(i-1)*(signalB_len+1)+j] - (nPathsM_forw[(i-1)*(signalB_len+1)+j])*go
-        + affineAlignObj.A_forw[(i-1)*(signalB_len+1)+j] - (nPathsA_forw[(i-1)*(signalB_len+1)+j])*ge
-        + affineAlignObj.B_forw[(i-1)*(signalB_len+1)+j] - (nPathsB_forw[(i-1)*(signalB_len+1)+j])*go;
-      nPathsA_forw[i*(signalB_len+1)+j] = 3;
-      affineAlignObj.B_forw[i*(signalB_len+1)+j] = affineAlignObj.M_forw[i*(signalB_len+1)+j-1] - (nPathsM_forw[i*(signalB_len+1)+j-1])*go
-        + affineAlignObj.A_forw[i*(signalB_len+1)+j-1] - (((double)(nPathsA_forw[i*(signalB_len+1)+j-1]))*go)
-        + affineAlignObj.B_forw[i*(signalB_len+1)+j-1] - (nPathsB_forw[i*(signalB_len+1)+j-1])*ge;
-      nPathsB_forw[i*(signalB_len+1)+j] = 3;
-    }
-  }
-  ***/
 }
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj, int bandwidth){
@@ -343,9 +277,6 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj, int bandwidth){
       }
     }
 
-  affineAlignObj.score_forw = affineAlignObj.M_forw[ROW_IDX*COL_SIZE+COL_IDX]
-                            + affineAlignObj.A_forw[ROW_IDX*COL_SIZE+COL_IDX]
-                            + affineAlignObj.B_forw[ROW_IDX*COL_SIZE+COL_IDX];
   alignedIdx.score.push_back(affineAlignmentScore);
   TracebackPointer = affineAlignObj.Traceback[MatName*ROW_SIZE*COL_SIZE+ROW_IDX*COL_SIZE+COL_IDX];
   affineAlignObj.Path[ROW_IDX*COL_SIZE+COL_IDX] = true;

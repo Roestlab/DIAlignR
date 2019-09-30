@@ -32,9 +32,6 @@ public:
   bool* Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
   bool* simPath;
   int* optionalPaths; // Highlight the number of all optimal paths.
-  double* M_forw;
-  double* A_forw;
-  double* B_forw;
   // s_data, M, A and B should be private. Now there is a possibility of memory-leak.
   // TODO Make above variables private.
   int signalA_len; // Number of data-points in signal A
@@ -48,8 +45,6 @@ public:
   std::vector<int> indexA_aligned; // Aligned signalA indices after affine alignment
   std::vector<int> indexB_aligned; // Aligned signalB indices after affine alignment
   std::vector<double> score;  // Score along the aligned path
-  double score_forw;
-  double simScore_forw;
   int nGaps;
 
   // Not a default constructor
@@ -71,9 +66,6 @@ public:
       std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
       std::memset(simPath, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
       std::memset(optionalPaths, 0, ROW_SIZE * COL_SIZE * sizeof(int));
-      std::memset(M_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-      std::memset(A_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-      std::memset(B_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     }
 
     signalA_len = ROW_SIZE-1;
@@ -81,8 +73,6 @@ public:
     GapOpen = 0.0;
     GapExten = 0.0;
     FreeEndGaps = true;
-    score_forw = 0.0;
-    simScore_forw = 0.0;
     nGaps = 0;
 
     signalA_capacity = ROW_SIZE-1;
@@ -108,9 +98,6 @@ public:
     std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memset(simPath, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memset(optionalPaths, 0, ROW_SIZE * COL_SIZE * sizeof(int));
-    std::memset(M_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memset(A_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memset(B_forw, 0, ROW_SIZE * COL_SIZE * sizeof(double));
 
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
@@ -120,8 +107,6 @@ public:
     indexA_aligned.clear();
     indexB_aligned.clear();
     score.clear();
-    score_forw = 0.0;
-    simScore_forw = 0.0;
     nGaps = 0;
   }
 
@@ -141,8 +126,6 @@ public:
     indexA_aligned = rhs.indexA_aligned;
     indexB_aligned = rhs.indexB_aligned;
     score = rhs.score;
-    score_forw = rhs.score_forw;
-    simScore_forw = rhs.simScore_forw;
     nGaps = rhs.nGaps;
 
     int ROW_SIZE = rhs.signalA_len + 1;
@@ -168,8 +151,6 @@ public:
     indexA_aligned = rhs.indexA_aligned;
     indexB_aligned = rhs.indexB_aligned;
     score = rhs.score;
-    score_forw = rhs.score_forw;
-    simScore_forw = rhs.simScore_forw;
     nGaps = rhs.nGaps;
 
     int ROW_SIZE = rhs.signalA_len + 1;
@@ -197,9 +178,6 @@ private:
     delete[] Path;
     delete[] simPath;
     delete[] optionalPaths;
-    delete[] M_forw;
-    delete[] A_forw;
-    delete[] B_forw;
   }
 
   void allocateMemory_(int ROW_SIZE, int COL_SIZE)
@@ -215,9 +193,6 @@ private:
     Path = new bool[ROW_SIZE * COL_SIZE];
     simPath = new bool[ROW_SIZE * COL_SIZE];
     optionalPaths = new int[ROW_SIZE * COL_SIZE];
-    M_forw = new double[ROW_SIZE * COL_SIZE];
-    A_forw = new double[ROW_SIZE * COL_SIZE];
-    B_forw = new double[ROW_SIZE * COL_SIZE];
   }
 
   void copyData_(const AffineAlignObj& rhs, int ROW_SIZE, int COL_SIZE)
@@ -230,9 +205,6 @@ private:
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memcpy(simPath, rhs.simPath, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memcpy(optionalPaths, rhs.optionalPaths, ROW_SIZE * COL_SIZE * sizeof(int));
-    std::memcpy(M_forw, rhs.M_forw, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memcpy(A_forw, rhs.A_forw, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memcpy(B_forw, rhs.B_forw, ROW_SIZE * COL_SIZE * sizeof(double));
   }
 
 };
