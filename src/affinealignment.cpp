@@ -40,11 +40,14 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
   int Traceback_A_index = 1; // Second block of Traceback vector corresponds to A matrix.
   int Traceback_B_index = 2; // Third block of Traceback vector corresponds to B matrix.
 
-  int oPathsM[(signalA_len+1)*(signalB_len+1)];
+  int* oPathsM;
+  oPathsM = new int[(signalA_len+1)*(signalB_len+1)];
   std::memset(oPathsM, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
-  int oPathsA[(signalA_len+1)*(signalB_len+1)];
+  int* oPathsA;
+  oPathsA = new int[(signalA_len+1)*(signalB_len+1)];
   std::memset(oPathsA, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
-  int oPathsB[(signalA_len+1)*(signalB_len+1)];
+  int* oPathsB;
+  oPathsB = new int[(signalA_len+1)*(signalB_len+1)];
   std::memset(oPathsB, 0, (signalA_len+1)*(signalB_len+1)*sizeof(int) );
 
   // Initialize first row and first column for affine alignment.
@@ -219,6 +222,9 @@ void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, doubl
       affineAlignObj.optionalPaths[i*(signalB_len+1) + j] = optimalPathCntr;
       }
     }
+  delete[] oPathsM;
+  delete[] oPathsA;
+  delete[] oPathsB;
 }
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj, int bandwidth){
