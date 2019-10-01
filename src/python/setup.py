@@ -33,8 +33,11 @@ import os, shutil
 from setuptools import setup, Extension
 from Cython.Distutils import build_ext
 
-ext_modules = [Extension("PyDIAlign",
-                     ["PyDIAlign.pyx", 
+import os
+curr_dir = os.path.dirname(os.path.realpath(__file__))
+curr_dir = "."
+src_dir = os.path.join(curr_dir, "..") 
+src_files = [
                        "affinealignment.cpp",
                        "affinealignobj.cpp",
                        "alignment.cpp",
@@ -42,8 +45,16 @@ ext_modules = [Extension("PyDIAlign",
                        "constrainMat.cpp",
                        "gapPenalty.cpp",
                        "utils.cpp",
-                        ],
+             ]
+
+src_files = [os.path.join(src_dir, f) for f in src_files]
+src_files.append("PyDIAlign.pyx") 
+
+include_dirs = [src_dir]
+
+ext_modules = [Extension("DIAlignPy", src_files,
                      language='c++',
+                     include_dirs=include_dirs,
                      extra_compile_args=["-std=c++11"], extra_link_args=["-std=c++11"]
                      )]
 
