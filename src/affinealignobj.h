@@ -50,16 +50,7 @@ public:
   AffineAlignObj() {}
   AffineAlignObj(int ROW_SIZE, int COL_SIZE, bool clearMemory = true)
   {
-    // new allocate memory in heap. Here we just keep the memory address in our object's member.
-    // Memory will remain valid outside of this constructor's scope.
-    // Therefore, we need to explicitly free it.
-    s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
-    M = new double[ROW_SIZE * COL_SIZE];
-    A = new double[ROW_SIZE * COL_SIZE];
-    B = new double[ROW_SIZE * COL_SIZE];
-    Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
-    Path = new bool[ROW_SIZE * COL_SIZE];
-    simPath = new bool[ROW_SIZE * COL_SIZE];
+    allocateMemory_(ROW_SIZE, COL_SIZE);
 
     // clearMemory means having default zero values.
     // We could use a for-loop but memset is faster for contiguous location in memory.
@@ -119,6 +110,7 @@ public:
   // Rule 2 Copy assignment operator
   AffineAlignObj& operator=(const AffineAlignObj& rhs)
   {
+<<<<<<< HEAD
     delete[] s_data;
     delete[] M;
     delete[] A;
@@ -126,8 +118,19 @@ public:
     delete[] Traceback;
     delete[] Path;
     delete[] simPath;
+||||||| merged common ancestors
+    delete[] s_data;
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+    delete[] simPath;
+    delete[] optionalPaths;
+=======
+    freeMemory_();
+>>>>>>> roestlab/master
 
-    //std::cout << " this " << this << std::endl;
     signalA_len = rhs.signalA_len;
     signalA_capacity = rhs.signalA_capacity;
     signalB_len = rhs.signalB_len;
@@ -144,6 +147,7 @@ public:
     int ROW_SIZE = rhs.signalA_len + 1;
     int COL_SIZE = rhs.signalB_len + 1;
 
+<<<<<<< HEAD
     s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
@@ -159,10 +163,83 @@ public:
     std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memcpy(simPath, rhs.simPath, ROW_SIZE * COL_SIZE * sizeof(bool));
+||||||| merged common ancestors
+    s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
+    M = new double[ROW_SIZE * COL_SIZE];
+    A = new double[ROW_SIZE * COL_SIZE];
+    B = new double[ROW_SIZE * COL_SIZE];
+    Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
+    Path = new bool[ROW_SIZE * COL_SIZE];
+    simPath = new bool[ROW_SIZE * COL_SIZE];
+    optionalPaths = new int[ROW_SIZE * COL_SIZE];
+
+    std::memcpy(s_data, rhs.s_data, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
+    std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
+    std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+    std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
+    std::memcpy(simPath, rhs.simPath, ROW_SIZE * COL_SIZE * sizeof(bool));
+    std::memcpy(optionalPaths, rhs.optionalPaths, ROW_SIZE * COL_SIZE * sizeof(int));
+=======
+    allocateMemory_(ROW_SIZE, COL_SIZE);
+    copyData_(rhs, ROW_SIZE, COL_SIZE);
+>>>>>>> roestlab/master
   }
 
   // Rule 1 Copy constructor
   AffineAlignObj(const AffineAlignObj& rhs)
+  {
+<<<<<<< HEAD
+    delete[] s_data;
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+    delete[] simPath;
+||||||| merged common ancestors
+    delete[] s_data;
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+    delete[] simPath;
+    delete[] optionalPaths;
+=======
+    freeMemory_();
+>>>>>>> roestlab/master
+
+    signalA_len = rhs.signalA_len;
+    signalA_capacity = rhs.signalA_capacity;
+    signalB_len = rhs.signalB_len;
+    signalB_capacity = rhs.signalB_capacity;
+
+    GapOpen = rhs.GapOpen;
+    GapExten = rhs.GapExten;
+    FreeEndGaps = rhs.FreeEndGaps;
+    indexA_aligned = rhs.indexA_aligned;
+    indexB_aligned = rhs.indexB_aligned;
+    score = rhs.score;
+    nGaps = rhs.nGaps;
+
+    int ROW_SIZE = rhs.signalA_len + 1;
+    int COL_SIZE = rhs.signalB_len + 1;
+
+    allocateMemory_(ROW_SIZE, COL_SIZE);
+    copyData_(rhs, ROW_SIZE, COL_SIZE);
+  }
+
+  // Rule 3 Not a default destructor
+  ~AffineAlignObj()
+  {
+    freeMemory_();
+  }
+
+private:
+
+  void freeMemory_()
   {
     delete[] s_data;
     delete[] M;
@@ -171,23 +248,14 @@ public:
     delete[] Traceback;
     delete[] Path;
     delete[] simPath;
+    delete[] optionalPaths;
+  }
 
-    signalA_len = rhs.signalA_len;
-    signalA_capacity = rhs.signalA_capacity;
-    signalB_len = rhs.signalB_len;
-    signalB_capacity = rhs.signalB_capacity;
-
-    GapOpen = rhs.GapOpen;
-    GapExten = rhs.GapExten;
-    FreeEndGaps = rhs.FreeEndGaps;
-    indexA_aligned = rhs.indexA_aligned;
-    indexB_aligned = rhs.indexB_aligned;
-    score = rhs.score;
-    nGaps = rhs.nGaps;
-
-    int ROW_SIZE = rhs.signalA_len + 1;
-    int COL_SIZE = rhs.signalB_len + 1;
-
+  void allocateMemory_(int ROW_SIZE, int COL_SIZE)
+  {
+    // new allocate memory in heap. Here we just keep the memory address in our object's member.
+    // Memory will remain valid outside of this constructor's scope.
+    // Therefore, we need to explicitly free it.
     s_data = new double[(ROW_SIZE -1) * (COL_SIZE-1)];
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
@@ -195,7 +263,16 @@ public:
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
     simPath = new bool[ROW_SIZE * COL_SIZE];
+<<<<<<< HEAD
+||||||| merged common ancestors
+    optionalPaths = new int[ROW_SIZE * COL_SIZE];
+=======
+    optionalPaths = new int[ROW_SIZE * COL_SIZE];
+  }
+>>>>>>> roestlab/master
 
+  void copyData_(const AffineAlignObj& rhs, int ROW_SIZE, int COL_SIZE)
+  {
     std::memcpy(s_data, rhs.s_data, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
@@ -205,6 +282,7 @@ public:
     std::memcpy(simPath, rhs.simPath, ROW_SIZE * COL_SIZE * sizeof(bool));
   }
 
+<<<<<<< HEAD
   // Rule 3 Not a default destructor
   ~AffineAlignObj()
   {
@@ -217,6 +295,22 @@ public:
     delete[] simPath;
   }
 
+||||||| merged common ancestors
+  // Rule 3 Not a default destructor
+  ~AffineAlignObj()
+  {
+    delete[] s_data;
+    delete[] M;
+    delete[] A;
+    delete[] B;
+    delete[] Traceback;
+    delete[] Path;
+    delete[] simPath;
+    delete[] optionalPaths;
+  }
+
+=======
+>>>>>>> roestlab/master
 };
 } // namespace DIAlign
 

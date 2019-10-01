@@ -67,8 +67,7 @@ def alignChromatogramsCppSimple(AffineAlignObj obj,
                                 bytes normalization,
                                 bytes simType):
     
-    cdef _AffineAlignObj * _r = new _AffineAlignObj(_alignChromatogramsCpp(r1, r2, alignType, tA, tB, normalization, simType) )
-    obj.inst = shared_ptr[_AffineAlignObj](_r)
+    _alignChromatogramsCpp(deref(obj.inst.get()), r1, r2, alignType, tA, tB, normalization, simType)
            
 
     
@@ -95,10 +94,8 @@ def alignChromatogramsCpp(      AffineAlignObj obj,
                                 bool hardConstrain,
                                 double samples4gradient):
     
-    cdef _AffineAlignObj * _r = new _AffineAlignObj(
-          _alignChromatogramsCpp(r1, r2, alignType, tA, tB, normalization, simType,
+    _alignChromatogramsCpp(deref(obj.inst.get()), r1, r2, alignType, tA, tB, normalization, simType,
                                 B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment,
-                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient) )
-    obj.inst = shared_ptr[_AffineAlignObj](_r)
+                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
 
 
