@@ -18,19 +18,22 @@
 namespace DIAlign
 {
 
-  AffineAlignObj alignChromatogramsCpp(
-                             const std::vector<std::vector<double> > & r1,
-                             const std::vector<std::vector<double> > & r2,
-                             std::string alignType,
-                             const std::vector<double>& tA, const std::vector<double>& tB,
-                             const std::string & normalization, const std::string& simType,
-                             double B1p = 0.0, double B2p =0.0, int noBeef = 0,
-                             double goFactor = 0.125, double geFactor = 40,
-                             double cosAngleThresh = 0.3, bool OverlapAlignment = true,
-                             double dotProdThresh = 0.96, double gapQuantile = 0.5,
-                             bool hardConstrain = false, double samples4gradient = 100.0)
+  void alignChromatogramsCpp( AffineAlignObj& obj,
+                              const std::vector<std::vector<double> > & r1,
+                              const std::vector<std::vector<double> > & r2,
+                              std::string alignType,
+                              const std::vector<double>& tA, const std::vector<double>& tB,
+                              const std::string & normalization, const std::string& simType,
+                              double B1p = 0.0, double B2p =0.0, int noBeef = 0,
+                              double goFactor = 0.125, double geFactor = 40,
+                              double cosAngleThresh = 0.3, bool OverlapAlignment = true,
+                              double dotProdThresh = 0.96, double gapQuantile = 0.5,
+                              bool hardConstrain = false, double samples4gradient = 100.0)
   {
+
     SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
+    obj.reset(s.n_row + 1, s.n_col + 1);
+
     double gapPenalty = getGapPenalty(s, gapQuantile, simType);
     if (alignType == "hybrid")
     {
@@ -45,9 +48,7 @@ namespace DIAlign
       double maxVal = *maxIt;
       constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
     }
-    auto obj = doAffineAlignment(s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+    doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
     getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
-    return obj;
   }
-
 }
