@@ -21,47 +21,51 @@
 
 import numpy as np
 
-FACTOR = 16 # length 192
-FACTOR = 32 # length 384
-FACTOR = 128 # length 1536
-FACTOR = 256 # length 3072
-FACTOR = 512 # length 6144
-FACTOR = 16 # length 192
+rt_data = None
+rt_data2 = None
+chromatograms = None
+chromatograms2 = None
 
-data = [ 
-            100.0,
-            300.00005,
-            400.00010,
-            450.00010,
-            455.00010,
-            700.00010
-        ]
-# 6 vectors of length 196
-chromatograms = np.array(data*6*FACTOR*2).reshape(6, len(data)*FACTOR*2)
+def create_test_data(FACTOR = 16):
+    global rt_data, rt_data2, chromatograms, chromatograms2 
 
-data2 = [ 
-            0.0,
-            0.0,
-            0.0,
-            100.0,
-            200.0,
-            300.00005,
-            400.00010,
-            450.00010,
-            100.0,
-            100.0,
-            455.00010,
-            700.00010
-        ]
-# 6 vectors of length 192
-chromatograms2 = np.array(data2*6*FACTOR).reshape(6, len(data2)*FACTOR)
+    data = [ 
+                100.0,
+                300.00005,
+                400.00010,
+                450.00010,
+                455.00010,
+                700.00010
+            ]
+    # 6 vectors of length 196
+    chromatograms = np.array(data*6*FACTOR*2).reshape(6, len(data)*FACTOR*2)
 
-print("length", len(data)*FACTOR*2, len(data2)*FACTOR)
+    data2 = [ 
+                0.0,
+                0.0,
+                0.0,
+                100.0,
+                200.0,
+                300.00005,
+                400.00010,
+                450.00010,
+                100.0,
+                100.0,
+                455.00010,
+                700.00010
+            ]
+    # 6 vectors of length 192
+    chromatograms2 = np.array(data2*6*FACTOR).reshape(6, len(data2)*FACTOR)
 
-rt_data = np.ascontiguousarray(data*FACTOR*2)
-rt_data2 = np.ascontiguousarray(data2*FACTOR)
-chromatograms = np.ascontiguousarray(chromatograms)
-chromatograms2 = np.ascontiguousarray(chromatograms2)
+    print("length", len(data)*FACTOR*2, len(data2)*FACTOR)
+
+    rt_data = np.ascontiguousarray(data*FACTOR*2)
+    rt_data2 = np.ascontiguousarray(data2*FACTOR)
+    chromatograms = np.ascontiguousarray(chromatograms)
+    chromatograms2 = np.ascontiguousarray(chromatograms2)
+
+create_test_data()
+c = create_test_data
 
 """
     # run as
