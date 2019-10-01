@@ -31,7 +31,6 @@ public:
   TracebackType* Traceback;
   bool* Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
   bool* simPath;
-  int* optionalPaths; // Highlight the number of all optimal paths.
   // s_data, M, A and B should be private. Now there is a possibility of memory-leak.
   // TODO Make above variables private.
   int signalA_len; // Number of data-points in signal A
@@ -65,7 +64,6 @@ public:
       std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
       std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
       std::memset(simPath, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
-      std::memset(optionalPaths, 0, ROW_SIZE * COL_SIZE * sizeof(int));
     }
 
     signalA_len = ROW_SIZE-1;
@@ -97,7 +95,6 @@ public:
     std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
     std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memset(simPath, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
-    std::memset(optionalPaths, 0, ROW_SIZE * COL_SIZE * sizeof(int));
 
     signalA_len = ROW_SIZE-1;
     signalB_len = COL_SIZE-1;
@@ -114,7 +111,6 @@ public:
   AffineAlignObj& operator=(const AffineAlignObj& rhs)
   {
     freeMemory_();
-
     signalA_len = rhs.signalA_len;
     signalA_capacity = rhs.signalA_capacity;
     signalB_len = rhs.signalB_len;
@@ -177,7 +173,6 @@ private:
     delete[] Traceback;
     delete[] Path;
     delete[] simPath;
-    delete[] optionalPaths;
   }
 
   void allocateMemory_(int ROW_SIZE, int COL_SIZE)
@@ -192,7 +187,6 @@ private:
     Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
     simPath = new bool[ROW_SIZE * COL_SIZE];
-    optionalPaths = new int[ROW_SIZE * COL_SIZE];
   }
 
   void copyData_(const AffineAlignObj& rhs, int ROW_SIZE, int COL_SIZE)
@@ -204,9 +198,7 @@ private:
     std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memcpy(simPath, rhs.simPath, ROW_SIZE * COL_SIZE * sizeof(bool));
-    std::memcpy(optionalPaths, rhs.optionalPaths, ROW_SIZE * COL_SIZE * sizeof(int));
   }
-
 };
 } // namespace DIAlign
 

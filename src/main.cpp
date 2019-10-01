@@ -307,7 +307,6 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
   x.slot("path") = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.Path));
-  x.slot("optionalPaths") = NumericMatrix(s.n_col+1, s.n_row+1, obj.optionalPaths);
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;
@@ -406,25 +405,14 @@ S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){
 //' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 //' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 //' objAffine_Global@score # 10  20  -2  -9 -11
-//' objAffine_Global@optionalPaths
-//' matrix(data = c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2), nrow = 4, ncol =6, byrow = TRUE)
 //' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 //' objAffine_Olap@score # 10 20 18 18 18
-//'
-//' Match=1; MisMatch=-1
-//' seq1 = "TTTC"; seq2 = "TGC"
-//' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
-//' objAffine_Global <- doAffineAlignmentCpp(s, 2, 2, FALSE)
-//' objAffine_Global@optionalPaths
-//' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
-//' objAffine_Global@M_forw
-//' matrix(data = c(0,-Inf,-Inf,-Inf,-Inf,1,-3,-5,-Inf,-1,-10,-27,-Inf,-3,-25,-81,-Inf,-7,-49,-160), nrow = 5, ncol =4, byrow = TRUE)
 //'
 //' Match=10; MisMatch=-2
 //' seq1 = "CA"; seq2 = "AG"
 //' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 //' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
-//' objAffine_Global@score_forw # -706
+//' objAffine_Global@simScore_forw # -4
 //' @export
 // [[Rcpp::export]]
 S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAlignment){
@@ -443,7 +431,6 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(signalB_len+1) *(signalA_len+1) );
   x.slot("Traceback")  = EnumToChar(tmp);
   x.slot("path") = transpose(NumericMatrix(signalB_len+1, signalA_len+1, obj.Path));
-  x.slot("optionalPaths") = transpose(NumericMatrix( signalB_len+1, signalA_len+1, obj.optionalPaths));
   x.slot("signalA_len") = obj.signalA_len;
   x.slot("signalB_len") = obj.signalB_len;
   x.slot("GapOpen") = obj.GapOpen;

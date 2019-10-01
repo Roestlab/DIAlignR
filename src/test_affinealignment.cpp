@@ -304,45 +304,6 @@ namespace {
     }
     return cmp_arr_Path;
   }
-  std::vector< std::vector< int > > assertThisOptionalPaths(int caseNum){
-    std::vector< std::vector<int> > cmp_arr_OptionalPaths;
-    std::vector<int> tmp_i;
-    switch(caseNum){
-    case 1:{
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      break;
-    }
-    case 2:{
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 1, 2, 1, 2, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 1, 1, 3, 1, 3}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 2, 1, 1, 4, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 2, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      break;
-    }
-    case 3:{
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 1, 2, 2, 2, 2}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 2, 1, 3, 3, 3}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 2, 3, 1, 4, 4}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 2, 3, 4, 1, 5}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      break;
-    }
-    case 4:{
-      tmp_i = {1, 1, 1, 1, 1, 1}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 3, 5, 7, 9, 11}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 5, 13, 25, 41, 61}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 7, 25, 63, 129, 231}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      tmp_i = {1, 9, 41, 129, 321, 681}; cmp_arr_OptionalPaths.push_back(tmp_i);
-      break;
-    }
-    }
-    return cmp_arr_OptionalPaths;
-  }
   bool assertThisFreeEndGaps(int caseNum){
     bool tmp;
     switch(caseNum){
@@ -476,20 +437,21 @@ namespace {
      }
      }*/
 
+    // Traceback
     std::vector<TracebackType> traceback =  vov2v(assertThisTraceback(caseNum));
     std::copy(traceback.begin(), traceback.end(), obj.Traceback );
 
+    // M
     std::vector<double> M =  vov2v(assertThisM(caseNum));
     std::copy(M.begin(), M.end(), obj.M );
 
+    // A
     std::vector<double> A =  vov2v(assertThisA(caseNum));
     std::copy(A.begin(), A.end(), obj.A);
 
+    // B
     std::vector<double> B =  vov2v(assertThisB(caseNum));
     std::copy(B.begin(), B.end(), obj.B);
-
-    std::vector<int> optionalPaths =  vov2v(assertThisOptionalPaths(caseNum));
-    std::copy(optionalPaths.begin(), optionalPaths.end(), obj.optionalPaths);
   }
 }
 
@@ -541,13 +503,6 @@ void test_doAffineAlignment_cases(AffineAlignObj& obj, int caseNum){
   for (int i = 0; i < 5; i++){
     for (int j = 0; j < 6; j++){
       ASSERT(obj.Path[i*6+j] == cmp_arr_Path[i][j]);
-    }
-  }
-  // OptionalPaths
-  std::vector< std::vector< int > > cmp_arr_OptionalPaths = assertThisOptionalPaths(caseNum);
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
-      ASSERT(obj.optionalPaths[i*6+j] == cmp_arr_OptionalPaths[i][j]);
     }
   }
   // signalA_len
@@ -693,13 +648,6 @@ void test_getAffineAlignedIndices_cases(AffineAlignObj& obj, int caseNum){
   for (int i = 0; i < 5; i++){
     for (int j = 0; j < 6; j++){
       ASSERT(obj.Path[i*6+j] == cmp_arr_Path[i][j]);
-    }
-  }
-  // OptionalPaths
-  std::vector< std::vector< int > > cmp_arr_OptionalPaths = assertThisOptionalPaths(caseNum);
-  for (int i = 0; i < 5; i++){
-    for (int j = 0; j < 6; j++){
-      ASSERT(obj.optionalPaths[i*6+j] == cmp_arr_OptionalPaths[i][j]);
     }
   }
   // signalA_len
