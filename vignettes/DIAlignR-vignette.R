@@ -53,19 +53,21 @@ library(DIAlignR)
 #  runs <- names(StrepChroms);
 #  peptides <- names(StrepChroms[["run1"]])
 
-## ---- echo = FALSE, warning=FALSE----------------------------------------
+## ---- echo = TRUE, warning=FALSE-----------------------------------------
 library(lattice)
 library(ggplot2)
 library(reshape2)
 library(zoo)
 
-plotChromatogram <- function(data, run, peptide, peakAnnot, printTitle =TRUE){
+plotChromatogram <- function(data, run, peptide, peakAnnot = NULL, printTitle =TRUE){
   df <- do.call("cbind", data[[run]][[peptide]])
   df <- df[,!duplicated(colnames(df))]
   df <- melt(df, id.vars="time", value.name = "Intensity")
   g <- ggplot(df, aes(time, Intensity, col=variable)) + geom_line(show.legend = FALSE) + theme_bw()
   if(printTitle) g <- g + ggtitle(paste0(run, ", ",peptide)) + theme(plot.title = element_text(hjust = 0.5))
-  g <- g + geom_vline(xintercept=peakAnnot[peptide, run], lty="dotted", size = 0.4)
+  if(!is.null(peakAnnot)){
+    g <- g + geom_vline(xintercept=peakAnnot[peptide, run], lty="dotted", size = 0.4) 
+  }
   return(g)
 }
 plotSingleAlignedChrom <- function(data, run, peptide, idx, t, printTitle = TRUE){
@@ -90,13 +92,13 @@ plotChromatogram(StrepChroms, "run4", "3505_LATWYSEMK/2", StrepAnnot)
 
 ## ----globalFit, eval=TRUE------------------------------------------------
 run_pair <- "run1_run2"
-loess.fit <- getLOESSfit(run_pair, peptides, oswOutStrep, 0.15)
+loess.fit <- getLOESSfit(oswOutStrep[["run1"]], oswOutStrep[["run2"]], peptides, 0.15)
 StrepAnnot <- as.data.frame(StrepAnnot)
 predict.run2 <- predict(loess.fit, data.frame(RUN1 = StrepAnnot[, "run1"]))
 Err_global <- predict.run2 - StrepAnnot[,"run2"]
 sum(abs(Err_global))/20
 MappedTimeGlobal <- getPepPeakCorp(featureTable =  StrepAnnot, pairName = run_pair, alignType = "global", oswFeatureList = oswOutStrep, spanvalue = 0.15)
-Err_global <- StrepAnnot[,"run2"] - MappedTimeGlobal
+Err_global <- StrepAnnot[,"run2"] #- MappedTimeGlobal
 sum(abs(Err_global))/20
 
 ## ----localFit, eval=TRUE-------------------------------------------------
