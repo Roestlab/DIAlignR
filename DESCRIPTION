@@ -13,13 +13,14 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 biocViews:
+Depends: R (>= 3.5.0)
 Imports:
     methods,
     zoo (>= 1.8-3),
     dplyr,
     dbplyr,
     tidyr,
-    mzR,
+    mzR (>= 2.18),
     signal,
     ggplot2,
     Rcpp
