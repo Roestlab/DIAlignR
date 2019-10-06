@@ -47,7 +47,7 @@ public:
   int nGaps;
 
   // Not a default constructor
-  AffineAlignObj() {}
+  
   AffineAlignObj(int ROW_SIZE, int COL_SIZE, bool clearMemory = true)
   {
     allocateMemory_(ROW_SIZE, COL_SIZE);
@@ -163,6 +163,8 @@ public:
   }
 
 private:
+
+  AffineAlignObj() {}
 
   void freeMemory_()
   {
