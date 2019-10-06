@@ -1,6 +1,7 @@
 #' Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.
 #'
 #' @return Saves intensity table in the current directory.
+#' @importFrom dplyr %>%
 #' @export
 alignTragetedRuns <- function(dataPath, alignType = "hybrid",
                               maxFdrQuery = 0.05, maxFdrLoess = 0.01,
