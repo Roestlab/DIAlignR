@@ -50,14 +50,20 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid",
     run <- names(runs)[i]
     oswName <- paste0(runs[run], ".osw")
     # TODO: Protect the pointers before existing the loop if some error occurs.
+    print(oswName)
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
-    cur <- DBI::dbSendQuery(con, statement = query)
-    x <-  DBI::dbFetch(cur)
+    x <- DBI::dbGetQuery(con, statement = query)
+    DBI::dbDisconnect(con)
     # TODO: change how to go from osw directory to mzML directory.
     mzmlName <- file.path("..", "mzml", paste0(runs[run], "_chrom.mzML"))
-    # TODO: If breaks, go to current dir and disconnect from DBI.
-    mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
+    mz <- tryCatch(mzR::openMSfile(mzmlName, backend = "pwiz"),
+                   error = function(cond) {
+                     c$message <- paste0(c$message,
+                      "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
+                     setwd("..")
+                     stop(cond)})
     chromHead <- mzR::chromatogramHeader(mz)
+    rm(mz)
     chromHead <- chromHead %>%
       dplyr::select(chromatogramId, chromatogramIndex) %>%
       dplyr::mutate(chromatogramId = as.integer(chromatogramId))
@@ -69,9 +75,6 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid",
              chromatogramIndex = paste0(chromatogramIndex, collapse = ",")) %>%
       dplyr::ungroup() %>% dplyr::select(-transition_id) %>% dplyr::distinct()
     peptides <- x %>% dplyr::filter(m_score < 0.01) %>% .$transition_group_id %>% dplyr::union(peptides)
-    DBI::dbClearResult(cur)
-    DBI::dbDisconnect(con)
-    rm(mz)
   }
   names(oswFiles) <- names(runs)
   setwd("..")
