@@ -4,7 +4,6 @@
 A Python wrapper around the C DIAlign library
 """
 
-# Why was I able to get OK testoutput in build_ext?
 # We have to call both of them as actual functions are in regular numpy whereas cimport numpy is needed for compatibility.
 import numpy as np
 cimport numpy as np
@@ -13,9 +12,10 @@ cimport numpy as np
 from libcpp.vector cimport vector as libcpp_vector
 from libcpp cimport bool
 from cython.operator cimport dereference as deref, preincrement as inc, address as address
+# This is from .pxd file, members mentioned there only, could be accessed here.
+# Since, Cython has only one namespace, we need to rename them so that code doesn't break.
 from DIAlign cimport getQuantile as _getQuantile
 from DIAlign cimport AffineAlignObj as _AffineAlignObj
-# This is from .pxd file, members mentioned there only, could be accessed here. 
 from libcpp.memory cimport shared_ptr
 from DIAlign cimport alignChromatogramsCpp as _alignChromatogramsCpp
 
@@ -33,15 +33,15 @@ cdef class AffineAlignObj:
     Cython implementation of _AffineAlignObj
     """
     # std::shared_ptr<_AffineAlignObj> inst = std::make_shared<_AffineAlignObj>(); This command reserves memory and define structre as well.
-    # may ot pass sthe argument
+    # may to pass the argument
     # std::shared_ptr<_AffineAlignObj> inst; This only reserves memory.
     # Is this pointer pointing towards stack or heap?
     cdef shared_ptr[_AffineAlignObj] inst
 
     def __dealloc__(self):
          self.inst.reset() 
-         # Is it the native reset to libcpp.memory?
-         # Won't shared pointer deallocate by itself? __dealloc__() works with __cinit__().
+         # It is the native reset to libcpp.memory.
+         # Won't shared pointer deallocate by itself? __dealloc__() works with __cinit__(). Possible, need to play woth it.
 
     def __init__(self, int row, int col):
         """Cython signature: void AffineAlignObj()"""
@@ -51,11 +51,11 @@ cdef class AffineAlignObj:
     property score:
         def __set__(self, np.ndarray[double, ndim=1, mode="c"] score not None):
             self.inst.get().score = score
-            # Is it possible to make it immutable from python side?
+            # Is it possible to make it immutable from python side? Yeah. We can remove these lines.
     
         def __get__(self):
             return self.inst.get().score
-            # Is it possible to read it without property?
+            # Is it possible to read it without property? Yes. This is a standard way though.
 
     property indexA_aligned:
         def __set__(self, np.ndarray[double, ndim=1, mode="c"] indexA_aligned not None):
