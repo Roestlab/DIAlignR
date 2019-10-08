@@ -4,7 +4,7 @@
 \alias{getQuery}
 \title{This is a query that will be used to fetch information from osw files.}
 \usage{
-getQuery(maxFdrQuery)
+getQuery(maxFdrQuery, peptides = NULL)
 }
 \value{
 SQL query to be searched.
