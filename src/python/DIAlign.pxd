@@ -33,8 +33,12 @@ cdef extern from "affinealignobj.h" namespace "DIAlign":
 
     cdef cppclass AffineAlignObj:
         AffineAlignObj(int row, int col) nogil except +
-        AffineAlignObj(AffineAlignObj o) nogil except +
+        AffineAlignObj(AffineAlignObj o) nogil except + # Using Copy constructor
+        # Can we also use Copy assignment operator here?
 
+        # These are not functions or class, therefore, nogil and except + are not needed.
+        # Other members of the class are pointers and it could be tricky with Python to
+        # handle them. We need to write a separate function to deal with them.
         libcpp_vector[int] indexA_aligned
         libcpp_vector[int] indexB_aligned
         libcpp_vector[double] score
@@ -69,4 +73,3 @@ cdef extern from "CppInterface.hpp" namespace "DIAlign":
                                 double gapQuantile,
                                 bool hardConstrain,
                                 double samples4gradient) nogil except +
-
