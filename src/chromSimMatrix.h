@@ -4,6 +4,7 @@
 #include <vector>
 #include "utils.h"
 #include "similarityMatrix.h"
+#include <numeric>
 
 namespace DIAlign 
 {
