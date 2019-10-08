@@ -2,9 +2,9 @@
 #define CHROMSIMMATRIX_H
 
 #include <vector>
+#include <numeric>
 #include "utils.h"
 #include "similarityMatrix.h"
-#include <numeric>
 
 namespace DIAlign 
 {
