@@ -14,6 +14,7 @@ import scipy
 from argparse import ArgumentParser, RawTextHelpFormatter
 from pathlib import Path
 import datetime
+import statsmodels.api as sm
 
 def getRunNames(dataPath, oswFiles, mzmlFiles):
 	runs = []
@@ -97,6 +98,11 @@ def SummaryOfRuns(runs):
     print("")
     return True
 
+def extractXIC_group(mz, chromIndices):
+	XIC_group = [None]*len(chromIndices)
+	for i in range(len(chromIndices)):
+		XIC_group[i] = mz.getChromatogram(chromIndices[i]).get_peaks() # Chromatogram is a tuple (time_array, intensity_array) of numpy array
+	return XIC_group
 
 def main():
 	parser = ArgumentParser(description='Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.', formatter_class=RawTextHelpFormatter)
@@ -128,13 +134,14 @@ def main():
 	oswFiles = []
 	mzmlFiles = []
 	runs = []
+	peptides = []
 	if args.in_dataPath.exists():
 		curPath = args.in_dataPath
 		runs = getRunNames(curPath, oswFiles, mzmlFiles)
-	for i in range(len(runs)):
-		print(runs[i])
 
-	runs = ["170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35"]
+	#runs = ["170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35"]
+	# Get indices of chromatograms for each peptide.
+	oswFiles = dict.fromkeys(runs)
 	for run in runs:
 		osw_db = os.path.join(curPath, 'osw', run + '.osw')
 		# create a osw_db connection
@@ -161,25 +168,85 @@ def main():
 			if nativeID in transition_ids:
 				indices = [index for index, value in enumerate(transition_ids) if value == nativeID]
 				for index in indices:
-					chromatogramIndex[index] = i
+					chromatogramIndex[index] = str(i)
 		df['chromatogramIndex'] = chromatogramIndex 
+		df = df.assign(chromatogramIndex = lambda x: df.groupby(['transition_group_id', 'peak_group_rank'], sort=False)\
+          .transform(lambda idx: ','.join(idx))['chromatogramIndex']).drop('transition_id', axis=1)
+		transition_ids = df[df.m_score < 0.01]['transition_group_id'].tolist()
+		peptides =  list(set(peptides) | set(df[df.m_score < 0.01]['transition_group_id'].tolist()))
+		df.drop_duplicates(inplace=True)
+		oswFiles[run] = df.reset_index(drop= True)
+		print("Fetched data from {0}".format(run))
+	peptides.sort()
 	
+	lowess_sm = sm.nonparametric.lowess
+	mzPntrs = dict.fromkeys(runs)
+	filter = SavitzkyGolayFilter()
+	p = filter.getParameters()
+	p.update({b'frame_length': args.SgolayFiltLen, b'polynomial_order': args.SgolayFiltOrd})
+	filter.setParameters(p)
+	for run in mzPntrs.keys():
+		mzml_db = os.path.join(curPath, 'mzml', run + '_chrom.mzML')
+		mz = OnDiscMSExperiment()
+		mz.openFile(mzml_db)
+		#filter.filterExperiment(mz)
+		mzPntrs[run] = mz
+
+	num_of_pep = len(peptides)
+	rtTbl = {run: [None]*num_of_pep for run in runs}
+	intesityTbl = {run: [None]*num_of_pep for run in runs}
+	lwTbl = {run: [None]*num_of_pep for run in runs}
+	rwTbl = {run: [None]*num_of_pep for run in runs}
+
 	for i in range(10):
-		print(df[['transition_id', 'chromatogramIndex']].iloc[i])
+		print(oswFiles[runs[2]][['transition_id', 'chromatogramIndex']].iloc[i])
+
+	loessFits = dict()
+	for pepIdx in range(4):
+		peptide = peptides[pepIdx]
+		# Select reference run based on m-score
+		minMscore = 1.0
+		minrunIdx = None
+		for runIdx in range(len(runs)):
+			df = oswFiles[runs[runIdx]]
+			m_score = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), "m_score"]
+			if not m_score.empty:
+				m_score = m_score.tolist()[0]
+				if m_score < minMscore:
+					minMscore = m_score
+					minrunIdx = runIdx
+		print(runs[minrunIdx])
+
+		# Set the feature value as in the reference run
+		run = runs[minrunIdx]
+		df = oswFiles[run]
+		vec = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), ['RT', 'Intensity', 'leftWidth', 'rightWidth']]
+		vec = vec.reset_index(drop=True)
+		rtTbl[run][pepIdx] = vec['RT'].iloc[0]
+		intesityTbl[run][pepIdx] = vec['Intensity'].iloc[0]
+		lwTbl[run][pepIdx] = vec['leftWidth'].iloc[0]
+		rwTbl[run][pepIdx] = vec['rightWidth'].iloc[0]
+
+		# Extract chromatograms from the reference run
+		ref = run
+		exps = set(runs) - set([run])
+		chromIndices = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), 'chromatogramIndex'].to_string(header = False, index = False)
+		chromIndices = [int(x) for x in chromIndices.split(",")]
+		XICs_ref = extractXIC_group(mzPntrs[ref], chromIndices)
+		# Align all runs to reference run
+		for eXp in exps:
+			# Get XIC_group from experiment run
+			df = oswFiles[eXp]
+			chromIndices = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), 'chromatogramIndex']
+			if not chromIndices.empty:
+				chromIndices = chromIndices.to_string(header = False, index = False)
+				chromIndices = [int(x) for x in chromIndices.split(",")]
+				XICs_eXp = extractXIC_group(mzPntrs[eXp], chromIndices)
+				# Get the loess fit for hybrid alignment
+				pair = '{0}_{1}'.format(ref, eXp) # Update these names with run0 run1 instead of filename. May be I can use series.
+
+
+
 
 if __name__=='__main__':
 	main()
-
-
-
-"""
-
-filter = SavitzkyGolayFilter()
-p = filter.getParameters()
-# p.update({b'frame_length' : 9})
-p.update({'frame_length' : 9})
-filter.setParameters(p)
-# filter.getParameters().getValue('frame_length')
-for run in runs:
-	filter.filterExperiment(run)
-"""
