@@ -3,9 +3,8 @@
 #' @return Saves intensity table in the current directory.
 #' @importFrom dplyr %>%
 #' @export
-alignTragetedRuns <- function(dataPath, alignType = "hybrid",
-                              maxFdrQuery = 0.05, maxFdrLoess = 0.01,
-                              query = NULL, spanvalue = 0.1,
+alignTragetedRuns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                              maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1,
                               normalization = "mean", simMeasure = "dotProductMasked",
                               SgolayFiltOrd = 4, SgolayFiltLen = 9,
                               goFactor = 0.125, geFactor = 40,
@@ -13,36 +12,42 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid",
                               dotProdThresh = 0.96, gapQuantile = 0.5,
                               hardConstrain = FALSE, samples4gradient = 100,
                               expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5){
+  # Check if filter length is odd for Savitzky-Golay filter.
   if( (SgolayFiltLen %% 2) != 1){
     print("SgolayFiltLen can only be odd number")
     return(NULL)
   }
 
+  # Get filenames from mergedosw file.
   # Check if names are consistent between osw and mzML files. Fetch run names.
-  runs <- getRunNames(dataPath)
-
-  # Get a query to search against the osw files.
-  if(is.null(query)){
-    query <- getQuery(maxFdrQuery)
-  }
+  filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
+  print("Following runs will be aligned:")
+  rownames(filenames) <- paste0("run", 0:(nrow(filenames)-1), "")
+  print(filenames[, "runs"])
 
   # TODO: Make this part in a separate function. Use Environment for pass-by-referene.
   # Get Precursors from the query and respectve chromatogram indices.
   oswFiles <- list()
   peptides <- c()
-  setwd(file.path(dataPath, "osw"))
-  for(i in 1:length(runs)){
-    run <- names(runs)[i]
-    oswName <- paste0(runs[run], ".osw")
+  for(i in 1:nrow(filenames)){
+    run <- rownames(filenames)[i]
+    # Get a query to search against the osw files.
+    if(oswMerged == TRUE){
+      oswName <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
+      oswName <- file.path(dataPath, "osw", oswName[1])
+    } else{
+      oswName <- paste0(file.path(dataPath, "osw", filenames$runs[i]), ".osw")
+    }
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
+    query <- getQuery(maxFdrQuery, oswMerged, filename = filenames$filename[i])
     x <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+
     # TODO: change how to go from osw directory to mzML directory.
-    mzmlName <- file.path("..", "mzml", paste0(runs[run], "_chrom.mzML"))
+    mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
     mz <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
                    error = function(cond) {
                      c$message <- paste0(c$message,
                       "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
-                     setwd("..")
                      stop(cond)})
     chromHead <- mzR::chromatogramHeader(mz)
     rm(mz)
@@ -57,19 +62,22 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid",
              chromatogramIndex = paste0(chromatogramIndex, collapse = ",")) %>%
       dplyr::ungroup() %>% dplyr::select(-transition_id) %>% dplyr::distinct()
     peptides <- x %>% dplyr::filter(m_score < 0.01) %>% .$transition_group_id %>% dplyr::union(peptides)
+    print(paste0("Fetched chromatogram indices from ", filenames$filename[i]))
   }
-  names(oswFiles) <- names(runs)
-  setwd("..")
+  names(oswFiles) <- rownames(filenames)
 
+  runs <- filenames$runs
+  names(runs) <- rownames(filenames)
   # Collect all the pointers for each mzML file.
-  setwd("mzml")
+  print("Collecting metadata from mzML files.")
   mzPntrs <- list()
   for(mzMLindex in 1:length(runs)){
     run <- names(runs)[mzMLindex]
-    filename <- paste0(runs[run], "_chrom.mzML")
+    filename <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
     mzPntrs[[mzMLindex]] <- mzR::openMSfile(filename, backend = "pwiz")
   }
   names(mzPntrs) <- names(runs)
+  print("Metadata is collected from mzML files.")
 
   # Initilize output tables.
   rtTbl <- matrix(NA, nrow = length(peptides), ncol = length(runs))
@@ -84,6 +92,7 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid",
   # Container to save loess fits
   loessFits <- list()
 
+  print("Performing reference-based alignment.")
   start_time <- Sys.time()
   for(pepIdx in 1:length(peptides)){
     peptide <- peptides[pepIdx]
@@ -187,7 +196,6 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid",
   end_time <- Sys.time()
   # Report the execution time for hybrid alignment step.
   print(end_time - start_time)
-  setwd("..")
   colnames(rtTbl) <- runs[colnames(rtTbl)]
   write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
   colnames(intesityTbl) <- runs[colnames(intesityTbl)]
@@ -203,12 +211,19 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid",
 #' This is a query that will be used to fetch information from osw files.
 #'
 #' @return SQL query to be searched.
-getQuery <- function(maxFdrQuery, peptides = NULL){
+getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = NULL){
   if(is.null(peptides)){
     selectPeptide <- ""
   } else{
     selectPeptide <- paste0(" AND transition_group_id IN ('", paste(peptides,collapse="','"),"')")
   }
+
+  if(oswMerged){
+    matchFilename <- paste0(" AND RUN.FILENAME ='", filename,"'")
+  } else{
+    matchFilename <- ""
+  }
+
   query <- paste0("SELECT PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id,
   RUN.FILENAME AS filename,
   FEATURE.EXP_RT AS RT,
@@ -228,7 +243,7 @@ getQuery <- function(maxFdrQuery, peptides = NULL){
   INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
   LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectPeptide, "
+  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectPeptide, matchFilename, "
   ORDER BY transition_group_id,
   peak_group_rank;")
   return(query)
@@ -254,43 +269,36 @@ extractXIC_group <- function(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen 
 #' @export
 getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
                     SgolayFiltOrd = 4, SgolayFiltLen = 9,
-                    query = NULL){
+                    query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
   if( (SgolayFiltLen %% 2) != 1){
     print("SgolayFiltLen can only be odd number")
     return(NULL)
   }
   # Check if names are consistent between osw and mzML files. Fetch run names.
-  oswNames <- file.path(dataPath, "osw", paste0(runs, ".osw"))
-  mzmlNames <- file.path(dataPath, "mzml", paste0(runs, "_chrom.mzML"))
-  if(!all(file.exists(oswNames))){
-    message("Few .osw files are not found.")
-    return(NULL)
-  }
-  if(!all(file.exists(mzmlNames))){
-    message("Few .chrom.mzML files are not found.")
-    return(NULL)
-  }
-  names(runs) <- paste0("run", 0:(length(runs)-1), "")
-
-  # Get a query to search against the osw files.
-  if(is.null(query)){
-    query <- getQuery(maxFdrQuery, peptides)
-  }
+  filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
+  filenames <- filenames[filenames$runs %in% runs,]
+  rownames(filenames) <- paste0("run", 0:(length(runs)-1), "")
 
   # Get Chromatogram indices for each peptide in each run.
   oswFiles <- list()
   PeptidesFound <- c()
-  setwd(file.path(dataPath, "osw"))
-  for(i in 1:length(runs)){
-    run <- names(runs)[i]
-    oswName <- paste0(runs[run], ".osw")
+  for(i in 1:nrow(filenames)){
+    run <- rownames(filenames)[i]
+    if(oswMerged == TRUE){
+      oswName <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
+      oswName <- file.path(dataPath, "osw", oswName[1])
+    } else{
+      oswName <- paste0(file.path(dataPath, "osw", runs[run]), ".osw")
+    }
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
-    x <- tryCatch(expr = DBI::dbGetQuery(con, statement = query),
-                  error = function(cond) {
-                    setwd("..")
-                    stop(cond)},
-                  finally = DBI::dbDisconnect(con))
-    mzmlName <- file.path("..", "mzml", paste0(runs[run], "_chrom.mzML"))
+    # Get a query to search against the osw files.
+    if(is.null(query)){
+      query <- getQuery(maxFdrQuery, peptides, oswMerged, filename = filenames$filename[i])
+    }
+    x <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+
+    # Read chromatogram indices from mzML file
+    mzmlName <- file.path("mzml", paste0(filenames$runs[i], ".chrom.mzML"))
     mz <- tryCatch(mzR::openMSfile(mzmlName, backend = "pwiz"),
                    error = function(cond) {
                      c$message <- paste0(c$message,
@@ -311,7 +319,7 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
       dplyr::ungroup() %>% dplyr::select(-transition_id, -peak_group_rank, -assay_RT, -delta_rt) %>% dplyr::distinct()
     PeptidesFound <- x %>% .$transition_group_id %>% dplyr::union(PeptidesFound)
   }
-  names(oswFiles) <- names(runs)
+  names(oswFiles) <- rownames(filenames)
   setwd("..")
 
   # Report peptides that are not found
@@ -320,11 +328,13 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
     messsage(paste(PeptidesNotFound, "not found."))
   }
 
+  runs <- filenames$runs
+  names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
   XICs <- list()
   for(i in 1:length(runs)){
     run <- names(runs)[i]
-    mzmlName <- file.path("mzml", paste0(runs[run], "_chrom.mzML"))
+    mzmlName <- file.path("mzml", paste0(runs[run], ".chrom.mzML"))
     mz <- tryCatch(mzR::openMSfile(mzmlName, backend = "pwiz"),
                    error = function(cond) {
                      c$message <- paste0(c$message,
@@ -349,25 +359,45 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
 #' Get names of all runs
 #'
 #' @return A vector with names of all runs.
-getRunNames <- function(dataPath){
+getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
   # Get names of osw files.
-  temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw")
-  runs <- sapply(temp, function(x) strsplit(x, split = ".osw")[[1]][1])
-  print(paste0(length(runs), " .osw files are found."))
-  names(runs) <- paste0("run", 0:(length(runs)-1), "")
-  # Get names of mzml files.
-  temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*_chrom.mzML")
-  print(paste0(length(temp), " _chrom.mzML files are found."))
-  runs2 <- sapply(temp, function(x) strsplit(x, split = "_chrom.mzML")[[1]][1])
-  # Check if osw files have corresponding mzML file.
-  if(all(runs %in% runs2)){
-    rm(runs2)
+  if(oswMerged == FALSE){
+    print("Looking for .osw files.")
+    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw")
+    filenames <- sapply(1:length(temp), function(i){
+      con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[i]))
+      query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
+      tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+    })
+    filenames <- as.data.frame(unique(unlist(filenames)))
+    colnames(filenames) <-  c("filename")
+    filenames$filename <- as.character(filenames$filename)
+    print(paste0(nrow(filenames), " .osw files are found."))
   } else{
+    print("Looking for .merged.osw file.")
+    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[1]))
+    query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
+    filenames <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+    print(paste0(nrow(filenames), " are in", temp[1], "file"))
+  }
+  # Get names of mzml files.
+  filenames$runs <- sapply(filenames[,"filename"], function(x) strsplit(x, split = ".mzML")[[1]][1])
+  filenames$runs <- sapply(filenames$runs, function(x) gsub(nameCutPattern, replacement = "\\3", x))
+  temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
+  print(paste0(length(temp), " .chrom.mzML files are found."))
+  runs2 <- sapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1])
+  # Check if osw files have corresponding mzML file.
+  runs <- intersect(filenames$runs, runs2)
+  filenames <- filenames[filenames$runs %in% runs,]
+  rownames(filenames) <- NULL
+  if(length(runs) == 0){
     print("Number of osw files and mzml files aren't matching.")
     print("Check if you have correct file names.")
-    print("Files in mzml directory should end with _chrom.mzML")
-    print("Files in osw directory should end with .osw")
+    print("Files in mzml directory should end with .chrom.mzML")
+    print("Files in osw directory should end with .osw or .merged.osw")
     return(NULL)
+  } else{
+    return(filenames)
   }
-  return(runs)
 }

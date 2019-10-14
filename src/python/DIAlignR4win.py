@@ -15,6 +15,8 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from pathlib import Path
 import datetime
 import statsmodels.api as sm
+from sklearn.linear_model import LinearRegression
+import math
 
 def getRunNames(dataPath, oswFiles, mzmlFiles):
 	runs = []
@@ -29,7 +31,7 @@ def getRunNames(dataPath, oswFiles, mzmlFiles):
 	runs2 = []
 	for root, dirs, files in os.walk(mzmldataPath):
 		for file in files:
-			if file.endswith("_chrom.mzML"):
+			if file.endswith(".chrom.mzML"):
 				mzmlFiles.append(os.path.join(root, file))
 				runs2.append(file[:-11])
 	if set(runs) == set(runs2):
@@ -89,7 +91,6 @@ def SGolayOnRuns(runs):
     for run in runs:
         filter.filterExperiment(run)
     return True
-    
 
 def SummaryOfRuns(runs):
     print("List of runs = " + str(runs))
@@ -106,9 +107,10 @@ def extractXIC_group(mz, chromIndices):
 
 def main():
 	parser = ArgumentParser(description='Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.', formatter_class=RawTextHelpFormatter)
-	parser.add_argument('-in1', '--in_dataPath', metavar = '', help="location of parent directory of osw and mzml files.\n",  type = Path, default = [None], required = True)
+	parser.add_argument('-in1', '--in_dataPath', metavar = '', help="location of parent directory of osw and mzml files.\n",  type = Path, default = None, required = True)
 	parser.add_argument('-in2', '--alignType' , metavar = 'hybrid', type = str, nargs = 1, default = 'hybrid', required = False, choices=['hybrid', 'local', 'global'], help = 'Type of retention time alignment.\n')
 	parser.add_argument('--maxFdrQuery' , metavar = '0.05', type = float, nargs = 1, default = 0.05, required = False, help = 'Type of retention time alignment.\n')
+	parser.add_argument('--maxFdrLoess' , metavar = '0.01', type = float, nargs = 1, default = 0.01, required = False, help = 'Type of retention time alignment.\n')
 	parser.add_argument('--query' , metavar = 'query', type = str, nargs = 1, default = None, required = False, help = 'Type of retention time alignment.\n')
 	parser.add_argument('--spanvalue' , metavar = '0.1', type = float, nargs = 1, default = 0.1, required = False, help = 'Type of retention time alignment.\n')
 	parser.add_argument('--normalization' , metavar = 'mean', type = str, nargs = 1, default = 'mean', required = False, choices=['mean', 'l2', 'none'], help = 'Type of retention time alignment.\n')
@@ -131,6 +133,24 @@ def main():
     
 	args = parser.parse_args()
 	maxFdrQuery = args.maxFdrQuery
+	maxFdrLoess = args.maxFdrLoess
+	spanvalue = args.spanvalue
+	normalization = args.normalization
+	simMeasure = args.simMeasure
+	SgolayFiltOrd = args.SgolayFiltOrd
+	SgolayFiltLen = args.SgolayFiltLen
+	goFactor = args.goFactor
+	geFactor = args.geFactor
+	cosAngleThresh = args.cosAngleThresh
+	OverlapAlignment = args.OverlapAlignment
+	dotProdThresh = args.dotProdThresh
+	gapQuantile = args.gapQuantile
+	hardConstrain = args.hardConstrain
+	samples4gradient = args.samples4gradient
+	expRSE = args.expRSE
+	samplingTime = args.samplingTime
+	RSEdistFactor = args.RSEdistFactor
+
 	oswFiles = []
 	mzmlFiles = []
 	runs = []
@@ -142,6 +162,7 @@ def main():
 	#runs = ["170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35"]
 	# Get indices of chromatograms for each peptide.
 	oswFiles = dict.fromkeys(runs)
+	print("Reading osw and mzML files to fetch nativeIDs")
 	for run in runs:
 		osw_db = os.path.join(curPath, 'osw', run + '.osw')
 		# create a osw_db connection
@@ -155,7 +176,7 @@ def main():
 		df = pd.DataFrame(rows, columns=['transition_group_id', 'filename', 'RT', 'delta_rt',
 		 'assay_RT', 'Intensity', 'leftWidth', 'rightWidth', 'peak_group_rank', 'm_score', 'transition_id'])
 		# Get ChromatogramID (native) and ChromatogramIndex
-		mzml_db = os.path.join(curPath, 'mzml', run + '_chrom.mzML')
+		mzml_db = os.path.join(curPath, 'mzml', run + '.chrom.mzML')
 		mz = OnDiscMSExperiment()
 		mz.openFile(mzml_db)
 		meta_data = mz.getMetaData()
@@ -179,6 +200,7 @@ def main():
 		print("Fetched data from {0}".format(run))
 	peptides.sort()
 	
+	print("Collecting pointers to mzML files.")
 	lowess_sm = sm.nonparametric.lowess
 	mzPntrs = dict.fromkeys(runs)
 	filter = SavitzkyGolayFilter()
@@ -186,11 +208,12 @@ def main():
 	p.update({b'frame_length': args.SgolayFiltLen, b'polynomial_order': args.SgolayFiltOrd})
 	filter.setParameters(p)
 	for run in mzPntrs.keys():
-		mzml_db = os.path.join(curPath, 'mzml', run + '_chrom.mzML')
+		mzml_db = os.path.join(curPath, 'mzml', run + '.chrom.mzML')
 		mz = OnDiscMSExperiment()
 		mz.openFile(mzml_db)
 		#filter.filterExperiment(mz)
 		mzPntrs[run] = mz
+	print("Pointers collected.")
 
 	num_of_pep = len(peptides)
 	rtTbl = {run: [None]*num_of_pep for run in runs}
@@ -198,9 +221,7 @@ def main():
 	lwTbl = {run: [None]*num_of_pep for run in runs}
 	rwTbl = {run: [None]*num_of_pep for run in runs}
 
-	for i in range(10):
-		print(oswFiles[runs[2]][['transition_id', 'chromatogramIndex']].iloc[i])
-
+	print("Aligning analytes using reference-based approach.")
 	loessFits = dict()
 	for pepIdx in range(4):
 		peptide = peptides[pepIdx]
@@ -209,43 +230,63 @@ def main():
 		minrunIdx = None
 		for runIdx in range(len(runs)):
 			df = oswFiles[runs[runIdx]]
-			m_score = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), "m_score"]
+			m_score = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), "m_score"].reset_index(drop= True)
 			if not m_score.empty:
-				m_score = m_score.tolist()[0]
+				m_score = m_score[0]
 				if m_score < minMscore:
 					minMscore = m_score
 					minrunIdx = runIdx
 		print(runs[minrunIdx])
 
 		# Set the feature value as in the reference run
-		run = runs[minrunIdx]
-		df = oswFiles[run]
-		vec = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), ['RT', 'Intensity', 'leftWidth', 'rightWidth']]
+		ref = runs[minrunIdx]
+		df_ref = oswFiles[ref]
+		vec = df_ref.loc[(df_ref.transition_group_id == peptide) & (df_ref.peak_group_rank == 1), ['RT', 'Intensity', 'leftWidth', 'rightWidth']]
 		vec = vec.reset_index(drop=True)
-		rtTbl[run][pepIdx] = vec['RT'].iloc[0]
-		intesityTbl[run][pepIdx] = vec['Intensity'].iloc[0]
-		lwTbl[run][pepIdx] = vec['leftWidth'].iloc[0]
-		rwTbl[run][pepIdx] = vec['rightWidth'].iloc[0]
+		rtTbl[ref][pepIdx] = vec['RT'].iloc[0]
+		intesityTbl[ref][pepIdx] = vec['Intensity'].iloc[0]
+		lwTbl[ref][pepIdx] = vec['leftWidth'].iloc[0]
+		rwTbl[ref][pepIdx] = vec['rightWidth'].iloc[0]
 
 		# Extract chromatograms from the reference run
-		ref = run
-		exps = set(runs) - set([run])
-		chromIndices = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), 'chromatogramIndex'].to_string(header = False, index = False)
+		exps = set(runs) - set([ref])
+		chromIndices = df_ref.loc[(df_ref.transition_group_id == peptide) & (df_ref.peak_group_rank == 1), 'chromatogramIndex'].to_string(header = False, index = False)
 		chromIndices = [int(x) for x in chromIndices.split(",")]
 		XICs_ref = extractXIC_group(mzPntrs[ref], chromIndices)
 		# Align all runs to reference run
 		for eXp in exps:
 			# Get XIC_group from experiment run
-			df = oswFiles[eXp]
-			chromIndices = df.loc[(df.transition_group_id == peptide) & (df.peak_group_rank == 1), 'chromatogramIndex']
+			df_eXp = oswFiles[eXp]
+			chromIndices = df_eXp.loc[(df_eXp.transition_group_id == peptide) & (df_eXp.peak_group_rank == 1), 'chromatogramIndex']
 			if not chromIndices.empty:
 				chromIndices = chromIndices.to_string(header = False, index = False)
 				chromIndices = [int(x) for x in chromIndices.split(",")]
 				XICs_eXp = extractXIC_group(mzPntrs[eXp], chromIndices)
 				# Get the loess fit for hybrid alignment
 				pair = '{0}_{1}'.format(ref, eXp) # Update these names with run0 run1 instead of filename. May be I can use series.
-
-
+				if pair in loessFits.keys():
+					Loess_fit = loessFits[pair]
+				else:
+					# Can't update dataframe after .loc in python?
+					df_ref_rt = df_ref.loc[(df_ref.m_score < maxFdrLoess) & (df_ref.peak_group_rank == 1), ['transition_group_id', 'RT']]
+					df_eXp_rt = df_eXp.loc[(df_eXp.m_score < maxFdrLoess) & (df_eXp.peak_group_rank == 1), ['transition_group_id', 'RT']]
+					RUNS_RT = pd.merge(df_ref_rt, df_eXp_rt, how = 'inner', on = 'transition_group_id', suffixes=('_ref', '_eXp'))
+					X = RUNS_RT.loc[:, 'RT_ref'].values.reshape(-1, 1)
+					y = RUNS_RT.loc[:, 'RT_eXp'].values
+					Loess_fit = LinearRegression().fit(X, y)
+					loessFits[pair] = Loess_fit
+				rse = min(9.0, expRSE)
+				noBeef = math.ceil(RSEdistFactor*rse/samplingTime)
+				tVec_ref = XICs_ref[0][0] # Extracting time component
+				tVec_eXp = XICs_eXp[0][0] # Extracting time component
+				B1p = Loess_fit.predict(np.array([[tVec_ref[0]]]))
+				B2p = Loess_fit.predict(np.array([[tVec_ref[-1]]]))
+				intensityList_ref = [XICs_ref[fragIdx][1] for fragIdx in range(len(XICs_ref))]
+				intensityList_ref = np.ascontiguousarray(np.asarray(intensityList_ref))
+				intensityList_eXp = [XICs_eXp[fragIdx][1] for fragIdx in range(len(XICs_eXp))]
+				intensityList_eXp = np.ascontiguousarray(np.asarray(intensityList_eXp))
+				
+	return 1
 
 
 if __name__=='__main__':
