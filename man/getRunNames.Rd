@@ -4,7 +4,7 @@
 \alias{getRunNames}
 \title{Get names of all runs}
 \usage{
-getRunNames(dataPath)
+getRunNames(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)")
 }
 \value{
 A vector with names of all runs.
