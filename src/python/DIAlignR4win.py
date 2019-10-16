@@ -159,7 +159,7 @@ def main():
 		curPath = args.in_dataPath
 		runs = getRunNames(curPath, oswFiles, mzmlFiles)
 
-	#runs = ["170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35"]
+	runs = ['170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35', '170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#1_400-650mz_msms34']
 	# Get indices of chromatograms for each peptide.
 	oswFiles = dict.fromkeys(runs)
 	print("Reading osw and mzML files to fetch nativeIDs")
@@ -223,7 +223,7 @@ def main():
 
 	print("Aligning analytes using reference-based approach.")
 	loessFits = dict()
-	for pepIdx in range(4):
+	for pepIdx in range(2):
 		peptide = peptides[pepIdx]
 		# Select reference run based on m-score
 		minMscore = 1.0
@@ -279,13 +279,50 @@ def main():
 				noBeef = math.ceil(RSEdistFactor*rse/samplingTime)
 				tVec_ref = XICs_ref[0][0] # Extracting time component
 				tVec_eXp = XICs_eXp[0][0] # Extracting time component
-				B1p = Loess_fit.predict(np.array([[tVec_ref[0]]]))
-				B2p = Loess_fit.predict(np.array([[tVec_ref[-1]]]))
+				B1p = Loess_fit.predict(np.array([[tVec_ref[0]]], dtype = 'float64'))
+				B2p = Loess_fit.predict(np.array([[tVec_ref[-1]]], dtype = 'float64'))
 				intensityList_ref = [XICs_ref[fragIdx][1] for fragIdx in range(len(XICs_ref))]
-				intensityList_ref = np.ascontiguousarray(np.asarray(intensityList_ref))
+				intensityList_ref = np.ascontiguousarray(np.asarray(intensityList_ref, dtype = 'float64'))
 				intensityList_eXp = [XICs_eXp[fragIdx][1] for fragIdx in range(len(XICs_eXp))]
-				intensityList_eXp = np.ascontiguousarray(np.asarray(intensityList_eXp))
-				
+				intensityList_eXp = np.ascontiguousarray(np.asarray(intensityList_eXp, dtype = 'float64'))
+				obj = PyDIAlign.AffineAlignObj(500, 500)
+				PyDIAlign.alignChromatogramsCppSimple(obj, intensityList_ref, intensityList_eXp,
+	                                                  b'hybrid', tVec_ref, tVec_eXp, b'mean',
+	                                                  b'dotProductMasked')
+				AlignedIndices = pd.DataFrame(list(zip(obj.indexA_aligned, obj.indexB_aligned, obj.score)),
+	                                          columns =['indexAligned_ref', 'indexAligned_eXp', 'score'])
+							# C++ output is based on 1-index.
+				tAligned_ref = mapIdxToTime(tVec_ref, AlignedIndices['indexAligned_ref']-1)
+				tAligned_eXp = mapIdxToTime(tVec_eXp, AlignedIndices['indexAligned_eXp']-1)
+				rtTbl[eXp][pepIdx] = tAligned_eXp[np.argmin(abs(tAligned_ref - rtTbl[ref][pepIdx]))]
+				df = df_eXp.loc[(df_eXp.transition_group_id == peptide), ['RT', 'Intensity', 'leftWidth', 'rightWidth', 'peak_group_rank', 'm_score']]
+				adaptiveRT = RSEdistFactor*rse
+				df = df.loc[((abs(df.RT - rtTbl[eXp][pepIdx]) <= adaptiveRT) & (df.m_score < maxFdrQuery) & df.peak_group_rank.idxmin()), ]
+				if not df.empty:
+					lwTbl[eXp][pepIdx] = df.loc[0, 'leftWidth']
+					rtTbl[eXp][pepIdx] = df.loc[0, 'RT']
+					rwTbl[eXp][pepIdx] = df.loc[0, 'rightWidth']
+					intesityTbl[eXp][pepIdx] = df.loc[0, 'Intensity']
+	# Saving tables
+	df = pd.DataFrame.from_dict(rtTbl, orient='columns')
+	df['peptides'] = peptides
+	df.set_index('peptides', inplace=True)
+	df.to_csv('rtTblPy.csv', na_rep = 'NA')
+
+	df = pd.DataFrame.from_dict(intesityTbl, orient='columns')
+	df['peptides'] = peptides
+	df.set_index('peptides', inplace=True)
+	df.to_csv('intesityTblPy.csv', na_rep = 'NA')
+
+	df = pd.DataFrame.from_dict(lwTbl, orient='columns')
+	df['peptides'] = peptides
+	df.set_index('peptides', inplace=True)
+	df.to_csv('lwTblPy.csv', na_rep = 'NA')
+
+	df = pd.DataFrame.from_dict(rwTbl, orient='columns')
+	df['peptides'] = peptides
+	df.set_index('peptides', inplace=True)
+	df.to_csv('rwTblPy.csv', na_rep = 'NA')
 	return 1
 
 
