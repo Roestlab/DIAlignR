@@ -262,6 +262,53 @@ extractXIC_group <- function(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen 
   return(XIC_group)
 }
 
+#' Get names of all runs
+#'
+#' @return A vector with names of all runs.
+getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
+  # Get names of osw files.
+  if(oswMerged == FALSE){
+    print("Looking for .osw files.")
+    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw")
+    filenames <- sapply(1:length(temp), function(i){
+      con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[i]))
+      query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
+      tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+    })
+    filenames <- as.data.frame(unique(unlist(filenames)))
+    colnames(filenames) <-  c("filename")
+    filenames$filename <- as.character(filenames$filename)
+    print(paste0(nrow(filenames), " .osw files are found."))
+  } else{
+    print("Looking for .merged.osw file.")
+    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[1]))
+    query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
+    filenames <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+    print(paste0(nrow(filenames), " are in", temp[1], "file"))
+  }
+  # Get names of mzml files.
+  filenames$runs <- sapply(filenames[,"filename"], function(x) strsplit(x, split = ".mzML")[[1]][1])
+  filenames$runs <- sapply(filenames$runs, function(x) gsub(nameCutPattern, replacement = "\\3", x))
+  temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
+  print(paste0(length(temp), " .chrom.mzML files are found."))
+  runs2 <- sapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1])
+  # Check if osw files have corresponding mzML file.
+  runs <- intersect(filenames$runs, runs2)
+  filenames <- filenames[filenames$runs %in% runs,]
+  rownames(filenames) <- NULL
+  if(length(runs) == 0){
+    print("Number of osw files and mzml files aren't matching.")
+    print("Check if you have correct file names.")
+    print("Files in mzml directory should end with .chrom.mzML")
+    print("Files in osw directory should end with .osw or .merged.osw")
+    return(NULL)
+  } else{
+    return(filenames)
+  }
+}
+
+
 #' Get XICs for a list of peptides
 #'
 #' @return A list of list. Each list contains XICs for that run.
@@ -356,48 +403,3 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
   return(XICs)
 }
 
-#' Get names of all runs
-#'
-#' @return A vector with names of all runs.
-getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
-  # Get names of osw files.
-  if(oswMerged == FALSE){
-    print("Looking for .osw files.")
-    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw")
-    filenames <- sapply(1:length(temp), function(i){
-      con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[i]))
-      query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
-      tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
-    })
-    filenames <- as.data.frame(unique(unlist(filenames)))
-    colnames(filenames) <-  c("filename")
-    filenames$filename <- as.character(filenames$filename)
-    print(paste0(nrow(filenames), " .osw files are found."))
-  } else{
-    print("Looking for .merged.osw file.")
-    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
-    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[1]))
-    query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
-    filenames <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
-    print(paste0(nrow(filenames), " are in", temp[1], "file"))
-  }
-  # Get names of mzml files.
-  filenames$runs <- sapply(filenames[,"filename"], function(x) strsplit(x, split = ".mzML")[[1]][1])
-  filenames$runs <- sapply(filenames$runs, function(x) gsub(nameCutPattern, replacement = "\\3", x))
-  temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
-  print(paste0(length(temp), " .chrom.mzML files are found."))
-  runs2 <- sapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1])
-  # Check if osw files have corresponding mzML file.
-  runs <- intersect(filenames$runs, runs2)
-  filenames <- filenames[filenames$runs %in% runs,]
-  rownames(filenames) <- NULL
-  if(length(runs) == 0){
-    print("Number of osw files and mzml files aren't matching.")
-    print("Check if you have correct file names.")
-    print("Files in mzml directory should end with .chrom.mzML")
-    print("Files in osw directory should end with .osw or .merged.osw")
-    return(NULL)
-  } else{
-    return(filenames)
-  }
-}
