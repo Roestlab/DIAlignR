@@ -111,3 +111,21 @@ plotAlignedPeptides <- function(AlignObjOutput, plotType = "All"){
                                                         "\n", "eXp: ", eXpRun ))
   }
 }
+
+#' Plot aligned path through the similarity matrix.
+#' Reference run has indices on X-axis, eXp run has them on Y-axis.
+#'
+#' @importFrom lattice levelplot
+#' @importFrom latticeExtra as.layer
+#' @export
+plotAlignemntPath <- function(AlignObjOutput){
+  Alignobj <- AlignObjOutput[[1]][[1]]
+  peptide <- names(AlignObjOutput)[1]
+  s <- Alignobj@s
+  Path <- Alignobj@path[2:nrow(Alignobj@path), 2:ncol(Alignobj@path)]
+  levelplot(s, axes = TRUE, xlab = "ref index", ylab = "eXp index",
+            main = paste0("Hybrid alignment through the similarity matrix\n for ",
+                          peptide), fontsize = 7) +
+    as.layer(levelplot(Path, col.regions = c("transparent", "green"),
+                                     alpha = 1, axes = FALSE))
+}

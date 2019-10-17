@@ -26,6 +26,8 @@ Imports:
     Rcpp
 Suggests:
     knitr,
+    lattice,
+    latticeExtra,
     rmarkdown
 VignetteBuilder: knitr
 LinkingTo: 
