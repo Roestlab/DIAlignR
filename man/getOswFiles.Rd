@@ -4,7 +4,7 @@
 \alias{getOswFiles}
 \title{Get list of peptides and their chromatogram indices.}
 \usage{
-getOswFiles(peptides, filenames, dataPath = ".", query = NULL,
+getOswFiles(filenames, dataPath = ".", peptides = NULL, query = NULL,
   oswMerged = TRUE, maxFdrQuery = 1, nameCutPattern = "(.*)(/)(.*)")
 }
 \value{

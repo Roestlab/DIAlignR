@@ -313,7 +313,7 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
 #'
 #' @importFrom dplyr %>%
 #' @return A list of data-frames.
-getOswFiles <- function(peptides, filenames, dataPath = ".", query = NULL,
+getOswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = NULL,
                         oswMerged = TRUE, maxFdrQuery = 1.0, nameCutPattern = "(.*)(/)(.*)"){
   # Get Chromatogram indices for each peptide in each run.
   print("Getting chromatogram indices for each peptide in each run")
@@ -377,12 +377,13 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
   rownames(filenames) <- paste0("run", 0:(length(runs)-1), "")
 
   # Get Chromatogram indices for each peptide in each run.
-  oswFiles = getOswFiles(peptides, filenames, dataPath, query, oswMerged, maxFdrQuery, nameCutPattern)
+  oswFiles = getOswFiles(filenames, dataPath, peptides, query, oswMerged, maxFdrQuery, nameCutPattern)
   PeptidesFound <- c()
   for(x in oswFiles){
     PeptidesFound <- x %>% .$transition_group_id %>% dplyr::union(PeptidesFound)
   }
 
+  PeptidesFound <- intersect(peptides, PeptidesFound)
   # Report peptides that are not found
   PeptidesNotFound <- setdiff(peptides, PeptidesFound)
   if(length(PeptidesNotFound)>0){
@@ -452,12 +453,13 @@ getAlignObjs <- function(peptides, runs, dataPath = ".", alignType = "hybrid",
   rownames(filenames) <- paste0("run", 0:(length(runs)-1), "")
 
   # Get Chromatogram indices for each peptide in each run.
-  oswFiles = getOswFiles(peptides, filenames, dataPath, query, oswMerged, maxFdrQuery, nameCutPattern)
+  oswFiles = getOswFiles(filenames, dataPath, NULL, query, oswMerged, maxFdrQuery, nameCutPattern)
   PeptidesFound <- c()
   for(x in oswFiles){
     PeptidesFound <- x %>% .$transition_group_id %>% dplyr::union(PeptidesFound)
   }
 
+  PeptidesFound <- intersect(peptides, PeptidesFound)
   # Report peptides that are not found
   PeptidesNotFound <- setdiff(peptides, PeptidesFound)
   if(length(PeptidesNotFound)>0){
@@ -557,11 +559,19 @@ getAlignObjs <- function(peptides, runs, dataPath = ".", alignType = "hybrid",
                                           cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
                                           dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
                                           hardConstrain = hardConstrain, samples4gradient = samples4gradient)
-        AlignObjs[[pepIdx]] <- Alignobj
+        AlignObjs[[pepIdx]] <- list()
+        AlignObjs[[pepIdx]][[1]] <- Alignobj
+        AlignObjs[[pepIdx]][[runs[ref]]] <- XICs.ref
+        AlignObjs[[pepIdx]][[runs[eXp]]] <- XICs.eXp
+        AlignObjs[[pepIdx]][[4]] <- oswFiles[[minrunIdx]] %>%
+          dplyr::filter(transition_group_id == peptide & peak_group_rank == 1) %>%
+          dplyr::select(leftWidth, RT, rightWidth) %>%
+          as.vector()
       }
       else {AlignObjs[[pepIdx]] <- NULL}
     }
   }
+  names(AlignObjs) <- peptides
   print("Alignment done. Returning AlignObjs")
   return(AlignObjs)
 }
