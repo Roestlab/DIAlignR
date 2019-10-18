@@ -11,6 +11,7 @@ from sqlite3 import Error as sql_error
 import pandas as pd
 from pyopenms import *
 import scipy
+from scipy.interpolate import interp1d
 from argparse import ArgumentParser, RawTextHelpFormatter
 from pathlib import Path
 import datetime
@@ -271,6 +272,7 @@ def main():
 					df_ref_rt = df_ref.loc[(df_ref.m_score < maxFdrLoess) & (df_ref.peak_group_rank == 1), ['transition_group_id', 'RT']]
 					df_eXp_rt = df_eXp.loc[(df_eXp.m_score < maxFdrLoess) & (df_eXp.peak_group_rank == 1), ['transition_group_id', 'RT']]
 					RUNS_RT = pd.merge(df_ref_rt, df_eXp_rt, how = 'inner', on = 'transition_group_id', suffixes=('_ref', '_eXp'))
+					lowess = sm.nonparametric.lowess
 					X = RUNS_RT.loc[:, 'RT_ref'].values.reshape(-1, 1)
 					y = RUNS_RT.loc[:, 'RT_eXp'].values
 					Loess_fit = LinearRegression().fit(X, y)
