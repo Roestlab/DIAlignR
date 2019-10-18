@@ -338,7 +338,7 @@ getOswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = NUL
     mz <- tryCatch(mzR::openMSfile(mzmlName, backend = "pwiz"),
                    error = function(cond) {
                      c$message <- paste0(c$message,
-                     "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
+                                         "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
                      stop(cond)})
     chromHead <- mzR::chromatogramHeader(mz)
     rm(mz)
@@ -358,6 +358,7 @@ getOswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = NUL
   print("Fetched chromatogram indices for each peptide in each run")
   return(oswFiles)
 }
+
 
 #' Get XICs for a list of peptides
 #'
@@ -401,7 +402,7 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
     mz <- tryCatch(mzR::openMSfile(mzmlName, backend = "pwiz"),
                    error = function(cond) {
                      c$message <- paste0(c$message,
-                     "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
+                                         "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
                      stop(cond)})
     XICs_run <- lapply(1:length(PeptidesFound), function(j){
       chromIndices <- oswFiles[[i]] %>%
@@ -422,7 +423,6 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
   names(XICs) <- runs
   return(XICs)
 }
-
 
 #' AlignObj for peptides between a pair
 #'
