@@ -5,7 +5,7 @@
 \title{This is a query that will be used to fetch information from osw files.}
 \usage{
 getQuery(maxFdrQuery, oswMerged = TRUE, peptides = NULL,
-  filename = NULL)
+  filename = NULL, Metabolome = FALSE)
 }
 \value{
 SQL query to be searched.

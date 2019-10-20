@@ -4,7 +4,7 @@
 #' @importFrom dplyr %>%
 #' @export
 alignTragetedRuns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-                              maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1,
+                              maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1, Metabolome = FALSE,
                               normalization = "mean", simMeasure = "dotProductMasked",
                               SgolayFiltOrd = 4, SgolayFiltLen = 9,
                               goFactor = 0.125, geFactor = 40,
@@ -39,7 +39,7 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
       oswName <- paste0(file.path(dataPath, "osw", filenames$runs[i]), ".osw")
     }
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
-    query <- getQuery(maxFdrQuery, oswMerged, filename = filenames$filename[i])
+    query <- getQuery(maxFdrQuery, oswMerged, peptides = NULL, filename = filenames$filename[i], Metabolome = Metabolome)
     x <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
 
     # TODO: change how to go from osw directory to mzML directory.
@@ -211,7 +211,7 @@ alignTragetedRuns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
 #' This is a query that will be used to fetch information from osw files.
 #'
 #' @return SQL query to be searched.
-getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = NULL){
+getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = NULL, Metabolome = FALSE){
   if(is.null(peptides)){
     selectPeptide <- ""
   } else{
@@ -224,7 +224,47 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
     matchFilename <- ""
   }
 
-  query <- paste0("SELECT PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id,
+  if(Metabolome == TRUE){
+    paste0("SELECT RUN.ID AS id_run,
+    COMPOUND.ID AS id_compound,
+    PRECURSOR.ID AS transition_group_id,
+    TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+    PRECURSOR.DECOY AS decoy,
+    RUN.ID AS run_id,
+    RUN.FILENAME AS filename,
+    FEATURE.EXP_RT AS RT,
+    FEATURE.EXP_RT - FEATURE.DELTA_RT AS assay_rt,
+    FEATURE.DELTA_RT AS delta_rt,
+    PRECURSOR.LIBRARY_RT AS assay_RT,
+    FEATURE.NORM_RT - PRECURSOR.LIBRARY_RT AS delta_RT,
+    FEATURE.ID AS id,
+    COMPOUND.SUM_FORMULA AS sum_formula,
+    COMPOUND.COMPOUND_NAME AS compound_name,
+    COMPOUND.ADDUCTS AS Adducts,
+    PRECURSOR.CHARGE AS Charge,
+    PRECURSOR.PRECURSOR_MZ AS mz,
+    FEATURE_MS2.AREA_INTENSITY AS Intensity,
+    FEATURE_MS1.AREA_INTENSITY AS aggr_prec_Peak_Area,
+    FEATURE_MS1.APEX_INTENSITY AS aggr_prec_Peak_Apex,
+    FEATURE.LEFT_WIDTH AS leftWidth,
+    FEATURE.RIGHT_WIDTH AS rightWidth,
+    SCORE_MS2.RANK AS peak_group_rank,
+    SCORE_MS2.SCORE AS d_score,
+    SCORE_MS2.QVALUE AS m_score
+    FROM PRECURSOR
+    INNER JOIN PRECURSOR_COMPOUND_MAPPING ON PRECURSOR.ID = PRECURSOR_COMPOUND_MAPPING.PRECURSOR_ID
+    INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID
+    INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+    INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+    LEFT JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+    LEFT JOIN FEATURE_MS1 ON FEATURE_MS1.FEATURE_ID = FEATURE.ID
+    LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
+    LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+    WHERE SCORE_MS2.QVALUE < 0.05
+    ORDER BY transition_group_id,
+    peak_group_rank;")
+  } else{
+    query <- paste0("SELECT PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id,
   RUN.FILENAME AS filename,
   FEATURE.EXP_RT AS RT,
   FEATURE.DELTA_RT AS delta_rt,
@@ -246,6 +286,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
   WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectPeptide, matchFilename, "
   ORDER BY transition_group_id,
   peak_group_rank;")
+  }
   return(query)
 }
 
