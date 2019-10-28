@@ -27,6 +27,7 @@ Imports:
 Suggests:
     knitr,
     lattice,
+    scales,
     latticeExtra,
     rmarkdown
 VignetteBuilder: knitr
