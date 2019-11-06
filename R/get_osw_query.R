@@ -17,7 +17,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
   if(runType == "DIA_Metabolomics"){
     query <- paste0("SELECT RUN.ID AS id_run,
     COMPOUND.ID AS id_compound,
-    PRECURSOR.ID AS transition_group_id,
+    COMPOUND.COMPOUND_NAME || '_' || COMPOUND.ADDUCTS AS transition_group_id,
     TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
     RUN.ID AS run_id,
     RUN.FILENAME AS filename,
@@ -44,7 +44,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
     LEFT JOIN FEATURE_MS1 ON FEATURE_MS1.FEATURE_ID = FEATURE.ID
     LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
     LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-    WHERE SCORE_MS2.QVALUE < 0.05
+    WHERE COMPOUND.DECOY = 0 AND SCORE_MS2.QVALUE <  ", maxFdrQuery, matchFilename, "
     ORDER BY transition_group_id,
     peak_group_rank;")
   } else if (runType == "MRM_Proteomics"){
@@ -84,7 +84,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
   INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
   INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
-  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+    LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
   WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectPeptide, matchFilename, "
   ORDER BY transition_group_id,
   peak_group_rank;")

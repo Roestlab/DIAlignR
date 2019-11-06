@@ -297,3 +297,77 @@ getMRMXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
   names(XICs) <- runs
   return(XICs)
 }
+
+
+#' Get list of analytes and their chromatogram indices.
+#'
+#' @importFrom dplyr %>%
+#' @return A list of data-frames.
+#' @export
+getMetaboswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = NULL,
+                           oswMerged = FALSE, maxFdrQuery = 1.0){
+  # Get Chromatogram indices for each analyte in each run.
+  print("Getting chromatogram indices for each analyte in each run")
+  oswFiles <- list()
+  for(i in 1:nrow(filenames)){
+    run <- rownames(filenames)[i]
+    # Get a query to search against the osw files.
+    if(oswMerged == TRUE){
+      oswName <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
+      oswName <- file.path(dataPath, "osw", oswName[1])
+    } else{
+      oswName <- paste0(file.path(dataPath, "osw", filenames$runs[i]), ".osw")
+    }
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
+    query <- getQuery(maxFdrQuery, oswMerged, peptides = NULL,
+                      filename = filenames$filename[i], runType = "DIA_Metabolomics")
+    x <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+
+    # TODO: change how to go from osw directory to mzML directory.
+    mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
+    mz <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
+                   error = function(cond) {
+                     c$message <- paste0(c$message,
+                       "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
+                     stop(cond)})
+    chromHead <- mzR::chromatogramHeader(mz)
+    rm(mz)
+    chromHead <- chromHead %>%
+      dplyr::select(chromatogramId, chromatogramIndex) %>%
+      dplyr::mutate(chromatogramId = as.integer(chromatogramId))
+    # TODO: Make sure that transition_id has same order across runs. IMO should be specified in query.
+    x <- x %>% dplyr::left_join(chromHead, by = c("transition_id" = "chromatogramId"))
+    oswFiles[[i]] <- x %>%
+      dplyr::group_by(transition_group_id, peak_group_rank) %>%
+      dplyr::mutate(transition_ids = paste0(transition_id, collapse = ","),
+                    chromatogramIndex = paste0(chromatogramIndex, collapse = ",")) %>%
+      dplyr::ungroup() %>% dplyr::select(-transition_id) %>% dplyr::distinct()
+    print(paste0("Fetched chromatogram indices from ", filenames$filename[i]))
+  }
+  names(oswFiles) <- rownames(filenames)
+  print(paste("Fetched chromatogram indices from run", filenames$runs[i]))
+  return(oswFiles)
+}
+
+
+#' Get names of analytes found in all runs.
+#'
+#' @importFrom dplyr %>%
+#' @return A vector of strings.
+#' @export
+getAnalytesName <- function(runs, dataPath = ".",
+                            query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                            maxFdrQuery = 0.05){
+  filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
+  filenames <- filenames[filenames$runs %in% runs,]
+  rownames(filenames) <- paste0("run", 0:(length(runs)-1), "")
+
+  # Get Precursors from the query and respective chromatogram indices.
+  oswFiles <- getMetaboswFiles(filenames, dataPath, peptides = NULL,  query = NULL,
+                               oswMerged = oswMerged, maxFdrQuery = maxFdrQuery)
+  AnalytesFound <- oswFiles[[1]] %>% .$transition_group_id
+  for(x in oswFiles){
+    AnalytesFound <- x %>% .$transition_group_id %>% dplyr::intersect(AnalytesFound)
+  }
+  return(AnalytesFound)
+}

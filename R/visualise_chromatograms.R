@@ -72,73 +72,83 @@ plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0
 #' @importFrom gridExtra grid.arrange
 #' @importFrom scales scientific_format
 #' @export
-  plotAlignedPeptides <- function(AlignObjOutput, plotType = "All", annotatePeak = FALSE){
-  Alignobj <- AlignObjOutput[[1]][[1]]
-  XICs.ref <- AlignObjOutput[[1]][[2]]
-  XICs.eXp <- AlignObjOutput[[1]][[3]]
-  refPeakLabel <- AlignObjOutput[[1]][[4]]
-  AlignedIndices <- cbind(Alignobj@indexA_aligned,
-                          Alignobj@indexB_aligned,
-                          Alignobj@score)
-  colnames(AlignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
-  AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
-  peptide <- names(AlignObjOutput)[1]
-  refRun <- names(AlignObjOutput[[1]])[2]
-  eXpRun <- names(AlignObjOutput[[1]])[3]
-  t.ref <- mapIdxToTime(XICs.ref[[1]][[1]], AlignedIndices[,"indexAligned.ref"])
-  t.eXp <- mapIdxToTime(XICs.eXp[[1]][[1]], AlignedIndices[,"indexAligned.eXp"])
-
-  ###################### Plot unaligned chromatogram ######################################
-  pTL <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1))
-  if(annotatePeak){
-    pTL <- pTL +
-      geom_vline(xintercept=refPeakLabel$RT[1], lty="dotted", size = 0.3) +
-      geom_vline(xintercept=refPeakLabel$leftWidth[1], lty="dashed", size = 0.1) +
-      geom_vline(xintercept=refPeakLabel$rightWidth[1], lty="dashed", size = 0.1)
+plotAlignedPeptides <- function(AlignObjOutput, plotType = "All", annotatePeak = FALSE){
+  if(length(AlignObjOutput) > 1 ){
+    pdf("AlignedPeptides.pdf")
   }
+  for(i in 1:length(AlignObjOutput)){
+    if(!is.null(AlignObjOutput[[i]])){
+      Alignobj <- AlignObjOutput[[i]][[1]]
+      XICs.ref <- AlignObjOutput[[i]][[2]]
+      XICs.eXp <- AlignObjOutput[[i]][[3]]
+      refPeakLabel <- AlignObjOutput[[i]][[4]]
+      AlignedIndices <- cbind(Alignobj@indexA_aligned,
+                              Alignobj@indexB_aligned,
+                              Alignobj@score)
+      colnames(AlignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
+      AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
+      peptide <- names(AlignObjOutput)[i]
+      refRun <- names(AlignObjOutput[[i]])[2]
+      eXpRun <- names(AlignObjOutput[[i]])[3]
+      t.ref <- mapIdxToTime(XICs.ref[[1]][[1]], AlignedIndices[,"indexAligned.ref"])
+      t.eXp <- mapIdxToTime(XICs.eXp[[1]][[1]], AlignedIndices[,"indexAligned.eXp"])
 
-  pBL <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1))
-  if(annotatePeak){
-    pBL <- pBL +
-      geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
-      geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$leftWidth[1]))], lty="dashed", size = 0.1) +
-      geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$rightWidth[1]))], lty="dashed", size = 0.1)
+      ###################### Plot unaligned chromatogram ######################################
+      pTL <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1))
+      if(annotatePeak){
+        pTL <- pTL +
+          geom_vline(xintercept=refPeakLabel$RT[1], lty="dotted", size = 0.3) +
+          geom_vline(xintercept=refPeakLabel$leftWidth[1], lty="dashed", size = 0.1) +
+          geom_vline(xintercept=refPeakLabel$rightWidth[1], lty="dashed", size = 0.1)
+      }
+
+      pBL <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1))
+      if(annotatePeak){
+        pBL <- pBL +
+          geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
+          geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$leftWidth[1]))], lty="dashed", size = 0.1) +
+          geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$rightWidth[1]))], lty="dashed", size = 0.1)
+      }
+
+      ###################### Plot aligned chromatogram ######################################
+      pTR <- plotSingleAlignedChrom(XICs.ref, idx = AlignedIndices[,"indexAligned.ref"]) +
+        scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("ref Index")
+      if(annotatePeak){
+        pTR <- pTR +
+          geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
+                     lty="dotted", size = 0.3) +
+          geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$leftWidth[1])),
+                     lty="dashed", size = 0.1) +
+          geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$rightWidth[1])),
+                     lty="dashed", size = 0.1)
+      }
+
+      pBR <- plotSingleAlignedChrom(XICs.eXp, idx = AlignedIndices[,"indexAligned.eXp"]) +
+        scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp Index")
+      if(annotatePeak){
+        pBR <- pBR +
+          geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
+                     lty="dotted", size = 0.3) +
+          geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$leftWidth[1])),
+                     lty="dashed", size = 0.1) +
+          geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$rightWidth[1])),
+                     lty="dashed", size = 0.1)
+      }
+
+      if(plotType == "onlyAligned"){
+        grid.arrange(pTR, pBR, nrow=2, ncol=1, top = paste0(peptide,"\n", "ref: ", refRun,
+                                                            "\n", "eXp: ", eXpRun ))
+      } else if(plotType == "onlyUnaligned"){
+        grid.arrange(pTL, pBL, nrow=2, ncol=1, top = paste0(peptide,"\n", "ref: ", refRun,
+                                                            "\n", "eXp: ", eXpRun ))
+      } else{
+        grid.arrange(pTL, pTR, pBL, pBR, nrow=2, ncol=2, top = paste0(peptide,"\n", "ref: ", refRun,
+                                                                      "\n", "eXp: ", eXpRun ))
+      }
+    }
   }
-
-  ###################### Plot aligned chromatogram ######################################
-  pTR <- plotSingleAlignedChrom(XICs.ref, idx = AlignedIndices[,"indexAligned.ref"]) +
-    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("ref Index")
-  if(annotatePeak){
-    pTR <- pTR +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
-                 lty="dotted", size = 0.3) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$leftWidth[1])),
-                 lty="dashed", size = 0.1) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$rightWidth[1])),
-                 lty="dashed", size = 0.1)
-  }
-
-  pBR <- plotSingleAlignedChrom(XICs.eXp, idx = AlignedIndices[,"indexAligned.eXp"]) +
-    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp Index")
-  if(annotatePeak){
-    pBR <- pBR +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
-               lty="dotted", size = 0.3) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$leftWidth[1])),
-               lty="dashed", size = 0.1) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$rightWidth[1])),
-               lty="dashed", size = 0.1)
-  }
-
-  if(plotType == "onlyAligned"){
-    grid.arrange(pTR, pBR, nrow=2, ncol=1, top = paste0(peptide,"\n", "ref: ", refRun,
-                                                        "\n", "eXp: ", eXpRun ))
-  } else if(plotType == "onlyUnaligned"){
-    grid.arrange(pTL, pBL, nrow=2, ncol=1, top = paste0(peptide,"\n", "ref: ", refRun,
-                                                        "\n", "eXp: ", eXpRun ))
-  } else{
-    grid.arrange(pTL, pTR, pBL, pBR, nrow=2, ncol=2, top = paste0(peptide,"\n", "ref: ", refRun,
-                                                        "\n", "eXp: ", eXpRun ))
+  if(length(AlignObjOutput) > 1){
+    dev.off()
   }
 }
 
