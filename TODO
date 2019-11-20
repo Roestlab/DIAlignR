@@ -2,3 +2,12 @@
 Gap penalty zero case
 Understand unit of expRSE
 dummy mzML, osw file
+Multiple parameterised query SQL
+BigMemory package and parallel processing package
+Make sure that tests are running on windows.
+
+Increase and shorten the length of chromatogram: mean and sd
+Divide by 64 nodes
+
+Read about FDR stuff.
+Manual annotation: Fully supervised.

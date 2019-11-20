@@ -1,6 +1,7 @@
 #' This is a query that will be used to fetch information from osw files.
 #'
 #' @return SQL query to be searched.
+#' @export
 getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = NULL, runType = "DIA_Proteomics"){
   if(is.null(peptides)){
     selectPeptide <- ""
@@ -84,7 +85,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
   INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
   INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
-    LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
   WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectPeptide, matchFilename, "
   ORDER BY transition_group_id,
   peak_group_rank;")
