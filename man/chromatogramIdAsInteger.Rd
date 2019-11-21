@@ -4,7 +4,7 @@
 \alias{chromatogramIdAsInteger}
 \title{Selects only chromatogramId, chromatogramIndex columns and convert them into integer.}
 \usage{
-chromatogramIdAsInteger(chromHead)
+chromatogramIdAsInteger(chromatogramHeader)
 }
 \value{
 Invisible NULL

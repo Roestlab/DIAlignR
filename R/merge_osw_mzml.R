@@ -1,10 +1,11 @@
 #' Selects only chromatogramId, chromatogramIndex columns and convert them into integer.
 #'
 #' @return Invisible NULL
-chromatogramIdAsInteger <- function(chromHead){
-  chromHead <- dplyr::select(chromHead, chromatogramId, chromatogramIndex)
-  chromHead <- dplyr::mutate(chromHead, chromatogramId = as.integer(chromatogramId))
-  chromHead
+chromatogramIdAsInteger <- function(chromatogramHeader){
+  assign("chromHead", dplyr::mutate(dplyr::select(chromatogramHeader, chromatogramId, chromatogramIndex),
+                                    chromatogramId = as.integer(chromatogramId)),
+         envir = parent.frame(n = 1))
+  invisible(NULL)
 }
 
 
@@ -14,16 +15,14 @@ chromatogramIdAsInteger <- function(chromHead){
 #' @return Update list of data-frame
 mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR, runType = "DIA_proteomics"){
   # TODO: Make sure that transition_id has same order across runs. IMO should be specified in query.
-  oswAnalytes <- dplyr::left_join(oswAnalytes, chromHead,
-                                   by = c("transition_id" = "chromatogramId"))
-  oswAnalytes <- oswAnalytes %>%
+  assign("oswAnalytes", dplyr::left_join(oswAnalytes, chromHead,
+                                  by = c("transition_id" = "chromatogramId")) %>%
     dplyr::group_by(transition_group_id, peak_group_rank) %>%
     dplyr::mutate(transition_ids = paste0(transition_id, collapse = ","),
                   chromatogramIndex = paste0(chromatogramIndex, collapse = ",")) %>%
-    dplyr::ungroup() %>% dplyr::select(-transition_id) %>% dplyr::distinct()
-  peptides <- dplyr::filter(oswAnalytes, m_score < analyteFDR) %>% .$transition_group_id %>%
-    dplyr::union(peptides)
-  oswAnalytes
+    dplyr::ungroup() %>% dplyr::select(-transition_id) %>% dplyr::distinct(),
+    envir = parent.frame(n = 1))
+  invisible(NULL)
 }
 
 #' Get list of peptides and their chromatogram indices.
@@ -49,10 +48,10 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
     # Get chromatogram indices from the header file.
     mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
     chromHead <- readChromatogramHeader(mzmlName)
-    chromHead <- chromatogramIdAsInteger(chromHead)
+    chromatogramIdAsInteger(chromHead)
     # Merge chromatogram indices with transition indices and save them.
     # Following function merges analytesInfo dataframe with the chromatogram Header.
-    oswAnalytes <- mergeOswAnalytes_ChromHeader(oswAnalytes, chromHead, analyteFDR, runType)
+    mergeOswAnalytes_ChromHeader(oswAnalytes, chromHead, analyteFDR, runType)
     oswFiles[[i]] <- oswAnalytes
     message("Fetched chromatogram indices from ", filenames$filename[i])
   }

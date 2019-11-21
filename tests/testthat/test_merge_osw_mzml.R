@@ -12,7 +12,7 @@ test_that("test_chromatogramIdAsInteger",{
                           "productIsolationWindowLowerOffset" = c(0,0),
                           "productIsolationWindowUpperOffset" = c(0,0),
                           stringsAsFactors=FALSE)
-  chromHead <- chromatogramIdAsInteger(chromHead)
+  chromatogramIdAsInteger(chromHead)
   expData <- data.frame("chromatogramId" = c(130110L, 154511L),
                         "chromatogramIndex" = c(1L,2L),
                         stringsAsFactors=FALSE)
@@ -53,7 +53,7 @@ test_that("test_mergeOswAnalytes_ChromHeader", {
                         "transition_ids" = c("45085,45089,45095,45098,45103", "45085,45089,45095,45098,45103"),
                         stringsAsFactors=FALSE)
   outData <- dplyr::as_tibble(outData)
-  oswAnalytes <- mergeOswAnalytes_ChromHeader(oswAnalytes, chromHead, analyteFDR = 0.01, runType = "DIA_proteomics")
+  mergeOswAnalytes_ChromHeader(oswAnalytes, chromHead, analyteFDR = 0.01, runType = "DIA_proteomics")
   expect_identical(outData, oswAnalytes)
   expect_identical(peptides, NULL)
 })

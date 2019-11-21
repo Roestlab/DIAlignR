@@ -5,7 +5,7 @@ dummy mzML, osw file
 Multiple parameterised query SQL
 BigMemory package and parallel processing package
 Make sure that tests are running on windows.
-ChromHead by environment
+ChromHead by environment, rebind v/s assign
 Increase and shorten the length of chromatogram: mean and sd
 Divide by 64 nodes
 

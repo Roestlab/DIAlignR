@@ -233,7 +233,6 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
   message(filenames[, "runs"])
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  peptides <- c()
   oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR = 0.01, oswMerged,
               peptides = NULL, runType = "DIA_proteomics")
 
