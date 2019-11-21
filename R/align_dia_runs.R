@@ -233,12 +233,9 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
   message(filenames[, "runs"])
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  oswFiles <- list()
   peptides <- c()
-  fillOswFiles(dataPath, filenames, maxFdrQuery, oswMerged,
-               peptides, runType = "DIA_proteomics")
-  # Assign rownames to the each element of list
-  names(oswFiles) <- rownames(filenames)
+  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR = 0.01, oswMerged,
+              peptides = NULL, runType = "DIA_proteomics")
 
   ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
@@ -254,7 +251,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
   names(mzPntrs) <- names(runs)
   print("Metadata is collected from mzML files.")
 
-  # Initilize output tables.
+  ######### Initilize output tables. #######
   rtTbl <- matrix(NA, nrow = length(peptides), ncol = length(runs))
   intesityTbl <- matrix(NA, nrow = length(peptides), ncol = length(runs))
   lwTbl <- matrix(NA, nrow = length(peptides), ncol = length(runs))
@@ -264,7 +261,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
   rownames(lwTbl) <- peptides; colnames(lwTbl) <- names(runs)
   rownames(rwTbl) <- peptides; colnames(rwTbl) <- names(runs)
 
-  # Container to save loess fits
+  ######### Container to save loess fits.  #######
   loessFits <- list()
 
   print("Performing reference-based alignment.")
@@ -376,6 +373,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
   colnames(intesityTbl) <- runs[colnames(intesityTbl)]
   write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
 
+  ######### Cleanup.  #######
   rm(mzPntrs)
   rm(oswFiles, loessFits)
   rm(rtTbl, intesityTbl, lwTbl, rwTbl)

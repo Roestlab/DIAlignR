@@ -11,64 +11,8 @@ extractXIC_group <- function(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen 
   return(XIC_group)
 }
 
-#' Selects only chromatogramId, chromatogramIndex columns and convert them into integer.
-#'
-#' @return Invisible NULL
-chromatogramIdAsInteger <- function(){
-  chromHead <<- dplyr::select(chromHead, chromatogramId, chromatogramIndex)
-  chromHead <<- dplyr::mutate(chromHead, chromatogramId = as.integer(chromatogramId))
-  invisible(NULL)
-}
 
-#' Merge dataframes from OSW and mzML files.
-#'
-#' @importFrom dplyr %>%
-#' @return Update list of data-frame
-mergeOswAnalytes_ChromHeader <- function(chromHead, peptides, runType){
-  # TODO: Make sure that transition_id has same order across runs. IMO should be specified in query.
-  oswAnalytes <<- dplyr::left_join(oswAnalytes, chromHead,
-                                   by = c("transition_id" = "chromatogramId"))
-  oswAnalytes <<- oswAnalytes %>%
-    dplyr::group_by(transition_group_id, peak_group_rank) %>%
-    dplyr::mutate(transition_ids = paste0(transition_id, collapse = ","),
-                  chromatogramIndex = paste0(chromatogramIndex, collapse = ",")) %>%
-    dplyr::ungroup() %>% dplyr::select(-transition_id) %>% dplyr::distinct()
-  peptides <<- dplyr::filter(oswAnalytes, m_score < 0.01) %>% .$transition_group_id %>%
-    dplyr::union(peptides)
-  invisible(NULL)
-}
 
-#' Get list of peptides and their chromatogram indices.
-#'
-#' @importFrom dplyr %>%
-#' @return A list of data-frames.
-#' @export
-fillOswFiles <- function(oswFiles, dataPath, filenames, maxFdrQuery, oswMerged,
-                         peptides, runType = "DIA_proteomics"){
-  for(i in 1:nrow(filenames)){
-    run <- rownames(filenames)[i]
-    # Get a query to search against the osw files.
-    if(oswMerged == TRUE){
-      oswName <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
-      oswName <- file.path(dataPath, "osw", oswName[1])
-    } else{
-      oswName <- paste0(file.path(dataPath, "osw", filenames$runs[i]), ".osw")
-    }
-    # Get transition indices for MS2 fragment-ions.
-    oswAnalytes <- fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, peptides = NULL,
-                                      filename = filenames$filename[i], runType)
-
-    # Get chromatogram indices from the header file.
-    mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
-    chromHead <- readChromatogramHeader(mzmlName)
-    chromatogramIdAsInteger()
-    # Merge chromatogram indices with transition indices and save them.
-    # Following function merges analytesInfo dataframe with the chromatogram Header.
-    mergeOswAnalytes_ChromHeader(chromHead, peptides, runType)
-    oswFiles[[i]] <<- analytesInfo
-    message("Fetched chromatogram indices from ", filenames$filename[i])
-  }
-}
 
 
 #' Get list of peptides and their chromatogram indices.
@@ -76,7 +20,7 @@ fillOswFiles <- function(oswFiles, dataPath, filenames, maxFdrQuery, oswMerged,
 #' @importFrom dplyr %>%
 #' @return A list of data-frames.
 #' @export
-getOswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = NULL,
+get1OswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = NULL,
                         oswMerged = TRUE, maxFdrQuery = 1.0, nameCutPattern = "(.*)(/)(.*)",
                         runType = "DIA_Proteomics"){
   # Get Chromatogram indices for each peptide in each run.
