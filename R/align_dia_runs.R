@@ -226,16 +226,16 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
     return(stop("SgolayFiltLen can only be odd number"))
   }
 
-  # Get filenames from .merged.osw file.
-  # Check if names are consistent between osw and mzML files. Fetch run names.
+  # Get filenames from .merged.osw file and check if names are consistent between osw and mzML files.
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
   message("Following runs will be aligned:")
   message(filenames[, "runs"])
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR = 0.01, oswMerged,
+  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
               peptides = NULL, runType = "DIA_proteomics")
 
+  refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
   ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
   names(runs) <- rownames(filenames)

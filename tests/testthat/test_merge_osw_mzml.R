@@ -32,7 +32,7 @@ test_that("test_mergeOswAnalytes_ChromHeader", {
                           "Intensity" = c(rep(6644520, 5), rep(914820, 5)),
                           "leftWidth" = c(rep(4369.325, 5), rep(4418.935, 5)),
                           "rightWidth" = c(rep(4413.365, 5), rep(4439.139, 5)),
-                          "peak_group_rank" = c(rep(1, 5), rep(2, 5)),
+                          "peak_group_rank" = c(rep(1L, 5), rep(2L, 5)),
                           "m_score" = c(rep(0.002128436, 5), rep(0.029838394, 5)),
                           "transition_id" = c(45085, 45089, 45095, 45098, 45103, 45085, 45089, 45095, 45098, 45103),
                           stringsAsFactors=FALSE)
@@ -47,7 +47,7 @@ test_that("test_mergeOswAnalytes_ChromHeader", {
                         "Intensity" = c(6644520, 914820),
                         "leftWidth" = c(4369.325, 4418.935),
                         "rightWidth" = c(4413.365, 4439.139),
-                        "peak_group_rank" = c(1, 2),
+                        "peak_group_rank" = c(1L, 2L),
                         "m_score" = c(0.002128436, 0.029838394),
                         "chromatogramIndex" = c("100743,104255,107437,109555,114846", "100743,104255,107437,109555,114846"),
                         "transition_ids" = c("45085,45089,45095,45098,45103", "45085,45089,45095,45098,45103"),

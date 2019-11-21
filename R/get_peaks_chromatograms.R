@@ -306,24 +306,4 @@ getMetaboswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query 
 }
 
 
-#' Get names of analytes found in all runs.
-#'
-#' @importFrom dplyr %>%
-#' @return A vector of strings.
-#' @export
-getAnalytesName <- function(runs, dataPath = ".",
-                            query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-                            maxFdrQuery = 0.05){
-  filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
-  filenames <- filenames[filenames$runs %in% runs,]
-  rownames(filenames) <- paste0("run", 0:(length(runs)-1), "")
 
-  # Get Precursors from the query and respective chromatogram indices.
-  oswFiles <- getMetaboswFiles(filenames, dataPath, peptides = NULL,  query = NULL,
-                               oswMerged = oswMerged, maxFdrQuery = maxFdrQuery)
-  AnalytesFound <- oswFiles[[1]] %>% .$transition_group_id
-  for(x in oswFiles){
-    AnalytesFound <- x %>% .$transition_group_id %>% dplyr::intersect(AnalytesFound)
-  }
-  return(AnalytesFound)
-}
