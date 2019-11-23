@@ -11,9 +11,60 @@ extractXIC_group <- function(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen 
   return(XIC_group)
 }
 
+#' Extract XICs of all transitions requested in chromIndices.
+#'
+#' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+#' @export
+getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes,
+                             SgolayFiltOrd, SgolayFiltLen){
+  mzPntrs <- getMZMLpointers(dataPath, runs)
+  XICs <- vector("list", length(runs))
+  names(XICs) <- names(runs)
+  for(i in seq_along(runs)){
+    runname = names(runs)[i]
+    XICs[[i]] <- lapply(1:length(analytes), function(j){
+      chromIndices <- selectChromIndices(oswFiles, runname = runname, analyte = analytes[j])
+      if(is.null(chromIndices)){
+        warning("Chromatogram indices for ", analyte, " are missing in ", runs[[runname]])
+        message("Skipping ", analyte)
+        XIC_group <- NULL
+      } else {
+        XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices, SgolayFiltOrd, SgolayFiltLen)
+      }
+      XIC_group
+    })
+    names(XICs[[i]]) <- analytes
+  }
+  rm(mzPntrs)
+  XICs
+}
 
-
-
+#' Extract XICs of all transitions requested in chromIndices.
+#'
+#' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
+                        normalization, simType, goFactor, geFactor,
+                        cosAngleThresh, OverlapAlignment,
+                        dotProdThresh, gapQuantile, hardConstrain, samples4gradient){
+  # Set up constraints for penalizing similarity matrix
+  noBeef <- ceiling(adaptiveRT/samplingTime)
+  tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
+  tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
+  B1p <- predict(Loess.fit, tVec.ref[1])
+  B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
+  # Perform dynamic programming for chromatogram alignment
+  intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
+  intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values
+  AlignObj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
+                                    alignType = "hybrid", tVec.ref, tVec.eXp,
+                                    normalization = normalization, simType = simType,
+                                    B1p = B1p, B2p = B2p, noBeef = noBeef,
+                                    goFactor = goFactor, geFactor = geFactor,
+                                    cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
+                                    dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
+                                    hardConstrain = hardConstrain, samples4gradient = samples4gradient)
+  AlignObj
+}
 
 #' Get list of peptides and their chromatogram indices.
 #'
@@ -194,7 +245,6 @@ getMRMoswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = 
 #'
 #' @return A list of list. Each list contains XICs for that run.
 #' @importFrom dplyr %>%
-#' @export
 getMRMXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
                     SgolayFiltOrd = 2, SgolayFiltLen = 3,
                     query = NULL, oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)"){

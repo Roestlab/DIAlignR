@@ -4,16 +4,16 @@
 \alias{getLOESSfit}
 \title{calculates LOESS fit between RT of two runs}
 \usage{
-getLOESSfit(oswRef, oswExp, peptides, spanvalue = 0.1)
+getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue = 0.1)
 }
 \arguments{
-\item{peptides}{Test peptides' names.}
-
 \item{spanvalue}{A numeric Spanvalue for LOESS fit. For targeted proteomics
 0.1 could be used.}
 
 \item{pairName}{Names of runs joined with underscore. e.g. runA_runB, This will allow
 alignment of runB to runA.}
+
+\item{peptides}{Test peptides' names.}
 
 \item{oswOutput}{list of list (OpenSWATH output).}
 }

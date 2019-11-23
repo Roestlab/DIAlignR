@@ -29,7 +29,7 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR, run
 #'
 #' @return A list of data-frames.
 #' @export
-getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged,
+getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
                          peptides = NULL, runType = "DIA_proteomics"){
   oswFiles <- list()
   for(i in 1:nrow(filenames)){

@@ -1,8 +1,7 @@
 context("Read osw mzML files.")
 
-dataPath <- "../../data/testData"
-
 test_that("test_filenamesFromOSW", {
+  dataPath <- "../../data/testData"
   expOutput <- data.frame("filename" = c("HLA-Ligand-Atlas/BD-ZH12_Lung_Class-1/dia_files/170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms47.mzML",
                                        "HLA-Ligand-Atlas/BD-ZH12_Lung_Class-1/dia_files/170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms51.mzML",
                                        "HLA-Ligand-Atlas/BD-ZH12_BoneMarrow_Class-1/dia_files/170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#1_400-650mz_msms67.mzML"),
@@ -13,6 +12,7 @@ test_that("test_filenamesFromOSW", {
 })
 
 test_that("test_filenamesFromMZML", {
+  dataPath <- "../../data/testData"
   expOutput <- c("170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms47.chrom.mzML" = "170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms47",
                "170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms51.chrom.mzML" = "170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms51",
                "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#1_400-650mz_msms67.chrom.mzML" = "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#1_400-650mz_msms67")
@@ -23,6 +23,7 @@ test_that("test_filenamesFromMZML", {
 })
 
 test_that("test_getRunNames", {
+  dataPath <- "../../data/testData"
   expOutput <- data.frame("filename" = c("HLA-Ligand-Atlas/BD-ZH12_Lung_Class-1/dia_files/170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms47.mzML",
                                        "HLA-Ligand-Atlas/BD-ZH12_Lung_Class-1/dia_files/170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms51.mzML",
                                        "HLA-Ligand-Atlas/BD-ZH12_BoneMarrow_Class-1/dia_files/170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#1_400-650mz_msms67.mzML"),

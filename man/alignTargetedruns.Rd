@@ -6,10 +6,11 @@
 \usage{
 alignTargetedruns(dataPath, alignType = "hybrid", oswMerged = TRUE,
   nameCutPattern = "(.*)(/)(.*)", maxFdrQuery = 0.05,
-  maxFdrLoess = 0.01, spanvalue = 0.1, runType = "DIA_Proteomics",
-  normalization = "mean", simMeasure = "dotProductMasked",
-  SgolayFiltOrd = 4, SgolayFiltLen = 9, goFactor = 0.125,
-  geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+  maxFdrLoess = 0.01, analyteFDR = 0.01, spanvalue = 0.1,
+  runType = "DIA_Proteomics", normalization = "mean",
+  simMeasure = "dotProductMasked", SgolayFiltOrd = 4,
+  SgolayFiltLen = 9, goFactor = 0.125, geFactor = 40,
+  cosAngleThresh = 0.3, OverlapAlignment = TRUE,
   dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
   samples4gradient = 100, expRSE = 8, samplingTime = 3.4,
   RSEdistFactor = 3.5)

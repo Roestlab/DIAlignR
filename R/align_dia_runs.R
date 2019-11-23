@@ -213,7 +213,8 @@ alignDIAruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, nameC
 #' @importFrom dplyr %>%
 #' @export
 alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-                         maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1, runType = "DIA_Proteomics",
+                         maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
+                         spanvalue = 0.1, runType = "DIA_Proteomics",
                          normalization = "mean", simMeasure = "dotProductMasked",
                          SgolayFiltOrd = 4, SgolayFiltLen = 9,
                          goFactor = 0.125, geFactor = 40,
@@ -229,26 +230,21 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
   # Get filenames from .merged.osw file and check if names are consistent between osw and mzML files.
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
   message("Following runs will be aligned:")
-  message(filenames[, "runs"])
+  print(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
-              peptides = NULL, runType = "DIA_proteomics")
+  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR,
+                          oswMerged, peptides = NULL, runType = "DIA_proteomics")
 
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
+
   ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
   names(runs) <- rownames(filenames)
   # Collect all the pointers for each mzML file.
-  print("Collecting metadata from mzML files.")
-  mzPntrs <- list()
-  for(mzMLindex in 1:length(runs)){
-    run <- names(runs)[mzMLindex]
-    filename <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
-    mzPntrs[[mzMLindex]] <- mzR::openMSfile(filename, backend = "pwiz")
-  }
-  names(mzPntrs) <- names(runs)
-  print("Metadata is collected from mzML files.")
+  message("Collecting metadata from mzML files.")
+  mzPntrs <- getMZMLpointers(dataPath, runs)
+  message("Metadata is collected from mzML files.")
 
   ######### Initilize output tables. #######
   rtTbl <- matrix(NA, nrow = length(peptides), ncol = length(runs))
@@ -262,61 +258,43 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
 
   ######### Container to save loess fits.  #######
   loessFits <- list()
+  #alignedTables <- performRefAlignment(alignType, ...)
 
-  print("Performing reference-based alignment.")
+  message("Performing reference-based alignment.")
   start_time <- Sys.time()
-  for(pepIdx in 1:length(peptides)){
-    peptide <- peptides[pepIdx]
+  refAnalytes <- refAnalytes[1:6]
+  for(analyteIdx in seq_along(refAnalytes)){
+    analyte <- refAnalytes[analyteIdx]
     # Select reference run based on m-score
-    minMscore <- 1; minrunIdx <- NA
-    for (runIdx in 1:length(oswFiles)){
-      m_score <- oswFiles[[runIdx]] %>%
-        dplyr::filter(transition_group_id == peptide & peak_group_rank == 1) %>% .$m_score
-      if(length(m_score) == 1){
-        if(m_score < minMscore){
-          minMscore <- m_score
-          minrunIdx <- runIdx
-        }
-      }
-    }
-    # Get the feature from reference run
-    vec <- oswFiles[[minrunIdx]] %>%
-      dplyr::filter(transition_group_id == peptide & peak_group_rank == 1) %>%
-      dplyr::select(leftWidth, RT, rightWidth, Intensity) %>%
-      as.matrix()
-    lwTbl[pepIdx, minrunIdx] <- vec[1, "leftWidth"]
-    rtTbl[pepIdx, minrunIdx] <- vec[1, "RT"]
-    rwTbl[pepIdx, minrunIdx] <- vec[1, "rightWidth"]
-    intesityTbl[pepIdx, minrunIdx] <- vec[1, "Intensity"]
+    refRunIdx <- getRefRun(oswFiles, analyte)
+    refPeak <- oswFiles[[refRunIdx]] %>%
+      dplyr::filter(transition_group_id == analyte & peak_group_rank == 1) %>%
+      dplyr::select(leftWidth, RT, rightWidth, Intensity)
 
-    # Get XIC_group from reference run
-    ref <- names(runs)[minrunIdx]
+    # Get XIC_group from reference run. if missing, go to next analyte.
+    ref <- names(runs)[refRunIdx]
     exps <- setdiff(names(runs), ref)
-    chromIndices <- oswFiles[[ref]] %>%
-      dplyr::filter(transition_group_id == peptide) %>% .$chromatogramIndex
-    chromIndices <- as.integer(strsplit(chromIndices, split = ",")[[1]])
-    XICs.ref <- extractXIC_group(mzPntrs[[ref]], chromIndices, SgolayFiltOrd, SgolayFiltLen)
+    chromIndices <- selectChromIndices(oswFiles, runname = ref, analyte = analyte)
+    if(is.null(chromIndices)){
+      warning("Chromatogram indices for ", analyte, " are missing in ", runs[ref])
+      message("Skipping ", analyte)
+      next
+    } else {
+      XICs.ref <- extractXIC_group(mzPntrs[[ref]], chromIndices, SgolayFiltOrd, SgolayFiltLen)
+    }
+
     # Align all runs to reference run
     for(eXp in exps){
       # Get XIC_group from experiment run
-      chromIndices <- oswFiles[[eXp]] %>%
-        dplyr::filter(transition_group_id == peptide) %>% .$chromatogramIndex
-      if(length(chromIndices) > 0){
-        chromIndices <- as.integer(strsplit(chromIndices, split = ",")[[1]])
+      chromIndices <- selectChromIndices(oswFiles, runname = eXp, analyte = analyte)
+      if(!is.null(chromIndices)){
         XICs.eXp <- extractXIC_group(mzPntrs[[eXp]], chromIndices)
         # Get the loess fit for hybrid alignment
-        pair <- paste(ref,eXp, sep = "_")
+        pair <- paste(ref, eXp, sep = "_")
         if(any(pair %in% names(loessFits))){
           Loess.fit <- loessFits[[pair]]
         } else{
-          df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
-            dplyr::select(transition_group_id, RT)
-          df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
-            dplyr::select(transition_group_id, RT)
-          RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
-          Loess.fit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT,
-                             span = spanvalue,
-                             control=loess.control(surface="direct"))
+          Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
           loessFits[[pair]] <- Loess.fit
         }
         # Set up constraints for penalizing similarity matrix
@@ -326,9 +304,10 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
         tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
         B1p <- predict(Loess.fit, tVec.ref[1])
         B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
-        # Perform dynamic programming for chromatogram alignment
+        # Prepare XICs for the alignment
         intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
         intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values
+        # Perform dynamic programming for chromatogram alignment
         Alignobj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
                                           alignType = alignType, tVec.ref, tVec.eXp,
                                           normalization = normalization, simType = simMeasure,
@@ -342,27 +321,33 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
                                 Alignobj@score)
         colnames(AlignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
         AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
+        AlignedIndices <- AlignedIndices[!is.na(AlignedIndices[,"indexAligned.ref"]), ]
         tAligned.ref <- mapIdxToTime(tVec.ref, AlignedIndices[,"indexAligned.ref"])
         tAligned.eXp <- mapIdxToTime(tVec.eXp, AlignedIndices[,"indexAligned.eXp"])
         # Map retention time from reference to eXp.
-        rtTbl[pepIdx, eXp] <- tAligned.eXp[which.min(abs(tAligned.ref - rtTbl[pepIdx, ref]))]
-        df <- oswFiles[[eXp]] %>% dplyr::filter(transition_group_id == peptide) %>%
-          dplyr::select(leftWidth, rightWidth, RT, Intensity, peak_group_rank, m_score)
-        adaptiveRT <- RSEdistFactor*rse
-        df <- df %>% dplyr::filter(abs(RT - rtTbl[pepIdx, eXp]) <= adaptiveRT)
-        df <- df %>% dplyr::filter(m_score < maxFdrQuery & peak_group_rank == min(peak_group_rank)) %>% as.matrix()
-        if(nrow(df)==1){
+        eXpRT <- tAligned.eXp[which.min(abs(tAligned.ref - refPeak$RT))]
+        eXp_feature <- pickNearestFeature(eXpRT, analyte, oswFiles, runname = eXp,
+                                          adaptiveRT = RSEdistFactor*rse, featureFDR = 0.05)
+        if(!is.null(eXp_feature)){
           # A feature is found. Use this feature for quantification.
-          lwTbl[pepIdx, eXp] <- df[1, "leftWidth"]
-          rtTbl[pepIdx, eXp] <- df[1, "RT"]
-          rwTbl[pepIdx, eXp] <- df[1, "rightWidth"]
-          intesityTbl[pepIdx, eXp] <- df[1, "Intensity"]
+          lwTbl[analyteIdx, eXp] <- eXp_feature[["leftWidth"]]
+          rtTbl[analyteIdx, eXp] <- eXp_feature[["RT"]]
+          rwTbl[analyteIdx, eXp] <- eXp_feature[["rightWidth"]]
+          intesityTbl[analyteIdx, eXp] <- eXp_feature[["Intensity"]]
         } else {
           # Feature is not found.}
         }
+      } else {
+        warning("Chromatogram indices for ", analyte, " are missing in ", runs[eXp])
+        next
       }
-
     }
+
+    # Get the feature from reference run
+    lwTbl[analyteIdx, refRunIdx] <- refPeak[["leftWidth"]]
+    rtTbl[analyteIdx, refRunIdx] <- refPeak[["RT"]]
+    rwTbl[analyteIdx, refRunIdx] <- refPeak[["rightWidth"]]
+    intesityTbl[analyteIdx, refRunIdx] <- refPeak[["Intensity"]]
   }
   end_time <- Sys.time()
   # Report the execution time for hybrid alignment step.
@@ -385,9 +370,9 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
 #'
 #' @return A list of AlignObj. Each AlignObj contains alignment path, similarity matrix and related parameters.
 #' @export
-getAlignObjs <- function(peptides, runs, dataPath = ".", alignType = "hybrid",
+getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-                         maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1,
+                         maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01, spanvalue = 0.1,
                          normalization = "mean", simMeasure = "dotProductMasked",
                          SgolayFiltOrd = 4, SgolayFiltLen = 9,
                          goFactor = 0.125, geFactor = 40,
@@ -404,131 +389,88 @@ getAlignObjs <- function(peptides, runs, dataPath = ".", alignType = "hybrid",
     print("SgolayFiltLen can only be odd number")
     return(NULL)
   }
-  # Check if names are consistent between osw and mzML files. Fetch run names.
+  ##### Get filenames from osw files and check if names are consistent between osw and mzML files. ######
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
   filenames <- filenames[filenames$runs %in% runs,]
-  rownames(filenames) <- paste0("run", 0:(length(runs)-1), "")
-
-  # Get Chromatogram indices for each peptide in each run.
-  oswFiles = getOswFiles(filenames, dataPath, NULL, query, oswMerged, maxFdrQuery, nameCutPattern)
-  PeptidesFound <- c()
-  for(x in oswFiles){
-    PeptidesFound <- x %>% .$transition_group_id %>% dplyr::union(PeptidesFound)
+  missingRun <- setdiff(runs, filenames$runs)
+  if(length(missingRun) != 0){
+    return(stop(missingRun, " runs are not found."))
   }
 
-  PeptidesFound <- intersect(peptides, PeptidesFound)
+  message("Following runs will be aligned:")
+  print(filenames[, "runs"], sep = "\n")
+
+  ######### Get Precursors from the query and respectve chromatogram indices. ######
+  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR,
+                          oswMerged, peptides = NULL, runType = "DIA_proteomics")
+
   # Report peptides that are not found
-  PeptidesNotFound <- setdiff(peptides, PeptidesFound)
-  if(length(PeptidesNotFound)>0){
-    messsage(paste(PeptidesNotFound, "not found."))
+  refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
+  analytesFound <- intersect(analytes, refAnalytes)
+  analytesNotFound <- setdiff(analytes, analytesFound)
+  if(length(analytesNotFound)>0){
+    message(paste(analytesNotFound, "not found."))
   }
 
   ####################### Get XICs ##########################################
   runs <- filenames$runs
   names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
-  XICs <- list()
-  print("Fetching Extracted-ion chromatograms from runs")
-  for(i in 1:length(runs)){
-    run <- names(runs)[i]
-    mzmlName <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
-    mz <- tryCatch(mzR::openMSfile(mzmlName, backend = "pwiz"),
-                   error = function(cond) {
-                     c$message <- paste0(c$message,
-                                         "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
-                     stop(cond)})
-    XICs_run <- lapply(1:length(PeptidesFound), function(j){
-      chromIndices <- oswFiles[[i]] %>%
-        dplyr::filter(transition_group_id == PeptidesFound[j]) %>% .$chromatogramIndex
-      if(length(chromIndices) > 0){
-        chromIndices <- as.integer(strsplit(chromIndices, split = ",")[[1]])
-        XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd, SgolayFiltLen)
-      } else{
-        XIC_group <- list()
-      }
-      return(XIC_group)
-    })
-    names(XICs_run) <- PeptidesFound
-    XICs[[i]] <- XICs_run
-    rm(mz)
-    print(paste("Fetched Extracted-ion chromatograms from run", runs[run]))
-  }
-  names(XICs) <- runs
+  message("Fetching Extracted-ion chromatograms from runs")
+  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
+                           SgolayFiltOrd, SgolayFiltLen)
 
   ####################### Perfrom alignment ##########################################
-  AlignObjs <- list()
+  AlignObjs <- vector("list", length(analytes))
+  names(AlignObjs) <- analytes
   loessFits <- list()
   print("Perfroming alignment")
-  for(pepIdx in 1:length(peptides)){
-    peptide <- peptides[pepIdx]
+  for(analyteIdx in seq_along(analytes)){
+    analyte <- analytes[analyteIdx]
     # Select reference run based on m-score
-    minMscore <- 1; minrunIdx <- NA
-    for (runIdx in 1:length(oswFiles)){
-      m_score <- oswFiles[[runIdx]] %>%
-        dplyr::filter(transition_group_id == peptide & peak_group_rank == 1) %>% .$m_score
-      if(length(m_score) == 1){
-        if(m_score < minMscore){
-          minMscore <- m_score
-          minrunIdx <- runIdx
-        }
-      }
-    }
+    refRunIdx <- getRefRun(oswFiles, analyte)
     # Get XIC_group from reference run
-    ref <- names(runs)[minrunIdx]
+    ref <- names(runs)[refRunIdx]
     exps <- setdiff(names(runs), ref)
-    XICs.ref <- XICs[[runs[ref]]][[peptide]]
+    XICs.ref <- XICs[[ref]][[analyte]]
 
     # Align experiment run to reference run
     for(eXp in exps){
       # Get XIC_group from experiment run
-      XICs.eXp <- XICs[[runs[eXp]]][[peptide]]
-      if(length(XICs.eXp) > 0){
+      XICs.eXp <- XICs[[eXp]][[analyte]]
+      if(!is.null(XICs.eXp)){
         # Get the loess fit for hybrid alignment
         pair <- paste(ref, eXp, sep = "_")
         if(any(pair %in% names(loessFits))){
           Loess.fit <- loessFits[[pair]]
         } else{
-          df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
-            dplyr::select(transition_group_id, RT)
-          df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
-            dplyr::select(transition_group_id, RT)
-          RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
-          Loess.fit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT,
-                             span = spanvalue,
-                             control=loess.control(surface="direct"))
+          Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
           loessFits[[pair]] <- Loess.fit
         }
-        # Set up constraints for penalizing similarity matrix
-        rse <- min(Loess.fit$s, expRSE)
-        noBeef <- ceiling(RSEdistFactor*rse/samplingTime)
-        tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
-        tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-        B1p <- predict(Loess.fit, tVec.ref[1])
-        B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
-        # Perform dynamic programming for chromatogram alignment
-        intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
-        intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values
-        Alignobj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
-                                          alignType = alignType, tVec.ref, tVec.eXp,
-                                          normalization = normalization, simType = simMeasure,
-                                          B1p = B1p, B2p = B2p, noBeef = noBeef,
-                                          goFactor = goFactor, geFactor = geFactor,
-                                          cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
-                                          dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
-                                          hardConstrain = hardConstrain, samples4gradient = samples4gradient)
-        AlignObjs[[pepIdx]] <- list()
-        AlignObjs[[pepIdx]][[1]] <- Alignobj
-        AlignObjs[[pepIdx]][[runs[ref]]] <- XICs.ref
-        AlignObjs[[pepIdx]][[runs[eXp]]] <- XICs.eXp
-        AlignObjs[[pepIdx]][[4]] <- oswFiles[[minrunIdx]] %>%
-          dplyr::filter(transition_group_id == peptide & peak_group_rank == 1) %>%
+        rse <- Loess.fit$s # Residual Standard Error
+        # Fetch alignment object between XICs.ref and XICs.eXp
+        AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = RSEdistFactor*rse, samplingTime,
+                                normalization, simType = simMeasure, goFactor, geFactor,
+                                cosAngleThresh, OverlapAlignment,
+                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
+        AlignObjs[[analyte]] <- list()
+        # Attach AlignObj for the analyte.
+        AlignObjs[[analyte]][["AlignObj"]] <- AlignObj
+        # Attach intensities of reference XICs.
+        AlignObjs[[analyte]][[runs[ref]]] <- XICs.ref
+        # Attach intensities of experiment XICs.
+        AlignObjs[[analyte]][[runs[eXp]]] <- XICs.eXp
+        # Attach peak boundaries to the object.
+        AlignObjs[[analyte]][["peakBndrs"]] <- oswFiles[[refRunIdx]] %>%
+          dplyr::filter(transition_group_id == analyte & peak_group_rank == 1) %>%
           dplyr::select(leftWidth, RT, rightWidth) %>%
           as.vector()
       }
-      else {AlignObjs[[pepIdx]] <- NULL}
+      else {AlignObjs[[analyte]] <- NULL}
     }
   }
-  names(AlignObjs) <- peptides
-  print("Alignment done. Returning AlignObjs")
-  return(AlignObjs)
+
+  ####################### Return AlignedObjs ##########################################
+  message("Alignment done. Returning AlignObjs")
+  AlignObjs
 }

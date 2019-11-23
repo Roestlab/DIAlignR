@@ -11,3 +11,21 @@ readChromatogramHeader <- function(mzmlName){
   rm(mz)
   chromHead
 }
+
+#' Get pointers to each mzML file.
+#'
+#' @return A list.
+getMZMLpointers <- function(dataPath, runs){
+  mzPntrs <- list()
+  for(mzMLindex in 1:length(runs)){
+    run <- names(runs)[mzMLindex]
+    mzmlName <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
+    mzPntrs[[mzMLindex]] <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
+                                     error = function(cnd) {
+                                       conditionMessage(cnd)
+                                       message("If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
+                                       stop(cnd)})
+  }
+  names(mzPntrs) <- names(runs)
+  mzPntrs
+}

@@ -5,7 +5,6 @@ test_that("test_readChromatogramHeader",{
   expect_error(readChromatogramHeader(mzmlName))
 })
 
-
 test_that("test_readChromatogramHeader",{
   expOutput <- data.frame("chromatogramId" = c("130110", "154511"),
                           "chromatogramIndex" = c(1L,2L),
@@ -22,4 +21,14 @@ test_that("test_readChromatogramHeader",{
   skip("Skipping mzml reading.")
   expect_identical(dim(readChromatogramHeader(mzmlName)), c(175525L, 10L))
   expect_equal(readChromatogramHeader(mzmlName)[1:2,], expOutput, tolerance=1e-6)
+})
+
+test_that("test_getMZMLpointers",{
+  dataPath <- "../../data/testData2"
+  runs <- c("run0" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41",
+           "run1" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42",
+           "run2" = "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35")
+  outData <- getMZMLpointers(dataPath, runs)
+  skip("Conditions are not known.")
+  #expect_error(readChromatogramHeader(mzmlName))
 })
