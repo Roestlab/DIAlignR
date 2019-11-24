@@ -66,6 +66,24 @@ getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
   AlignObj
 }
 
+#' Extract XICs of all transitions requested in chromIndices.
+#'
+#' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+getMappedRT <- function(XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
+                        normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
+                        OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
+                        samples4gradient){
+  AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
+                          normalization, simType = simMeasure, goFactor, geFactor,
+                          cosAngleThresh, OverlapAlignment,
+                          dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
+  tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
+  tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
+  eXpRT <- mappedRTfromAlignObj(tVec.ref, tVec.eXp, AlignObj)
+  eXpRT
+}
+
+
 #' Get list of peptides and their chromatogram indices.
 #'
 #' @importFrom dplyr %>%

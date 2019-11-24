@@ -299,35 +299,14 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
         }
         # Set up constraints for penalizing similarity matrix
         rse <- min(Loess.fit$s, expRSE)
-        noBeef <- ceiling(RSEdistFactor*rse/samplingTime)
-        tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
-        tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-        B1p <- predict(Loess.fit, tVec.ref[1])
-        B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
-        # Prepare XICs for the alignment
-        intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
-        intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values
-        # Perform dynamic programming for chromatogram alignment
-        AlignObj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
-                                          alignType = alignType, tVec.ref, tVec.eXp,
-                                          normalization = normalization, simType = simMeasure,
-                                          B1p = B1p, B2p = B2p, noBeef = noBeef,
-                                          goFactor = goFactor, geFactor = geFactor,
-                                          cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
-                                          dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
-                                          hardConstrain = hardConstrain, samples4gradient = samples4gradient)
-        AlignedIndices <- cbind(AlignObj@indexA_aligned,
-                                AlignObj@indexB_aligned,
-                                AlignObj@score)
-        colnames(AlignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
-        AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
-        AlignedIndices <- AlignedIndices[!is.na(AlignedIndices[,"indexAligned.ref"]), ]
-        tAligned.ref <- mapIdxToTime(tVec.ref, AlignedIndices[,"indexAligned.ref"])
-        tAligned.eXp <- mapIdxToTime(tVec.eXp, AlignedIndices[,"indexAligned.eXp"])
-        # Map retention time from reference to eXp.
-        eXpRT <- tAligned.eXp[which.min(abs(tAligned.ref - refPeak$RT))]
+        adaptiveRT <- RSEdistFactor*rse
+        # Get retention time in experiment run mapped to reference run retention time.
+        eXpRT <- getMappedRT(XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
+                             normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
+                             OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
+                             samples4gradient)
         eXp_feature <- pickNearestFeature(eXpRT, analyte, oswFiles, runname = eXp,
-                                          adaptiveRT = RSEdistFactor*rse, featureFDR = 0.05)
+                                          adaptiveRT = adaptiveRT, featureFDR = 0.05)
         if(!is.null(eXp_feature)){
           # A feature is found. Use this feature for quantification.
           lwTbl[analyteIdx, eXp] <- eXp_feature[["leftWidth"]]
