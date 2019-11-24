@@ -6,7 +6,7 @@
 \usage{
 getAlignObjs(analytes, runs, dataPath = ".", alignType = "hybrid",
   query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-  maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
+  maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1,
   spanvalue = 0.1, normalization = "mean",
   simMeasure = "dotProductMasked", SgolayFiltOrd = 4,
   SgolayFiltLen = 9, goFactor = 0.125, geFactor = 40,

@@ -308,7 +308,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
         intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
         intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values
         # Perform dynamic programming for chromatogram alignment
-        Alignobj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
+        AlignObj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
                                           alignType = alignType, tVec.ref, tVec.eXp,
                                           normalization = normalization, simType = simMeasure,
                                           B1p = B1p, B2p = B2p, noBeef = noBeef,
@@ -316,9 +316,9 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
                                           cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
                                           dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
                                           hardConstrain = hardConstrain, samples4gradient = samples4gradient)
-        AlignedIndices <- cbind(Alignobj@indexA_aligned,
-                                Alignobj@indexB_aligned,
-                                Alignobj@score)
+        AlignedIndices <- cbind(AlignObj@indexA_aligned,
+                                AlignObj@indexB_aligned,
+                                AlignObj@score)
         colnames(AlignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
         AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
         AlignedIndices <- AlignedIndices[!is.na(AlignedIndices[,"indexAligned.ref"]), ]
@@ -372,7 +372,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
 #' @export
 getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-                         maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01, spanvalue = 0.1,
+                         maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
                          normalization = "mean", simMeasure = "dotProductMasked",
                          SgolayFiltOrd = 4, SgolayFiltLen = 9,
                          goFactor = 0.125, geFactor = 40,
@@ -411,6 +411,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   if(length(analytesNotFound)>0){
     message(paste(analytesNotFound, "not found."))
   }
+  analytes <- analytesFound
 
   ####################### Get XICs ##########################################
   runs <- filenames$runs
@@ -455,13 +456,13 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                                 dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
         AlignObjs[[analyte]] <- list()
         # Attach AlignObj for the analyte.
-        AlignObjs[[analyte]][["AlignObj"]] <- AlignObj
+        AlignObjs[[analyte]][[pair]] <- AlignObj
         # Attach intensities of reference XICs.
         AlignObjs[[analyte]][[runs[ref]]] <- XICs.ref
         # Attach intensities of experiment XICs.
         AlignObjs[[analyte]][[runs[eXp]]] <- XICs.eXp
         # Attach peak boundaries to the object.
-        AlignObjs[[analyte]][["peakBndrs"]] <- oswFiles[[refRunIdx]] %>%
+        AlignObjs[[analyte]][[paste0(pair, "_pk")]] <- oswFiles[[refRunIdx]] %>%
           dplyr::filter(transition_group_id == analyte & peak_group_rank == 1) %>%
           dplyr::select(leftWidth, RT, rightWidth) %>%
           as.vector()
