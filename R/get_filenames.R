@@ -59,8 +59,11 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
     filenames <- filenamesFromOSW(dataPath, pattern = "*.merged.osw")
   }
   # Get names of mzml files.
-  filenames$runs <- sapply(filenames[,"filename"], function(x) strsplit(x, split = ".mzML")[[1]][1])
-  filenames$runs <- sapply(filenames$runs, function(x) gsub(nameCutPattern, replacement = "\\3", x))
+  runs <- sapply(filenames[,"filename"], function(x) gsub(nameCutPattern, replacement = "\\3", x))
+  fileExtn <- strsplit(runs[[1]], "\\.")[[1]][2]
+  fileExtn <- paste0(".", fileExtn)
+  filenames$runs <- sapply(runs, function(x) strsplit(x, split = fileExtn)[[1]][1])
+
   mzMLfiles <- filenamesFromMZML(dataPath)
   # Check if osw files have corresponding mzML file.
   runs <- intersect(filenames$runs, mzMLfiles)
