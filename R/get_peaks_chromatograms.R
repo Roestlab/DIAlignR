@@ -45,7 +45,8 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes,
 getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
                         normalization, simType, goFactor, geFactor,
                         cosAngleThresh, OverlapAlignment,
-                        dotProdThresh, gapQuantile, hardConstrain, samples4gradient){
+                        dotProdThresh, gapQuantile, hardConstrain,
+                        samples4gradient, objType = "light"){
   # Set up constraints for penalizing similarity matrix
   noBeef <- ceiling(adaptiveRT/samplingTime)
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
@@ -62,7 +63,8 @@ getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
                                     goFactor = goFactor, geFactor = geFactor,
                                     cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
                                     dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
-                                    hardConstrain = hardConstrain, samples4gradient = samples4gradient)
+                                    hardConstrain = hardConstrain, samples4gradient = samples4gradient,
+                                    objType = objType)
   AlignObj
 }
 
@@ -73,11 +75,11 @@ getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
 getMappedRT <- function(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
                         normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                         OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
-                        samples4gradient){
+                        samples4gradient, objType = "light"){
   AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
                           normalization, simType = simMeasure, goFactor, geFactor,
                           cosAngleThresh, OverlapAlignment,
-                          dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
+                          dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
   eXpRT <- mappedRTfromAlignObj(refRT, tVec.ref, tVec.eXp, AlignObj)

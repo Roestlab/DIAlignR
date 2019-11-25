@@ -170,7 +170,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
-                         expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5){
+                         expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light"){
   if(length(runs)!= 2){
     print("For pairwise alignment, two runs are required.")
     return(NULL)
@@ -244,7 +244,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
         AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = RSEdistFactor*rse, samplingTime,
                                 normalization, simType = simMeasure, goFactor, geFactor,
                                 cosAngleThresh, OverlapAlignment,
-                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
+                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
         AlignObjs[[analyte]] <- list()
         # Attach AlignObj for the analyte.
         AlignObjs[[analyte]][[pair]] <- AlignObj

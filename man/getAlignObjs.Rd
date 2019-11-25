@@ -13,7 +13,7 @@ getAlignObjs(analytes, runs, dataPath = ".", alignType = "hybrid",
   cosAngleThresh = 0.3, OverlapAlignment = TRUE,
   dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
   samples4gradient = 100, expRSE = 8, samplingTime = 3.4,
-  RSEdistFactor = 3.5)
+  RSEdistFactor = 3.5, objType = "light")
 }
 \value{
 A list of AlignObj. Each AlignObj contains alignment path, similarity matrix and related parameters.

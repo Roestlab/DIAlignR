@@ -18,7 +18,7 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
 #'
 #' @importFrom methods setClass
 #' @export
-AffineAlignObjLight <- setClass(Class="AffineAlignObj",
+AffineAlignObjLight <- setClass(Class="AffineAlignObjLight",
                            representation(indexA_aligned = "numeric", indexB_aligned = "numeric",
                                           score = "numeric")
 )
@@ -27,7 +27,7 @@ AffineAlignObjLight <- setClass(Class="AffineAlignObj",
 #'
 #' @importFrom methods setClass
 #' @export
-AffineAlignObjMedium <- setClass(Class="AffineAlignObj",
+AffineAlignObjMedium <- setClass(Class="AffineAlignObjMedium",
                         representation(s = "matrix", path = "matrix",
                                        indexA_aligned = "numeric", indexB_aligned = "numeric",
                                                score = "numeric")

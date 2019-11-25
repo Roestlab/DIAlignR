@@ -4,13 +4,7 @@
 \name{AffineAlignObj-class}
 \alias{AffineAlignObj-class}
 \alias{AffineAlignObj}
-\alias{AffineAlignObjLight}
-\alias{AffineAlignObjMedium}
 \title{An S4 object for class AffineAlignObj}
 \description{
 An S4 object for class AffineAlignObj
-
-An S4 object for class AffineAlignObj. It only contains aligned indices.
-
-An S4 object for class AffineAlignObj. It only contains similarity matrix and aligned indices.
 }
