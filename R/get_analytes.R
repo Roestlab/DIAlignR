@@ -15,7 +15,7 @@ getAnalytesName <- function(oswFiles, analyteFDR = 1.00, commonAnalytes = TRUE){
   } else {
     # Get union
     for(oswAnalytes in oswFiles){
-      analytes <- dplyr::filter(oswAnalytes, m_score < analyteFDR) %>%
+        analytes <- dplyr::filter(oswAnalytes, m_score < analyteFDR) %>%
         .$transition_group_id %>% dplyr::union(analytes)
     }
   }

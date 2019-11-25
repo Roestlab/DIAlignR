@@ -2,11 +2,11 @@
 #'
 #' @return A data-frame.
 fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
-                              peptides, filename, runType){
+                              analytes, filename, runType){
   # Establish a connection of SQLite file.
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
   # Generate a query.
-  query <- getQuery(maxFdrQuery, oswMerged, peptides = peptides,
+  query <- getQuery(maxFdrQuery, oswMerged, analytes = analytes,
                     filename = filename, runType = runType)
   # Run query to get peptides, their coordinates and scores.
   analytesInfo <- tryCatch(expr = DBI::dbGetQuery(con, statement = query),

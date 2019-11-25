@@ -23,7 +23,7 @@ test_that("test_fetchAnalytesInfo",{
                           stringsAsFactors=FALSE)
   oswName <- "../../data/testData2/osw/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.osw"
   outData <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = FALSE,
-                               peptides = c("KLYAGAILEV_2"), filename = filenames$filename[1],
+                               analytes = c("KLYAGAILEV_2"), filename = filenames$filename[1],
                                runType = "DIA_proteomics")
   #skip('skip')
   expect_equal(outData, expOutput, tolerance=1e-6)

@@ -18,7 +18,6 @@ test_that("test_readChromatogramHeader",{
                           "productIsolationWindowUpperOffset" = c(0,0),
                           stringsAsFactors=FALSE)
   mzmlName <- "../../data/testData2/mzml/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.chrom.mzML"
-  skip("Skipping mzml reading.")
   expect_identical(dim(readChromatogramHeader(mzmlName)), c(175525L, 10L))
   expect_equal(readChromatogramHeader(mzmlName)[1:2,], expOutput, tolerance=1e-6)
 })

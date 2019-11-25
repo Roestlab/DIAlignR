@@ -5,12 +5,12 @@
 \title{Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.}
 \usage{
 alignTargetedruns(dataPath, alignType = "hybrid", oswMerged = TRUE,
-  nameCutPattern = "(.*)(/)(.*)", maxFdrQuery = 0.05,
-  maxFdrLoess = 0.01, analyteFDR = 0.01, spanvalue = 0.1,
-  runType = "DIA_Proteomics", normalization = "mean",
-  simMeasure = "dotProductMasked", SgolayFiltOrd = 4,
-  SgolayFiltLen = 9, goFactor = 0.125, geFactor = 40,
-  cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+  runs = NULL, analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
+  maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
+  spanvalue = 0.1, runType = "DIA_Proteomics",
+  normalization = "mean", simMeasure = "dotProductMasked",
+  SgolayFiltOrd = 4, SgolayFiltLen = 9, goFactor = 0.125,
+  geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
   dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
   samples4gradient = 100, expRSE = 8, samplingTime = 3.4,
   RSEdistFactor = 3.5)
@@ -20,4 +20,11 @@ Saves intensity table in the current directory.
 }
 \description{
 Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.
+}
+\examples{
+dataPath <- "data/testData2"
+analytes <- c("AAAGPVADLF_2", "YQYSDQGIDY_2")
+runs <- c("170407_AM_BD-ZH12_Spleen_W_10\%_DIA_#2_400-650mz_msms42", "170413_AM_BD-ZH12_BoneMarrow_W_10\%_DIA_#2_400-650mz_msms35")
+alignTargetedruns(dataPath, runs = runs, analytes = analytes, oswMerged = FALSE, SgolayFiltOrd = 4, SgolayFiltLen = 5)
+alignTargetedruns(dataPath, runType = "DIA_Metabolomics", samplingTime = 0.8229)
 }

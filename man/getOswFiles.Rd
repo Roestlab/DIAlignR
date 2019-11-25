@@ -5,7 +5,7 @@
 \title{Get list of peptides and their chromatogram indices.}
 \usage{
 getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
-  oswMerged = TRUE, peptides = NULL, runType = "DIA_proteomics")
+  oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics")
 }
 \value{
 A list of data-frames.

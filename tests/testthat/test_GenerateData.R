@@ -6,7 +6,7 @@ generateDIAlignRdata <- function(){
   nameCutPattern <- "(.*)(/)(.*)"
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
   oswFiles_DIAlignR <- getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
-                                   oswMerged, peptides = NULL, runType = "DIA_proteomics")
+                                   oswMerged, analytes = NULL, runType = "DIA_proteomics")
   refAnalytes <- getAnalytesName(oswFiles_DIAlignR, 1.0, commonAnalytes = TRUE)
   set.seed(1)
   refAnalytes <- sample(refAnalytes, 400)
@@ -29,8 +29,8 @@ generateDIAlignRdata <- function(){
   runs <- c("run0" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41",
             "run1" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42",
             "run2" = "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35")
-  outData <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
+  outData <- getXICs4AlignObj(dataPath, runs, oswFiles_DIAlignR, analytes,
                               SgolayFiltOrd = 4, SgolayFiltLen = 5)
-  XIC_KLYAGAILEV_2 <- outData
+  XIC_KLYAGAILEV_2_DIAlignR <- outData
   save(XIC_KLYAGAILEV_2, file = "XIC_KLYAGAILEV_2_DIAlignR.RData")
 }

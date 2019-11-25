@@ -2,7 +2,7 @@
 % Please edit documentation in R/align_dia_runs.R
 \name{getAlignObjs}
 \alias{getAlignObjs}
-\title{AlignObj for peptides between a pair}
+\title{AlignObj for analytes between a pair}
 \usage{
 getAlignObjs(analytes, runs, dataPath = ".", alignType = "hybrid",
   query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
@@ -19,5 +19,5 @@ getAlignObjs(analytes, runs, dataPath = ".", alignType = "hybrid",
 A list of AlignObj. Each AlignObj contains alignment path, similarity matrix and related parameters.
 }
 \description{
-AlignObj for peptides between a pair
+AlignObj for analytes between a pair
 }

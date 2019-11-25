@@ -2,11 +2,11 @@
 #'
 #' @return SQL query to be searched.
 #' @export
-getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = NULL, runType = "DIA_Proteomics"){
-  if(is.null(peptides)){
-    selectPeptide <- ""
+getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL, filename = NULL, runType = "DIA_Proteomics"){
+  if(is.null(analytes)){
+    selectAnalytes <- ""
   } else{
-    selectPeptide <- paste0(" AND transition_group_id IN ('", paste(peptides,collapse="','"),"')")
+    selectAnalytes <- paste0(" AND transition_group_id IN ('", paste(analytes, collapse="','"),"')")
   }
 
   if(oswMerged){
@@ -45,7 +45,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
     LEFT JOIN FEATURE_MS1 ON FEATURE_MS1.FEATURE_ID = FEATURE.ID
     LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
     LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-    WHERE COMPOUND.DECOY = 0 AND SCORE_MS2.QVALUE <  ", maxFdrQuery, matchFilename, "
+    WHERE COMPOUND.DECOY = 0 AND SCORE_MS2.QVALUE <  ", maxFdrQuery, selectAnalytes, matchFilename, "
     ORDER BY transition_group_id,
     peak_group_rank;")
   } else if (runType == "MRM_Proteomics"){
@@ -86,7 +86,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, peptides = NULL, filename = 
   INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
   LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectPeptide, matchFilename, "
+  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectAnalytes, matchFilename, "
   ORDER BY transition_group_id,
   peak_group_rank;")
   }

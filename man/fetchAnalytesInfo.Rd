@@ -4,7 +4,7 @@
 \alias{fetchAnalytesInfo}
 \title{Get a table of analytes, their chromatogram indices and scores.}
 \usage{
-fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, peptides, filename,
+fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, analytes, filename,
   runType)
 }
 \value{
