@@ -4,8 +4,8 @@
 \alias{getXICs}
 \title{Get XICs for a list of peptides}
 \usage{
-getXICs(peptides, runs, dataPath = ".", maxFdrQuery = 1,
-  SgolayFiltOrd = 4, SgolayFiltLen = 9, query = NULL,
+getXICs(analytes, runs, dataPath = ".", maxFdrQuery = 1,
+  SgolayFiltOrd = 4, SgolayFiltLen = 9, runType = "DIA_proteomics",
   oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)")
 }
 \value{

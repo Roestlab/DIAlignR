@@ -13,7 +13,7 @@ chromatogramIdAsInteger <- function(chromatogramHeader){
 #'
 #' @importFrom dplyr %>%
 #' @return Update list of data-frame
-mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR, runType = "DIA_proteomics"){
+mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1.00, runType = "DIA_proteomics"){
   # TODO: Make sure that transition_id has same order across runs. IMO should be specified in query.
   assign("oswAnalytes", dplyr::left_join(oswAnalytes, chromHead,
                                   by = c("transition_id" = "chromatogramId")) %>%
@@ -42,7 +42,7 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
       oswName <- paste0(file.path(dataPath, "osw", filenames$runs[i]), ".osw")
     }
     # Get transition indices for MS2 fragment-ions.
-    oswAnalytes <- fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, analytes = NULL,
+    oswAnalytes <- fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, analytes = analytes,
                                      filename = filenames$filename[i], runType)
 
     # Get chromatogram indices from the header file.

@@ -92,63 +92,35 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiv
 #' @return A list of list. Each list contains XICs for that run.
 #' @importFrom dplyr %>%
 #' @export
-getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
-                    SgolayFiltOrd = 4, SgolayFiltLen = 9,
-                    query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
+getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0,
+                    SgolayFiltOrd = 4, SgolayFiltLen = 9, runType = "DIA_proteomics",
+                    oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
   if( (SgolayFiltLen %% 2) != 1){
     print("SgolayFiltLen can only be odd number")
     return(NULL)
   }
-  # Check if names are consistent between osw and mzML files. Fetch run names.
+  # Get filenames from .merged.osw file and check if names are consistent between osw and mzML files.
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
   filenames <- filenames[filenames$runs %in% runs,]
-  rownames(filenames) <- paste0("run", 0:(length(runs)-1), "")
 
   # Get Chromatogram indices for each peptide in each run.
-  oswFiles = getOswFiles(filenames, dataPath, peptides, query, oswMerged, maxFdrQuery, nameCutPattern)
-  PeptidesFound <- c()
-  for(x in oswFiles){
-    PeptidesFound <- x %>% .$transition_group_id %>% dplyr::union(PeptidesFound)
+  oswFiles = getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = 1.00,
+                         oswMerged = oswMerged, analytes = analytes, runType = runType)
+  refAnalytes <- getAnalytesName(oswFiles, commonAnalytes = FALSE)
+  analytesFound <- intersect(analytes, refAnalytes)
+  analytesNotFound <- setdiff(analytes, analytesFound)
+  if(length(analytesNotFound)>0){
+    message(paste(analytesNotFound, "not found."))
   }
 
-  PeptidesFound <- intersect(peptides, PeptidesFound)
-  # Report peptides that are not found
-  PeptidesNotFound <- setdiff(peptides, PeptidesFound)
-  if(length(PeptidesNotFound)>0){
-    messsage(paste(PeptidesNotFound, "not found."))
-  }
-
+  ####################### Get XICs ##########################################
   runs <- filenames$runs
   names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
-  XICs <- list()
-  print("Fetching Extracted-ion chromatograms from runs")
-  for(i in 1:length(runs)){
-    run <- names(runs)[i]
-    mzmlName <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
-    mz <- tryCatch(mzR::openMSfile(mzmlName, backend = "pwiz"),
-                   error = function(cond) {
-                     c$message <- paste0(c$message,
-                                         "If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
-                     stop(cond)})
-    XICs_run <- lapply(1:length(PeptidesFound), function(j){
-      chromIndices <- oswFiles[[i]] %>%
-        dplyr::filter(transition_group_id == PeptidesFound[j]) %>% .$chromatogramIndex
-      if(length(chromIndices) > 0){
-        chromIndices <- as.integer(strsplit(chromIndices, split = ",")[[1]])
-        XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd, SgolayFiltLen)
-      } else{
-        XIC_group <- list()
-      }
-      return(XIC_group)
-    })
-    names(XICs_run) <- PeptidesFound
-    XICs[[i]] <- XICs_run
-    rm(mz)
-    print(paste("Fetched Extracted-ion chromatograms from run", runs[run]))
-  }
-  names(XICs) <- runs
-  return(XICs)
+  message("Fetching Extracted-ion chromatograms from runs")
+  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytesFound,
+                           SgolayFiltOrd, SgolayFiltLen)
+  XICs
 }
 
 
@@ -157,7 +129,7 @@ getXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
 #' @importFrom dplyr %>%
 #' @return A list of data-frames.
 #' @export
-getMRMoswFiles <- function(filenames, dataPath = ".", peptides = NULL,  query = NULL,
+getMRMoswFiles <- function(filenames, dataPath = ".", peptides = NULL, query = NULL,
                         oswMerged = FALSE, maxFdrQuery = 1.0){
   # Get Chromatogram indices for each peptide in each run.
   print("Getting chromatogram indices for each peptide in each run")
