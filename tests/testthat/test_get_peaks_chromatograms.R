@@ -44,6 +44,7 @@ timeVector <- function(){
 }
 
 test_that("test_extractXIC_group", {
+  skip("No need")
   mzmlName <- "../../data/testData2/mzml/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.chrom.mzML"
   mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
   chromIndices <- c(100743L, 104255L, 107437L, 109555L, 114846L)
@@ -57,19 +58,40 @@ test_that("test_extractXIC_group", {
 })
 
 test_that("test_getXICs4AlignObj", {
+  skip("No need")
   dataPath <- "../../data/testData2"
   runs <- c("run0" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41",
             "run1" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42")
-  oswFiles <- testOswFiles()
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  oswFiles <- oswFiles_DIAlignR
   analytes <- "KLYAGAILEV_2"
   outData <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
-                   SgolayFiltOrd = 3, SgolayFiltLen = 5)
-  expIntensity <- intensityVector()
-  expTime <- timeVector()
+                   SgolayFiltOrd = 4, SgolayFiltLen = 5)
+  data(XIC_KLYAGAILEV_2_DIAlignR, package="DIAlignR")
+  XICs <- XIC_KLYAGAILEV_2
   expect_identical(names(outData), c("run0", "run1"))
   expect_identical(names(outData[[2]]), "KLYAGAILEV_2")
-  expect_equal(outData[["run0"]][["KLYAGAILEV_2"]][[2]][,1], expTime, tolerance = 1e-03)
-  expect_equal(outData[["run0"]][["KLYAGAILEV_2"]][[2]][,2], expIntensity, tolerance = 1e-03)
+  expect_equal(outData[["run0"]][["KLYAGAILEV_2"]], XICs[["run0"]][["KLYAGAILEV_2"]], tolerance = 1e-03)
+  expect_equal(outData[["run1"]][["KLYAGAILEV_2"]], XICs[["run1"]][["KLYAGAILEV_2"]], tolerance = 1e-03)
+})
+
+test_that("test_getMappedRT", {
+  data(XIC_KLYAGAILEV_2_DIAlignR, package="DIAlignR")
+  XICs <- XIC_KLYAGAILEV_2
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  oswFiles <- oswFiles_DIAlignR
+  XICs.ref <- XICs[["run2"]][[1]]
+  XICs.eXp <- XICs[["run0"]][[1]]
+  adaptiveRT <- 3.5*Loess.fit$s #90.56635
+  Loess.fit <- getLOESSfit(oswFiles, ref = "run2", eXp = "run0", maxFdrLoess = 0.05, spanvalue = 0.1)
+  outData <- getMappedRT(refRT = 4449.35, XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
+                        adaptiveRT = 90.56635, samplingTime = 1.372082,
+                        normalization = "mean", simMeasure = "dotProductMasked",
+                        goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
+                        OverlapAlignment = TRUE,
+                        dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+                        samples4gradient = 100)
+  expect_equal(outData, 4388.1, tolerance = 1e-03)
 })
 
 test_that("test_getAlignObj", {

@@ -33,7 +33,7 @@ mapIdxToTime <- function(timeVec, idx){
 }
 
 
-mappedRTfromAlignObj <- function(tVec.ref, tVec.eXp, AlignObj){
+mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
   AlignedIndices <- cbind(AlignObj@indexA_aligned,
                           AlignObj@indexB_aligned,
                           AlignObj@score)
@@ -43,6 +43,6 @@ mappedRTfromAlignObj <- function(tVec.ref, tVec.eXp, AlignObj){
   tAligned.ref <- mapIdxToTime(tVec.ref, AlignedIndices[,"indexAligned.ref"])
   tAligned.eXp <- mapIdxToTime(tVec.eXp, AlignedIndices[,"indexAligned.eXp"])
   # Map retention time from reference to eXp.
-  eXpRT <- tAligned.eXp[which.min(abs(tAligned.ref - refPeak$RT))]
+  eXpRT <- tAligned.eXp[which.min(abs(tAligned.ref - refRT))]
   eXpRT
 }

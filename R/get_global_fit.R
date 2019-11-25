@@ -42,6 +42,6 @@ getLinearfit <- function(oswFiles, ref, eXp, maxFdrLoess){
     dplyr::select(transition_group_id, RT)
   RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
   # For testing we want to avoid validation peptides getting used in the fit.
-  lm.fit <- lm(RUN2 ~ RUN1, data = RUNS_RT)
+  lm.fit <- lm(RT.eXp ~ RT.ref, data = RUNS_RT)
   lm.fit
 }

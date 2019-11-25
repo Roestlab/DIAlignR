@@ -69,7 +69,8 @@ getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
 #' Extract XICs of all transitions requested in chromIndices.
 #'
 #' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
-getMappedRT <- function(XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
+#' @export
+getMappedRT <- function(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
                         normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                         OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
                         samples4gradient){
@@ -79,7 +80,7 @@ getMappedRT <- function(XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, sa
                           dotProdThresh, gapQuantile, hardConstrain, samples4gradient)
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-  eXpRT <- mappedRTfromAlignObj(tVec.ref, tVec.eXp, AlignObj)
+  eXpRT <- mappedRTfromAlignObj(refRT, tVec.ref, tVec.eXp, AlignObj)
   eXpRT
 }
 

@@ -4,7 +4,7 @@
 \alias{getMappedRT}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-getMappedRT(XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
+getMappedRT(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
   samplingTime, normalization, simMeasure, goFactor, geFactor,
   cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
   hardConstrain, samples4gradient)

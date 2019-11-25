@@ -1,5 +1,7 @@
 context("Utility functions")
 
+# mzML and osw files are not required.
+
 testOswFiles <- function(){
   df1 <- data.frame("transition_group_id" = rep("KLYAGAILEV_2", 2),
                     "filename" = rep("HLA-Ligand-Atlas/BD-ZH12_Spleen_Class-1/dia_files/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.mzML", 2),
@@ -36,16 +38,18 @@ testOswFiles <- function(){
 }
 
 test_that("test_getRefRun", {
-  oswFiles <- testOswFiles()
-  expect_identical(getRefRun(oswFiles, analyte = "KLYAGAILEV_2"), 1L)
-  expect_identical(getRefRun(oswFiles, analyte = "AQPPVSTEY_2"), 2L)
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  oswFiles <- oswFiles_DIAlignR
+  expect_identical(getRefRun(oswFiles, analyte = "KLYAGAILEV_2"), 3L)
+  expect_identical(getRefRun(oswFiles, analyte = "AQPPVSTEY_2"), NULL)
 })
 
 test_that("test_selectChromIndices", {
-  oswFiles <- testOswFiles()
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  oswFiles <- oswFiles_DIAlignR
   outData <- selectChromIndices(oswFiles, runname = "run0", analyte = "KLYAGAILEV_2")
   expData <- c(100743L,104255L,107437L,109555L,114846L)
   expect_identical(outData, expData)
-  outData <- selectChromIndices(oswFiles, runname = "run0", analyte = "AQPVPAHVY_2")
+  outData <- selectChromIndices(oswFiles, runname = "run2", analyte = "AQPVPAHVY_2")
   expect_identical(outData, NULL)
 })

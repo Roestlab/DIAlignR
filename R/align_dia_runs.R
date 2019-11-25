@@ -301,7 +301,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE, 
         rse <- min(Loess.fit$s, expRSE)
         adaptiveRT <- RSEdistFactor*rse
         # Get retention time in experiment run mapped to reference run retention time.
-        eXpRT <- getMappedRT(XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
+        eXpRT <- getMappedRT(refPeak$RT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
                              normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                              OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
                              samples4gradient)
