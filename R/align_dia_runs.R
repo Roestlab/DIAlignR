@@ -162,7 +162,8 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
 #' @return A list of AlignObj. Each AlignObj contains alignment path, similarity matrix and related parameters.
 #' @export
 getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
-                         query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                         runType = "DIA_Proteomics", refRun = NULL,
+                         oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
                          normalization = "mean", simMeasure = "dotProductMasked",
                          SgolayFiltOrd = 4, SgolayFiltLen = 9,
@@ -171,7 +172,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
                          expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light"){
-  if(length(runs)!= 2){
+  if(length(runs) != 2){
     print("For pairwise alignment, two runs are required.")
     return(NULL)
   }
@@ -193,7 +194,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR,
-                          oswMerged, analytes = NULL, runType = "DIA_proteomics")
+                          oswMerged, analytes = NULL, runType)
 
   # Report analytes that are not found
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
@@ -220,7 +221,12 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   for(analyteIdx in seq_along(analytes)){
     analyte <- analytes[analyteIdx]
     # Select reference run based on m-score
-    refRunIdx <- getRefRun(oswFiles, analyte)
+    if(is.null(refRun)){
+      refRunIdx <- getRefRun(oswFiles, analyte)
+    } else{
+      refRunIdx <- which(filenames$runs == refRun)
+    }
+
     # Get XIC_group from reference run
     ref <- names(runs)[refRunIdx]
     exps <- setdiff(names(runs), ref)

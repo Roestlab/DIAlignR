@@ -92,3 +92,58 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL, filename = 
   }
   return(query)
 }
+
+#' This is a query that will be used to fetch information from osw files.
+#'
+#' @return SQL query to be searched.
+getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL, runType = "DIA_Proteomics"){
+  if(oswMerged){
+    matchFilename <- paste0(" AND RUN.FILENAME ='", filename,"'")
+  } else{
+    matchFilename <- ""
+  }
+
+  if(runType == "DIA_Metabolomics"){
+    query <- paste0("SELECT COMPOUND.ID AS compound_id,
+    COMPOUND.COMPOUND_NAME || '_' || COMPOUND.ADDUCTS AS transition_group_id,
+    RUN.FILENAME AS filename,
+    SCORE_MS2.RANK AS peak_group_rank,
+    SCORE_MS2.QVALUE AS m_score
+    FROM PRECURSOR
+    INNER JOIN PRECURSOR_COMPOUND_MAPPING ON PRECURSOR.ID = PRECURSOR_COMPOUND_MAPPING.PRECURSOR_ID
+    INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID
+    INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+    INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+    LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+    WHERE COMPOUND.DECOY = 0 AND SCORE_MS2.QVALUE <  ", maxFdrQuery, matchFilename, "
+    ORDER BY transition_group_id,
+    peak_group_rank;")
+  } else if (runType == "MRM_Proteomics"){
+    query <- paste0("SELECT PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id,
+  RUN.FILENAME AS filename,
+  FEATURE.EXP_RT AS RT,
+  FROM PRECURSOR
+  INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR.ID = PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID AND PRECURSOR.DECOY=0
+  INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+  INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+  INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+  ORDER BY transition_group_id;")
+  } else{
+    query <- paste0("SELECT PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id,
+  RUN.FILENAME AS filename,
+  SCORE_MS2.RANK AS peak_group_rank,
+  SCORE_MS2.QVALUE AS m_score,
+  TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id
+  FROM PRECURSOR
+  INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR.ID = PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID AND PRECURSOR.DECOY=0
+  INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+  INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+  INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+  INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, matchFilename, "
+  ORDER BY transition_group_id,
+  peak_group_rank;")
+  }
+  return(query)
+}
