@@ -4,7 +4,7 @@
 \alias{getAnalytes}
 \title{Get names of analytes found in all runs.}
 \usage{
-getAnalytes(dataPath, runs = NULL, oswMerged = TRUE, analyteFDR = 1,
+getAnalytes(dataPath, runs = NULL, oswMerged = TRUE,
   runType = "DIA_Proteomics", commonAnalytes = FALSE,
   maxFdrQuery = 0.05, nameCutPattern = "(.*)(/)(.*)")
 }

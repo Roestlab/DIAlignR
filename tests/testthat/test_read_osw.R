@@ -28,3 +28,24 @@ test_that("test_fetchAnalytesInfo",{
   #skip('skip')
   expect_equal(outData, expOutput, tolerance=1e-6)
 })
+
+test_that("test_getOswAnalytes",{
+  dataPath <- "../../data/testData2"
+  filenames <- data.frame("filename" = c("HLA-Ligand-Atlas/BD-ZH12_Spleen_Class-1/dia_files/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.mzML",
+                                         "HLA-Ligand-Atlas/BD-ZH12_BoneMarrow_Class-1/dia_files/170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35.mzML"),
+                          "runs" = c("170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41",
+                                     "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35"),
+                          row.names = c("run0", "run2"),
+                          stringsAsFactors=FALSE)
+  outData <- getOswAnalytes(dataPath, filenames, oswMerged = FALSE,
+                            maxFdrQuery = 0.001076, runType  = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = rep("AAAAAAQSVY_2", 2),
+                        "filename" = rep("HLA-Ligand-Atlas/BD-ZH12_BoneMarrow_Class-1/dia_files/170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35.mzML", 2),
+                        "peak_group_rank" = c(1L, 1L),
+                        "m_score" = rep(0.001075556, 2),
+                        "transition_id" = c(6419L, 6425L),
+                        stringsAsFactors=FALSE)
+  expect_identical(dim(outData[["run0"]]), c(13090L, 5L))
+  expect_identical(dim(outData[["run2"]]), c(7190L, 5L))
+  expect_equal(outData[["run2"]][1:2,], expData, tolerance=1e-6)
+})

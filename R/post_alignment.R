@@ -32,7 +32,9 @@ mapIdxToTime <- function(timeVec, idx){
   return(mutateT)
 }
 
-
+#' Use AlignObj to map reference retention time on experiment run.
+#'
+#' @return A numeric
 mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
   AlignedIndices <- cbind(AlignObj@indexA_aligned,
                           AlignObj@indexB_aligned,

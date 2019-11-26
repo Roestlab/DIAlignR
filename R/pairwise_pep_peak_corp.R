@@ -149,11 +149,11 @@ getAlignedObj <- function(peptide, pairName, XICs.A=NULL, XICs.B=NULL, alignType
       B2p <- predict(Loess.fit, tAVec[length(tAVec)])
       Alignobj <- alignChromatogramsCpp(intensityListA, intensityListB, alignType,
                                         tAVec, tBVec, normalization, simMeasure,
-                                        B1p, B2p, noBeef, bandwidth = forwSimBw)
+                                        B1p, B2p, noBeef)
     }
     else{
       Alignobj <- alignChromatogramsCpp(intensityListA, intensityListB, alignType,
-                                        tAVec, tBVec, normalization, simMeasure, bandwidth = forwSimBw)
+                                        tAVec, tBVec, normalization, simMeasure)
     }
     return(Alignobj)
   }

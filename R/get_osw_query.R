@@ -1,7 +1,6 @@
 #' This is a query that will be used to fetch information from osw files.
 #'
 #' @return SQL query to be searched.
-#' @export
 getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL, filename = NULL, runType = "DIA_Proteomics"){
   if(is.null(analytes)){
     selectAnalytes <- ""

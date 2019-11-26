@@ -17,6 +17,7 @@ fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
 #' Get a table of analytes, their chromatogram indices and scores.
 #'
 #' @return A data-frame.
+#' @export
 getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE,
                            maxFdrQuery = 0.05, runType  = "DIA_proteomics"){
   oswFiles <- list()

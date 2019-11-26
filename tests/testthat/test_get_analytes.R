@@ -38,3 +38,14 @@ test_that("test_getAnalytesName",{
   outData <- getAnalytesName(oswFiles, analyteFDR = 0.001, commonAnalytes = FALSE)
   expect_identical(outData, NULL)
 })
+
+
+test_that("test_getAnalytes",{
+  dataPath <- "../../data/testData2"
+  runs <- c("run1" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42",
+            "run2" = "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35")
+  outData <- getAnalytes(dataPath, runs, oswMerged = FALSE, maxFdrQuery = 0.001076, commonAnalytes = TRUE)
+  expect_identical(tail(outData,3), c("YTAQPTQGY_2", "YTLDQTYAK_2", "YVHDDGRVSY_2"))
+  expect_identical(head(outData,3), c("AAAAAAQSVY_2", "AAAGPVADLF_2", "AAFPGASLY_2"))
+  expect_identical(length(outData), 776L)
+})

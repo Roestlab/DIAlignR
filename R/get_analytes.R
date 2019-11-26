@@ -32,7 +32,7 @@ getAnalytesName <- function(oswFiles, analyteFDR = 1.00, commonAnalytes = TRUE){
 #' @importFrom dplyr %>%
 #' @return A vector of strings.
 #' @export
-getAnalytes <- function(dataPath, runs = NULL, oswMerged = TRUE, analyteFDR = 1.00, runType = "DIA_Proteomics",
+getAnalytes <- function(dataPath, runs = NULL, oswMerged = TRUE, runType = "DIA_Proteomics",
                         commonAnalytes = FALSE, maxFdrQuery = 0.05, nameCutPattern = "(.*)(/)(.*)"){
   # Get filenames from .merged.osw file and check if names are consistent between osw and mzML files.
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
