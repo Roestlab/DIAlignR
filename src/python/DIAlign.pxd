@@ -20,25 +20,45 @@ The following provides a Python wrapper around the C++ DIAlign library
    See the License for the specific language governing permissions and
    limitations under the License.
 """
+"""
+Documentation:
+https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html
+"""
 
 from libcpp.vector cimport vector as libcpp_vector
 from libcpp.string cimport string as libcpp_string
 from libcpp cimport bool
 
+# Why don't we need this? or mention that utils.cpp is a source?
+# cdef extern from "Rectangle.cpp":
+#     pass
+
+# Do we need to tell what is the source?
+# distutils: sources = affinealignobj.cpp in pyx file
+
 cdef extern from "utils.h" namespace "DIAlign":
 
     double getQuantile(libcpp_vector[double] vec, double quantile) nogil except +
 
+# Do we need this .pxd?
 cdef extern from "affinealignobj.h" namespace "DIAlign":
 
+# Couldn't understand the definition of these constructors.
+# Is it using same definition as defined in affinealignobj.h file.
     cdef cppclass AffineAlignObj:
         AffineAlignObj(int row, int col) nogil except +
-        AffineAlignObj(AffineAlignObj o) nogil except +
+        AffineAlignObj(AffineAlignObj o) nogil except + # Using Copy constructor
+        # Can we also use Copy assignment operator here?
 
+        # These are not functions or class, therefore, nogil and except + are not needed.
+        # Other members of the class are pointers and it could be tricky with Python to
+        # handle them. We need to write a separate function to deal with them.
         libcpp_vector[int] indexA_aligned
         libcpp_vector[int] indexB_aligned
         libcpp_vector[double] score
 
+# Why two declarations of alignChromatogramsCpp ?
+# This allows to fix values only in cpp files?
 cdef extern from "CppInterface.hpp" namespace "DIAlign":
 
     void alignChromatogramsCpp( AffineAlignObj& obj,
@@ -69,4 +89,3 @@ cdef extern from "CppInterface.hpp" namespace "DIAlign":
                                 double gapQuantile,
                                 bool hardConstrain,
                                 double samples4gradient) nogil except +
-

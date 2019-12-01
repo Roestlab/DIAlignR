@@ -256,6 +256,7 @@ double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx){
 //' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
 //' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
 //' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
+//' @param objType (char) A character string. Must be either light, medium or heavy.
 //' @return affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 //' @examples
 //' simMeasure <- "dotProductMasked"
@@ -278,7 +279,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             double cosAngleThresh = 0.3, bool OverlapAlignment = true,
                             double dotProdThresh = 0.96, double gapQuantile = 0.5,
                             bool hardConstrain = false, double samples4gradient = 100.0,
-                            int bandwidth = 9){
+                            std::string objType = "heavy"){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
   SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
@@ -297,27 +298,46 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
   }
   AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
   doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
-  getAffineAlignedIndices(obj, bandwidth); // Performs traceback and fills aligned indices in AffineAlignObj struct
-  S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
-  // Copying values to slots
-  x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
-  x.slot("M")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.M));
-  x.slot("A")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.A));
-  x.slot("B")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.B));
-  std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
-  x.slot("Traceback")  = EnumToChar(tmp);
-  x.slot("path") = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.Path));
-  x.slot("signalA_len") = obj.signalA_len;
-  x.slot("signalB_len") = obj.signalB_len;
-  x.slot("GapOpen") = obj.GapOpen;
-  x.slot("GapExten") = obj.GapExten;
-  x.slot("FreeEndGaps") = obj.FreeEndGaps;
-  x.slot("indexA_aligned") = obj.indexA_aligned;
-  x.slot("indexB_aligned") = obj.indexB_aligned;
-  x.slot("score") = obj.score;
-  x.slot("simScore_forw") = getForwardSim(s, obj.simPath);
-  x.slot("nGaps") = obj.nGaps;
-  return(x);
+  getAffineAlignedIndices(obj, 9); // Performs traceback and fills aligned indices in AffineAlignObj struct
+
+  if(objType == "light"){
+    S4 x("AffineAlignObjLight");  // Creating an empty S4 object of AffineAlignObj class
+    // Copying values to slots
+    x.slot("indexA_aligned") = obj.indexA_aligned;
+    x.slot("indexB_aligned") = obj.indexB_aligned;
+    x.slot("score") = obj.score;
+    return(x);
+  } else if(objType == "medium"){
+    S4 x("AffineAlignObjMedium");  // Creating an empty S4 object of AffineAlignObj class
+    // Copying values to slots
+    x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+    x.slot("path") = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.Path));
+    x.slot("indexA_aligned") = obj.indexA_aligned;
+    x.slot("indexB_aligned") = obj.indexB_aligned;
+    x.slot("score") = obj.score;
+    return(x);
+  } else {
+    S4 x("AffineAlignObj");  // Creating an empty S4 object of AffineAlignObj class
+    // Copying values to slots
+    x.slot("s") = Vec2NumericMatrix(s.data, s.n_row, s.n_col);
+    x.slot("M")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.M));
+    x.slot("A")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.A));
+    x.slot("B")  = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.B));
+    std::vector<TracebackType> tmp(obj.Traceback, obj.Traceback + 3*(s.n_col+1) *(s.n_row+1) );
+    x.slot("Traceback")  = EnumToChar(tmp);
+    x.slot("path") = transpose(NumericMatrix(s.n_col+1, s.n_row+1, obj.Path));
+    x.slot("signalA_len") = obj.signalA_len;
+    x.slot("signalB_len") = obj.signalB_len;
+    x.slot("GapOpen") = obj.GapOpen;
+    x.slot("GapExten") = obj.GapExten;
+    x.slot("FreeEndGaps") = obj.FreeEndGaps;
+    x.slot("indexA_aligned") = obj.indexA_aligned;
+    x.slot("indexB_aligned") = obj.indexB_aligned;
+    x.slot("score") = obj.score;
+    x.slot("simScore_forw") = getForwardSim(s, obj.simPath);
+    x.slot("nGaps") = obj.nGaps;
+    return(x);
+  }
 }
 
 //' Perform non-affine global and overlap alignment on a similarity matrix

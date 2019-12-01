@@ -16,3 +16,7 @@ src/*.dll
 # Cpp build file
 src/build
 src/build/*
+# Data files
+data/testData2
+data/testData2/*
+

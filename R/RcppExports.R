@@ -202,6 +202,7 @@ areaIntegrator <- function(l1, leftIdx, rightIdx) {
 #' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
 #' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
+#' @param objType (char) A character string. Must be either light, medium or heavy.
 #' @return affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 #' @examples
 #' simMeasure <- "dotProductMasked"
@@ -215,8 +216,8 @@ areaIntegrator <- function(l1, leftIdx, rightIdx) {
 #' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
 #' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
 #' @export
-alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, bandwidth = 9L) {
-    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, bandwidth)
+alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, objType = "heavy") {
+    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
 }
 
 #' Perform non-affine global and overlap alignment on a similarity matrix

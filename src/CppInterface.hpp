@@ -14,10 +14,15 @@
 #include "affinealignment.h"
 #include "constrainMat.h"
 
+// Why do we create a new namespace? 
+// Does it not conflict with the same namespace DIAlign we had in other files.
+// Wait! Don't these namespace override each other? Can you just keep-on adding stuff in namespace?
+// namespace is like a package, you add stuff inside it without breaking other parts.
 
 namespace DIAlign
 {
-
+	//Not sure how can we pass the AffineAlignObj from python to C++.
+	// Where is the implementation of it? Shouldn't the implementation be in .cpp file?
   void alignChromatogramsCpp( AffineAlignObj& obj,
                               const std::vector<std::vector<double> > & r1,
                               const std::vector<std::vector<double> > & r2,

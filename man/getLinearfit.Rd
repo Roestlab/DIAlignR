@@ -4,7 +4,7 @@
 \alias{getLinearfit}
 \title{calculates linear fit between RT of two runs}
 \usage{
-getLinearfit(pairName, peptides, oswOutput)
+getLinearfit(oswFiles, ref, eXp, maxFdrLoess)
 }
 \arguments{
 \item{pairName}{Names of runs joined with underscore. e.g. runA_runB, This will allow

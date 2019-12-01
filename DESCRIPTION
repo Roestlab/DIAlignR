@@ -26,7 +26,11 @@ Imports:
     Rcpp
 Suggests:
     knitr,
-    rmarkdown
+    lattice,
+    scales,
+    latticeExtra,
+    rmarkdown,
+    testthat (>= 2.1.0)
 VignetteBuilder: knitr
 LinkingTo: 
     Rcpp

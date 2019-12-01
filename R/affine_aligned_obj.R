@@ -14,6 +14,26 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
                                   nGaps = "numeric")
                    )
 
+#' An S4 object for class AffineAlignObj. It only contains aligned indices.
+#'
+#' @importFrom methods setClass
+#' @export
+AffineAlignObjLight <- setClass(Class="AffineAlignObjLight",
+                           representation(indexA_aligned = "numeric", indexB_aligned = "numeric",
+                                          score = "numeric")
+)
+
+#' An S4 object for class AffineAlignObj. It only contains similarity matrix and aligned indices.
+#'
+#' @importFrom methods setClass
+#' @export
+AffineAlignObjMedium <- setClass(Class="AffineAlignObjMedium",
+                        representation(s = "matrix", path = "matrix",
+                                       indexA_aligned = "numeric", indexB_aligned = "numeric",
+                                               score = "numeric")
+)
+
+
 #' An S4 object for class AlignObj
 #'
 #' @importFrom methods setClass

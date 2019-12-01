@@ -8,7 +8,7 @@ alignChromatogramsCpp(l1, l2, alignType, tA, tB, normalization, simType,
   B1p = 0, B2p = 0, noBeef = 0L, goFactor = 0.125, geFactor = 40,
   cosAngleThresh = 0.3, OverlapAlignment = TRUE,
   dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
-  samples4gradient = 100, bandwidth = 9L)
+  samples4gradient = 100, objType = "heavy")
 }
 \arguments{
 \item{l1}{(list) A list of numeric vectors. l1 and l2 should have same length.}
@@ -50,6 +50,8 @@ The window length = 2*noBeef.}
 \item{hardConstrain}{(logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.}
 
 \item{samples4gradient}{(numeric) This parameter modulates penalization of masked indices.}
+
+\item{objType}{(char) A character string. Must be either light, medium or heavy.}
 }
 \value{
 affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
