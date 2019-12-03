@@ -23,6 +23,7 @@ Imports:
     mzR (>= 2.18),
     signal,
     ggplot2,
+    gridExtra,
     Rcpp
 Suggests:
     knitr,
