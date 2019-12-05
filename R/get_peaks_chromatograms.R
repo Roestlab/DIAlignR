@@ -22,8 +22,10 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes,
   names(XICs) <- names(runs)
   for(i in seq_along(runs)){
     runname = names(runs)[i]
+    message("Fetching XICs from run ", runs[[runname]])
     XICs[[i]] <- lapply(1:length(analytes), function(j){
-      chromIndices <- selectChromIndices(oswFiles, runname = runname, analyte = analytes[j])
+      analyte <- analytes[j]
+      chromIndices <- selectChromIndices(oswFiles, runname = runname, analyte = analyte)
       if(is.null(chromIndices)){
         warning("Chromatogram indices for ", analyte, " are missing in ", runs[[runname]])
         message("Skipping ", analyte)
@@ -94,7 +96,7 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiv
 #' @export
 getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0,
                     SgolayFiltOrd = 4, SgolayFiltLen = 9, runType = "DIA_proteomics",
-                    oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
+                    oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE){
   if( (SgolayFiltLen %% 2) != 1){
     print("SgolayFiltLen can only be odd number")
     return(NULL)
@@ -104,13 +106,14 @@ getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0,
   filenames <- filenames[filenames$runs %in% runs,]
 
   # Get Chromatogram indices for each peptide in each run.
-  oswFiles = getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = 1.00,
-                         oswMerged = oswMerged, analytes = analytes, runType = runType)
+  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = 1.00,
+                         oswMerged = oswMerged, analytes = analytes, runType = runType,
+                         analyteInGroupLabel = analyteInGroupLabel)
   refAnalytes <- getAnalytesName(oswFiles, commonAnalytes = FALSE)
   analytesFound <- intersect(analytes, refAnalytes)
   analytesNotFound <- setdiff(analytes, analytesFound)
   if(length(analytesNotFound)>0){
-    message(paste(analytesNotFound, "not found."))
+    message("Analytes ", paste(analytesNotFound, ", "), "not found.")
   }
 
   ####################### Get XICs ##########################################
