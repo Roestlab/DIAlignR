@@ -68,7 +68,7 @@ generateMergedOsw <- function(){
   IDs <- DBI::dbFetch(IDquery)
   DBI::dbClearResult(IDquery)
   set.seed(10)
-  IDs <- sample(IDs$transition_group_id, 600)
+  IDs <- sample(IDs$transition_group_id, 300)
   transition_group_id <- union(IDs, transition_group_id)
 
   query <- "SELECT PRECURSOR.GROUP_LABEL AS transition_group_id FROM PRECURSOR WHERE PRECURSOR.DECOY = 1"
@@ -76,7 +76,7 @@ generateMergedOsw <- function(){
   IDs <- DBI::dbFetch(IDquery)
   DBI::dbClearResult(IDquery)
   set.seed(10)
-  IDs <- sample(IDs$transition_group_id, 60)
+  IDs <- sample(IDs$transition_group_id, 10)
   transition_group_id <- union(IDs, transition_group_id)
   DBI::dbDisconnect(con)
 

@@ -1,51 +1,69 @@
 context("Read osw files.")
 
 test_that("test_fetchAnalytesInfo",{
-  filenames <- data.frame("filename" = c("HLA-Ligand-Atlas/BD-ZH12_Spleen_Class-1/dia_files/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.mzML",
-                                         "HLA-Ligand-Atlas/BD-ZH12_Spleen_Class-1/dia_files/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42.mzML",
-                                         "HLA-Ligand-Atlas/BD-ZH12_BoneMarrow_Class-1/dia_files/170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35.mzML"),
-                          "runs" = c("170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41",
-                                     "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42",
-                                     "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35"),
+  filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
+                                         "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
+                                         "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
+                          "runs" = c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
+                                     "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+                                     "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
-  expOutput <- data.frame("transition_group_id" = rep("KLYAGAILEV_2", 10),
-                          "filename" = rep("HLA-Ligand-Atlas/BD-ZH12_Spleen_Class-1/dia_files/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.mzML", 10),
-                          "RT" = c(rep(4390.35, 5), rep(4433.38, 5)),
-                          "delta_rt" = c(rep(66.94013, 5), rep(109.96858, 5)),
-                          "assay_RT" = rep(4326.335, 10),
-                          "Intensity" = c(rep(6644520, 5), rep(914820, 5)),
-                          "leftWidth" = c(rep(4369.325, 5), rep(4418.935, 5)),
-                          "rightWidth" = c(rep(4413.365, 5), rep(4439.139, 5)),
-                          "peak_group_rank" = c(rep(1, 5), rep(2, 5)),
-                          "m_score" = c(rep(0.002128436, 5), rep(0.029838394, 5)),
-                          "transition_id" = c(45085, 45089, 45095, 45098, 45103, 45085, 45089, 45095, 45098, 45103),
+  oswName <- "../../data/example/osw/merged.osw"
+  expOutput <- data.frame("transition_group_id" = rep("19051_KLIVTSEGC[160]FK/2", 6),
+                          "filename" = rep("data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 6),
+                          "RT" = rep(2586.12, 6),
+                          "delta_rt" = rep(78.9663, 6),
+                          "assay_RT" = rep(13.5, 6),
+                          "Intensity" = rep(26.2182, 6),
+                          "leftWidth" = rep(2571.738, 6),
+                          "rightWidth" = rep(2609.288, 6),
+                          "peak_group_rank" = rep(1, 6),
+                          "m_score" = rep(0.001041916, 6),
+                          "transition_id" = c(58312, 58313, 58314, 58315, 58316, 58317),
                           stringsAsFactors=FALSE)
-  oswName <- "../../data/testData2/osw/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.osw"
-  outData <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = FALSE,
-                               analytes = c("KLYAGAILEV_2"), filename = filenames$filename[1],
-                               runType = "DIA_proteomics")
-  #skip('skip')
+  outData <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
+                               analytes = c("19051_KLIVTSEGC[160]FK/2"), filename = filenames$filename[2],
+                               runType = "DIA_proteomics", analyteInGroupLabel = TRUE)
+  expect_equal(outData, expOutput, tolerance=1e-6)
+  outData <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.5, oswMerged = TRUE,
+                               analytes = c("IHFLSPVRPFTLTPGDEEESFIQLITPVR_3"), filename = filenames$filename[3],
+                               runType = "DIA_proteomics", analyteInGroupLabel = FALSE)
+  expOutput <- data.frame("transition_group_id" = rep("IHFLSPVRPFTLTPGDEEESFIQLITPVR_3", 12),
+                          "filename" = rep("data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 12),
+                          "RT" = c(rep(6483.50, 6), rep(6597.54, 6)),
+                          "delta_rt" = c(rep(78.8163, 6), rep(192.8560, 6)),
+                          "assay_RT" = rep(126.7, 12),
+                          "Intensity" = c(rep(61.0299, 6), rep(16.7115, 6)),
+                          "leftWidth" = c(rep(6468.855, 6), rep(6574.684, 6)),
+                          "rightWidth" =  c(rep(6499.579, 6), rep(6615.649, 6)),
+                          "peak_group_rank" = c(rep(1, 6), rep(2, 6)),
+                          "m_score" = c(rep(5.692077e-05, 6), rep(3.690986e-01,6)),
+                          "transition_id" = rep(c(14843, 14844, 14845, 14846, 14847, 14848), 2),
+                          stringsAsFactors=FALSE)
   expect_equal(outData, expOutput, tolerance=1e-6)
 })
 
 test_that("test_getOswAnalytes",{
-  dataPath <- "../../data/testData2"
-  filenames <- data.frame("filename" = c("HLA-Ligand-Atlas/BD-ZH12_Spleen_Class-1/dia_files/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.mzML",
-                                         "HLA-Ligand-Atlas/BD-ZH12_BoneMarrow_Class-1/dia_files/170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35.mzML"),
-                          "runs" = c("170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41",
-                                     "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35"),
-                          row.names = c("run0", "run2"),
+  dataPath <- "../../data/example"
+  filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
+                                         "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
+                                         "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
+                          "runs" = c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
+                                     "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+                                     "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
+                          row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
-  outData <- getOswAnalytes(dataPath, filenames, oswMerged = FALSE,
-                            maxFdrQuery = 0.001076, runType  = "DIA_proteomics")
-  expData <- data.frame("transition_group_id" = rep("AAAAAAQSVY_2", 2),
-                        "filename" = rep("HLA-Ligand-Atlas/BD-ZH12_BoneMarrow_Class-1/dia_files/170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35.mzML", 2),
+  outData <- getOswAnalytes(dataPath, filenames, oswMerged = TRUE,
+                            maxFdrQuery = 0.01, runType  = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = rep("AAMIGGADATSNVR_2", 2),
+                        "filename" = rep("data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 2),
                         "peak_group_rank" = c(1L, 1L),
-                        "m_score" = rep(0.001075556, 2),
-                        "transition_id" = c(6419L, 6425L),
+                        "m_score" = rep(5.692077e-05, 2),
+                        "transition_id" = c(81958L, 81959L),
                         stringsAsFactors=FALSE)
-  expect_identical(dim(outData[["run0"]]), c(13090L, 5L))
-  expect_identical(dim(outData[["run2"]]), c(7190L, 5L))
+  expect_identical(dim(outData[["run0"]]), c(1026L, 5L))
+  expect_identical(dim(outData[["run1"]]), c(1152L, 5L))
+  expect_identical(dim(outData[["run2"]]), c(1086L, 5L))
   expect_equal(outData[["run2"]][1:2,], expData, tolerance=1e-6)
 })
