@@ -20,18 +20,18 @@ filenamesFromOSW <- function(dataPath, pattern){
     # Convert filename column from factor to character
     filenames$filename <- as.character(filenames$filename)
     message(nrow(filenames), " .osw files are found.")
-  } else if (pattern == "*.merged.osw") {
-    message("Looking for .merged.osw file.")
-    # Look for .merged.osw files in osw/ directory.
-    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.merged.osw")
-    # Throw an error if no .merged.osw files are found.
-    if(length(temp) == 0){return(stop("No .merged.osw file is found."))}
+  } else if (pattern == "*merged.osw") {
+    message("Looking for merged.osw file.")
+    # Look for merged.osw files in osw/ directory.
+    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
+    # Throw an error if no merged.osw files are found.
+    if(length(temp) == 0){return(stop("No merged.osw file is found."))}
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[1]))
     # Fetch mzML filenames from RUN table.
     filenames <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
     message(nrow(filenames), " are in ", temp[1], " file")
   } else {
-    message("Only .osw and .merged.osw files can be read.")
+    message("Only .osw and merged.osw files can be read.")
     filenames <- NULL
   }
   filenames
@@ -56,7 +56,7 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
   if(oswMerged == FALSE){
     filenames <- filenamesFromOSW(dataPath, pattern = "*.osw")
   } else{
-    filenames <- filenamesFromOSW(dataPath, pattern = "*.merged.osw")
+    filenames <- filenamesFromOSW(dataPath, pattern = "*merged.osw")
   }
   # Get names of mzml files.
   runs <- sapply(filenames[,"filename"], function(x) gsub(nameCutPattern, replacement = "\\3", x))
