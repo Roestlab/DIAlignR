@@ -87,11 +87,13 @@ test_that("test_getXICs", {
           oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
-  expect_equal(outData[["run0"]][["QFNNTDIVLLEDFQK_3"]], XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
-  expect_equal(outData[["run2"]][["QFNNTDIVLLEDFQK_3"]], XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
+  expect_equal(outData[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["QFNNTDIVLLEDFQK_3"]],
+               XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
+  expect_equal(outData[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["QFNNTDIVLLEDFQK_3"]],
+               XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
   outData <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = "../../data/example",
                      maxFdrQuery = 1.0, SgolayFiltOrd = 4, SgolayFiltLen = 13, runType = "DIA_proteomics",
                      oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = TRUE)
-  expect_equal(outData[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
-  expect_equal(outData[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
+  expect_equal(outData[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["14299_QFNNTDIVLLEDFQK/3"]], XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
+  expect_equal(outData[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["14299_QFNNTDIVLLEDFQK/3"]], XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
 })

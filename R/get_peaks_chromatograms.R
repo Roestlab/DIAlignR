@@ -124,5 +124,6 @@ getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, XICfilter
   message("Fetching Extracted-ion chromatograms from runs")
   XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytesFound, XICfilter,
                            SgolayFiltOrd, SgolayFiltLen)
+  names(XICs) <- filenames$runs
   XICs
 }

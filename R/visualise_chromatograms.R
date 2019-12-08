@@ -2,6 +2,14 @@
 #'
 #' @importFrom tidyr gather
 #' @importFrom ggplot2 ggplot ggtitle geom_vline geom_line theme theme_bw aes
+#' @examples
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = "data/example", XICfilter = "none")
+#' plotXICgroup(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
+#'
+#' XICs <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = "data/example",
+#'        XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 13, analyteInGroupLabel = TRUE)
+#' plotXICgroup(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
 #' @export
 plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
   df <- do.call("cbind", XIC_group)
