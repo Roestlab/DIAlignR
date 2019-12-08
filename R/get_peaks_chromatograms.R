@@ -1,11 +1,13 @@
 #' Extract XICs of all transitions requested in chromIndices.
 #'
 #' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
-extractXIC_group <- function(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 9){
+extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9){
   XIC_group <- lapply(1:length(chromIndices), function(i) {
     rawChrom <- mzR::chromatograms(mz, chromIndices[i])
     # Savitzky-Golay filter to smooth chromatograms, filter order p = 3, filter length n = 13
-    rawChrom[,2] <- signal::sgolayfilt(rawChrom[,2], p = SgolayFiltOrd, n = SgolayFiltLen)
+    if(XICfilter == "sgolay"){
+      rawChrom[,2] <- signal::sgolayfilt(rawChrom[,2], p = SgolayFiltOrd, n = SgolayFiltLen)
+    }
     return(rawChrom)
   })
   return(XIC_group)
@@ -14,9 +16,8 @@ extractXIC_group <- function(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen 
 #' Extract XICs of all transitions requested in chromIndices.
 #'
 #' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
-#' @export
-getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes,
-                             SgolayFiltOrd, SgolayFiltLen){
+getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sgolay",
+                             SgolayFiltOrd = 4, SgolayFiltLen = 9){
   mzPntrs <- getMZMLpointers(dataPath, runs)
   XICs <- vector("list", length(runs))
   names(XICs) <- names(runs)
@@ -31,7 +32,7 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes,
         message("Skipping ", analyte)
         XIC_group <- NULL
       } else {
-        XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices, SgolayFiltOrd, SgolayFiltLen)
+        XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices, XICfilter, SgolayFiltOrd, SgolayFiltLen)
       }
       XIC_group
     })
@@ -94,7 +95,7 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiv
 #' @return A list of list. Each list contains XICs for that run.
 #' @importFrom dplyr %>%
 #' @export
-getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0,
+getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, XICfilter = "sgolay",
                     SgolayFiltOrd = 4, SgolayFiltLen = 9, runType = "DIA_proteomics",
                     oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE){
   if( (SgolayFiltLen %% 2) != 1){
@@ -121,7 +122,7 @@ getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0,
   names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
   message("Fetching Extracted-ion chromatograms from runs")
-  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytesFound,
+  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytesFound, XICfilter,
                            SgolayFiltOrd, SgolayFiltLen)
   XICs
 }
