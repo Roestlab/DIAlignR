@@ -19,7 +19,7 @@ fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
 #'
 #' @return A data-frame.
 #' @export
-getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE,
+getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE, analyteInGroupLabel = FALSE,
                            maxFdrQuery = 0.05, runType  = "DIA_proteomics"){
   oswFiles <- list()
   for(i in 1:nrow(filenames)){
@@ -33,8 +33,9 @@ getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE,
     # Establish a connection of SQLite file.
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
     # Generate a query.
-    query <- getAnalytesQuery(maxFdrQuery, oswMerged = oswMerged,
-                      filename = filenames$filename[i], runType = runType)
+    query <- getAnalytesQuery(maxFdrQuery = maxFdrQuery, oswMerged = oswMerged,
+                      filename = filenames$filename[i], runType = runType,
+                      analyteInGroupLabel = analyteInGroupLabel)
     # Run query to get peptides, their coordinates and scores.
     oswAnalytes <- tryCatch(expr = DBI::dbGetQuery(con, statement = query),
                              finally = DBI::dbDisconnect(con))

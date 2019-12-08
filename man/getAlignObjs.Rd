@@ -5,7 +5,8 @@
 \title{AlignObj for analytes between a pair}
 \usage{
 getAlignObjs(analytes, runs, dataPath = ".", alignType = "hybrid",
-  runType = "DIA_Proteomics", refRun = NULL, oswMerged = TRUE,
+  runType = "DIA_Proteomics", refRun = NULL,
+  analyteInGroupLabel = FALSE, oswMerged = TRUE,
   nameCutPattern = "(.*)(/)(.*)", maxFdrQuery = 0.05,
   maxFdrLoess = 0.01, analyteFDR = 1, spanvalue = 0.1,
   normalization = "mean", simMeasure = "dotProductMasked",

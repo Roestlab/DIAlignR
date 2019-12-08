@@ -9,7 +9,7 @@ test_that("test_getAlignObjs",{
   analyte <- "QFNNTDIVLLEDFQK_3"
   outData <- getAlignObjs(analytes = analyte, runs = runs, dataPath = "../../data/example",
                alignType = "hybrid", runType = "DIA_Proteomics", refRun = refRun,
-               oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+               analyteInGroupLabel = FALSE, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
                normalization = "mean", simMeasure = "dotProductMasked",
                SgolayFiltOrd = 4, SgolayFiltLen = 13,
@@ -27,10 +27,10 @@ test_that("test_getAlignObjs",{
   expData <- data.frame("leftWidth" = 5220.758, "RT" = 5238.35, "rightWidth" = 5261.723)
   expect_equal(as.data.frame(outData[[analyte]][[4]]), expData, tolerance = 1e-05)
 
-  #analytes <- "14299_QFNNTDIVLLEDFQK/3"
+  analyte <- "14299_QFNNTDIVLLEDFQK/3"
   outData <- getAlignObjs(analytes = analyte, runs = runs, dataPath = "../../data/example",
                           alignType = "hybrid", runType = "DIA_Proteomics", refRun = refRun,
-                          oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                          analyteInGroupLabel = TRUE, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                           maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
                           normalization = "mean", simMeasure = "dotProductMasked",
                           SgolayFiltOrd = 4, SgolayFiltLen = 13,
@@ -39,7 +39,7 @@ test_that("test_getAlignObjs",{
                           dotProdThresh = 0.96, gapQuantile = 0.5,
                           hardConstrain = FALSE, samples4gradient = 100,
                           samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light")
-  expData <- testAlignObj()
+  expData <- testAlignObj(analyteInGroupLabel = TRUE)
   expect_equal(outData[[analyte]][[1]], expData, tolerance = 1e-05)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR

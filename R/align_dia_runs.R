@@ -163,7 +163,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
 #' @export
 getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          runType = "DIA_Proteomics", refRun = NULL,
-                         oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                         analyteInGroupLabel = FALSE, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
                          normalization = "mean", simMeasure = "dotProductMasked",
                          XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
@@ -193,8 +193,8 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   print(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR,
-                          oswMerged, analytes = NULL, runType)
+  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
+                          oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
 
   # Report analytes that are not found
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
