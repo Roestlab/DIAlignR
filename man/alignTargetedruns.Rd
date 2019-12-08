@@ -4,15 +4,17 @@
 \alias{alignTargetedruns}
 \title{Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.}
 \usage{
-alignTargetedruns(dataPath, alignType = "hybrid", oswMerged = TRUE,
-  runs = NULL, analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
+alignTargetedruns(dataPath, alignType = "hybrid",
+  analyteInGroupLabel = FALSE, oswMerged = TRUE, runs = NULL,
+  analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
   maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
   spanvalue = 0.1, runType = "DIA_Proteomics",
   normalization = "mean", simMeasure = "dotProductMasked",
-  SgolayFiltOrd = 4, SgolayFiltLen = 9, goFactor = 0.125,
-  geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
-  samples4gradient = 100, samplingTime = 3.4, RSEdistFactor = 3.5)
+  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
+  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
+  hardConstrain = FALSE, samples4gradient = 100, samplingTime = 3.4,
+  RSEdistFactor = 3.5, saveFiles = FALSE)
 }
 \value{
 Saves intensity table in the current directory.

@@ -34,6 +34,10 @@ selectChromIndices <- function(oswFiles, runname, analyte){
   } else {
     return(NULL)
   }
+  if(any(is.na(chromIndices))){
+    # Indices for one or more fragment-ions are missing. This could happen if .chrom.mzML file doesn't have them.
+    return(NULL)
+  }
   # Select the first row if there are many peak-groups.
   chromIndices
 }
