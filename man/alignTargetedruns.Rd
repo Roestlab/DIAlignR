@@ -12,8 +12,7 @@ alignTargetedruns(dataPath, alignType = "hybrid", oswMerged = TRUE,
   SgolayFiltOrd = 4, SgolayFiltLen = 9, goFactor = 0.125,
   geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
   dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
-  samples4gradient = 100, expRSE = 8, samplingTime = 3.4,
-  RSEdistFactor = 3.5)
+  samples4gradient = 100, samplingTime = 3.4, RSEdistFactor = 3.5)
 }
 \value{
 Saves intensity table in the current directory.

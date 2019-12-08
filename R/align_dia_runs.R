@@ -19,7 +19,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
-                         expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5){
+                         samplingTime = 3.4,  RSEdistFactor = 3.5){
   # Check if filter length is odd for Savitzky-Golay filter.
   if( (SgolayFiltLen %% 2) != 1){
     return(stop("SgolayFiltLen can only be odd number"))
@@ -110,7 +110,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
           loessFits[[pair]] <- Loess.fit
         }
         # Set up constraints for penalizing similarity matrix
-        rse <- min(Loess.fit$s, expRSE)
+        rse <- Loess.fit$s
         adaptiveRT <- RSEdistFactor*rse
         # Get retention time in experiment run mapped to reference run retention time.
         eXpRT <- getMappedRT(refPeak$RT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
@@ -166,12 +166,12 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
                          normalization = "mean", simMeasure = "dotProductMasked",
-                         SgolayFiltOrd = 4, SgolayFiltLen = 9,
+                         XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
                          goFactor = 0.125, geFactor = 40,
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
-                         expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light"){
+                         samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light"){
   if(length(runs) != 2){
     print("For pairwise alignment, two runs are required.")
     return(NULL)
@@ -210,8 +210,8 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
   message("Fetching Extracted-ion chromatograms from runs")
-  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
-                           SgolayFiltOrd, SgolayFiltLen)
+  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes, XICfilter = XICfilter,
+                           SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen)
 
   ####################### Perfrom alignment ##########################################
   AlignObjs <- vector("list", length(analytes))
@@ -245,15 +245,16 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
           Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
           loessFits[[pair]] <- Loess.fit
         }
-        rse <- Loess.fit$s # Residual Standard Error
+        adaptiveRT <-  RSEdistFactor*Loess.fit$s # Residual Standard Error
         # Fetch alignment object between XICs.ref and XICs.eXp
-        AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = RSEdistFactor*rse, samplingTime,
+        AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = adaptiveRT, samplingTime,
                                 normalization, simType = simMeasure, goFactor, geFactor,
                                 cosAngleThresh, OverlapAlignment,
-                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
+                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient,
+                                objType)
         AlignObjs[[analyte]] <- list()
         # Attach AlignObj for the analyte.
-        AlignObjs[[analyte]][[pair]] <- AlignObj
+          AlignObjs[[analyte]][[pair]] <- AlignObj
         # Attach intensities of reference XICs.
         AlignObjs[[analyte]][[runs[ref]]] <- XICs.ref
         # Attach intensities of experiment XICs.
