@@ -46,22 +46,27 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   }
   return(g)}
 
-#' Plot Extracted-ion chromatogram group for a specific peptide.
+#' Plot Extracted-ion chromatogram group for an analyte.
 #'
+#' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+#' plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = "data/example", XICfilter = "none")
+#' plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = "data/example", XICfilter = "sgolay", analyteInGroupLabel = TRUE)
 #' @export
-plotPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
-                            SgolayFiltOrd = 4, SgolayFiltLen = 9,
-                            query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-                            peakAnnot = NULL, Title =NULL){
-  XICs <- getXICs(peptides, runs, dataPath , maxFdrQuery,
-                   SgolayFiltOrd, SgolayFiltLen,
-                   query, oswMerged, nameCutPattern)
-  plotXICgroup(XICs[[1]][[1]], peakAnnot, Title)
+plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
+                            XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
+                            runType = "DIA_proteomics", oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                            analyteInGroupLabel = FALSE, peakAnnot = NULL, Title = NULL){
+  if((length(run) != 1) | (length(analyte) != 1)){
+    return(stop("One analyte and single run are needed."))
+  }
+  XICs <- getXICs(analytes = analyte, runs = run, dataPath = dataPath, maxFdrQuery = maxFdrQuery,
+                  XICfilter = XICfilter, SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen,
+                  runType = runType, oswMerged = oswMerged, nameCutPattern = nameCutPattern, analyteInGroupLabel = analyteInGroupLabel)
+  plotXICgroup(XICs[[run]][[analyte]], peakAnnot, Title)
 }
 
 #' Plot Extracted-ion chromatogram group for a specific peptide from MRM run.
 #'
-#' @export
 plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
                             SgolayFiltOrd = 2, SgolayFiltLen = 3,
                             query = NULL, oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
