@@ -27,8 +27,8 @@ Imports:
     Rcpp
 Suggests:
     knitr,
-    lattice,
     scales,
+    lattice,
     latticeExtra,
     rmarkdown,
     testthat (>= 2.1.0)
