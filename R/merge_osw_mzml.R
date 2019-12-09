@@ -30,7 +30,7 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' @return A list of data-frames.
 #' @export
 getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
-                         analytes = NULL, runType = "DIA_proteomics"){
+                         analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE){
   oswFiles <- list()
   for(i in 1:nrow(filenames)){
     run <- rownames(filenames)[i]
@@ -43,7 +43,7 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
     }
     # Get transition indices for MS2 fragment-ions.
     oswAnalytes <- fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, analytes = analytes,
-                                     filename = filenames$filename[i], runType)
+                                     filename = filenames$filename[i], runType, analyteInGroupLabel)
 
     # Get chromatogram indices from the header file.
     mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))

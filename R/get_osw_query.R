@@ -1,7 +1,8 @@
 #' This is a query that will be used to fetch information from osw files.
 #'
 #' @return SQL query to be searched.
-getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL, filename = NULL, runType = "DIA_Proteomics"){
+getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
+                     filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   if(is.null(analytes)){
     selectAnalytes <- ""
   } else{
@@ -12,6 +13,12 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL, filename = 
     matchFilename <- paste0(" AND RUN.FILENAME ='", filename,"'")
   } else{
     matchFilename <- ""
+  }
+
+  if(analyteInGroupLabel == TRUE){
+    transition_group_id <- " PRECURSOR.GROUP_LABEL AS transition_group_id"
+  } else {
+    transition_group_id <- " PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id"
   }
 
   if(runType == "DIA_Metabolomics"){
@@ -66,7 +73,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL, filename = 
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
   ORDER BY transition_group_id;")
   } else{
-    query <- paste0("SELECT PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id,
+    query <- paste0("SELECT", transition_group_id,",
   RUN.FILENAME AS filename,
   FEATURE.EXP_RT AS RT,
   FEATURE.DELTA_RT AS delta_rt,
@@ -95,11 +102,18 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL, filename = 
 #' This is a query that will be used to fetch information from osw files.
 #'
 #' @return SQL query to be searched.
-getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL, runType = "DIA_Proteomics"){
+getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
+                             runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   if(oswMerged){
     matchFilename <- paste0(" AND RUN.FILENAME ='", filename,"'")
   } else{
     matchFilename <- ""
+  }
+
+  if(analyteInGroupLabel == TRUE){
+    transition_group_id <- " PRECURSOR.GROUP_LABEL AS transition_group_id"
+  } else {
+    transition_group_id <- " PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id"
   }
 
   if(runType == "DIA_Metabolomics"){
@@ -128,7 +142,7 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL, run
   INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
   ORDER BY transition_group_id;")
   } else{
-    query <- paste0("SELECT PEPTIDE.MODIFIED_SEQUENCE || '_' || PRECURSOR.CHARGE AS transition_group_id,
+    query <- paste0("SELECT", transition_group_id,",
   RUN.FILENAME AS filename,
   SCORE_MS2.RANK AS peak_group_rank,
   SCORE_MS2.QVALUE AS m_score,

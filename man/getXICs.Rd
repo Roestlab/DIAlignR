@@ -5,8 +5,9 @@
 \title{Get XICs for a list of peptides}
 \usage{
 getXICs(analytes, runs, dataPath = ".", maxFdrQuery = 1,
-  SgolayFiltOrd = 4, SgolayFiltLen = 9, runType = "DIA_proteomics",
-  oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)")
+  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
+  runType = "DIA_proteomics", oswMerged = TRUE,
+  nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE)
 }
 \value{
 A list of list. Each list contains XICs for that run.

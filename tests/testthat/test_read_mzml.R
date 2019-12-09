@@ -1,33 +1,31 @@
 context("Read mzml files.")
 
 test_that("test_readChromatogramHeader",{
-  mzmlName <- "../../data/testData/mzml/170407_AM_BD-ZH12_Lung_W_10%_DIA_#1_400-650mz_msms47.chrom.mzML"
+  mzmlName <- "../../data/example/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"
+  expOutput <- data.frame("chromatogramId" = c("103114", "103115", "103116"),
+                          "chromatogramIndex" = c(1L,2L,3L),
+                          "polarity" = c(-1L,-1L,-1L),
+                          "precursorIsolationWindowTargetMZ" = c(696.037, 696.037, 696.037),
+                          "precursorIsolationWindowLowerOffset" = c(0,0,0),
+                          "precursorIsolationWindowUpperOffset" = c(0,0,0),
+                          "precursorCollisionEnergy" = c(NA_real_, NA_real_, NA_real_),
+                          "productIsolationWindowTargetMZ" = c(717.399, 558.277, 1031.560),
+                          "productIsolationWindowLowerOffset" = c(0,0,0),
+                          "productIsolationWindowUpperOffset" = c(0,0,0),
+                          stringsAsFactors=FALSE)
+  expect_identical(dim(readChromatogramHeader(mzmlName)), c(72L, 10L))
+  expect_equal(readChromatogramHeader(mzmlName)[1:3,], expOutput, tolerance=1e-6)
+  mzmlName <- "getError"
   expect_error(readChromatogramHeader(mzmlName))
 })
 
-test_that("test_readChromatogramHeader",{
-  expOutput <- data.frame("chromatogramId" = c("130110", "154511"),
-                          "chromatogramIndex" = c(1L,2L),
-                          "polarity" = c(-1L,-1L),
-                          "precursorIsolationWindowTargetMZ" = c(422.7318, 417.9083),
-                          "precursorIsolationWindowLowerOffset" = c(0,0),
-                          "precursorIsolationWindowUpperOffset" = c(0,0),
-                          "precursorCollisionEnergy" = c(NA_real_, NA_real_),
-                          "productIsolationWindowTargetMZ" = c(286.1761, 286.6341),
-                          "productIsolationWindowLowerOffset" = c(0,0),
-                          "productIsolationWindowUpperOffset" = c(0,0),
-                          stringsAsFactors=FALSE)
-  mzmlName <- "../../data/testData2/mzml/170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41.chrom.mzML"
-  expect_identical(dim(readChromatogramHeader(mzmlName)), c(175525L, 10L))
-  expect_equal(readChromatogramHeader(mzmlName)[1:2,], expOutput, tolerance=1e-6)
-})
-
 test_that("test_getMZMLpointers",{
-  dataPath <- "../../data/testData2"
-  runs <- c("run0" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#1_400-650mz_msms41",
-           "run1" = "170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42",
-           "run2" = "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35")
+  dataPath <- "../../data/example"
+  runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
+           "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+           "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
   outData <- getMZMLpointers(dataPath, runs)
-  skip("Conditions are not known.")
-  #expect_error(readChromatogramHeader(mzmlName))
+  expect_is(outData[["run0"]], "mzRpwiz")
+  expect_is(outData[["run1"]], "mzRpwiz")
+  expect_is(outData[["run2"]], "mzRpwiz")
 })

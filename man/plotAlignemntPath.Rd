@@ -3,11 +3,19 @@
 \name{plotAlignemntPath}
 \alias{plotAlignemntPath}
 \title{Plot aligned path through the similarity matrix.
-Reference run has indices on X-axis, eXp run has them on Y-axis.}
+Reference run has indices on X-axis, eXp run has them on Y-axis.
+In getAlignObjs function, objType must be set to medium.}
 \usage{
 plotAlignemntPath(AlignObjOutput)
 }
 \description{
 Plot aligned path through the similarity matrix.
 Reference run has indices on X-axis, eXp run has them on Y-axis.
+In getAlignObjs function, objType must be set to medium.
+}
+\examples{
+library(lattice)
+runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
+AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = "data/example", objType = "medium")
+plotAlignemntPath(AlignObjOutput)
 }

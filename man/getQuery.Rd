@@ -5,7 +5,8 @@
 \title{This is a query that will be used to fetch information from osw files.}
 \usage{
 getQuery(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
-  filename = NULL, runType = "DIA_Proteomics")
+  filename = NULL, runType = "DIA_Proteomics",
+  analyteInGroupLabel = FALSE)
 }
 \value{
 SQL query to be searched.

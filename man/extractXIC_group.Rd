@@ -4,8 +4,8 @@
 \alias{extractXIC_group}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4,
-  SgolayFiltLen = 9)
+extractXIC_group(mz, chromIndices, XICfilter = "sgolay",
+  SgolayFiltOrd = 4, SgolayFiltLen = 9)
 }
 \value{
 A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.

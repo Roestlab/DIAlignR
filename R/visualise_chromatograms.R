@@ -2,6 +2,14 @@
 #'
 #' @importFrom tidyr gather
 #' @importFrom ggplot2 ggplot ggtitle geom_vline geom_line theme theme_bw aes
+#' @examples
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = "data/example", XICfilter = "none")
+#' plotXICgroup(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
+#'
+#' XICs <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = "data/example",
+#'        XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 13, analyteInGroupLabel = TRUE)
+#' plotXICgroup(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
 #' @export
 plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
   df <- do.call("cbind", XIC_group)
@@ -16,44 +24,27 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
   return(g)
 }
 
-#' Plot an aligned XIC-group.
+#' Plot Extracted-ion chromatogram group for an analyte.
 #'
-#' @importFrom zoo na.locf
-plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
-  intensity <- list()
-  # Update intensities with aligned time indices.
-  for(k in 1:length(XIC_group)){
-    mutateInt <- XIC_group[[k]][idx, 2]
-    mutateInt <- na.locf(na.locf(mutateInt, na.rm = FALSE),fromLast = TRUE)
-    intensity[[k]] <- mutateInt
-  }
-  df <- do.call("cbind", intensity)
-  Index <- 1:nrow(df)
-  df <- cbind(Index, as.data.frame(df))
-  df <- gather(df, key = "Transition", value = "Intensity", -Index)
-  # Plot chromatogram
-  g <- ggplot(df, aes(Index, Intensity, col=Transition)) + geom_line(show.legend = FALSE) + theme_bw()
-  if(!is.null(peakAnnot)){
-    g <- g + geom_vline(xintercept=peakAnnot, lty="dotted", size = 0.4)
-  }
-  return(g)}
-
-#' Plot Extracted-ion chromatogram group for a specific peptide.
-#'
+#' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+#' plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = "data/example", XICfilter = "none")
+#' plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = "data/example", XICfilter = "sgolay", analyteInGroupLabel = TRUE)
 #' @export
-plotPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
-                            SgolayFiltOrd = 4, SgolayFiltLen = 9,
-                            query = NULL, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
-                            peakAnnot = NULL, Title =NULL){
-  XICs <- getXICs(peptides, runs, dataPath , maxFdrQuery,
-                   SgolayFiltOrd, SgolayFiltLen,
-                   query, oswMerged, nameCutPattern)
-  plotXICgroup(XICs[[1]][[1]], peakAnnot, Title)
+plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
+                            XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
+                            runType = "DIA_proteomics", oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                            analyteInGroupLabel = FALSE, peakAnnot = NULL, Title = NULL){
+  if((length(run) != 1) | (length(analyte) != 1)){
+    return(stop("One analyte and single run are needed."))
+  }
+  XICs <- getXICs(analytes = analyte, runs = run, dataPath = dataPath, maxFdrQuery = maxFdrQuery,
+                  XICfilter = XICfilter, SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen,
+                  runType = runType, oswMerged = oswMerged, nameCutPattern = nameCutPattern, analyteInGroupLabel = analyteInGroupLabel)
+  plotXICgroup(XICs[[run]][[analyte]], peakAnnot, Title)
 }
 
 #' Plot Extracted-ion chromatogram group for a specific peptide from MRM run.
 #'
-#' @export
 plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
                             SgolayFiltOrd = 2, SgolayFiltLen = 3,
                             query = NULL, oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
@@ -65,53 +56,43 @@ plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0
 }
 
 
-#' Plot aligned XICs group for a specific peptide.
-#' AlignObjOutput is the output from getAlignObjs fucntion.
+#' Plot an aligned XIC-group.
+#' x-axis cannot have the same time-values, therefore, x-axis is indecized.
 #'
-#' @importFrom gridExtra grid.arrange
-#' @export
-plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All",
-                                annotatePeak = FALSE, DrawAlignR = FALSE){
-  if(length(AlignObjOutput) > 1 ){
-    pdf("AlignedPeptides.pdf")
+#' @importFrom zoo na.locf
+plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
+  intensity <- list()
+  # Update intensities with aligned time indices.
+  for(k in 1:length(XIC_group)){
+    mutateInt <- XIC_group[[k]][idx, 2]
+    mutateInt <- na.locf(na.locf(mutateInt, na.rm = FALSE),fromLast = TRUE)
+    intensity[[k]] <- mutateInt
   }
-  for(i in 1:length(AlignObjOutput)){
-    if(!is.null(AlignObjOutput[[i]])){
-      AlignObj <- AlignObjOutput[[i]][[1]]
-      XICs.ref <- AlignObjOutput[[i]][[2]]
-      XICs.eXp <- AlignObjOutput[[i]][[3]]
-      refPeakLabel <- AlignObjOutput[[i]][[4]]
-      analyte <- names(AlignObjOutput)[i]
-      refRun <- names(AlignObjOutput[[i]])[2]
-      eXpRun <- names(AlignObjOutput[[i]])[3]
-      figs <- getAlignedFigs(AlignObj, XICs.ref, XICs.eXp, refPeakLabel, annotatePeak)
-
-      if(DrawAlignR){
-        return(figs)
-      } else {
-        if(plotType == "onlyAligned"){
-          grid.arrange(figs[["pTR"]], figs[["pBR"]], nrow=2, ncol=1, top = paste0(analyte,"\n", "ref: ", refRun,
-                                                                                  "\n", "eXp: ", eXpRun ))
-        } else if(plotType == "onlyUnaligned"){
-          grid.arrange(figs[["pTL"]], figs[["pBL"]], nrow=2, ncol=1, top = paste0(analyte,"\n", "ref: ", refRun,
-                                                                                  "\n", "eXp: ", eXpRun ))
-        } else{
-          grid.arrange(figs[["pTL"]], figs[["pTR"]], figs[["pBL"]], figs[["pBR"]], nrow=2, ncol=2, top = paste0(analyte,"\n", "ref: ", refRun,
-                                                                                                                "\n", "eXp: ", eXpRun ))
-        }
-      }
-    }
+  #TODO: interpolate mutateT so that it can be plotted on x-axis.
+  mutateT <- mapIdxToTime(XIC_group[[1]][, "time"], idx)
+  df <- do.call("cbind", intensity)
+  Index <- 1:nrow(df)
+  df <- cbind(Index, as.data.frame(df))
+  df <- gather(df, key = "Transition", value = "Intensity", -Index)
+  # Plot chromatogram
+  g <- ggplot(df, aes(Index, Intensity, col=Transition)) + geom_line(show.legend = FALSE) + theme_bw()
+  if(!is.null(peakAnnot)){
+    g <- g + geom_vline(xintercept=peakAnnot, lty="dotted", size = 0.4)
   }
-  if(length(AlignObjOutput) > 1){
-    dev.off()
-  }
-}
+  return(g)}
 
 #' Plot aligned XICs group for a specific peptide.
 #' AlignObjOutput is the output from getAlignObjs fucntion.
 #'
 #' @importFrom ggplot2 geom_vline xlab scale_y_continuous
 #' @importFrom scales scientific_format
+#' @examples
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = "data/example")
+#' AlignObj <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[1]]
+#' XICs.ref <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[2]]
+#' XICs.eXp <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[3]]
+#' refPeakLabel <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[4]]
 getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
                                annotatePeak = FALSE){
   AlignedIndices <- cbind(AlignObj@indexA_aligned, AlignObj@indexB_aligned,
@@ -119,42 +100,30 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
   colnames(AlignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
   AlignedIndices <- AlignedIndices[(AlignedIndices[,"indexAligned.ref"] != 0L), ]
   AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
-  t.ref <- XICs.ref[[1]][[1]]
-  t.eXp <- mapIdxToTime(XICs.eXp[[1]][[1]], AlignedIndices[,"indexAligned.eXp"])
+  t.ref <- XICs.ref[[1]][["time"]]
+  t.eXp <- mapIdxToTime(XICs.eXp[[1]][["time"]], AlignedIndices[,"indexAligned.eXp"])
   ###################### Plot unaligned chromatogram ######################################
-  pTL <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1))
+  prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1))
   if(annotatePeak){
-    pTL <- pTL +
+    prefU <- prefU +
       geom_vline(xintercept=refPeakLabel$RT[1], lty="dotted", size = 0.3) +
       geom_vline(xintercept=refPeakLabel$leftWidth[1], lty="dashed", size = 0.1) +
       geom_vline(xintercept=refPeakLabel$rightWidth[1], lty="dashed", size = 0.1)
   }
 
-  pBL <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1))
+  peXpU <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1))
   if(annotatePeak){
-    pBL <- pBL +
+    peXpU <- peXpU +
       geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
       geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$leftWidth[1]))], lty="dashed", size = 0.1) +
       geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$rightWidth[1]))], lty="dashed", size = 0.1)
   }
 
   ###################### Plot aligned chromatogram ######################################
-  pTR <- plotSingleAlignedChrom(XICs.ref, idx = AlignedIndices[,"indexAligned.ref"]) +
-    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("ref Index")
-  if(annotatePeak){
-    pTR <- pTR +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
-                 lty="dotted", size = 0.3) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$leftWidth[1])),
-                 lty="dashed", size = 0.1) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$rightWidth[1])),
-                 lty="dashed", size = 0.1)
-  }
-
-  pBR <- plotSingleAlignedChrom(XICs.eXp, idx = AlignedIndices[,"indexAligned.eXp"]) +
+  peXpA <- plotSingleAlignedChrom(XICs.eXp, idx = AlignedIndices[,"indexAligned.eXp"]) +
     scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp Index")
   if(annotatePeak){
-    pBR <- pBR +
+    peXpA <- peXpA +
       geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
                  lty="dotted", size = 0.3) +
       geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$leftWidth[1])),
@@ -164,24 +133,75 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
   }
 
   ###################### return ggplot objects ######################################
-  figs <- list("pTL" = pTL,"pBL" = pBL,"pTR" = pTR, "pBR" = pBR)
+  figs <- list("prefU" = prefU,"peXpU" = peXpU, "peXpA" = peXpA)
   figs
 }
 
+#' Plot aligned XICs group for a specific peptide.
+#' AlignObjOutput is the output from getAlignObjs fucntion.
+#'
+#' @importFrom gridExtra grid.arrange
+#' @examples
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = "data/example")
+#' plotAlignedAnalytes(AlignObjOutput)
+#' @export
+plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = FALSE,
+                                annotatePeak = FALSE, saveFigs = FALSE){
+  if((length(AlignObjOutput) > 1) | saveFigs){
+    pdf("AlignedAnalytes.pdf")
+  }
+  for(i in 1:length(AlignObjOutput)){
+    if(is.null(AlignObjOutput[[i]])){
+      next
+    }
+    AlignObj <- AlignObjOutput[[i]][[1]]
+    XICs.ref <- AlignObjOutput[[i]][[2]]
+    XICs.eXp <- AlignObjOutput[[i]][[3]]
+    refPeakLabel <- AlignObjOutput[[i]][[4]]
+    analyte <- names(AlignObjOutput)[i]
+    refRun <- names(AlignObjOutput[[i]])[2]
+    eXpRun <- names(AlignObjOutput[[i]])[3]
+    figs <- getAlignedFigs(AlignObj, XICs.ref, XICs.eXp, refPeakLabel, annotatePeak)
+
+    if(DrawAlignR){
+      return(figs)}
+
+    if(plotType == "onlyAligned"){
+      grid.arrange(figs[["prefU"]], figs[["peXpA"]], nrow=2, ncol=1,
+                   top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
+    } else if(plotType == "onlyUnaligned"){
+      grid.arrange(figs[["prefU"]], figs[["peXpU"]], nrow=2, ncol=1,
+                   top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
+    } else{
+      grid.arrange(figs[["prefU"]], figs[["prefU"]], figs[["peXpU"]], figs[["peXpA"]],
+                   nrow=2, ncol=2, top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
+    }
+  }
+  if((length(AlignObjOutput) > 1) | saveFigs){
+    dev.off()
+  }
+}
+
+
 #' Plot aligned path through the similarity matrix.
 #' Reference run has indices on X-axis, eXp run has them on Y-axis.
+#' In getAlignObjs function, objType must be set to medium.
 #'
-#' @importFrom lattice levelplot
-#' @importFrom latticeExtra as.layer
+#' @examples
+#' library(lattice)
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = "data/example", objType = "medium")
+#' plotAlignemntPath(AlignObjOutput)
 #' @export
 plotAlignemntPath <- function(AlignObjOutput){
   Alignobj <- AlignObjOutput[[1]][[1]]
-  peptide <- names(AlignObjOutput)[1]
+  analyte <- names(AlignObjOutput)[1]
   s <- Alignobj@s
   Path <- Alignobj@path[2:nrow(Alignobj@path), 2:ncol(Alignobj@path)]
-  levelplot(s, axes = TRUE, xlab = "ref index", ylab = "eXp index",
+  lattice::levelplot(s, axes = TRUE, xlab = "ref index", ylab = "eXp index",
             main = paste0("Hybrid alignment through the similarity matrix\n for ",
-                          peptide), fontsize = 7) +
-    as.layer(levelplot(Path, col.regions = c("transparent", "green"),
+                          analyte), fontsize = 7) +
+    latticeExtra::as.layer(lattice::levelplot(Path, col.regions = c("transparent", "green"),
                                      alpha = 1, axes = FALSE))
 }

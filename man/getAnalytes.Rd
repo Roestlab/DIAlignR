@@ -6,7 +6,8 @@
 \usage{
 getAnalytes(dataPath, runs = NULL, oswMerged = TRUE,
   runType = "DIA_Proteomics", commonAnalytes = FALSE,
-  maxFdrQuery = 0.05, nameCutPattern = "(.*)(/)(.*)")
+  maxFdrQuery = 0.05, nameCutPattern = "(.*)(/)(.*)",
+  analyteInGroupLabel = FALSE)
 }
 \value{
 A vector of strings.

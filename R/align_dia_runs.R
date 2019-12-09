@@ -9,17 +9,17 @@
 #' @return Saves intensity table in the current directory.
 #' @importFrom dplyr %>%
 #' @export
-alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
+alignTargetedruns <- function(dataPath, alignType = "hybrid", analyteInGroupLabel = FALSE, oswMerged = TRUE,
                               runs = NULL, analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
                          spanvalue = 0.1, runType = "DIA_Proteomics",
                          normalization = "mean", simMeasure = "dotProductMasked",
-                         SgolayFiltOrd = 4, SgolayFiltLen = 9,
+                         XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
                          goFactor = 0.125, geFactor = 40,
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
-                         expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5){
+                         samplingTime = 3.4,  RSEdistFactor = 3.5, saveFiles = FALSE){
   # Check if filter length is odd for Savitzky-Golay filter.
   if( (SgolayFiltLen %% 2) != 1){
     return(stop("SgolayFiltLen can only be odd number"))
@@ -38,8 +38,8 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
   print(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR,
-                          oswMerged, analytes = NULL, runType = runType)
+  oswFiles <- getOswFiles(dataPath, filenames,  maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
+                          oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
 
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
   if(!is.null(analytes)){
@@ -92,7 +92,9 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
       message("Skipping ", analyte)
       next
     } else {
-      XICs.ref <- extractXIC_group(mzPntrs[[ref]], chromIndices, SgolayFiltOrd, SgolayFiltLen)
+      XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices,
+                                   XICfilter = XICfilter, SgolayFiltOrd = SgolayFiltOrd,
+                                   SgolayFiltLen = SgolayFiltLen)
     }
 
     # Align all runs to reference run
@@ -110,8 +112,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
           loessFits[[pair]] <- Loess.fit
         }
         # Set up constraints for penalizing similarity matrix
-        rse <- min(Loess.fit$s, expRSE)
-        adaptiveRT <- RSEdistFactor*rse
+        adaptiveRT <- RSEdistFactor*Loess.fit$s
         # Get retention time in experiment run mapped to reference run retention time.
         eXpRT <- getMappedRT(refPeak$RT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
                              normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
@@ -133,29 +134,29 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
         next
       }
     }
-
     # Get the feature from reference run
     lwTbl[analyteIdx, refRunIdx] <- refPeak[["leftWidth"]]
     rtTbl[analyteIdx, refRunIdx] <- refPeak[["RT"]]
     rwTbl[analyteIdx, refRunIdx] <- refPeak[["rightWidth"]]
     intesityTbl[analyteIdx, refRunIdx] <- refPeak[["Intensity"]]
   }
-  end_time <- Sys.time()
-  # Report the execution time for hybrid alignment step.
-  print(end_time - start_time)
-  colnames(rtTbl) <- runs[colnames(rtTbl)]
-  write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
-  colnames(intesityTbl) <- runs[colnames(intesityTbl)]
-  write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
-
   ######### Cleanup.  #######
   rm(mzPntrs)
-  rm(oswFiles, loessFits)
-  rm(rtTbl, intesityTbl, lwTbl, rwTbl)
-  print("Data matrix is available in the current directory")
-  return(1)
-}
+  # Report the execution time for hybrid alignment step.
+  end_time <- Sys.time()
+  message(end_time - start_time)
 
+  colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
+  colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
+  if(saveFiles){
+    write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
+    write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
+    print("Data matrix is available in the current directory")
+    return(1)
+  } else {
+    return(intesityTbl)
+  }
+}
 
 #' AlignObj for analytes between a pair
 #'
@@ -163,15 +164,15 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", oswMerged = TRUE,
 #' @export
 getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          runType = "DIA_Proteomics", refRun = NULL,
-                         oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
+                         analyteInGroupLabel = FALSE, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
                          normalization = "mean", simMeasure = "dotProductMasked",
-                         SgolayFiltOrd = 4, SgolayFiltLen = 9,
+                         XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
                          goFactor = 0.125, geFactor = 40,
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
-                         expRSE = 8.0, samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light"){
+                         samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light"){
   if(length(runs) != 2){
     print("For pairwise alignment, two runs are required.")
     return(NULL)
@@ -193,8 +194,8 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   print(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR,
-                          oswMerged, analytes = NULL, runType)
+  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
+                          oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
 
   # Report analytes that are not found
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
@@ -210,8 +211,8 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
   message("Fetching Extracted-ion chromatograms from runs")
-  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
-                           SgolayFiltOrd, SgolayFiltLen)
+  XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes, XICfilter = XICfilter,
+                           SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen)
 
   ####################### Perfrom alignment ##########################################
   AlignObjs <- vector("list", length(analytes))
@@ -245,15 +246,16 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
           Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
           loessFits[[pair]] <- Loess.fit
         }
-        rse <- Loess.fit$s # Residual Standard Error
+        adaptiveRT <-  RSEdistFactor*Loess.fit$s # Residual Standard Error
         # Fetch alignment object between XICs.ref and XICs.eXp
-        AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = RSEdistFactor*rse, samplingTime,
+        AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = adaptiveRT, samplingTime,
                                 normalization, simType = simMeasure, goFactor, geFactor,
                                 cosAngleThresh, OverlapAlignment,
-                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
+                                dotProdThresh, gapQuantile, hardConstrain, samples4gradient,
+                                objType)
         AlignObjs[[analyte]] <- list()
         # Attach AlignObj for the analyte.
-        AlignObjs[[analyte]][[pair]] <- AlignObj
+          AlignObjs[[analyte]][[pair]] <- AlignObj
         # Attach intensities of reference XICs.
         AlignObjs[[analyte]][[runs[ref]]] <- XICs.ref
         # Attach intensities of experiment XICs.
