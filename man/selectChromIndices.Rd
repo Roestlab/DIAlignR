@@ -2,13 +2,37 @@
 % Please edit documentation in R/utils.R
 \name{selectChromIndices}
 \alias{selectChromIndices}
-\title{Provides the index of reference run.}
+\title{Chromatogram indices of analyte in a run.}
 \usage{
 selectChromIndices(oswFiles, runname, analyte)
+}
+\arguments{
+\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
+
+\item{runname}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
+
+\item{analyte}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
 }
 \value{
 A vector of Integers
 }
 \description{
-Provides the index of reference run.
+select chromatogram indices by matching analyte and runname in oswFiles.
+}
+\examples{
+data(oswFiles_DIAlignR, package="DIAlignR")
+selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run2", analyte = "AQPPVSTEY_2")
+selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0", analyte = "14299_QFNNTDIVLLEDFQK/3")
+
+}
+\seealso{
+\code{\link{getOswFiles}, \link{getOswAnalytes}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
 }
