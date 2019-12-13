@@ -7,9 +7,39 @@
 pickNearestFeature(eXpRT, analyte, oswFiles, runname, adaptiveRT,
   featureFDR)
 }
+\arguments{
+\item{eXpRT}{(numeric) retention time in experiment run.}
+
+\item{analyte}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+
+\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
+
+\item{runname}{(string) must be a combination of "run" and an iteger e.g. "run2".}
+
+\item{adaptiveRT}{(numeric) half-width of retention time window. Feature, if found, is picked from within this window.}
+
+\item{featureFDR}{(numeric) upper m-score cut-off for a feature to be picked.}
+}
 \value{
-Invisible NULL
+(list) Following elements are present in the list:
+\item{leftWidth}{(numeric) as in FEATURE.LEFT_WIDTH of osw files.}
+\item{rightWidth}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
+\item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
+\item{Intensity}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
+\item{peak_group_rank}{(integer) rank of each feature associated with transition_group_id.}
+\item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
 }
 \description{
-Pick feature closest to reference peak
+It picks a feature that is within adaptiveRT window across eXpRT and has lowest m-score. Feature's m-score also has to be smaller than featureFDR.
+}
+\seealso{
+\code{\link{getOswFiles}, \link{getOswAnalytes}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
 }
