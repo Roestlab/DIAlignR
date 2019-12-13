@@ -2,6 +2,13 @@
 #'
 #' @importFrom tidyr gather
 #' @importFrom ggplot2 ggplot ggtitle geom_vline geom_line theme theme_bw aes
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
@@ -25,8 +32,17 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
   return(g)
 }
 
-#' Plot Extracted-ion chromatogram group for an analyte.
+#' Plot extracted-ion chromatogram.
 #'
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#'
+#' @example
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
 #' plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = dataPath, XICfilter = "none")
@@ -62,6 +78,12 @@ plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0
 #' x-axis cannot have the same time-values, therefore, x-axis is indecized.
 #'
 #' @importFrom zoo na.locf
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
 plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   intensity <- list()
   # Update intensities with aligned time indices.
@@ -88,6 +110,13 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #'
 #' @importFrom ggplot2 geom_vline xlab scale_y_continuous
 #' @importFrom scales scientific_format
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
@@ -144,6 +173,13 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 #' AlignObjOutput is the output from getAlignObjs fucntion.
 #'
 #' @importFrom gridExtra grid.arrange
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
@@ -192,6 +228,12 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 #' Reference run has indices on X-axis, eXp run has them on Y-axis.
 #' In getAlignObjs function, objType must be set to medium.
 #'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
 #' @examples
 #' library(lattice)
 #' dataPath <- system.file("extdata", package = "DIAlignR")

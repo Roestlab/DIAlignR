@@ -21,3 +21,11 @@ XICs.ref <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[2]]
 XICs.eXp <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[3]]
 refPeakLabel <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[4]]
 }
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
+}

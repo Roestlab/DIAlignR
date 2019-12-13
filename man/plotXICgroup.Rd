@@ -19,3 +19,11 @@ XICs <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = da
        XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 13, analyteInGroupLabel = TRUE)
 plotXICgroup(XICs[["hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
 }
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
+}

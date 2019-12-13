@@ -2,13 +2,26 @@
 % Please edit documentation in R/merge_osw_mzml.R
 \name{chromatogramIdAsInteger}
 \alias{chromatogramIdAsInteger}
-\title{Selects only chromatogramId, chromatogramIndex columns and convert them into integer.}
+\title{Coerce chromatogram ids as integer}
 \usage{
 chromatogramIdAsInteger(chromatogramHeader)
+}
+\arguments{
+\item{chromatogramHeader}{(dataframe)}
 }
 \value{
 Invisible NULL
 }
 \description{
-Selects only chromatogramId, chromatogramIndex columns and convert them into integer.
+chromatogramHeader has 10 columns. The two important columns are:
+\item{chromatogramId}{(integer) Fragment-ion ID that matches with transition ID in osw file.}
+\item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
 }
