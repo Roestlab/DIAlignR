@@ -13,7 +13,8 @@ Plot aligned XICs group for a specific peptide.
 AlignObjOutput is the output from getAlignObjs fucntion.
 }
 \examples{
+dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
-AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = "data/example")
+AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 plotAlignedAnalytes(AlignObjOutput)
 }

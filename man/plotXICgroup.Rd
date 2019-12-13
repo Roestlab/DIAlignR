@@ -10,11 +10,12 @@ plotXICgroup(XIC_group, peakAnnot = NULL, Title = NULL)
 Plot Extracted-ion chromatogram group.
 }
 \examples{
+dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
-XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = "data/example", XICfilter = "none")
+XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, XICfilter = "none")
 plotXICgroup(XICs[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
 
-XICs <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = "data/example",
+XICs <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = dataPath,
        XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 13, analyteInGroupLabel = TRUE)
 plotXICgroup(XICs[["hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
 }
