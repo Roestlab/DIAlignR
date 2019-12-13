@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_osw.R
 \name{getOswAnalytes}
 \alias{getOswAnalytes}
-\title{Fetch analytes and from OSW file}
+\title{Fetch analytes from OSW file}
 \usage{
 getOswAnalytes(dataPath, filenames, oswMerged = TRUE,
   analyteInGroupLabel = FALSE, maxFdrQuery = 0.05,
@@ -37,9 +37,9 @@ Get a data-frame of analytes, their chromatogram indices and associated FDR-scor
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 filenames <- DIAlignR::getRunNames(dataPath = dataPath)
-analytes <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = TRUE)
+oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = TRUE)
 analytes[["run0"]][1,]
-analytes <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = FALSE)
+oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = FALSE)
 analytes[["run0"]][1,]
 }
 \seealso{
