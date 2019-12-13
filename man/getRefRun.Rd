@@ -2,13 +2,35 @@
 % Please edit documentation in R/utils.R
 \name{getRefRun}
 \alias{getRefRun}
-\title{Provides the index of reference run.}
+\title{Fetch the reference run-index.}
 \usage{
 getRefRun(oswFiles, analyte)
+}
+\arguments{
+\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
+
+\item{analyte}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
 }
 \value{
 An integer
 }
 \description{
-Provides the index of reference run.
+Provides the reference run-index based on lowest m-score.
+}
+\examples{
+data(oswFiles_DIAlignR, package="DIAlignR")
+getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "AQPPVSTEY_2")
+getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "14299_QFNNTDIVLLEDFQK/3")
+
+}
+\seealso{
+\code{\link{getOswFiles}, \link{getOswAnalytes}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
 }
