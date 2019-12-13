@@ -15,9 +15,41 @@ fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
   analytesInfo
 }
 
-#' Get a table of analytes, their chromatogram indices and scores.
+
+
+#' Fetch analytes and from OSW file
 #'
-#' @return A data-frame.
+#' Get a data-frame of analytes, their chromatogram indices and associated FDR-scores.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#' @param dataPath (char) path to mzml and osw directory.
+#' @param filenames (data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
+#' To get filenames use DIAlignR::getRunNames function.
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#'  FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
+#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return (A list of data-frames) Each data-frame has following columns:
+#' \item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+#' \item{filename}{(string) as mentioned in RUN table of osw files.}
+#' \item{peak_group_rank}{(integer) rank of each feature associated with transition_group_id.}
+#' \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
+#' \item{transition_id}{(integer) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
+#'
+#' @seealso \code{\link{getRunNames}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' filenames <- DIAlignR::getRunNames(dataPath = dataPath)
+#' analytes <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = TRUE)
+#' analytes[["run0"]][1,]
+#' analytes <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = FALSE)
+#' analytes[["run0"]][1,]
 #' @export
 getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE, analyteInGroupLabel = FALSE,
                            maxFdrQuery = 0.05, runType  = "DIA_proteomics"){
