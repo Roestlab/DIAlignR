@@ -54,7 +54,7 @@ test_that("test_mergeOswAnalytes_ChromHeader", {
 })
 
 test_that("test_getOswFiles", {
-  dataPath <- "../../data/example/"
+  dataPath <- "../../inst/extdata/"
   filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),

@@ -1,7 +1,7 @@
 context("Read osw mzML files.")
 
 test_that("test_filenamesFromOSW", {
-  dataPath <- "../../data/example"
+  dataPath <- "../../inst/extdata"
   expOutput <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
                                        "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                                        "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
@@ -12,7 +12,7 @@ test_that("test_filenamesFromOSW", {
 })
 
 test_that("test_filenamesFromMZML", {
-  dataPath <- "../../data/example"
+  dataPath <- "../../inst/extdata"
   expOutput <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
                "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
                "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
@@ -23,7 +23,7 @@ test_that("test_filenamesFromMZML", {
 })
 
 test_that("test_getRunNames", {
-  dataPath <- "../../data/example"
+  dataPath <- "../../inst/extdata"
   expOutput <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),

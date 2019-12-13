@@ -1,7 +1,7 @@
 context("get_peak_chromatograms")
 
 test_that("test_extractXIC_group", {
-  mzmlName <- "../../data/example/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"
+  mzmlName <- "../../inst/extdata/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"
   mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
   chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
   outData <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
@@ -13,7 +13,7 @@ test_that("test_extractXIC_group", {
 })
 
 test_that("test_getXICs4AlignObj", {
-  dataPath <- "../../data/example"
+  dataPath <- "../../inst/extdata"
   runs <- c("run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
             "run0" =  "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
   filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
@@ -82,7 +82,7 @@ test_that("test_getMappedRT", {
 
 test_that("test_getXICs", {
   runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-  outData <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = "../../data/example",
+  outData <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = "../../inst/extdata",
           maxFdrQuery = 1.0, SgolayFiltOrd = 4, SgolayFiltLen = 13, runType = "DIA_proteomics",
           oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
@@ -91,7 +91,7 @@ test_that("test_getXICs", {
                XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
   expect_equal(outData[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["QFNNTDIVLLEDFQK_3"]],
                XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
-  outData <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = "../../data/example",
+  outData <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = "../../inst/extdata",
                      maxFdrQuery = 1.0, SgolayFiltOrd = 4, SgolayFiltLen = 13, runType = "DIA_proteomics",
                      oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = TRUE)
   expect_equal(outData[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["14299_QFNNTDIVLLEDFQK/3"]], XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
