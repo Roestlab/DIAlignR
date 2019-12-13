@@ -42,13 +42,16 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
       oswName <- paste0(file.path(dataPath, "osw", filenames$runs[i]), ".osw")
     }
     # Get transition indices for MS2 fragment-ions.
+    tictoc::tic("getOswFiles -> Fetch Analytes Info, MS2 fragment ion indies... Elapsed time")
     oswAnalytes <- fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, analytes = analytes,
                                      filename = filenames$filename[i], runType, analyteInGroupLabel)
-
+    tictoc::toc()
     # Get chromatogram indices from the header file.
     mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
+    tictoc::tic("getOswFiles -> readChromatogramHeader: get chrom indices... Elapsed time")
     chromHead <- readChromatogramHeader(mzmlName)
     chromatogramIdAsInteger(chromHead)
+    tictoc::toc()
     # Merge chromatogram indices with transition indices and save them.
     # Following function merges analytesInfo dataframe with the chromatogram Header.
     mergeOswAnalytes_ChromHeader(oswAnalytes, chromHead, analyteFDR, runType)

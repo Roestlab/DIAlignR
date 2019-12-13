@@ -194,7 +194,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   print(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  tictoc::tic("Get Precursors from the query and respectve chromatogram indices.... Elaspted time: ")
+  tictoc::tic("getAlignObjs -> getOswFiles -> Get Precursors from the query and respectve chromatogram indices.... Elaspted time: ")
   oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
                           oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
   tictoc::toc()
@@ -212,7 +212,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
   # message("Fetching Extracted-ion chromatograms from runs")
-  tictoc::tic("Fetching Extracted-ion chromatograms from runs... Elapsed time: ")
+  tictoc::tic("getAlignObjs -> getXICs4AlignObj -> Fetching Extracted-ion chromatograms from runs... Elapsed time: ")
   XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes, XICfilter = XICfilter,
                            SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen)
   tictoc::toc()
@@ -222,7 +222,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   names(AlignObjs) <- analytes
   loessFits <- list()
   # print("Perfroming alignment")
-  tictoc::tic("Perfroming alignment... Elapsed time: ")
+  tictoc::tic("getAlignObjs -> Perfroming alignment... Elapsed time: ")
   for(analyteIdx in seq_along(analytes)){
     analyte <- analytes[analyteIdx]
     # Select reference run based on m-score
