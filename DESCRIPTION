@@ -1,7 +1,7 @@
 Package: DIAlignR
 Type: Package
 Title: Dynamic programming based alignment of MS2 chromatograms
-Version: 1.1.1
+Version: 1.1.2
 Author: Shubham Gupta <shubh.gupta@utoronto.ca>, Hannes Rost <hannes.rost@utoronto.ca>
 Maintainer: Shubham Gupta <shubh.gupta@utoronto.ca>
 Description: This package implements dynamic programming with affine gap penalty
