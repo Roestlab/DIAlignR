@@ -194,9 +194,10 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   print(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
+  tictoc::tic("Get Precursors from the query and respectve chromatogram indices.... Elaspted time: ")
   oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
                           oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
-
+  tictoc::toc()
   # Report analytes that are not found
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
   analytesFound <- intersect(analytes, refAnalytes)
@@ -210,15 +211,18 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   runs <- filenames$runs
   names(runs) <- rownames(filenames)
   # Get Chromatogram for each peptide in each run.
-  message("Fetching Extracted-ion chromatograms from runs")
+  # message("Fetching Extracted-ion chromatograms from runs")
+  tictoc::tic("Fetching Extracted-ion chromatograms from runs... Elapsed time: ")
   XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes, XICfilter = XICfilter,
                            SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen)
+  tictoc::toc()
 
   ####################### Perfrom alignment ##########################################
   AlignObjs <- vector("list", length(analytes))
   names(AlignObjs) <- analytes
   loessFits <- list()
-  print("Perfroming alignment")
+  # print("Perfroming alignment")
+  tictoc::tic("Perfroming alignment... Elapsed time: ")
   for(analyteIdx in seq_along(analytes)){
     analyte <- analytes[analyteIdx]
     # Select reference run based on m-score
@@ -269,7 +273,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
       else {AlignObjs[[analyte]] <- NULL}
     }
   }
-
+  tictoc::toc()
   ####################### Return AlignedObjs ##########################################
   message("Alignment done. Returning AlignObjs")
   AlignObjs
