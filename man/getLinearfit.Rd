@@ -2,22 +2,38 @@
 % Please edit documentation in R/get_global_fit.R
 \name{getLinearfit}
 \alias{getLinearfit}
-\title{calculates linear fit between RT of two runs}
+\title{Calculates linear fit between RT of two runs}
 \usage{
-getLinearfit(oswFiles, ref, eXp, maxFdrLoess)
+getLinearfit(oswFiles, ref, eXp, maxFdrGlobal)
 }
 \arguments{
-\item{pairName}{Names of runs joined with underscore. e.g. runA_runB, This will allow
-alignment of runB to runA.}
+\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
 
-\item{peptides}{Test peptides' names.}
+\item{ref}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
 
-\item{oswOutput}{list of list (OpenSWATH output).}
+\item{eXp}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
+
+\item{maxFdrGlobal}{(numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in linear fit.}
 }
 \value{
 An object of class "lm".
 }
 \description{
-This function takes in run-pairs, names of test peptides, output of OpenSWATH
-which include estimated retention time of peptides.
+This function selects features from oswFiles which has m-score < maxFdrLoess. It then fit Linear model on these feature.
+Loess mapping is established from reference to experiment run.
+}
+\examples{
+data(oswFiles_DIAlignR, package="DIAlignR")
+lm.fit <- getLinearfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+}
+\seealso{
+\code{\link{getLOESSfit}, \link{getOswFiles}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-14
 }
