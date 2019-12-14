@@ -2,16 +2,75 @@
 % Please edit documentation in R/get_peaks_chromatograms.R
 \name{getMappedRT}
 \alias{getMappedRT}
-\title{Extract XICs of all transitions requested in chromIndices.}
+\title{Get mapping of reference RT on experiment run.}
 \usage{
 getMappedRT(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
   samplingTime, normalization, simMeasure, goFactor, geFactor,
   cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
   hardConstrain, samples4gradient, objType = "light")
 }
+\arguments{
+\item{XICs.ref}{List of extracted ion chromatograms from reference run.}
+
+\item{XICs.eXp}{List of extracted ion chromatograms from experiment run.}
+
+\item{Loess.fit}{LOESS fit object between reference and experiment run.}
+
+\item{alignType}{Available alignment methods are "global", "local" and "hybrid".}
+
+\item{adaptiveRT}{(numeric) Similarity matrix is not penalized within adaptive RT.}
+
+\item{samplingTime}{(numeric) Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.}
+
+\item{normalization}{(character) Must be selected from "mean", "l2".}
+
+\item{simMeasure}{(string) Must be selected from dotProduct, cosineAngle,
+cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
+
+\item{goFactor}{(numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
+
+\item{geFactor}{(numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.}
+
+\item{cosAngleThresh}{(numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.}
+
+\item{OverlapAlignment}{(logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.}
+
+\item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
+
+\item{gapQuantile}{(numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
+
+\item{hardConstrain}{(logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
+
+\item{samples4gradient}{(numeric) This parameter modulates penalization of masked indices.}
+
+\item{objType}{(char) Must be selected from light, medium and heavy.}
+}
 \value{
-A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+(numeric)
 }
 \description{
-Extract XICs of all transitions requested in chromIndices.
+This function aligns XICs of reference and experiment runs. Using alignment, it maps retention time from refernce run on experiment run.
+}
+\examples{
+data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+data(oswFiles_DIAlignR, package="DIAlignR")
+XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+Loess.fit <- getLOESSfit(oswFiles_DIAlignR, ref = "run2", eXp = "run0", maxFdrLoess = 0.05, spanvalue = 0.1)
+adaptiveRT <- 77.82315 #3.5*Loess.fit$s
+getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
+ adaptiveRT = adaptiveRT, samplingTime = 3.414, normalization = "mean", simMeasure = "dotProductMasked",
+ goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+ dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100)
+}
+\seealso{
+\code{\link{alignChromatogramsCpp}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
 }
