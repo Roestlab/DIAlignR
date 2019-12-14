@@ -7,7 +7,7 @@
 selectChromIndices(oswFiles, runname, analyte)
 }
 \arguments{
-\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
+\item{oswFiles}{(list of data-frames) it is the output from getOswFiles function.}
 
 \item{runname}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
 

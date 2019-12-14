@@ -42,7 +42,7 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
-#' @example
+#' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
 #' plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = dataPath, XICfilter = "none")

@@ -45,7 +45,7 @@ getRefRun <- function(oswFiles, analyte){
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
-#' @param oswFiles (list of data-frames) it is output from getOswFiles function.
+#' @param oswFiles (list of data-frames) it is the output from getOswFiles function.
 #' @param runname (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
 #' @return A vector of Integers
