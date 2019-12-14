@@ -23,8 +23,8 @@ test_that("test_getAnalytesName",{
 
 test_that("test_getAnalytes",{
   dataPath <- "../../inst/extdata"
-  runs <- c("run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-            "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+  runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+            "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
   outData <- getAnalytes(dataPath, runs, oswMerged = TRUE, maxFdrQuery = 0.01, commonAnalytes = TRUE)
   expect_identical(head(outData,3), c("AAMIGGADATSNVR_2", "ADAFPGSLSGGQK_2", "ADKAGNVQALIGK_2"))
   expect_identical(tail(outData,3), c("YGFDRNEVIMVGDQLMTDIR_3", "YLSEIISAR_2", "YTPSQVAVATFTLAVNR_3"))
