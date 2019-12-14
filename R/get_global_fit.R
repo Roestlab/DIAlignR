@@ -1,20 +1,29 @@
-#' calculates LOESS fit between RT of two runs
+#' Calculates LOESS fit between RT of two runs
 #'
-#' This function takes in run-pairs, names of test peptides, span paprameter for
-#' LOESS function, output of OpenSWATH which include estimated retention time of
-#' peptides.
-#' @param pairName Names of runs joined with underscore. e.g. runA_runB, This will allow
-#' alignment of runB to runA.
-#' @param peptides Test peptides' names.
-#' @param oswOutput list of list (OpenSWATH output).
-#' @param spanvalue A numeric Spanvalue for LOESS fit. For targeted proteomics
-#'   0.1 could be used.
+#' This function selects features from oswFiles which has m-score < maxFdrLoess. It then fit LOESS on these feature.
+#' Loess mapping is established from reference to experiment run.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param oswFiles (list of data-frames) it is output from getOswFiles function.
+#' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
+#' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
+#' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
+#' @param spanvalue A numeric Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
 #' @importFrom dplyr %>%
 #' @return An object of class "loess".
-getLOESSfit <- function(oswFiles, ref, eXp, maxFdrLoess, spanvalue = 0.1){
-  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
+#' @seealso \code{\link{getLinearfit}, \link{getOswFiles}}
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' Loess.fit <- getLOESSfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' @export
+getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
+  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrGlobal & peak_group_rank == 1) %>%
     dplyr::select(transition_group_id, RT)
-  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
+  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(m_score <= maxFdrGlobal & peak_group_rank == 1) %>%
     dplyr::select(transition_group_id, RT)
   RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
   Loess.fit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT,
@@ -24,21 +33,31 @@ getLOESSfit <- function(oswFiles, ref, eXp, maxFdrLoess, spanvalue = 0.1){
   Loess.fit
 }
 
-#' calculates linear fit between RT of two runs
+#' Calculates linear fit between RT of two runs
 #'
-#' This function takes in run-pairs, names of test peptides, output of OpenSWATH
-#' which include estimated retention time of peptides.
-#' @param pairName Names of runs joined with underscore. e.g. runA_runB, This will allow
-#' alignment of runB to runA.
-#' @param peptides Test peptides' names.
-#' @param oswOutput list of list (OpenSWATH output).
-#' @return  An object of class "lm".
+#' This function selects features from oswFiles which has m-score < maxFdrLoess. It then fit Linear model on these feature.
+#' Loess mapping is established from reference to experiment run.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param oswFiles (list of data-frames) it is output from getOswFiles function.
+#' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
+#' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
+#' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in linear fit.
 #' @importFrom dplyr %>%
+#' @return An object of class "lm".
+#' @seealso \code{\link{getLOESSfit}, \link{getOswFiles}}
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' Loess.fit <- getLinearfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
 #' @export
-getLinearfit <- function(oswFiles, ref, eXp, maxFdrLoess){
-  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
+getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
+  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrGlobal & peak_group_rank == 1) %>%
     dplyr::select(transition_group_id, RT)
-  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(m_score <= maxFdrLoess & peak_group_rank == 1) %>%
+  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(m_score <= maxFdrGlobal & peak_group_rank == 1) %>%
     dplyr::select(transition_group_id, RT)
   RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
   # For testing we want to avoid validation peptides getting used in the fit.
