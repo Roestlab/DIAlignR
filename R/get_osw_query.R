@@ -1,5 +1,16 @@
-#' This is a query that will be used to fetch information from osw files.
+#' Generate SQL query to fetch information from osw files.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param maxFdrQuery (numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param analytes (vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.
+#' @param filename (string) as mentioned in RUN table of osw files..
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
 getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
                      filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
@@ -99,9 +110,21 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
   return(query)
 }
 
-#' This is a query that will be used to fetch information from osw files.
+
+#' Generate SQL query to fetch limited information from osw files.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param maxFdrQuery (numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param filename (string) as mentioned in RUN table of osw files..
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
+#' @seealso \code{\link{getOswAnalytes}}
 getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
                              runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   if(oswMerged){
