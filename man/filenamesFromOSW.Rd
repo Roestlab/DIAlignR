@@ -6,9 +6,27 @@
 \usage{
 filenamesFromOSW(dataPath, pattern)
 }
+\arguments{
+\item{dataPath}{(char) path to mzml and osw directory.}
+
+\item{pattern}{(char) must be either *.osw or *merged.osw .}
+}
 \value{
 A dataframe with single column.
 }
 \description{
 Get mzML filenames from osw RUN table.
+}
+\examples{
+dataPath <- system.file("extdata", package = "DIAlignR")
+filenamesFromOSW(dataPath, "*.osw")
+filenamesFromOSW(dataPath, "*merged.osw")
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-14
 }

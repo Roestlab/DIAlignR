@@ -1,6 +1,18 @@
 #' Get mzML filenames from osw RUN table.
 #'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param dataPath (char) path to mzml and osw directory.
+#' @param pattern (char) must be either *.osw or *merged.osw .
 #' @return A dataframe with single column.
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' filenamesFromOSW(dataPath, "*.osw")
+#' filenamesFromOSW(dataPath, "*merged.osw")
 filenamesFromOSW <- function(dataPath, pattern){
   # Fetch mzML filenames from RUN table.
   query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
@@ -39,7 +51,18 @@ filenamesFromOSW <- function(dataPath, pattern){
 
 #' Get mzML filenames from the directory.
 #'
-#' @return A dataframe with single column.
+#' Reads all mzML names avaialble in the directory.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param dataPath (char) Path to mzml and osw directory.
+#' @return A named vector.
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' filenamesFromMZML(dataPath)
 filenamesFromMZML <- function(dataPath){
   temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
   message(length(temp), " .chrom.mzML files are found.")
@@ -49,7 +72,24 @@ filenamesFromMZML <- function(dataPath){
 
 #' Get names of all runs
 #'
-#' @return A vector with names of all runs.
+#' Fetches all osw files, then, keeps only those runs which has corresponding mzML files.
+#' mzML file names must match with RUN.FILENAME columns of osw files.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param dataPath (char) Path to mzml and osw directory.
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
+#' @return (dataframe) it has two columns:
+#' \item{filename}{(string) as mentioned in RUN table of osw files.}
+#' \item{runs}{(string) contain respective mzML names without extension.}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' getRunNames(dataPath = dataPath)
 #' @export
 getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
   # Get filenames from RUN table of osw files.
