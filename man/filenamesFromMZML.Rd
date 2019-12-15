@@ -6,9 +6,24 @@
 \usage{
 filenamesFromMZML(dataPath)
 }
+\arguments{
+\item{dataPath}{(char) Path to mzml and osw directory.}
+}
 \value{
-A dataframe with single column.
+A named vector.
 }
 \description{
-Get mzML filenames from the directory.
+Reads all mzML names avaialble in the directory.
+}
+\examples{
+dataPath <- system.file("extdata", package = "DIAlignR")
+filenamesFromMZML(dataPath)
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-14
 }

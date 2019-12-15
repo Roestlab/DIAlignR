@@ -2,16 +2,56 @@
 % Please edit documentation in R/get_peaks_chromatograms.R
 \name{getXICs}
 \alias{getXICs}
-\title{Get XICs for a list of peptides}
+\title{Get XICs of all analytes}
 \usage{
 getXICs(analytes, runs, dataPath = ".", maxFdrQuery = 1,
   XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
   runType = "DIA_proteomics", oswMerged = TRUE,
   nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE)
 }
+\arguments{
+\item{analytes}{(string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+
+\item{runs}{(A vector of string) Names of mzml file without extension. Vector must have names as shown in the example.}
+
+\item{dataPath}{(char) Path to mzml and osw directory.}
+
+\item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
+
+\item{XICfilter}{(string) This must be one of the strings "sgolay", "none".}
+
+\item{SgolayFiltOrd}{(integer) It defines the polynomial order of filer.}
+
+\item{SgolayFiltLen}{(integer) Must be an odd number. It defines the length of filter.}
+
+\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+
+\item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
+
+\item{nameCutPattern}{(string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.}
+
+\item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
+}
 \value{
-A list of list. Each list contains XICs for that run.
+A list of list. Each list contains XIC-group for that run. XIC-group is a list of dataframe that has elution time and intensity of fragment-ion XIC.
 }
 \description{
-Get XICs for a list of peptides
+For all the analytes requested in runs, it first creates oswFiles, then, fetches chromatogram indices from oswFiles and
+extract chromatograms from mzML files.
+}
+\examples{
+dataPath <- system.file("extdata", package = "DIAlignR")
+runs <- c("hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
+XICs <- getXICs(analytes = c("QFNNTDIVLLEDFQK_3"), runs = runs, dataPath = dataPath)
+}
+\seealso{
+\code{\link{getOswFiles}, \link{getRunNames}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
 }

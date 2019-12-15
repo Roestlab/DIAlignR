@@ -1,6 +1,24 @@
 #' Extract XICs of all transitions requested in chromIndices.
 #'
+#' Extracts XICs using mz object. Generally Savitzky–Golay filter is used, however, filter can be turned-off as well.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#' @param mz (mzRpwiz object)
+#' @param chromIndices (vector of Integers) Indices of chromatograms to be extracted.
+#' @param XICfilter (string) This must be one of the strings "sgolay", "none".
+#' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
+#' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
 #' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' mzmlName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+#' mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
+#' chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
+#' XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
 extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9){
   XIC_group <- lapply(1:length(chromIndices), function(i) {
     rawChrom <- mzR::chromatograms(mz, chromIndices[i])
@@ -13,9 +31,35 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
   return(XIC_group)
 }
 
-#' Extract XICs of all transitions requested in chromIndices.
+#' Extract XICs of all analytes from oswFiles
 #'
+#' For all the analytes requested, it fetches chromatogram indices from oswFiles and
+#' extract chromatograms from mzML files.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#' @param dataPath (char) path to mzml and osw directory.
+#' @param runs (vector of string) names of mzML files without extension. Names of the vector must be a combination of "run" and an iteger e.g. "run2".
+#' @param oswFiles (list of data-frames) it is output from getOswFiles function.
+#' @param analytes (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
+#' @param XICfilter (string) this must be one of the strings "sgolay", "none".
+#' @param SgolayFiltOrd (integer) it defines the polynomial order of filer.
+#' @param SgolayFiltLen (integer) must be an odd number. It defines the length of filter.
 #' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+#'
+#' @seealso \code{\link{getOswFiles}, \link{getRunNames}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' filenames <- DIAlignR::getRunNames(dataPath = dataPath)
+#' runs <- c("run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'           "run0" =  "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
+#' oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
+#' analytes <- "QFNNTDIVLLEDFQK_3"
+#' XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
 getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sgolay",
                              SgolayFiltOrd = 4, SgolayFiltLen = 9){
   mzPntrs <- getMZMLpointers(dataPath, runs)
@@ -42,58 +86,37 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
   XICs
 }
 
-#' Extract XICs of all transitions requested in chromIndices.
+#' Get XICs of all analytes
 #'
-#' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
-getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
-                        normalization, simType, goFactor, geFactor,
-                        cosAngleThresh, OverlapAlignment,
-                        dotProdThresh, gapQuantile, hardConstrain,
-                        samples4gradient, objType = "light"){
-  # Set up constraints for penalizing similarity matrix
-  noBeef <- ceiling(adaptiveRT/samplingTime)
-  tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
-  tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-  B1p <- predict(Loess.fit, tVec.ref[1])
-  B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
-  # Perform dynamic programming for chromatogram alignment
-  intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
-  intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values
-  AlignObj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
-                                    alignType = "hybrid", tVec.ref, tVec.eXp,
-                                    normalization = normalization, simType = simType,
-                                    B1p = B1p, B2p = B2p, noBeef = noBeef,
-                                    goFactor = goFactor, geFactor = geFactor,
-                                    cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
-                                    dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
-                                    hardConstrain = hardConstrain, samples4gradient = samples4gradient,
-                                    objType = objType)
-  AlignObj
-}
-
-#' Extract XICs of all transitions requested in chromIndices.
+#' For all the analytes requested in runs, it first creates oswFiles, then, fetches chromatogram indices from oswFiles and
+#' extract chromatograms from mzML files.
 #'
-#' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
-#' @export
-getMappedRT <- function(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
-                        normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
-                        OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
-                        samples4gradient, objType = "light"){
-  AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
-                          normalization, simType = simMeasure, goFactor, geFactor,
-                          cosAngleThresh, OverlapAlignment,
-                          dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
-  tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
-  tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-  eXpRT <- mappedRTfromAlignObj(refRT, tVec.ref, tVec.eXp, AlignObj)
-  eXpRT
-}
-
-
-#' Get XICs for a list of peptides
-#'
-#' @return A list of list. Each list contains XICs for that run.
 #' @importFrom dplyr %>%
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#'
+#' @param analytes (string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
+#' @param dataPath (char) Path to mzml and osw directory.
+#' @param runs (A vector of string) Names of mzml file without extension. Vector must have names as shown in the example.
+#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param XICfilter (string) This must be one of the strings "sgolay", "none".
+#' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
+#' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#' @return A list of list. Each list contains XIC-group for that run. XIC-group is a list of dataframe that has elution time and intensity of fragment-ion XIC.
+#'
+#' @seealso \code{\link{getOswFiles}, \link{getRunNames}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' XICs <- getXICs(analytes = c("QFNNTDIVLLEDFQK_3"), runs = runs, dataPath = dataPath)
 #' @export
 getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, XICfilter = "sgolay",
                     SgolayFiltOrd = 4, SgolayFiltLen = 9, runType = "DIA_proteomics",

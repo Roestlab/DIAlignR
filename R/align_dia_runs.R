@@ -1,15 +1,54 @@
-#' Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.
+#' Outputs intensities for each analyte from aligned Targeted-MS runs
 #'
+#' This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.
+#' It then align XICs of each analyte to its reference XICs. Best peak, which has lowest m-score, about the aligned retention time is picked for quantification.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param dataPath (char) Path to mzml and osw directory.
+#' @param alignType Available alignment methods are "global", "local" and "hybrid".
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param runs (A vector of string) Names of mzml file without extension.
+#' @param analytes (vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.
+#' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
+#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param maxFdrLoess (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
+#' @param analyteFDR (numeric) only analytes that have m-score less than this, will be included in the output.
+#' @param spanvalue (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param normalization (character) Must be selected from "mean", "l2".
+#' @param simMeasure (string) Must be selected from dotProduct, cosineAngle,
+#' cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
+#' @param XICfilter (string) This must be one of the strings "sgolay", "none".
+#' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
+#' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
+#' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
+#' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+#' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+#' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
+#' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+#' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param hardConstrain (logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
+#' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
+#' @param samplingTime (numeric) Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.
+#' @param RSEdistFactor (numeric) This defines how much distance in the unit of rse remains a noBeef zone.
+#' @param saveFiles (logical) Must be selected from light, medium and heavy.
+#' @return Two tables of intensity and rention times for every analyte in each run.
+#' @seealso \code{\link{getRunNames}, \link{getOswFiles}, \link{getAnalytesName}, \link{getMappedRT}}
 #' @examples
-#' dataPath <- "data/testData2"
-#' analytes <- c("AAAGPVADLF_2", "YQYSDQGIDY_2")
-#' runs <- c("170407_AM_BD-ZH12_Spleen_W_10%_DIA_#2_400-650mz_msms42", "170413_AM_BD-ZH12_BoneMarrow_W_10%_DIA_#2_400-650mz_msms35")
-#' alignTargetedruns(dataPath, runs = runs, analytes = analytes, oswMerged = FALSE, SgolayFiltOrd = 4, SgolayFiltLen = 5)
-#' alignTargetedruns(dataPath, runType = "DIA_Metabolomics", samplingTime = 0.8229)
-#' @return Saves intensity table in the current directory.
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"), analyteInGroupLabel = TRUE)
 #' @importFrom dplyr %>%
+#' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
+#'
 #' @export
-alignTargetedruns <- function(dataPath, alignType = "hybrid", analyteInGroupLabel = FALSE, oswMerged = TRUE,
+alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabel = FALSE, oswMerged = TRUE,
                               runs = NULL, analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
                          spanvalue = 0.1, runType = "DIA_Proteomics",
@@ -108,7 +147,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
         if(any(pair %in% names(loessFits))){
           Loess.fit <- loessFits[[pair]]
         } else{
-          Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
+          Loess.fit <- getGlobalAlignment(oswFiles, ref, eXp, maxFdrLoess, spanvalue, fitType = "loess")
           loessFits[[pair]] <- Loess.fit
         }
         # Set up constraints for penalizing similarity matrix
@@ -144,7 +183,7 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   rm(mzPntrs)
   # Report the execution time for hybrid alignment step.
   end_time <- Sys.time()
-  message(end_time - start_time)
+  message("Execution time for alignment = ", end_time - start_time)
 
   colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
   colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
@@ -158,9 +197,59 @@ alignTargetedruns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   }
 }
 
-#' AlignObj for analytes between a pair
+#' AlignObj for analytes between a pair of runs
 #'
-#' @return A list of AlignObj. Each AlignObj contains alignment path, similarity matrix and related parameters.
+#' This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each requested analyte.
+#' It then align XICs of each analyte to its reference XICs. AlignObj is returned which contains aligned indices and cumulative score along the alignment path.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-14
+#' @param analytes (vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.
+#' @param runs (A vector of string) Names of mzml file without extension.
+#' @param dataPath (char) Path to mzml and osw directory.
+#' @param alignType Available alignment methods are "global", "local" and "hybrid".
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param refRun (string)
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
+#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param maxFdrLoess (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
+#' @param analyteFDR (numeric) only analytes that have m-score less than this, will be included in the output.
+#' @param spanvalue (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
+#' @param normalization (character) Must be selected from "mean", "l2".
+#' @param simMeasure (string) Must be selected from dotProduct, cosineAngle,
+#' cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
+#' @param XICfilter (string) This must be one of the strings "sgolay", "none".
+#' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
+#' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
+#' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
+#' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+#' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+#' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
+#' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+#' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param hardConstrain (logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
+#' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
+#' @param samplingTime (numeric) Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.
+#' @param RSEdistFactor (numeric) This defines how much distance in the unit of rse remains a noBeef zone.
+#' @param objType (char) Must be selected from light, medium and heavy.
+#' @return A list of AlignObj. Each AlignObj is an S4 object. Three most-important slots are:
+#' \item{indexA_aligned}{(integer) aligned indices of reference run.}
+#' \item{indexB_aligned}{(integer) aligned indices of experiment run.}
+#' \item{score}{(numeric) cumulative score of alignment.}
+#' @seealso \code{\link{plotAlignedAnalytes}, \link{getRunNames}, \link{getOswFiles}, \link{getXICs4AlignObj}, \link{getAlignObj}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
+#' plotAlignedAnalytes(AlignObjOutput)
+#'
+#' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
+#'
 #' @export
 getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          runType = "DIA_Proteomics", refRun = NULL,
@@ -243,7 +332,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
         if(any(pair %in% names(loessFits))){
           Loess.fit <- loessFits[[pair]]
         } else{
-          Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
+          Loess.fit <- getGlobalAlignment(oswFiles, ref, eXp, maxFdrLoess, spanvalue, fitType = "loess")
           loessFits[[pair]] <- Loess.fit
         }
         adaptiveRT <-  RSEdistFactor*Loess.fit$s # Residual Standard Error

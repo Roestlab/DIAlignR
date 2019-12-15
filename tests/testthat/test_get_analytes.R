@@ -9,7 +9,7 @@ test_that("test_getAnalytesName",{
                                      "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
-  oswFiles <- getOswFiles(dataPath = "../../data/example", filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
+  oswFiles <- getOswFiles(dataPath = "../../inst/extdata", filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
                                    oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics")
   outData <- getAnalytesName(oswFiles, analyteFDR = 0.01, commonAnalytes = TRUE)
   expect_identical(length(outData), 137L)
@@ -22,9 +22,9 @@ test_that("test_getAnalytesName",{
 })
 
 test_that("test_getAnalytes",{
-  dataPath <- "../../data/example"
-  runs <- c("run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-            "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+  dataPath <- "../../inst/extdata"
+  runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+            "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
   outData <- getAnalytes(dataPath, runs, oswMerged = TRUE, maxFdrQuery = 0.01, commonAnalytes = TRUE)
   expect_identical(head(outData,3), c("AAMIGGADATSNVR_2", "ADAFPGSLSGGQK_2", "ADKAGNVQALIGK_2"))
   expect_identical(tail(outData,3), c("YGFDRNEVIMVGDQLMTDIR_3", "YLSEIISAR_2", "YTPSQVAVATFTLAVNR_3"))

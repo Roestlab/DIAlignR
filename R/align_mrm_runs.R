@@ -4,7 +4,6 @@
 #' matrix is needed to get base-gap-penalty.
 #' @return Saves intensity table in the current directory.
 #' @importFrom dplyr %>%
-#' @export
 alignMRMruns <- function(dataPath, alignType = "local", oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
                               maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1, runType = "MRM_Proteomics",
                               normalization = "mean", simMeasure = "dotProductMasked",
@@ -142,7 +141,6 @@ alignMRMruns <- function(dataPath, alignType = "local", oswMerged = FALSE, nameC
 #' In MRM runs, since XICs have less interference, higher quantile value from similarity
 #' matrix is needed to get base-gap-penalty.
 #' @return A list of AlignObj. Each AlignObj contains alignment path, similarity matrix and related parameters.
-#' @export
 getMRMAlignObjs <- function(peptides, runs, dataPath = ".", alignType = "local",
                          query = NULL, oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1,
@@ -265,7 +263,6 @@ getMRMAlignObjs <- function(peptides, runs, dataPath = ".", alignType = "local",
 #'
 #' @importFrom dplyr %>%
 #' @return A list of data-frames.
-#' @export
 getMRMoswFiles <- function(filenames, dataPath = ".", peptides = NULL, query = NULL,
                            oswMerged = FALSE, maxFdrQuery = 1.0){
   # Get Chromatogram indices for each peptide in each run.

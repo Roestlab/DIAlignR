@@ -8,3 +8,14 @@
 \description{
 An S4 object for class AlignObj
 }
+\seealso{
+\code{\link{doAlignmentCpp}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-14
+}

@@ -6,9 +6,31 @@
 \usage{
 getRunNames(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)")
 }
+\arguments{
+\item{dataPath}{(char) Path to mzml and osw directory.}
+
+\item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
+
+\item{nameCutPattern}{(string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.}
+}
 \value{
-A vector with names of all runs.
+(dataframe) it has two columns:
+\item{filename}{(string) as mentioned in RUN table of osw files.}
+\item{runs}{(string) contain respective mzML names without extension.}
 }
 \description{
-Get names of all runs
+Fetches all osw files, then, keeps only those runs which has corresponding mzML files.
+mzML file names must match with RUN.FILENAME columns of osw files.
+}
+\examples{
+dataPath <- system.file("extdata", package = "DIAlignR")
+getRunNames(dataPath = dataPath)
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-14
 }

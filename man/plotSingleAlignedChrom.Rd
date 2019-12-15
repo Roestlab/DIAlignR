@@ -11,3 +11,11 @@ plotSingleAlignedChrom(XIC_group, idx, peakAnnot = NULL)
 Plot an aligned XIC-group.
 x-axis cannot have the same time-values, therefore, x-axis is indecized.
 }
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-13
+}

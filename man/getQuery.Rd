@@ -2,15 +2,36 @@
 % Please edit documentation in R/get_osw_query.R
 \name{getQuery}
 \alias{getQuery}
-\title{This is a query that will be used to fetch information from osw files.}
+\title{Generate SQL query to fetch information from osw files.}
 \usage{
 getQuery(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
   filename = NULL, runType = "DIA_Proteomics",
   analyteInGroupLabel = FALSE)
 }
+\arguments{
+\item{maxFdrQuery}{(numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
+
+\item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
+
+\item{analytes}{(vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.}
+
+\item{filename}{(string) as mentioned in RUN table of osw files..}
+
+\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+
+\item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
+}
 \value{
 SQL query to be searched.
 }
 \description{
-This is a query that will be used to fetch information from osw files.
+Generate SQL query to fetch information from osw files.
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2019) + MIT
+Date: 2019-12-14
 }

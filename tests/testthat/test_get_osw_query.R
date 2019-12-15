@@ -13,7 +13,7 @@ test_that("test_getQuery",{
 })
 
 test_that("test_getAnalytesQuery",{
-  dataPath <- "../../data/example"
+  dataPath <- "../../inst/extdata"
   runs <- c("run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
             "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
   outData <- getAnalytesQuery(maxFdrQuery = 0.03, oswMerged = TRUE, filename = "DIAlignR/testFile.mzML",

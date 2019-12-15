@@ -1,7 +1,22 @@
-#' Provides the index of reference run.
+#' Fetch the reference run-index.
 #'
+#' Provides the reference run-index based on lowest m-score.
 #' @importFrom dplyr %>%
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#' @param oswFiles (list of data-frames) it is output from getOswFiles function.
+#' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
 #' @return An integer
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "AQPPVSTEY_2")
+#' getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "14299_QFNNTDIVLLEDFQK/3")
+#'
+#' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
 getRefRun <- function(oswFiles, analyte){
   # Select reference run based on m-score
   minMscore <- 1
@@ -20,10 +35,26 @@ getRefRun <- function(oswFiles, analyte){
   refRunIdx
 }
 
-#' Provides the index of reference run.
+#' Chromatogram indices of analyte in a run.
 #'
+#' select chromatogram indices by matching analyte and runname in oswFiles.
 #' @importFrom dplyr %>%
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-12-13
+#' @param oswFiles (list of data-frames) it is the output from getOswFiles function.
+#' @param runname (string) Must be a combination of "run" and an iteger e.g. "run2".
+#' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
 #' @return A vector of Integers
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run2", analyte = "AQPPVSTEY_2")
+#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0", analyte = "14299_QFNNTDIVLLEDFQK/3")
+#'
+#' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
 selectChromIndices <- function(oswFiles, runname, analyte){
   # Pick chromatrogram indices from osw table.
   chromIndices <- oswFiles[[runname]] %>%

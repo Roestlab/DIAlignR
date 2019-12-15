@@ -9,7 +9,7 @@ test_that("test_fetchAnalytesInfo",{
                                      "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
-  oswName <- "../../data/example/osw/merged.osw"
+  oswName <- "../../inst/extdata/osw/merged.osw"
   expOutput <- data.frame("transition_group_id" = rep("19051_KLIVTSEGC[160]FK/2", 6),
                           "filename" = rep("data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 6),
                           "RT" = rep(2586.12, 6),
@@ -45,7 +45,7 @@ test_that("test_fetchAnalytesInfo",{
 })
 
 test_that("test_getOswAnalytes",{
-  dataPath <- "../../data/example"
+  dataPath <- "../../inst/extdata"
   filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
