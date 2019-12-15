@@ -42,13 +42,13 @@
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' intensityTbl <- alignTargetedruns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
-#' intensityTbl <- alignTargetedruns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"), analyteInGroupLabel = TRUE)
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"), analyteInGroupLabel = TRUE)
 #' @importFrom dplyr %>%
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
-alignTargetedruns <- function(dataPath, alignType = "hybrid", analyteInGroupLabel = FALSE, oswMerged = TRUE,
+alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabel = FALSE, oswMerged = TRUE,
                               runs = NULL, analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
                          maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
                          spanvalue = 0.1, runType = "DIA_Proteomics",
