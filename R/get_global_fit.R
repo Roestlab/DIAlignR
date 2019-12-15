@@ -12,7 +12,7 @@
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
-#' @param spanvalue A numeric Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
+#' @param spanvalue (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
 #' @importFrom dplyr %>%
 #' @return An object of class "loess".
 #' @seealso \code{\link{getLinearfit}, \link{getOswFiles}}

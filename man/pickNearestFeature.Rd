@@ -32,6 +32,11 @@ pickNearestFeature(eXpRT, analyte, oswFiles, runname, adaptiveRT,
 \description{
 It picks a feature that is within adaptiveRT window across eXpRT and has lowest m-score. Feature's m-score also has to be smaller than featureFDR.
 }
+\examples{
+data(oswFiles_DIAlignR, package="DIAlignR")
+pickNearestFeature(eXpRT = 5237.8, analyte = "14299_QFNNTDIVLLEDFQK/3", oswFiles = oswFiles_DIAlignR,
+runname = "run2", adaptiveRT = 77.82315, featureFDR = 0.05)
+}
 \seealso{
 \code{\link{getOswFiles}, \link{getOswAnalytes}}
 }

@@ -22,7 +22,7 @@
 #' \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
 #'
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
-#' @example
+#' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' pickNearestFeature(eXpRT = 5237.8, analyte = "14299_QFNNTDIVLLEDFQK/3", oswFiles = oswFiles_DIAlignR,
 #' runname = "run2", adaptiveRT = 77.82315, featureFDR = 0.05)
