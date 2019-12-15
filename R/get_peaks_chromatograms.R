@@ -15,7 +15,7 @@
 #' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' mzmlName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+#' mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 #' chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
 #' XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
@@ -115,7 +115,8 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
 #' @seealso \code{\link{getOswFiles}, \link{getRunNames}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' XICs <- getXICs(analytes = c("QFNNTDIVLLEDFQK_3"), runs = runs, dataPath = dataPath)
 #' @export
 getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, XICfilter = "sgolay",
