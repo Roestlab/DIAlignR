@@ -124,7 +124,7 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' Loess.fit <- getLOESSfit(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrLoess = 0.05, spanvalue = 0.1)
+#' Loess.fit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = 77.82315, samplingTime = 3.414,
 #' normalization = "mean", simType = "dotProductMasked", goFactor = 0.125, geFactor = 40,
 #' cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
@@ -189,7 +189,7 @@ getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' Loess.fit <- getLOESSfit(oswFiles_DIAlignR, ref = "run2", eXp = "run0", maxFdrLoess = 0.05, spanvalue = 0.1)
+#' Loess.fit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*Loess.fit$s
 #' getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
 #'  adaptiveRT = adaptiveRT, samplingTime = 3.414, normalization = "mean", simMeasure = "dotProductMasked",

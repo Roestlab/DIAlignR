@@ -57,7 +57,7 @@ data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 data(oswFiles_DIAlignR, package="DIAlignR")
 XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-Loess.fit <- getLOESSfit(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrLoess = 0.05, spanvalue = 0.1)
+Loess.fit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
 AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = 77.82315, samplingTime = 3.414,
 normalization = "mean", simType = "dotProductMasked", goFactor = 0.125, geFactor = 40,
 cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,

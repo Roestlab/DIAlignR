@@ -147,7 +147,7 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
         if(any(pair %in% names(loessFits))){
           Loess.fit <- loessFits[[pair]]
         } else{
-          Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
+          Loess.fit <- getGlobalAlignment(oswFiles, ref, eXp, maxFdrLoess, spanvalue, fitType = "loess")
           loessFits[[pair]] <- Loess.fit
         }
         # Set up constraints for penalizing similarity matrix
@@ -332,7 +332,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
         if(any(pair %in% names(loessFits))){
           Loess.fit <- loessFits[[pair]]
         } else{
-          Loess.fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrLoess, spanvalue)
+          Loess.fit <- getGlobalAlignment(oswFiles, ref, eXp, maxFdrLoess, spanvalue, fitType = "loess")
           loessFits[[pair]] <- Loess.fit
         }
         adaptiveRT <-  RSEdistFactor*Loess.fit$s # Residual Standard Error
