@@ -4,10 +4,11 @@ Title: Dynamic Programming Based Alignment of MS2 Chromatograms
 Version: 1.1.2
 Author: Shubham Gupta <shubh.gupta@utoronto.ca>, Hannes Rost <hannes.rost@utoronto.ca>
 Maintainer: Shubham Gupta <shubh.gupta@utoronto.ca>
-Description: This package implements dynamic programming with affine gap penalty
-    to find a highest-scoring scoring path. A hybrid approach of global alignment
-    (through MS2 features) and local alignment (with MS2 chromatograms) is 
-    implemented in this tool.
+Description: To obtain unbiased proteome coverage from a biological sample, mass-spectrometer is operated in 
+    Data Independent Acquisition (DIA) mode. Alignment of these DIA runs establishes consistency 
+    and less missing values in complete data-matrix. This package implements dynamic programming with
+    affine gap penalty based approach for pair-wise alignment of analytes. A hybrid approach of global
+    alignment (through MS2 features) and local alignment (with MS2 chromatograms) is implemented in this tool.
 License: BSD
 Encoding: UTF-8
 LazyData: true
