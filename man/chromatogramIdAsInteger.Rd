@@ -14,8 +14,8 @@ Invisible NULL
 }
 \description{
 chromatogramHeader has 10 columns. The two important columns are:
-\item{chromatogramId}{(integer) Fragment-ion ID that matches with transition ID in osw file.}
-\item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
+"chromatogramId" which has fragment-ion ID that matches with transition ID in osw file.
+"chromatogramIndex" that lists indices of chromatograms in mzML file.
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
