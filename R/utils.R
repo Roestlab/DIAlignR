@@ -52,7 +52,8 @@ getRefRun <- function(oswFiles, analyte){
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run2", analyte = "AQPPVSTEY_2")
-#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0", analyte = "14299_QFNNTDIVLLEDFQK/3")
+#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0",
+#'  analyte = "14299_QFNNTDIVLLEDFQK/3")
 #'
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
 selectChromIndices <- function(oswFiles, runname, analyte){

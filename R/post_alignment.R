@@ -24,7 +24,8 @@
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' pickNearestFeature(eXpRT = 5237.8, analyte = "14299_QFNNTDIVLLEDFQK/3", oswFiles = oswFiles_DIAlignR,
+#' pickNearestFeature(eXpRT = 5237.8, analyte = "14299_QFNNTDIVLLEDFQK/3",
+#'  oswFiles = oswFiles_DIAlignR,
 #' runname = "run2", adaptiveRT = 77.82315, featureFDR = 0.05)
 pickNearestFeature <- function(eXpRT, analyte, oswFiles, runname, adaptiveRT, featureFDR){
   # Fetch features for an analyte.
@@ -89,8 +90,8 @@ mapIdxToTime <- function(timeVec, idx){
 #' @examples
 #' AlignObj <- testAlignObj()
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
-#' tVec.ref <-  XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
-#' tVec.eXp <-  XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
+#' tVec.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
+#' tVec.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
 #' mappedRTfromAlignObj(refRT= 5238.35, tVec.ref, tVec.eXp, AlignObj)
 mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
   AlignedIndices <- cbind(AlignObj@indexA_aligned,

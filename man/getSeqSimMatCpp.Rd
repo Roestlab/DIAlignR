@@ -26,7 +26,8 @@ Calculates similarity matrix for two sequences
 Match=10; MisMatch=-2
 seq1 = "GCAT"; seq2 = "CAGTG"
 getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
-matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2), 4, 5, byrow = F)
+matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2),
+ 4, 5, byrow = F)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

@@ -20,7 +20,8 @@ s_new (matrix) A constrained similarity matrix.
 Constrain similarity matrix with a mask
 }
 \examples{
-sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2), 4, 5, byrow = F)
+sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2),
+ 4, 5, byrow = F)
 MASK <- matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = F)
 constrainSimCpp(sim, MASK, 10)

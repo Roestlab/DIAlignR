@@ -30,7 +30,8 @@ using namespace DIAlign;
 //' Match=10; MisMatch=-2
 //' seq1 = "GCAT"; seq2 = "CAGTG"
 //' getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
-//' matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2), 4, 5, byrow = F)
+//' matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2),
+//'  4, 5, byrow = F)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getSeqSimMatCpp(std::string seq1, std::string seq2, double match, double misMatch){
@@ -160,7 +161,8 @@ NumericMatrix getGlobalAlignMaskCpp(const std::vector<double>& tA, const std::ve
 //' @param samples4gradient (numeric) This paarameter modulates penalization of masked indices.
 //' @return s_new (matrix) A constrained similarity matrix.
 //' @examples
-//' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2), 4, 5, byrow = F)
+//' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2),
+//'  4, 5, byrow = F)
 //' MASK <- matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
 //' 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = F)
 //' constrainSimCpp(sim, MASK, 10)
@@ -197,7 +199,8 @@ NumericMatrix constrainSimCpp(const NumericMatrix& sim, const NumericMatrix& MAS
 //' @param gapQuantile (numeric) Must be between 0 and 1.
 //' @return baseGapPenalty (numeric).
 //' @examples
-//' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = F)
+//' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4,
+//'  byrow = F)
 //' getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5) # -0.25
 //' @export
 // [[Rcpp::export]]
@@ -268,7 +271,8 @@ double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx){
 //' tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
 //' noBeef <- 6
 //' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-//' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
+//' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure,
+//'  B1p, B2p, noBeef)
 //' @export
 // [[Rcpp::export]]
 S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
@@ -367,7 +371,8 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
 //' obj_Global@optionalPaths
 //' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
 //' obj_Global@M_forw
-//' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274), nrow = 5, ncol =4, byrow = TRUE)
+//' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274),
+//'  nrow = 5, ncol =4, byrow = TRUE)
 //' @export
 // [[Rcpp::export]]
 S4 doAlignmentCpp(NumericMatrix sim, double gap, bool OverlapAlignment){

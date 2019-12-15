@@ -41,9 +41,12 @@
 #' @seealso \code{\link{getRunNames}, \link{getOswFiles}, \link{getAnalytesName}, \link{getMappedRT}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
-#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"), analyteInGroupLabel = TRUE)
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"),
+#'  analyteInGroupLabel = FALSE)
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"),
+#'  analyteInGroupLabel = TRUE)
 #' @importFrom dplyr %>%
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
@@ -244,7 +247,8 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
 #' @seealso \code{\link{plotAlignedAnalytes}, \link{getRunNames}, \link{getOswFiles}, \link{getXICs4AlignObj}, \link{getAlignObj}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 #' plotAlignedAnalytes(AlignObjOutput)
 #'

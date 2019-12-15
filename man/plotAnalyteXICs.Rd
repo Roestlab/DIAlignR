@@ -17,7 +17,8 @@ Plot extracted-ion chromatogram.
 dataPath <- system.file("extdata", package = "DIAlignR")
 run <- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"
 plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = dataPath, XICfilter = "none")
-plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = dataPath, XICfilter = "sgolay", analyteInGroupLabel = TRUE)
+plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = dataPath,
+XICfilter = "sgolay", analyteInGroupLabel = TRUE)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

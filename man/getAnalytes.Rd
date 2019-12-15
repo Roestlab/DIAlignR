@@ -34,8 +34,10 @@ Get names of analytes found in all runs.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
-analytes <- getAnalytes(dataPath, runs, oswMerged = TRUE, maxFdrQuery = 0.01, commonAnalytes = TRUE)
+runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
+ "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
+analytes <- getAnalytes(dataPath, runs, oswMerged = TRUE, maxFdrQuery = 0.01,
+ commonAnalytes = TRUE)
 }
 \seealso{
 \code{\link{getRunNames}, \link{getOswAnalytes}, \link{getAnalytesName}}

@@ -34,7 +34,8 @@ It picks a feature that is within adaptiveRT window across eXpRT and has lowest 
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
-pickNearestFeature(eXpRT = 5237.8, analyte = "14299_QFNNTDIVLLEDFQK/3", oswFiles = oswFiles_DIAlignR,
+pickNearestFeature(eXpRT = 5237.8, analyte = "14299_QFNNTDIVLLEDFQK/3",
+ oswFiles = oswFiles_DIAlignR,
 runname = "run2", adaptiveRT = 77.82315, featureFDR = 0.05)
 }
 \seealso{

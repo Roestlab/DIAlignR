@@ -69,7 +69,8 @@ tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
 tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
 noBeef <- 6
 B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
+Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure,
+ B1p, B2p, noBeef)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

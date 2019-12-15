@@ -61,8 +61,10 @@ getAnalytesName <- function(oswFiles, analyteFDR = 1.00, commonAnalytes = TRUE){
 #' @seealso \code{\link{getRunNames}, \link{getOswAnalytes}, \link{getAnalytesName}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' analytes <- getAnalytes(dataPath, runs, oswMerged = TRUE, maxFdrQuery = 0.01, commonAnalytes = TRUE)
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' analytes <- getAnalytes(dataPath, runs, oswMerged = TRUE, maxFdrQuery = 0.01,
+#'  commonAnalytes = TRUE)
 #' @export
 getAnalytes <- function(dataPath, runs = NULL, oswMerged = TRUE, runType = "DIA_Proteomics",
                         commonAnalytes = FALSE, maxFdrQuery = 0.05, nameCutPattern = "(.*)(/)(.*)",

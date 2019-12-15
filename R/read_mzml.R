@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' mzmlName <- paste0(dataPath,"/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+#' mzmlName <-paste0(dataPath,"/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' chromHead <- readChromatogramHeader(mzmlName = mzmlName)
 readChromatogramHeader <- function(mzmlName){
   mz <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
@@ -43,7 +43,8 @@ readChromatogramHeader <- function(mzmlName){
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt", "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
+#'  "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
 #' mzPntrs <- getMZMLpointers(dataPath = dataPath, runs = runs)
 getMZMLpointers <- function(dataPath, runs){
   mzPntrs <- list()

@@ -11,8 +11,10 @@
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, XICfilter = "none")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath,
+#'  XICfilter = "none")
 #' plotXICgroup(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
 #'
 #' XICs <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = dataPath,
@@ -46,7 +48,8 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
 #' plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = dataPath, XICfilter = "none")
-#' plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = dataPath, XICfilter = "sgolay", analyteInGroupLabel = TRUE)
+#' plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = dataPath,
+#' XICfilter = "sgolay", analyteInGroupLabel = TRUE)
 #' @export
 plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
                             XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
@@ -119,7 +122,8 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 #' AlignObj <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[1]]
 #' XICs.ref <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[2]]
@@ -182,7 +186,8 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 #' plotAlignedAnalytes(AlignObjOutput)
 #' @export
@@ -237,8 +242,10 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 #' @examples
 #' library(lattice)
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath, objType = "medium")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath,
+#'  objType = "medium")
 #' plotAlignemntPath(AlignObjOutput)
 #' @export
 plotAlignemntPath <- function(AlignObjOutput){
