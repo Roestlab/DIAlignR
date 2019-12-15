@@ -280,7 +280,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   }
 
   message("Following runs will be aligned:")
-  print(filenames[, "runs"], sep = "\n")
+  message(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
@@ -307,7 +307,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   AlignObjs <- vector("list", length(analytes))
   names(AlignObjs) <- analytes
   loessFits <- list()
-  print("Perfroming alignment")
+  message("Perfroming alignment")
   for(analyteIdx in seq_along(analytes)){
     analyte <- analytes[analyteIdx]
     # Select reference run based on m-score
