@@ -6,11 +6,11 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 bibliography: DIAlignR.bib
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{MS2 chromatograms based alignment of targeted mass-spectrometry runs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteKeywords{Retention time alignment, DIA, Targeted MS, mass spectrometry, proteomics, metabolomics}
-  %\VignetteEncoding{UTF-8}
   %\VignettePackage{DIAlignR}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -90,25 +90,30 @@ slotNames(AlignObjMedium[["QFNNTDIVLLEDFQK_3"]][[1]])
 
 ## Visualizing the aligned chromatograms
 
-## Visualizing the alignment path
-
-## Global alignment
-
-## Local alignment
-
-## Hybrid alignment
-
-## Parameter selection
-
-# Citation
-Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 
-
-# Session Info
-```{r sessionInfo, eval=FALSE}
-devtools::session_info()
+We can visualize aligned chromatograms using `plotAlignedAnalytes`. The top figure is experiment unaligned-XICs, middle one is reference XICs, last figure is experiment run aligned to reference.
+```{r, fig.width=6, fig.align='center', fig.height=6, message=FALSE}
+dataPath <- system.file("extdata", package = "DIAlignR")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+ "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+AlignObj <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath)
+plotAlignedAnalytes(AlignObj, annotatePeak = TRUE)
 ```
 
-<br>
+## Visualizing the alignment path
+
+We can also visualize the alignment path using `plotAlignemntPath` function.
+```{r, fig.width=5, fig.align='center', fig.height=5, message=FALSE}
+library(lattice)
+dataPath <- system.file("extdata", package = "DIAlignR")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+ "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, objType = "medium")
+plotAlignemntPath(AlignObjOutput)
+```
+
+
+## Citation
+Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 
 
 ## Last compilation
 Last compiled at `r Sys.Date()`.

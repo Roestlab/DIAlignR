@@ -139,7 +139,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
   t.ref <- XICs.ref[[1]][["time"]]
   t.eXp <- mapIdxToTime(XICs.eXp[[1]][["time"]], AlignedIndices[,"indexAligned.eXp"])
   ###################### Plot unaligned chromatogram ######################################
-  prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1))
+  prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("ref time")
   if(annotatePeak){
     prefU <- prefU +
       geom_vline(xintercept=refPeakLabel$RT[1], lty="dotted", size = 0.3) +
@@ -147,7 +147,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
       geom_vline(xintercept=refPeakLabel$rightWidth[1], lty="dashed", size = 0.1)
   }
 
-  peXpU <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1))
+  peXpU <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp time")
   if(annotatePeak){
     peXpU <- peXpU +
       geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
@@ -157,7 +157,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 
   ###################### Plot aligned chromatogram ######################################
   peXpA <- plotSingleAlignedChrom(XICs.eXp, idx = AlignedIndices[,"indexAligned.eXp"]) +
-    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp Index")
+    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp Aligned index")
   if(annotatePeak){
     peXpA <- peXpA +
       geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
@@ -219,8 +219,8 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
       grid.arrange(figs[["prefU"]], figs[["peXpU"]], nrow=2, ncol=1,
                    top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
     } else{
-      grid.arrange(figs[["prefU"]], figs[["prefU"]], figs[["peXpU"]], figs[["peXpA"]],
-                   nrow=2, ncol=2, top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
+      grid.arrange(figs[["peXpU"]], figs[["prefU"]], figs[["peXpA"]],
+                   nrow=3, ncol=1, top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
     }
   }
   if((length(AlignObjOutput) > 1) | saveFigs){
@@ -229,8 +229,9 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 }
 
 
-#' Plot aligned path through the similarity matrix.
-#' Reference run has indices on X-axis, eXp run has them on Y-axis.
+#' Visualize alignment path through similarity matrix
+#'
+#' Plot aligned path through the similarity matrix. Reference run has indices on X-axis, eXp run has them on Y-axis.
 #' In getAlignObjs function, objType must be set to medium.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
