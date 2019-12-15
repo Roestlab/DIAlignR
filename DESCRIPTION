@@ -24,11 +24,11 @@ Imports:
     mzR (>= 2.18),
     signal,
     ggplot2,
+    scales,
     gridExtra,
     Rcpp
 Suggests:
     knitr,
-    scales,
     lattice,
     latticeExtra,
     rmarkdown,
