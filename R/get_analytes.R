@@ -16,7 +16,9 @@
 #' @seealso \code{\link{getOswFiles}}
 #' @examples
 #' data("oswFiles_DIAlignR", package = "DIAlignR")
+#' \dontrun{
 #' getAnalytesName(oswFiles = oswFiles_DIAlignR, analyteFDR = 0.01, commonAnalytes = TRUE)
+#' }
 getAnalytesName <- function(oswFiles, analyteFDR = 1.00, commonAnalytes = TRUE){
   analytes <- c()
   analytes <- dplyr::filter(oswFiles[[1]], m_score < analyteFDR) %>%

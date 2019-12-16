@@ -26,8 +26,10 @@ Loess mapping is established from reference to experiment run.
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
+\dontrun{
 Loess.fit <- getLOESSfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
  maxFdrGlobal = 0.05, spanvalue = 0.1)
+}
 }
 \seealso{
 \code{\link{getLinearfit}, \link{getOswFiles}}

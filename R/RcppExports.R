@@ -208,6 +208,24 @@ areaIntegrator <- function(l1, leftIdx, rightIdx) {
 #' @param objType (char) A character string. Must be either light, medium or heavy.
 #' @return affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 #' @examples
+#' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' oswFiles <- oswFiles_DIAlignR
+#' XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
+#' tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
+#' B1p <- 4964.752
+#' B2p <- 5565.462
+#' noBeef <- 77.82315/3.414
+#' l1 <- lapply(XICs.ref, `[[`, 2)
+#' l2 <- lapply(XICs.eXp, `[[`, 2)
+#' AlignObj <- alignChromatogramsCpp(l1, l2, alignType = "hybrid", tA = tVec.ref, tB = tVec.eXp,
+#'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p, noBeef = noBeef,
+#'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+#'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
+#'  objType = "light")
 #' @export
 alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, objType = "heavy") {
     .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)

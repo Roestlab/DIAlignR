@@ -19,9 +19,10 @@ Provides the reference run-index based on lowest m-score.
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
+\dontrun{
 getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "AQPPVSTEY_2")
 getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "14299_QFNNTDIVLLEDFQK/3")
-
+}
 }
 \seealso{
 \code{\link{getOswFiles}, \link{getOswAnalytes}}

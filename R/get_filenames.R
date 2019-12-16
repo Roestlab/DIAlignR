@@ -11,8 +11,10 @@
 #' @return A dataframe with single column.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
+#' \dontrun{
 #' filenamesFromOSW(dataPath, "*.osw")
 #' filenamesFromOSW(dataPath, "*merged.osw")
+#' }
 filenamesFromOSW <- function(dataPath, pattern){
   # Fetch mzML filenames from RUN table.
   query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
@@ -62,7 +64,9 @@ filenamesFromOSW <- function(dataPath, pattern){
 #' @return A named vector.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
+#' \dontrun{
 #' filenamesFromMZML(dataPath)
+#' }
 filenamesFromMZML <- function(dataPath){
   temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
   message(length(temp), " .chrom.mzML files are found.")

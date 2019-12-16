@@ -44,12 +44,14 @@ Get a data-frame of analytes' transition_group_ids, their OpenSwath features, ch
 dataPath <- system.file("extdata", package = "DIAlignR")
 filenames <- DIAlignR::getRunNames(dataPath = dataPath)
 oswName <- paste0(dataPath,"/osw/merged.osw")
+\dontrun{
 analytesInfo <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
  analytes = c("19051_KLIVTSEGC[160]FK/2"), filename = filenames$filename[2],
   runType = "DIA_proteomics", analyteInGroupLabel = TRUE)
 analytesInfo <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
  analytes = c("IHFLSPVRPFTLTPGDEEESFIQLITPVR_3"), filename = filenames$filename[3],
   runType = "DIA_proteomics", analyteInGroupLabel = FALSE)
+}
 }
 \seealso{
 \code{\link{getRunNames}}

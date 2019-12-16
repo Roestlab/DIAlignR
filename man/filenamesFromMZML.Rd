@@ -17,7 +17,9 @@ Reads all mzML names avaialble in the directory.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
+\dontrun{
 filenamesFromMZML(dataPath)
+}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

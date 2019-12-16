@@ -36,7 +36,9 @@ runs <- c("run1" = "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
           "run0" =  "hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt")
 oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
 analytes <- "QFNNTDIVLLEDFQK_3"
+\dontrun{
 XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
+}
 }
 \seealso{
 \code{\link{getOswFiles}, \link{getRunNames}}

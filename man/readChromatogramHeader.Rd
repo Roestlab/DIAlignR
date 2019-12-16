@@ -20,7 +20,9 @@ Get a table of chromatogram indices and respective transition IDs.
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 mzmlName <-paste0(dataPath,"/mzml/hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+\dontrun{
 chromHead <- readChromatogramHeader(mzmlName = mzmlName)
+}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

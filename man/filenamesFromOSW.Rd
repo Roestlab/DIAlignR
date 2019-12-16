@@ -19,8 +19,10 @@ Get mzML filenames from osw RUN table.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
+\dontrun{
 filenamesFromOSW(dataPath, "*.osw")
 filenamesFromOSW(dataPath, "*merged.osw")
+}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

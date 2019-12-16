@@ -37,10 +37,12 @@
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' Loess.fit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' \dontrun{
 #' AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = 77.82315,
 #'  samplingTime = 3.414, normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
 #'   geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
 #'   gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100, objType = "light")
+# }
 getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
                         normalization, simType, goFactor, geFactor,
                         cosAngleThresh, OverlapAlignment,

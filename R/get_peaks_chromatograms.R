@@ -18,7 +18,9 @@
 #' mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 #' chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
+#' \dontrun{
 #' XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
+#' }
 extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9){
   XIC_group <- lapply(1:length(chromIndices), function(i) {
     rawChrom <- mzR::chromatograms(mz, chromIndices[i])
@@ -59,7 +61,9 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #'           "run0" =  "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
 #' oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
 #' analytes <- "QFNNTDIVLLEDFQK_3"
+#' \dontrun{
 #' XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
+#' }
 getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sgolay",
                              SgolayFiltOrd = 4, SgolayFiltLen = 9){
   mzPntrs <- getMZMLpointers(dataPath, runs)

@@ -21,7 +21,9 @@ This function provides all found analytes or only common analytes that have m-sc
 }
 \examples{
 data("oswFiles_DIAlignR", package = "DIAlignR")
+\dontrun{
 getAnalytesName(oswFiles = oswFiles_DIAlignR, analyteFDR = 0.01, commonAnalytes = TRUE)
+}
 }
 \seealso{
 \code{\link{getOswFiles}}
