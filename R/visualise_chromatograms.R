@@ -64,19 +64,6 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
   plotXICgroup(XICs[[run]][[analyte]], peakAnnot, Title)
 }
 
-#' Plot Extracted-ion chromatogram group for a specific peptide from MRM run.
-#'
-plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
-                            SgolayFiltOrd = 2, SgolayFiltLen = 3,
-                            query = NULL, oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
-                            peakAnnot = NULL, Title =NULL){
-  XICs <- getMRMXICs(peptides, runs, dataPath , maxFdrQuery,
-                  SgolayFiltOrd, SgolayFiltLen,
-                  query, oswMerged, nameCutPattern)
-  plotXICgroup(XICs[[1]][[1]], peakAnnot, Title)
-}
-
-
 #' Plot an aligned XIC-group.
 #' x-axis cannot have the same time-values, therefore, x-axis is indecized.
 #'
@@ -194,7 +181,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = FALSE,
                                 annotatePeak = FALSE, saveFigs = FALSE){
   if((length(AlignObjOutput) > 1) | saveFigs){
-    pdf("AlignedAnalytes.pdf")
+    grDevices::pdf("AlignedAnalytes.pdf")
   }
   for(i in 1:length(AlignObjOutput)){
     if(is.null(AlignObjOutput[[i]])){
@@ -224,7 +211,7 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
     }
   }
   if((length(AlignObjOutput) > 1) | saveFigs){
-    dev.off()
+    grDevices::dev.off()
   }
 }
 
