@@ -1,7 +1,7 @@
 #' Plot Extracted-ion chromatogram group.
 #'
 #' @importFrom tidyr gather
-#' @importFrom ggplot2 ggplot ggtitle geom_vline geom_line theme theme_bw aes
+#' @importFrom ggplot2 ggplot ggtitle geom_vline geom_line theme theme_bw aes element_text
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152

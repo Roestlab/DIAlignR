@@ -52,8 +52,8 @@ getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
   noBeef <- ceiling(adaptiveRT/samplingTime)
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-  B1p <- predict(Loess.fit, tVec.ref[1])
-  B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
+  B1p <- stats::predict(Loess.fit, tVec.ref[1])
+  B2p <- stats::predict(Loess.fit, tVec.ref[length(tVec.ref)])
   # Perform dynamic programming for chromatogram alignment
   intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
   intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values

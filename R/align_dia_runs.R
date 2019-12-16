@@ -191,8 +191,8 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
   colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
   if(saveFiles){
-    write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
-    write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
+    utils::write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
+    utils::write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
     print("Data matrix is available in the current directory")
     return(1)
   } else {
