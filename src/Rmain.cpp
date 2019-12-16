@@ -31,7 +31,7 @@ using namespace DIAlign;
 //' seq1 = "GCAT"; seq2 = "CAGTG"
 //' getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 //' matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2),
-//'  4, 5, byrow = F)
+//'  4, 5, byrow = FALSE)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getSeqSimMatCpp(std::string seq1, std::string seq2, double match, double misMatch){
@@ -62,36 +62,36 @@ NumericMatrix getSeqSimMatCpp(std::string seq1, std::string seq2, double match, 
 //' r2 <- list(c(1.4,2.0,1.5,4.0), c(0.0,0.5,0.0,0.0), c(2.0,3.0,4.0,0.9))
 //' round(getChromSimMatCpp(r1, r2, "L2", "dotProductMasked"), 3)
 //' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186, 0.240,
-//' 0.213, 0.313, 0.233, 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
+//' 0.213, 0.313, 0.233, 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = FALSE)
 //'
 //' round(getChromSimMatCpp(r1, r2, "L2", "dotProduct"), 3)
 //' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186,0.240, 0.213, 0.313, 0.233,
-//' 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
+//' 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = FALSE)
 //'
 //' round(getChromSimMatCpp(r1, r2, "L2", "cosineAngle"), 3)
 //' matrix(c(0.934, 0.999, 0.989, 0.986, 0.933, 0.989,
 //'  0.983, 0.996, 0.994, 0.960, 0.995, 0.939, 0.450,
-//'  0.761, 0.633, 0.772), 4, 4, byrow = F)
+//'  0.761, 0.633, 0.772), 4, 4, byrow = FALSE)
 //'
 //' round(getChromSimMatCpp(r1, r2, "L2", "cosine2Angle"), 3)
 //' matrix(c(0.744, 0.998, 0.957, 0.944, 0.740, 0.956, 0.932,
 //' 0.985, 0.974, 0.842, 0.978, 0.764, -0.596, 0.158,
-//' -0.200, 0.190), 4, 4, byrow = F)
+//' -0.200, 0.190), 4, 4, byrow = FALSE)
 //'
 //' round(getChromSimMatCpp(r1, r2, "mean", "euclideanDist"), 3)
 //' matrix(c(0.608, 0.614, 0.680, 0.434, 0.530, 0.742,
 //' 0.659, 0.641, 0.520, 0.541, 0.563, 0.511, 0.298,
-//' 0.375, 0.334, 0.355), 4, 4, byrow = F)
+//' 0.375, 0.334, 0.355), 4, 4, byrow = FALSE)
 //'
 //' round(getChromSimMatCpp(r1, r2, "L2", "covariance"), 3)
 //' matrix(c(0.025, 0.028, 0.027, 0.028, 0.032, 0.034,
 //' 0.033, 0.034, 0.055, 0.051, 0.053, 0.051,
-//' -0.004, 0.028, 0.012, 0.028), 4, 4, byrow = F)
+//' -0.004, 0.028, 0.012, 0.028), 4, 4, byrow = FALSE)
 //'
 //' round(getChromSimMatCpp(r1, r2, "L2", "correlation"), 3)
 //' matrix(c(0.874, 0.999, 0.974, 0.999, 0.923, 0.986, 0.993,
 //' 0.986, 0.991, 0.911, 0.990, 0.911, -0.065, 0.477,
-//' 0.214, 0.477), 4, 4, byrow = F)
+//' 0.214, 0.477), 4, 4, byrow = FALSE)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getChromSimMatCpp(Rcpp::List l1, Rcpp::List l2, std::string normalization, std::string simType, double cosAngleThresh = 0.3, double dotProdThresh = 0.96){
@@ -133,7 +133,7 @@ NumericMatrix getChromSimMatCpp(Rcpp::List l1, Rcpp::List l2, std::string normal
 //' mask <- getGlobalAlignMaskCpp(tA, tB, B1p, B2p, noBeef, FALSE)
 //' round(mask, 3)
 //' matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
-//' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
+//' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = FALSE)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix getGlobalAlignMaskCpp(const std::vector<double>& tA, const std::vector<double>& tB,
@@ -162,12 +162,12 @@ NumericMatrix getGlobalAlignMaskCpp(const std::vector<double>& tA, const std::ve
 //' @return s_new (matrix) A constrained similarity matrix.
 //' @examples
 //' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2),
-//'  4, 5, byrow = F)
+//'  4, 5, byrow = FALSE)
 //' MASK <- matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
-//' 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = F)
+//' 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = FALSE)
 //' constrainSimCpp(sim, MASK, 10)
 //' matrix(c(-2, 10, -3.414, -4.828, -2, -2, 10, -3.414, 8.586, -2, -2, -2, -4.828,
-//' -3.414, -2, 10, 5.758, -4.828, -2, -2), 4, 5, byrow = F)
+//' -3.414, -2, 10, 5.758, -4.828, -2, -2), 4, 5, byrow = FALSE)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix constrainSimCpp(const NumericMatrix& sim, const NumericMatrix& MASK, double samples4gradient = 100.0){
@@ -200,7 +200,7 @@ NumericMatrix constrainSimCpp(const NumericMatrix& sim, const NumericMatrix& MAS
 //' @return baseGapPenalty (numeric).
 //' @examples
 //' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4,
-//'  byrow = F)
+//'  byrow = FALSE)
 //' getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5) # -0.25
 //' @export
 // [[Rcpp::export]]
@@ -262,17 +262,24 @@ double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx){
 //' @param objType (char) A character string. Must be either light, medium or heavy.
 //' @return affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 //' @examples
-//' simMeasure <- "dotProductMasked"
-//' run_pair <- c("run1", "run2")
-//' peptide <- peptides[1]
-//' r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
-//' r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
-//' tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-//' tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-//' noBeef <- 6
-//' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-//' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure,
-//'  B1p, B2p, noBeef)
+//' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+//' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+//' data(oswFiles_DIAlignR, package="DIAlignR")
+//' oswFiles <- oswFiles_DIAlignR
+//' XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+//' XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+//' tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
+//' tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
+//' B1p <- 4964.752
+//' B2p <- 5565.462
+//' noBeef <- 77.82315/3.414
+//' l1 <- lapply(XICs.ref, `[[`, 2)
+//' l2 <- lapply(XICs.eXp, `[[`, 2)
+//' AlignObj <- alignChromatogramsCpp(l1, l2, alignType = "hybrid", tA = tVec.ref, tB = tVec.eXp,
+//'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p, noBeef = noBeef,
+//'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+//'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
+//'  objType = "light")
 //' @export
 // [[Rcpp::export]]
 S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,

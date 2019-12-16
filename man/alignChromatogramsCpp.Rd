@@ -59,19 +59,6 @@ affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 \description{
 Aligns MS2 extracted-ion chromatograms(XICs) pair.
 }
-\examples{
-simMeasure <- "dotProductMasked"
-run_pair <- c("run1", "run2")
-peptide <- peptides[1]
-r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
-r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
-tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-noBeef <- 6
-B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure,
- B1p, B2p, noBeef)
-}
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 ORCID: 0000-0003-3500-8152
