@@ -18,14 +18,11 @@ Depends: R (>= 3.5.0)
 Imports:
     methods,
     zoo (>= 1.8-3),
-    dplyr,
-    dbplyr,
-    tidyr,
+    dplyr, tidyr,
     mzR (>= 2.18),
     signal,
-    ggplot2,
-    scales,
-    gridExtra,
+    ggplot2, scales, gridExtra,
+    RSQLite, DBI,
     Rcpp
 Suggests:
     knitr,
