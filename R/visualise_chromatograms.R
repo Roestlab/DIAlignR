@@ -247,9 +247,9 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 #'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath,
 #'  objType = "medium")
-#' plotAlignemntPath(AlignObjOutput)
+#' plotAlignmentPath(AlignObjOutput)
 #' @export
-plotAlignemntPath <- function(AlignObjOutput){
+plotAlignmentPath <- function(AlignObjOutput){
   Alignobj <- AlignObjOutput[[1]][[1]]
   analyte <- names(AlignObjOutput)[1]
   s <- Alignobj@s
