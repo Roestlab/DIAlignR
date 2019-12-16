@@ -54,7 +54,7 @@ test_that("test_mergeOswAnalytes_ChromHeader", {
 })
 
 test_that("test_getOswFiles", {
-  dataPath <- "../../inst/extdata/"
+  dataPath <- system.file("extdata", package = "DIAlignR")
   filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                                          "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
@@ -66,7 +66,7 @@ test_that("test_getOswFiles", {
   maxFdrQuery <- 0.05
   analyteFDR <- 0.01
   oswMerged <- TRUE
-  outData <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = FALSE)
+  outData <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = FALSE)
   expect_identical(length(outData), 3L)
   expect_identical(dim(outData[["run0"]]), c(211L, 12L))
   expect_identical(dim(outData[["run1"]]), c(227L, 12L))
@@ -85,7 +85,7 @@ test_that("test_getOswFiles", {
                         "transition_ids" = "106468,106469,106470,106471,106472,106473",
                         stringsAsFactors=FALSE)
   expect_equal(as.data.frame(outData[["run1"]][1,]), expData, tolerance=1e-5)
-  outData <- getOswFiles(dataPath, filenames, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = TRUE)
+  outData <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = TRUE)
   expData <- data.frame("transition_group_id" = "10434_LIPNEAADVYVK/2",
                         "filename" = "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                         "RT" = 3239.48,
