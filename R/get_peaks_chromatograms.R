@@ -104,8 +104,8 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
 #' Date: 2019-12-13
 #'
 #' @param analytes (string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
-#' @param dataPath (char) Path to mzml and osw directory.
 #' @param runs (A vector of string) Names of mzml file without extension. Vector must have names as shown in the example.
+#' @param dataPath (char) Path to mzml and osw directory.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param XICfilter (string) This must be one of the strings "sgolay", "none".
 #' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.

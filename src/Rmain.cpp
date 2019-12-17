@@ -187,7 +187,7 @@ NumericMatrix constrainSimCpp(const NumericMatrix& sim, const NumericMatrix& MAS
 
 //' Calculates gap penalty for dynamic programming based alignment.
 //'
-//' This function outputs base gap-penalty depending on simType used. In case of getting base gap-penalty
+//' This function outputs base gap-penalty depending on SimType used. In case of getting base gap-penalty
 //' from similarity matrix distribution, gapQuantile will be used to pick the value.
 //'
 //' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -195,7 +195,7 @@ NumericMatrix constrainSimCpp(const NumericMatrix& sim, const NumericMatrix& MAS
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
 //' @param sim (matrix) A numeric matrix. Input similarity matrix.
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
+//' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
 //' @param gapQuantile (numeric) Must be between 0 and 1.
 //' @return baseGapPenalty (numeric).
 //' @examples

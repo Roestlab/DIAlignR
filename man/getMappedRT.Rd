@@ -10,6 +10,8 @@ getMappedRT(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
   hardConstrain, samples4gradient, objType = "light")
 }
 \arguments{
+\item{refRT}{Peak's retention-time in reference run.}
+
 \item{XICs.ref}{List of extracted ion chromatograms from reference run.}
 
 \item{XICs.eXp}{List of extracted ion chromatograms from experiment run.}

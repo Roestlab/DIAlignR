@@ -78,6 +78,7 @@ getAlignObj <- function(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
+#' @param refRT Peak's retention-time in reference run.
 #' @param XICs.ref List of extracted ion chromatograms from reference run.
 #' @param XICs.eXp List of extracted ion chromatograms from experiment run.
 #' @param Loess.fit LOESS fit object between reference and experiment run.
