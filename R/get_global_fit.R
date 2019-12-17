@@ -1,3 +1,6 @@
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("m_score"))
+
 #' Calculates LOESS fit between RT of two runs
 #'
 #' This function selects features from oswFiles which has m-score < maxFdrLoess. It then fit LOESS on these feature.
@@ -14,11 +17,15 @@
 #' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
 #' @param spanvalue (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
 #' @importFrom dplyr %>%
+#' @importFrom stats loess loess.control
 #' @return An object of class "loess".
 #' @seealso \code{\link{getLinearfit}, \link{getOswFiles}}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' Loess.fit <- getLOESSfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' \dontrun{
+#' Loess.fit <- getLOESSfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+#'  maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' }
 getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
   df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrGlobal & peak_group_rank == 1) %>%
     dplyr::select(transition_group_id, RT)
@@ -47,11 +54,15 @@ getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
 #' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in linear fit.
 #' @importFrom dplyr %>%
+#' @importFrom stats lm
 #' @return An object of class "lm".
 #' @seealso \code{\link{getLOESSfit}, \link{getOswFiles}}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' lm.fit <- getLinearfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' \dontrun{
+#' lm.fit <- getLinearfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+#'  maxFdrGlobal = 0.05)
+#' }
 getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
   df.ref <-  oswFiles[[ref]] %>% dplyr::filter(m_score <= maxFdrGlobal & peak_group_rank == 1) %>%
     dplyr::select(transition_group_id, RT)
@@ -85,7 +96,8 @@ getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
 #' @seealso \code{\link{getOswFiles}}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
+#' Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+#'  maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
 #' @export
 getGlobalAlignment <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1, fitType = "loess"){
   if(fitType == "loess"){

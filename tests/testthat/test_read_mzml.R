@@ -1,7 +1,7 @@
 context("Read mzml files.")
 
 test_that("test_readChromatogramHeader",{
-  mzmlName <- "../../inst/extdata/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"
+  mzmlName <- file.path(system.file("extdata", package = "DIAlignR"), "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
   expOutput <- data.frame("chromatogramId" = c("103114", "103115", "103116"),
                           "chromatogramIndex" = c(1L,2L,3L),
                           "polarity" = c(-1L,-1L,-1L),
@@ -20,11 +20,11 @@ test_that("test_readChromatogramHeader",{
 })
 
 test_that("test_getMZMLpointers",{
-  dataPath <- "../../inst/extdata"
+  dataPath <- system.file("extdata", package = "DIAlignR")
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
            "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
            "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-  outData <- getMZMLpointers(dataPath, runs)
+  outData <- getMZMLpointers(dataPath = dataPath, runs = runs)
   expect_is(outData[["run0"]], "mzRpwiz")
   expect_is(outData[["run1"]], "mzRpwiz")
   expect_is(outData[["run2"]], "mzRpwiz")

@@ -29,7 +29,8 @@ Retention-time mapping is established from reference to experiment run.
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
-Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
+Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+ maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
 }
 \seealso{
 \code{\link{getOswFiles}}

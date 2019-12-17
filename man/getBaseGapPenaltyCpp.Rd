@@ -9,19 +9,20 @@ getBaseGapPenaltyCpp(sim, SimType, gapQuantile = 0.5)
 \arguments{
 \item{sim}{(matrix) A numeric matrix. Input similarity matrix.}
 
-\item{gapQuantile}{(numeric) Must be between 0 and 1.}
+\item{SimType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).}
 
-\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).}
+\item{gapQuantile}{(numeric) Must be between 0 and 1.}
 }
 \value{
 baseGapPenalty (numeric).
 }
 \description{
-This function outputs base gap-penalty depending on simType used. In case of getting base gap-penalty
+This function outputs base gap-penalty depending on SimType used. In case of getting base gap-penalty
 from similarity matrix distribution, gapQuantile will be used to pick the value.
 }
 \examples{
-sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = F)
+sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4,
+ byrow = FALSE)
 getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5) # -0.25
 }
 \author{

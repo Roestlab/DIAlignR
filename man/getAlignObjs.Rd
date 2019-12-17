@@ -88,7 +88,8 @@ It then align XICs of each analyte to its reference XICs. AlignObj is returned w
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
+runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
+ "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
 AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 plotAlignedAnalytes(AlignObjOutput)
 

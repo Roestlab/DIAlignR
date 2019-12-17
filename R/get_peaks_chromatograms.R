@@ -15,10 +15,12 @@
 #' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' mzmlName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+#' mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 #' chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
+#' \dontrun{
 #' XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
+#' }
 extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9){
   XIC_group <- lapply(1:length(chromIndices), function(i) {
     rawChrom <- mzR::chromatograms(mz, chromIndices[i])
@@ -59,7 +61,9 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #'           "run0" =  "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
 #' oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
 #' analytes <- "QFNNTDIVLLEDFQK_3"
+#' \dontrun{
 #' XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
+#' }
 getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sgolay",
                              SgolayFiltOrd = 4, SgolayFiltLen = 9){
   mzPntrs <- getMZMLpointers(dataPath, runs)
@@ -100,8 +104,8 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
 #' Date: 2019-12-13
 #'
 #' @param analytes (string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
-#' @param dataPath (char) Path to mzml and osw directory.
 #' @param runs (A vector of string) Names of mzml file without extension. Vector must have names as shown in the example.
+#' @param dataPath (char) Path to mzml and osw directory.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param XICfilter (string) This must be one of the strings "sgolay", "none".
 #' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
@@ -115,7 +119,8 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
 #' @seealso \code{\link{getOswFiles}, \link{getRunNames}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' XICs <- getXICs(analytes = c("QFNNTDIVLLEDFQK_3"), runs = runs, dataPath = dataPath)
 #' @export
 getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, XICfilter = "sgolay",

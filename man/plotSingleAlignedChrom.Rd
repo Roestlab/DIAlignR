@@ -2,13 +2,22 @@
 % Please edit documentation in R/visualise_chromatograms.R
 \name{plotSingleAlignedChrom}
 \alias{plotSingleAlignedChrom}
-\title{Plot an aligned XIC-group.
-x-axis cannot have the same time-values, therefore, x-axis is indecized.}
+\title{Plot an aligned XIC-group.}
 \usage{
 plotSingleAlignedChrom(XIC_group, idx, peakAnnot = NULL)
 }
+\arguments{
+\item{XIC_group}{(list) It is a list of dataframe which has two columns. First column is for time
+and second column indicates intensity.}
+
+\item{idx}{(integer) Indices of aligned chromatograms.}
+
+\item{peakAnnot}{(numeric) Peak-apex time.}
+}
 \description{
 Plot an aligned XIC-group.
+}
+\details{
 x-axis cannot have the same time-values, therefore, x-axis is indecized.
 }
 \author{

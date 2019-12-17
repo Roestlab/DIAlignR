@@ -36,7 +36,8 @@ obj_Global <- doAlignmentCpp(s, 2, FALSE)
 obj_Global@optionalPaths
 matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
 obj_Global@M_forw
-matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274), nrow = 5, ncol =4, byrow = TRUE)
+matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274),
+ nrow = 5, ncol =4, byrow = TRUE)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

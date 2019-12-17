@@ -22,11 +22,13 @@ mappedRTfromAlignObj(refRT, tVec.ref, tVec.eXp, AlignObj)
 Retention time from reference run is mapped to experiment run using AlignObj.
 }
 \examples{
-AlignObj <- testAlignObj()
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
-tVec.ref <-  XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
-tVec.eXp <-  XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
+tVec.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
+tVec.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
+\dontrun{
+AlignObj <- testAlignObj()
 mappedRTfromAlignObj(refRT= 5238.35, tVec.ref, tVec.eXp, AlignObj)
+}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

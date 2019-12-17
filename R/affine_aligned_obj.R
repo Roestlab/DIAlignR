@@ -6,7 +6,7 @@
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-14
-#' @importFrom methods setClass
+#' @importFrom methods setClass new
 #' @seealso \code{\link{doAffineAlignmentCpp}}
 #' @export
 AffineAlignObj <- setClass(Class="AffineAlignObj",
@@ -29,7 +29,7 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-14
-#' @importFrom methods setClass
+#' @importFrom methods setClass new
 #' @seealso \code{\link{doAffineAlignmentCpp}}
 #' @export
 AffineAlignObjLight <- setClass(Class="AffineAlignObjLight",
@@ -45,7 +45,7 @@ AffineAlignObjLight <- setClass(Class="AffineAlignObjLight",
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-14
-#' @importFrom methods setClass
+#' @importFrom methods setClass new
 #' @seealso \code{\link{doAffineAlignmentCpp}}
 #' @export
 AffineAlignObjMedium <- setClass(Class="AffineAlignObjMedium",
@@ -63,7 +63,7 @@ AffineAlignObjMedium <- setClass(Class="AffineAlignObjMedium",
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-14
-#' @importFrom methods setClass
+#' @importFrom methods setClass new
 #' @seealso \code{\link{doAlignmentCpp}}
 #' @export
 AlignObj <- setClass(Class="AlignObj",

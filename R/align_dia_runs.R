@@ -1,3 +1,7 @@
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("transition_group_id", "peak_group_rank", "leftWidth",
+                                                        "rightWidth", "RT", "Intensity"))
+
 #' Outputs intensities for each analyte from aligned Targeted-MS runs
 #'
 #' This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.
@@ -41,9 +45,12 @@
 #' @seealso \code{\link{getRunNames}, \link{getOswFiles}, \link{getAnalytesName}, \link{getMappedRT}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
-#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"), analyteInGroupLabel = TRUE)
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"),
+#'  analyteInGroupLabel = FALSE)
+#' intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"),
+#'  analyteInGroupLabel = TRUE)
 #' @importFrom dplyr %>%
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
@@ -188,8 +195,8 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
   colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
   if(saveFiles){
-    write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
-    write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
+    utils::write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
+    utils::write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
     print("Data matrix is available in the current directory")
     return(1)
   } else {
@@ -244,7 +251,8 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
 #' @seealso \code{\link{plotAlignedAnalytes}, \link{getRunNames}, \link{getOswFiles}, \link{getXICs4AlignObj}, \link{getAlignObj}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 #' plotAlignedAnalytes(AlignObjOutput)
 #'
@@ -280,7 +288,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   }
 
   message("Following runs will be aligned:")
-  print(filenames[, "runs"], sep = "\n")
+  message(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
@@ -307,7 +315,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   AlignObjs <- vector("list", length(analytes))
   names(AlignObjs) <- analytes
   loessFits <- list()
-  print("Perfroming alignment")
+  message("Perfroming alignment")
   for(analyteIdx in seq_along(analytes)){
     analyte <- analytes[analyteIdx]
     # Select reference run based on m-score

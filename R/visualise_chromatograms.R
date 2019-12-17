@@ -1,7 +1,10 @@
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("time", "Transition"))
+
 #' Plot Extracted-ion chromatogram group.
 #'
 #' @importFrom tidyr gather
-#' @importFrom ggplot2 ggplot ggtitle geom_vline geom_line theme theme_bw aes
+#' @importFrom ggplot2 ggplot ggtitle geom_vline geom_line theme theme_bw aes element_text
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -9,10 +12,16 @@
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
+#' @param XIC_group (list) It is a list of dataframe which has two columns. First column is for time
+#'  and second column indicates intensity.
+#' @param peakAnnot (numeric) Peak-apex time.
+#' @param Title (logical) TRUE: name of the list will be displayed as title.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, XICfilter = "none")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' XICs <- getXICs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath,
+#'  XICfilter = "none")
 #' plotXICgroup(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][[1]])
 #'
 #' XICs <- getXICs(analytes = "14299_QFNNTDIVLLEDFQK/3", runs = runs, dataPath = dataPath,
@@ -42,11 +51,26 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
+#' @param analyte (string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
+#' @param run (string) Name of a mzml file without extension.
+#' @param dataPath (char) Path to mzml and osw directory.
+#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param XICfilter (string) This must be one of the strings "sgolay", "none".
+#' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
+#' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#' @param peakAnnot (numeric) Peak-apex time.
+#' @param Title (logical) TRUE: name of the list will be displayed as title.
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
 #' plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = dataPath, XICfilter = "none")
-#' plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = dataPath, XICfilter = "sgolay", analyteInGroupLabel = TRUE)
+#' plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = dataPath,
+#' XICfilter = "sgolay", analyteInGroupLabel = TRUE)
 #' @export
 plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
                             XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
@@ -61,20 +85,9 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
   plotXICgroup(XICs[[run]][[analyte]], peakAnnot, Title)
 }
 
-#' Plot Extracted-ion chromatogram group for a specific peptide from MRM run.
-#'
-plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0,
-                            SgolayFiltOrd = 2, SgolayFiltLen = 3,
-                            query = NULL, oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
-                            peakAnnot = NULL, Title =NULL){
-  XICs <- getMRMXICs(peptides, runs, dataPath , maxFdrQuery,
-                  SgolayFiltOrd, SgolayFiltLen,
-                  query, oswMerged, nameCutPattern)
-  plotXICgroup(XICs[[1]][[1]], peakAnnot, Title)
-}
-
-
 #' Plot an aligned XIC-group.
+#'
+#' @details
 #' x-axis cannot have the same time-values, therefore, x-axis is indecized.
 #'
 #' @importFrom zoo na.locf
@@ -84,6 +97,10 @@ plotMRMPeptideXICs <- function(peptides, runs, dataPath = ".", maxFdrQuery = 1.0
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
+#' @param XIC_group (list) It is a list of dataframe which has two columns. First column is for time
+#'  and second column indicates intensity.
+#' @param idx (integer) Indices of aligned chromatograms.
+#' @param peakAnnot (numeric) Peak-apex time.
 plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   intensity <- list()
   # Update intensities with aligned time indices.
@@ -106,6 +123,8 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   return(g)}
 
 #' Plot aligned XICs group for a specific peptide.
+#'
+#' @description
 #' AlignObjOutput is the output from getAlignObjs fucntion.
 #'
 #' @importFrom ggplot2 geom_vline xlab scale_y_continuous
@@ -117,9 +136,18 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
+#' @param AlignObj (S4 object)
+#' @param XICs.ref (list) List of extracted ion chromatograms (dataframe) from reference run. The dataframe has two columns: first column is for time
+#'  and second column indicates intensity.
+#' @param XICs.eXp (list) List of extracted ion chromatograms (dataframe) from experiment run.The dataframe has two columns: first column is for time
+#'  and second column indicates intensity.
+#' @param refPeakLabel (numeric vector) It contains peak apex, left width and right width.
+#' @param annotatePeak (logical) TRUE: Peak boundaries and apex will be highlighted.
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 #' AlignObj <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[1]]
 #' XICs.ref <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[2]]
@@ -135,7 +163,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
   t.ref <- XICs.ref[[1]][["time"]]
   t.eXp <- mapIdxToTime(XICs.eXp[[1]][["time"]], AlignedIndices[,"indexAligned.eXp"])
   ###################### Plot unaligned chromatogram ######################################
-  prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1))
+  prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("ref time")
   if(annotatePeak){
     prefU <- prefU +
       geom_vline(xintercept=refPeakLabel$RT[1], lty="dotted", size = 0.3) +
@@ -143,7 +171,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
       geom_vline(xintercept=refPeakLabel$rightWidth[1], lty="dashed", size = 0.1)
   }
 
-  peXpU <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1))
+  peXpU <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp time")
   if(annotatePeak){
     peXpU <- peXpU +
       geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
@@ -153,7 +181,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 
   ###################### Plot aligned chromatogram ######################################
   peXpA <- plotSingleAlignedChrom(XICs.eXp, idx = AlignedIndices[,"indexAligned.eXp"]) +
-    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp Index")
+    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp Aligned index")
   if(annotatePeak){
     peXpA <- peXpA +
       geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
@@ -180,16 +208,23 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
+#' @param AlignObjOutput (list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.
+#' @param plotType This must be one of the strings "All", "onlyUnaligned" and "onlyAligned".
+#' @param DrawAlignR (logical) TRUE: ggplot objects will be returned.
+#' @param annotatePeak (logical) TRUE: Peak boundaries and apex will be highlighted.
+#' @param saveFigs (logical) TRUE: Figures will be saved in AlignedAnalytes.pdf .
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 #' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 #' plotAlignedAnalytes(AlignObjOutput)
 #' @export
 plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = FALSE,
                                 annotatePeak = FALSE, saveFigs = FALSE){
   if((length(AlignObjOutput) > 1) | saveFigs){
-    pdf("AlignedAnalytes.pdf")
+    grDevices::pdf("AlignedAnalytes.pdf")
   }
   for(i in 1:length(AlignObjOutput)){
     if(is.null(AlignObjOutput[[i]])){
@@ -214,18 +249,19 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
       grid.arrange(figs[["prefU"]], figs[["peXpU"]], nrow=2, ncol=1,
                    top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
     } else{
-      grid.arrange(figs[["prefU"]], figs[["prefU"]], figs[["peXpU"]], figs[["peXpA"]],
-                   nrow=2, ncol=2, top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
+      grid.arrange(figs[["peXpU"]], figs[["prefU"]], figs[["peXpA"]],
+                   nrow=3, ncol=1, top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
     }
   }
   if((length(AlignObjOutput) > 1) | saveFigs){
-    dev.off()
+    grDevices::dev.off()
   }
 }
 
 
-#' Plot aligned path through the similarity matrix.
-#' Reference run has indices on X-axis, eXp run has them on Y-axis.
+#' Visualize alignment path through similarity matrix
+#'
+#' Plot aligned path through the similarity matrix. Reference run has indices on X-axis, eXp run has them on Y-axis.
 #' In getAlignObjs function, objType must be set to medium.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -234,14 +270,18 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
+#' @param AlignObjOutput (list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.
+#'
 #' @examples
 #' library(lattice)
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath, objType = "medium")
-#' plotAlignemntPath(AlignObjOutput)
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+#' AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath,
+#'  objType = "medium")
+#' plotAlignmentPath(AlignObjOutput)
 #' @export
-plotAlignemntPath <- function(AlignObjOutput){
+plotAlignmentPath <- function(AlignObjOutput){
   Alignobj <- AlignObjOutput[[1]][[1]]
   analyte <- names(AlignObjOutput)[1]
   s <- Alignobj@s

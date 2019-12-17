@@ -41,7 +41,8 @@ extract chromatograms from mzML files.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-runs <- c("hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
+runs <- c("hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt",
+ "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
 XICs <- getXICs(analytes = c("QFNNTDIVLLEDFQK_3"), runs = runs, dataPath = dataPath)
 }
 \seealso{

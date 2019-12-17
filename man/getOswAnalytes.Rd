@@ -37,10 +37,12 @@ Get a data-frame of analytes, their chromatogram indices and associated FDR-scor
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 filenames <- DIAlignR::getRunNames(dataPath = dataPath)
-oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = TRUE)
-analytes[["run0"]][1,]
-oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames, analyteInGroupLabel = FALSE)
-analytes[["run0"]][1,]
+oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames,
+ analyteInGroupLabel = TRUE)
+oswFiles[["run0"]][1,]
+oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames,
+ analyteInGroupLabel = FALSE)
+oswFiles[["run0"]][1,]
 }
 \seealso{
 \code{\link{getRunNames}}

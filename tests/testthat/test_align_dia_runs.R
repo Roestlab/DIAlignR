@@ -3,7 +3,8 @@ context("Align DIA runs")
 test_that("test_alignTargetedRuns",{
   runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
   analyte <- "QFNNTDIVLLEDFQK_3"
-  outData <- alignTargetedRuns(dataPath= "../../inst/extdata", alignType = "hybrid",
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  outData <- alignTargetedRuns(dataPath = dataPath, alignType = "hybrid",
                                analyteInGroupLabel = FALSE, oswMerged = TRUE,
                                runs = runs, analytes = analyte, nameCutPattern = "(.*)(/)(.*)",
                                maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
@@ -20,7 +21,7 @@ test_that("test_alignTargetedRuns",{
                                                            "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")))
   expect_equal(outData, expData)
 
-  outData <- alignTargetedRuns(dataPath= "../../inst/extdata", alignType = "hybrid",
+  outData <- alignTargetedRuns(dataPath = dataPath, alignType = "hybrid",
                                analyteInGroupLabel = TRUE, oswMerged = TRUE,
                                runs = runs, analytes = "14299_QFNNTDIVLLEDFQK/3", nameCutPattern = "(.*)(/)(.*)",
                                maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
@@ -41,9 +42,9 @@ test_that("test_alignTargetedRuns",{
 test_that("test_getAlignObjs",{
   runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
   refRun <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
-
+  dataPath <- system.file("extdata", package = "DIAlignR")
   analyte <- "QFNNTDIVLLEDFQK_3"
-  outData <- getAlignObjs(analytes = analyte, runs = runs, dataPath = "../../inst/extdata",
+  outData <- getAlignObjs(analytes = analyte, runs = runs, dataPath = dataPath,
                alignType = "hybrid", runType = "DIA_Proteomics", refRun = refRun,
                analyteInGroupLabel = FALSE, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,
@@ -64,7 +65,7 @@ test_that("test_getAlignObjs",{
   expect_equal(as.data.frame(outData[[analyte]][[4]]), expData, tolerance = 1e-05)
 
   analyte <- "14299_QFNNTDIVLLEDFQK/3"
-  outData <- getAlignObjs(analytes = analyte, runs = runs, dataPath = "../../inst/extdata",
+  outData <- getAlignObjs(analytes = analyte, runs = runs, dataPath = dataPath,
                           alignType = "hybrid", runType = "DIA_Proteomics", refRun = refRun,
                           analyteInGroupLabel = TRUE, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)",
                           maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 1.00, spanvalue = 0.1,

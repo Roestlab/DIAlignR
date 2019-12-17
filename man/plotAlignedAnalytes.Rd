@@ -8,13 +8,25 @@ AlignObjOutput is the output from getAlignObjs fucntion.}
 plotAlignedAnalytes(AlignObjOutput, plotType = "All",
   DrawAlignR = FALSE, annotatePeak = FALSE, saveFigs = FALSE)
 }
+\arguments{
+\item{AlignObjOutput}{(list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.}
+
+\item{plotType}{This must be one of the strings "All", "onlyUnaligned" and "onlyAligned".}
+
+\item{DrawAlignR}{(logical) TRUE: ggplot objects will be returned.}
+
+\item{annotatePeak}{(logical) TRUE: Peak boundaries and apex will be highlighted.}
+
+\item{saveFigs}{(logical) TRUE: Figures will be saved in AlignedAnalytes.pdf .}
+}
 \description{
 Plot aligned XICs group for a specific peptide.
 AlignObjOutput is the output from getAlignObjs fucntion.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
+runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
+ "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
 AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
 plotAlignedAnalytes(AlignObjOutput)
 }
