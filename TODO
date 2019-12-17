@@ -16,3 +16,4 @@ Multi-threading for each alignment.
 Information content after alignment, Feature mapping.
 MSnExp from MSnbase for fast-access.
 Look into rOpenSci.
+Remove pipes, they are slow.

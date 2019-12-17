@@ -1,3 +1,6 @@
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 #' Fetch the reference run-index.
 #'
 #' Provides the reference run-index based on lowest m-score.

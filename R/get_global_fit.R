@@ -1,3 +1,6 @@
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("m_score"))
+
 #' Calculates LOESS fit between RT of two runs
 #'
 #' This function selects features from oswFiles which has m-score < maxFdrLoess. It then fit LOESS on these feature.
