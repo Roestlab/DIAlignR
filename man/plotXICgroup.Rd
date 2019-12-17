@@ -6,6 +6,14 @@
 \usage{
 plotXICgroup(XIC_group, peakAnnot = NULL, Title = NULL)
 }
+\arguments{
+\item{XIC_group}{(list) It is a list of dataframe which has two columns. First column is for time
+and second column indicates intensity.}
+
+\item{peakAnnot}{(numeric) Peak-apex time.}
+
+\item{Title}{(logical) TRUE: name of the list will be displayed as title.}
+}
 \description{
 Plot Extracted-ion chromatogram group.
 }

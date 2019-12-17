@@ -6,6 +6,9 @@
 \usage{
 plotAlignmentPath(AlignObjOutput)
 }
+\arguments{
+\item{AlignObjOutput}{(list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.}
+}
 \description{
 Plot aligned path through the similarity matrix. Reference run has indices on X-axis, eXp run has them on Y-axis.
 In getAlignObjs function, objType must be set to medium.

@@ -12,6 +12,10 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("time", "Transition"))
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
+#' @param XIC_group (list) It is a list of dataframe which has two columns. First column is for time
+#'  and second column indicates intensity.
+#' @param peakAnnot (numeric) Peak-apex time.
+#' @param Title (logical) TRUE: name of the list will be displayed as title.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
@@ -47,6 +51,20 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
+#' @param analyte (string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
+#' @param run (string) Name of a mzml file without extension.
+#' @param dataPath (char) Path to mzml and osw directory.
+#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param XICfilter (string) This must be one of the strings "sgolay", "none".
+#' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
+#' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
+#' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#' @param peakAnnot (numeric) Peak-apex time.
+#' @param Title (logical) TRUE: name of the list will be displayed as title.
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
@@ -68,6 +86,8 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
 }
 
 #' Plot an aligned XIC-group.
+#'
+#' @details
 #' x-axis cannot have the same time-values, therefore, x-axis is indecized.
 #'
 #' @importFrom zoo na.locf
@@ -77,6 +97,10 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
+#' @param XIC_group (list) It is a list of dataframe which has two columns. First column is for time
+#'  and second column indicates intensity.
+#' @param idx (integer) Indices of aligned chromatograms.
+#' @param peakAnnot (numeric) Peak-apex time.
 plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   intensity <- list()
   # Update intensities with aligned time indices.
@@ -99,6 +123,8 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   return(g)}
 
 #' Plot aligned XICs group for a specific peptide.
+#'
+#' @description
 #' AlignObjOutput is the output from getAlignObjs fucntion.
 #'
 #' @importFrom ggplot2 geom_vline xlab scale_y_continuous
@@ -109,6 +135,14 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
+#'
+#' @param AlignObj (S4 object)
+#' @param XICs.ref (list) List of extracted ion chromatograms (dataframe) from reference run. The dataframe has two columns: first column is for time
+#'  and second column indicates intensity.
+#' @param XICs.eXp (list) List of extracted ion chromatograms (dataframe) from experiment run.The dataframe has two columns: first column is for time
+#'  and second column indicates intensity.
+#' @param refPeakLabel (numeric vector) It contains peak apex, left width and right width.
+#' @param annotatePeak (logical) TRUE: Peak boundaries and apex will be highlighted.
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -174,6 +208,12 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #'
+#' @param AlignObjOutput (list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.
+#' @param plotType This must be one of the strings "All", "onlyUnaligned" and "onlyAligned".
+#' @param DrawAlignR (logical) TRUE: ggplot objects will be returned.
+#' @param annotatePeak (logical) TRUE: Peak boundaries and apex will be highlighted.
+#' @param saveFigs (logical) TRUE: Figures will be saved in AlignedAnalytes.pdf .
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
@@ -230,6 +270,8 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 #'
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
+#' @param AlignObjOutput (list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.
+#'
 #' @examples
 #' library(lattice)
 #' dataPath <- system.file("extdata", package = "DIAlignR")

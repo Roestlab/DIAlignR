@@ -8,6 +8,17 @@ AlignObjOutput is the output from getAlignObjs fucntion.}
 plotAlignedAnalytes(AlignObjOutput, plotType = "All",
   DrawAlignR = FALSE, annotatePeak = FALSE, saveFigs = FALSE)
 }
+\arguments{
+\item{AlignObjOutput}{(list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.}
+
+\item{plotType}{This must be one of the strings "All", "onlyUnaligned" and "onlyAligned".}
+
+\item{DrawAlignR}{(logical) TRUE: ggplot objects will be returned.}
+
+\item{annotatePeak}{(logical) TRUE: Peak boundaries and apex will be highlighted.}
+
+\item{saveFigs}{(logical) TRUE: Figures will be saved in AlignedAnalytes.pdf .}
+}
 \description{
 Plot aligned XICs group for a specific peptide.
 AlignObjOutput is the output from getAlignObjs fucntion.
