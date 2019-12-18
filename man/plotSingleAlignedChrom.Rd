@@ -14,6 +14,9 @@ and second column indicates intensity.}
 
 \item{peakAnnot}{(numeric) Peak-apex time.}
 }
+\value{
+A plot to the current device.
+}
 \description{
 Plot an aligned XIC-group.
 }
