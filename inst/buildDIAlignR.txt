@@ -10,4 +10,4 @@ rm -rf .git
 cd ..
 R CMD build DIAlignR
 R CMD check --as-cran DIAlignR_1.2.0.tar.gz
-
+R CMD BiocCheck DIAlignR_1.2.0.tar.gz
