@@ -108,7 +108,7 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
 plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   intensity <- list()
   # Update intensities with aligned time indices.
-  for(k in 1:length(XIC_group)){
+  for(k in seq_along(XIC_group)){
     mutateInt <- XIC_group[[k]][idx, 2]
     mutateInt <- na.locf(na.locf(mutateInt, na.rm = FALSE),fromLast = TRUE)
     intensity[[k]] <- mutateInt
@@ -232,7 +232,7 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
   if((length(AlignObjOutput) > 1) | saveFigs){
     grDevices::pdf("AlignedAnalytes.pdf")
   }
-  for(i in 1:length(AlignObjOutput)){
+  for(i in seq_along(AlignObjOutput)){
     if(is.null(AlignObjOutput[[i]])){
       next
     }

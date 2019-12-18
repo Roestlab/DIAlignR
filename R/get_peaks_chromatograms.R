@@ -22,7 +22,7 @@
 #' XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
 #' }
 extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9){
-  XIC_group <- lapply(1:length(chromIndices), function(i) {
+  XIC_group <- lapply(seq_along(chromIndices), function(i) {
     rawChrom <- mzR::chromatograms(mz, chromIndices[i])
     # Savitzky-Golay filter to smooth chromatograms, filter order p = 3, filter length n = 13
     if(XICfilter == "sgolay"){
@@ -72,7 +72,7 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
   for(i in seq_along(runs)){
     runname = names(runs)[i]
     message("Fetching XICs from run ", runs[[runname]])
-    XICs[[i]] <- lapply(1:length(analytes), function(j){
+    XICs[[i]] <- lapply(seq_along(analytes), function(j){
       analyte <- analytes[j]
       chromIndices <- selectChromIndices(oswFiles, runname = runname, analyte = analyte)
       if(is.null(chromIndices)){
