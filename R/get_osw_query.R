@@ -104,7 +104,6 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
   " ORDER BY transition_group_id,
   peak_group_rank;")
   }
-  cat(query, '\n', sep = '')
   return(query)
 }
 
