@@ -24,11 +24,11 @@ filenamesFromOSW <- function(dataPath, pattern){
     temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw")
     # Throw an error if no .osw files are found.
     if(length(temp) == 0){return(stop("No .osw files are found."))}
-    filenames <- sapply(seq_along(temp), function(i){
+    filenames <- vapply(seq_along(temp), function(i){
       con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[i]))
       # Fetch mzML filenames from RUN table.
       tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
-    })
+    }, c(list))
     filenames <- as.data.frame(unique(unlist(filenames)))
     colnames(filenames) <-  c("filename")
     # Convert filename column from factor to character
@@ -70,7 +70,7 @@ filenamesFromOSW <- function(dataPath, pattern){
 filenamesFromMZML <- function(dataPath){
   temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
   message(length(temp), " .chrom.mzML files are found.")
-  mzMLfiles <- sapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1])
+  mzMLfiles <- vapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1], "")
   mzMLfiles
 }
 
@@ -103,10 +103,10 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
     filenames <- filenamesFromOSW(dataPath, pattern = "*merged.osw")
   }
   # Get names of mzml files.
-  runs <- sapply(filenames[,"filename"], function(x) gsub(nameCutPattern, replacement = "\\3", x))
+  runs <- vapply(filenames[,"filename"], function(x) gsub(nameCutPattern, replacement = "\\3", x), "")
   fileExtn <- strsplit(runs[[1]], "\\.")[[1]][2]
   fileExtn <- paste0(".", fileExtn)
-  filenames$runs <- sapply(runs, function(x) strsplit(x, split = fileExtn)[[1]][1])
+  filenames$runs <- vapply(runs, function(x) strsplit(x, split = fileExtn)[[1]][1], "")
 
   mzMLfiles <- filenamesFromMZML(dataPath)
   # Check if osw files have corresponding mzML file.
