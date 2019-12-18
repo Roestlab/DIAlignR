@@ -1,16 +1,13 @@
 git clone git@github.com:Roestlab/DIAlignR.git
 cd DIAlignR
-rm src/*.o
-rm src/DIAlignR.so
 rm src/*.txt
 rm data/LATWYSEMK_2_run3.tsv data/LATWYSEMK_2_run4.tsv data/StrepAnnot.rda
 rm -r src/python
 rm .gitignore
-rm src/.Rhistory 
 rm src/test_*.cpp src/run_alignment.cpp
 rm src/test_small.tsv src/test_large.tsv src/CppInterface.hpp
 rm -rf .git
 cd ..
 R CMD build DIAlignR
-R CMD check --as-cran DIAlignR_1.1.3.tar.gz
-
+R CMD check --as-cran DIAlignR_1.2.0.tar.gz
+R CMD BiocCheck DIAlignR_1.2.0.tar.gz
