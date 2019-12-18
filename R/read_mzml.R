@@ -52,7 +52,7 @@ readChromatogramHeader <- function(mzmlName){
 #' }
 getMZMLpointers <- function(dataPath, runs){
   mzPntrs <- list()
-  for(mzMLindex in 1:length(runs)){
+  for(mzMLindex in seq_along(runs)){
     run <- names(runs)[mzMLindex]
     mzmlName <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
     mzPntrs[[mzMLindex]] <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),

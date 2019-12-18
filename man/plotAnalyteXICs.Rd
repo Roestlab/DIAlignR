@@ -37,6 +37,9 @@ plotAnalyteXICs(analyte, run, dataPath = ".", maxFdrQuery = 1,
 
 \item{Title}{(logical) TRUE: name of the list will be displayed as title.}
 }
+\value{
+A plot to the current device.
+}
 \description{
 Plot extracted-ion chromatogram.
 }

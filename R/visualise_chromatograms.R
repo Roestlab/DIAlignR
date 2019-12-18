@@ -16,6 +16,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("time", "Transition"))
 #'  and second column indicates intensity.
 #' @param peakAnnot (numeric) Peak-apex time.
 #' @param Title (logical) TRUE: name of the list will be displayed as title.
+#' @return A plot to the current device.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
@@ -65,6 +66,8 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' @param peakAnnot (numeric) Peak-apex time.
 #' @param Title (logical) TRUE: name of the list will be displayed as title.
 #'
+#' @return A plot to the current device.
+#'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
@@ -101,10 +104,11 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
 #'  and second column indicates intensity.
 #' @param idx (integer) Indices of aligned chromatograms.
 #' @param peakAnnot (numeric) Peak-apex time.
+#' @return A plot to the current device.
 plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   intensity <- list()
   # Update intensities with aligned time indices.
-  for(k in 1:length(XIC_group)){
+  for(k in seq_along(XIC_group)){
     mutateInt <- XIC_group[[k]][idx, 2]
     mutateInt <- na.locf(na.locf(mutateInt, na.rm = FALSE),fromLast = TRUE)
     intensity[[k]] <- mutateInt
@@ -143,6 +147,7 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #'  and second column indicates intensity.
 #' @param refPeakLabel (numeric vector) It contains peak apex, left width and right width.
 #' @param annotatePeak (logical) TRUE: Peak boundaries and apex will be highlighted.
+#' @return A plot to the current device.
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -213,6 +218,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 #' @param DrawAlignR (logical) TRUE: ggplot objects will be returned.
 #' @param annotatePeak (logical) TRUE: Peak boundaries and apex will be highlighted.
 #' @param saveFigs (logical) TRUE: Figures will be saved in AlignedAnalytes.pdf .
+#' @return A plot to the current device.
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -226,7 +232,7 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
   if((length(AlignObjOutput) > 1) | saveFigs){
     grDevices::pdf("AlignedAnalytes.pdf")
   }
-  for(i in 1:length(AlignObjOutput)){
+  for(i in seq_along(AlignObjOutput)){
     if(is.null(AlignObjOutput[[i]])){
       next
     }
@@ -271,6 +277,7 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-12-13
 #' @param AlignObjOutput (list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.
+#' @return A plot to the current device.
 #'
 #' @examples
 #' library(lattice)

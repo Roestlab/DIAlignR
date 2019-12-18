@@ -20,6 +20,9 @@ and second column indicates intensity.}
 
 \item{annotatePeak}{(logical) TRUE: Peak boundaries and apex will be highlighted.}
 }
+\value{
+A plot to the current device.
+}
 \description{
 AlignObjOutput is the output from getAlignObjs fucntion.
 }

@@ -19,6 +19,9 @@ plotAlignedAnalytes(AlignObjOutput, plotType = "All",
 
 \item{saveFigs}{(logical) TRUE: Figures will be saved in AlignedAnalytes.pdf .}
 }
+\value{
+A plot to the current device.
+}
 \description{
 Plot aligned XICs group for a specific peptide.
 AlignObjOutput is the output from getAlignObjs fucntion.
