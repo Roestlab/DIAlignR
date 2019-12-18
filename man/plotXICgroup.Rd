@@ -14,6 +14,9 @@ and second column indicates intensity.}
 
 \item{Title}{(logical) TRUE: name of the list will be displayed as title.}
 }
+\value{
+A plot to the current device.
+}
 \description{
 Plot Extracted-ion chromatogram group.
 }

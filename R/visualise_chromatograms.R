@@ -16,6 +16,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("time", "Transition"))
 #'  and second column indicates intensity.
 #' @param peakAnnot (numeric) Peak-apex time.
 #' @param Title (logical) TRUE: name of the list will be displayed as title.
+#' @return A plot to the current device.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
