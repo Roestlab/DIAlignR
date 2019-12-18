@@ -1,8 +1,12 @@
 #' This is a query that will be used to fetch information from osw files.
 #'
+#' @param identifying logical value indicating the xtraction of identifying transitions. Default: FALSE
+#'
 #' @return SQL query to be searched.
 getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
-                     filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
+                     filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE,
+                     identifying=FALSE
+                     ){
   if(is.null(analytes)){
     selectAnalytes <- ""
   } else{
@@ -92,10 +96,12 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
   INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
   LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectAnalytes, matchFilename, "
-  ORDER BY transition_group_id,
+  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectAnalytes, matchFilename,
+  "AND TRANSITION.IDENTIFYING=", identifying,
+  "ORDER BY transition_group_id,
   peak_group_rank;")
   }
+  print(query)
   return(query)
 }
 
