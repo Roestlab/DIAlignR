@@ -2,7 +2,7 @@
 DIAlignR is an R package for retention time alignment of targeted mass spectrometric data, including DIA and SWATH-MS data. This tool works with MS2 chromatograms directly and uses dynamic programming for alignment of raw chromatographic traces. DIAlignR uses a hybrid approach of global (feature-based) and local (raw data-based) alignment to establish correspondence between peaks.
 
 # Documentation
-For documentation please see [our vignette](http://htmlpreview.github.io/?https://github.com/Roestlab/DIAlignR/blob/master/doc/DIAlignR-vignette.html).
+For documentation please see [our vignette](http://htmlpreview.github.io/?https://github.com/shubham1637/DIAlignR/blob/master/doc/DIAlignR-vignette.html).
 
 # Citation
 If you use the provided algorithms or the package, please cite our paper:
