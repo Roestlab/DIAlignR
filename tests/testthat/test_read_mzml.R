@@ -14,7 +14,7 @@ test_that("test_readChromatogramHeader",{
                           "productIsolationWindowUpperOffset" = c(0,0,0),
                           stringsAsFactors=FALSE)
   expect_identical(dim(readChromatogramHeader(mzmlName)), c(72L, 10L))
-  expect_equal(readChromatogramHeader(mzmlName)[1:3,], expOutput, tolerance=1e-6)
+  expect_equal(readChromatogramHeader(mzmlName)[1:3,1:8], expOutput[,1:8], tolerance=1e-6)
   mzmlName <- "getError"
   expect_error(readChromatogramHeader(mzmlName))
 })
