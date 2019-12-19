@@ -12,3 +12,4 @@ Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Ali
 CNPN 2018 Poster doi: https://doi.org/10.6084/m9.figshare.6200837.v1     
 HUPO 2018 Poster doi: https://doi.org/10.6084/m9.figshare.7121696.v2     
 
+[![Travis build status](https://travis-ci.org/shubham1637/DIAlignR.svg?branch=master)](https://travis-ci.org/shubham1637/DIAlignR)
