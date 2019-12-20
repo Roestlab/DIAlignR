@@ -1,3 +1,8 @@
+CHANGES IN VERSION 0.99.8
+------------------------
+Removed R version dependency, have rda files instead of Rdata
+
+
 CHANGES IN VERSION 0.99.7
 ------------------------
 Lowered R version dependency
