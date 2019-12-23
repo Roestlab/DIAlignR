@@ -4,13 +4,29 @@
 \alias{getAlignedObj}
 \title{Outputs an aligned object for pairwise correspondence between extracted-ion chromatograms.}
 \usage{
-getAlignedObj(peptide, pairName, XICs.A = NULL, XICs.B = NULL,
-  alignType, oswFeatureList = NULL, spanvalue = 0.1,
-  normalization = "mean", simMeasure = "dotProductMasked",
-  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-  hardConstrain = FALSE, samples4gradient = 100, expRSE = 8,
-  samplingTime = 3.4, RSEdistFactor = 3.5, forwSimBw = 9)
+getAlignedObj(
+  peptide,
+  pairName,
+  XICs.A = NULL,
+  XICs.B = NULL,
+  alignType,
+  oswFeatureList = NULL,
+  spanvalue = 0.1,
+  normalization = "mean",
+  simMeasure = "dotProductMasked",
+  goFactor = 0.125,
+  geFactor = 40,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.5,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  expRSE = 8,
+  samplingTime = 3.4,
+  RSEdistFactor = 3.5,
+  forwSimBw = 9
+)
 }
 \arguments{
 \item{peptide}{A string. Peptide for which AlignObj needs to be calculated.}

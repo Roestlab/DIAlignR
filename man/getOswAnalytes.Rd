@@ -4,9 +4,14 @@
 \alias{getOswAnalytes}
 \title{Get a table of analytes, their chromatogram indices and scores.}
 \usage{
-getOswAnalytes(dataPath, filenames, oswMerged = TRUE,
-  analyteInGroupLabel = FALSE, maxFdrQuery = 0.05,
-  runType = "DIA_proteomics")
+getOswAnalytes(
+  dataPath,
+  filenames,
+  oswMerged = TRUE,
+  analyteInGroupLabel = FALSE,
+  maxFdrQuery = 0.05,
+  runType = "DIA_proteomics"
+)
 }
 \value{
 A data-frame.

@@ -4,8 +4,16 @@
 \alias{getXICs4AlignObj}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9)
+getXICs4AlignObj(
+  dataPath,
+  runs,
+  oswFiles,
+  analytes,
+  XICfilter = "sgolay",
+  SgolayFiltOrd = 4,
+  SgolayFiltLen = 9,
+  masterMzExperiment = NULL
+)
 }
 \value{
 A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.

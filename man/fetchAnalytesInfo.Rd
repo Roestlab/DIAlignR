@@ -4,8 +4,15 @@
 \alias{fetchAnalytesInfo}
 \title{Get a table of analytes, their chromatogram indices and scores.}
 \usage{
-fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, analytes, filename,
-  runType, analyteInGroupLabel = FALSE)
+fetchAnalytesInfo(
+  oswName,
+  maxFdrQuery,
+  oswMerged,
+  analytes,
+  filename,
+  runType,
+  analyteInGroupLabel = FALSE
+)
 }
 \value{
 A data-frame.

@@ -4,10 +4,26 @@
 \alias{getMappedRT}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-getMappedRT(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
-  samplingTime, normalization, simMeasure, goFactor, geFactor,
-  cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
-  hardConstrain, samples4gradient, objType = "light")
+getMappedRT(
+  refRT,
+  XICs.ref,
+  XICs.eXp,
+  Loess.fit,
+  alignType,
+  adaptiveRT,
+  samplingTime,
+  normalization,
+  simMeasure,
+  goFactor,
+  geFactor,
+  cosAngleThresh,
+  OverlapAlignment,
+  dotProdThresh,
+  gapQuantile,
+  hardConstrain,
+  samples4gradient,
+  objType = "light"
+)
 }
 \value{
 A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.

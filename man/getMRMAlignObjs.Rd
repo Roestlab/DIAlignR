@@ -4,15 +4,33 @@
 \alias{getMRMAlignObjs}
 \title{AlignObj for peptides between a pair for MRM runs.}
 \usage{
-getMRMAlignObjs(peptides, runs, dataPath = ".", alignType = "local",
-  query = NULL, oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
-  maxFdrQuery = 0.05, maxFdrLoess = 0.01, spanvalue = 0.1,
-  normalization = "mean", simMeasure = "dotProductMasked",
-  SgolayFiltOrd = 2, SgolayFiltLen = 3, goFactor = 0.125,
-  geFactor = 400, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-  dotProdThresh = 0.96, gapQuantile = 0.98, hardConstrain = FALSE,
-  samples4gradient = 100, expRSE = 8, samplingTime = 3.4,
-  RSEdistFactor = 3.5)
+getMRMAlignObjs(
+  peptides,
+  runs,
+  dataPath = ".",
+  alignType = "local",
+  query = NULL,
+  oswMerged = FALSE,
+  nameCutPattern = "(.*)(/)(.*)",
+  maxFdrQuery = 0.05,
+  maxFdrLoess = 0.01,
+  spanvalue = 0.1,
+  normalization = "mean",
+  simMeasure = "dotProductMasked",
+  SgolayFiltOrd = 2,
+  SgolayFiltLen = 3,
+  goFactor = 0.125,
+  geFactor = 400,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.98,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  expRSE = 8,
+  samplingTime = 3.4,
+  RSEdistFactor = 3.5
+)
 }
 \value{
 A list of AlignObj. Each AlignObj contains alignment path, similarity matrix and related parameters.

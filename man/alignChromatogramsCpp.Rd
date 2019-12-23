@@ -4,11 +4,27 @@
 \alias{alignChromatogramsCpp}
 \title{Aligns MS2 extracted-ion chromatograms(XICs) pair.}
 \usage{
-alignChromatogramsCpp(l1, l2, alignType, tA, tB, normalization, simType,
-  B1p = 0, B2p = 0, noBeef = 0L, goFactor = 0.125, geFactor = 40,
-  cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
-  samples4gradient = 100, objType = "heavy")
+alignChromatogramsCpp(
+  l1,
+  l2,
+  alignType,
+  tA,
+  tB,
+  normalization,
+  simType,
+  B1p = 0,
+  B2p = 0,
+  noBeef = 0L,
+  goFactor = 0.125,
+  geFactor = 40,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.5,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  objType = "heavy"
+)
 }
 \arguments{
 \item{l1}{(list) A list of numeric vectors. l1 and l2 should have same length.}

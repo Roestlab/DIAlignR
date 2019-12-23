@@ -4,7 +4,7 @@
 \alias{getMZMLpointers}
 \title{Get pointers to each mzML file.}
 \usage{
-getMZMLpointers(dataPath, runs)
+getMZMLpointers(dataPath, runs, masterMzExperiment = NULL)
 }
 \value{
 A list.

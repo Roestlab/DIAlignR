@@ -4,9 +4,17 @@
 \alias{getMRMXICs}
 \title{Get XICs for a list of peptides from MRM runs.}
 \usage{
-getMRMXICs(peptides, runs, dataPath = ".", maxFdrQuery = 1,
-  SgolayFiltOrd = 2, SgolayFiltLen = 3, query = NULL,
-  oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)")
+getMRMXICs(
+  peptides,
+  runs,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  SgolayFiltOrd = 2,
+  SgolayFiltLen = 3,
+  query = NULL,
+  oswMerged = FALSE,
+  nameCutPattern = "(.*)(/)(.*)"
+)
 }
 \value{
 A list of list. Each list contains XICs for that run.

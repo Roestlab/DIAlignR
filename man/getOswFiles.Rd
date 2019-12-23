@@ -4,9 +4,17 @@
 \alias{getOswFiles}
 \title{Get list of peptides and their chromatogram indices.}
 \usage{
-getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
-  oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics",
-  analyteInGroupLabel = FALSE)
+getOswFiles(
+  dataPath,
+  filenames,
+  maxFdrQuery = 0.05,
+  analyteFDR = 0.01,
+  oswMerged = TRUE,
+  analytes = NULL,
+  runType = "DIA_proteomics",
+  analyteInGroupLabel = FALSE,
+  masterMzExperiment = NULL
+)
 }
 \value{
 A list of data-frames.

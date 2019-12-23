@@ -5,8 +5,13 @@
 \title{Plot aligned XICs group for a specific peptide.
 AlignObjOutput is the output from getAlignObjs fucntion.}
 \usage{
-getAlignedFigs(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
-  annotatePeak = FALSE)
+getAlignedFigs(
+  AlignObj,
+  XICs.ref,
+  XICs.eXp,
+  refPeakLabel,
+  annotatePeak = FALSE
+)
 }
 \description{
 Plot aligned XICs group for a specific peptide.

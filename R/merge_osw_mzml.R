@@ -30,10 +30,17 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' @return A list of data-frames.
 #' @export
 getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
-                         analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE){
+                         analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE, masterMzExperiment = NULL){
   oswFiles <- list()
+  if ( is.null(masterMzExperiment) ){
+    masterMzExperiment <- list()
+  } else {
+    message( "A masterMzExperiment object was supplied...")
+  }
   for(i in 1:nrow(filenames)){
     run <- rownames(filenames)[i]
+    ## Save current run name in master list
+    masterMzExperiment[[run]]$run <- run
     # Get a query to search against the osw files.
     if(oswMerged == TRUE){
       oswName <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
@@ -49,8 +56,22 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
     # Get chromatogram indices from the header file.
     mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
     tictoc::tic("getOswFiles -> readChromatogramHeader: get chrom indices... Elapsed time")
-    chromHead <- readChromatogramHeader(mzmlName)
+    if ( !('mz' %in% names(masterMzExperiment[[run]]$mzExperiment)) ){
+      message('An mz object was not found in the masterMZExperiment object supplied...')
+      mzExperiment <- readChromatogramHeader(mzmlName)
+    } else {
+      if ( !('chromHead' %in% names(masterMzExperiment[[run]]$mzExperiment)) ){
+        message('A chromHead data.frame was not found in the masterMZExperiment object supplied...')
+        mzExperiment <- readChromatogramHeader(mzmlName, masterMzExperiment[[run]]$mz)
+      } else {
+        message('An mz object and chromHead was found in the masterMZExperiment object supplied, skipping readChromatogramHeader...')
+        mzExperiment <- masterMzExperiment[[run]]$mzExperiment
+      }
+    }
+    chromHead <- mzExperiment$chromHead
     chromatogramIdAsInteger(chromHead)
+    ## Save mzExperiment list in master list
+    masterMzExperiment[[run]]$mzExperiment <- mzExperiment
     tictoc::toc()
     # Merge chromatogram indices with transition indices and save them.
     # Following function merges analytesInfo dataframe with the chromatogram Header.
@@ -60,5 +81,7 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
   }
   # Assign rownames to the each element of list
   names(oswFiles) <- rownames(filenames)
-  return(oswFiles)
+
+  masterMzExperiment$oswFiles <- oswFiles
+  return(masterMzExperiment)
 }

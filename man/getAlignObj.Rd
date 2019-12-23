@@ -4,10 +4,24 @@
 \alias{getAlignObj}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
-  normalization, simType, goFactor, geFactor, cosAngleThresh,
-  OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
-  samples4gradient, objType = "light")
+getAlignObj(
+  XICs.ref,
+  XICs.eXp,
+  Loess.fit,
+  adaptiveRT,
+  samplingTime,
+  normalization,
+  simType,
+  goFactor,
+  geFactor,
+  cosAngleThresh,
+  OverlapAlignment,
+  dotProdThresh,
+  gapQuantile,
+  hardConstrain,
+  samples4gradient,
+  objType = "light"
+)
 }
 \value{
 A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.

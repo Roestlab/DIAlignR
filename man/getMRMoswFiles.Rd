@@ -4,8 +4,14 @@
 \alias{getMRMoswFiles}
 \title{Get list of peptides and their chromatogram indices.}
 \usage{
-getMRMoswFiles(filenames, dataPath = ".", peptides = NULL,
-  query = NULL, oswMerged = FALSE, maxFdrQuery = 1)
+getMRMoswFiles(
+  filenames,
+  dataPath = ".",
+  peptides = NULL,
+  query = NULL,
+  oswMerged = FALSE,
+  maxFdrQuery = 1
+)
 }
 \value{
 A list of data-frames.

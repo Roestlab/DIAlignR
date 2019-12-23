@@ -4,10 +4,19 @@
 \alias{plotMRMPeptideXICs}
 \title{Plot Extracted-ion chromatogram group for a specific peptide from MRM run.}
 \usage{
-plotMRMPeptideXICs(peptides, runs, dataPath = ".", maxFdrQuery = 1,
-  SgolayFiltOrd = 2, SgolayFiltLen = 3, query = NULL,
-  oswMerged = FALSE, nameCutPattern = "(.*)(/)(.*)",
-  peakAnnot = NULL, Title = NULL)
+plotMRMPeptideXICs(
+  peptides,
+  runs,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  SgolayFiltOrd = 2,
+  SgolayFiltLen = 3,
+  query = NULL,
+  oswMerged = FALSE,
+  nameCutPattern = "(.*)(/)(.*)",
+  peakAnnot = NULL,
+  Title = NULL
+)
 }
 \description{
 Plot Extracted-ion chromatogram group for a specific peptide from MRM run.

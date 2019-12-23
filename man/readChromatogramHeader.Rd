@@ -4,7 +4,7 @@
 \alias{readChromatogramHeader}
 \title{Get a table of chromatogram indices and respective transition IDs.}
 \usage{
-readChromatogramHeader(mzmlName)
+readChromatogramHeader(mzmlName, mzExperiment = NULL)
 }
 \value{
 A data-frame.

@@ -4,13 +4,28 @@
 \alias{getPepPeakCorp}
 \title{Establishes pairwise correspondence between extracted-ion chromatograms.}
 \usage{
-getPepPeakCorp(featureTable, pairName, XICs.A = NULL, XICs.B = NULL,
-  alignType, oswFeatureList = NULL, spanvalue = 0.1,
-  normalization = "mean", simMeasure = "dotProductMasked",
-  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-  hardConstrain = FALSE, samples4gradient = 100, expRSE = 8,
-  samplingTime = 3.4, RSEdistFactor = 3.5)
+getPepPeakCorp(
+  featureTable,
+  pairName,
+  XICs.A = NULL,
+  XICs.B = NULL,
+  alignType,
+  oswFeatureList = NULL,
+  spanvalue = 0.1,
+  normalization = "mean",
+  simMeasure = "dotProductMasked",
+  goFactor = 0.125,
+  geFactor = 40,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.5,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  expRSE = 8,
+  samplingTime = 3.4,
+  RSEdistFactor = 3.5
+)
 }
 \arguments{
 \item{featureTable}{A table of retention time identifications for each peptides. The retention times

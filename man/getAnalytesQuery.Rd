@@ -4,8 +4,13 @@
 \alias{getAnalytesQuery}
 \title{This is a query that will be used to fetch information from osw files.}
 \usage{
-getAnalytesQuery(maxFdrQuery, oswMerged = TRUE, filename = NULL,
-  runType = "DIA_Proteomics", analyteInGroupLabel = FALSE)
+getAnalytesQuery(
+  maxFdrQuery,
+  oswMerged = TRUE,
+  filename = NULL,
+  runType = "DIA_Proteomics",
+  analyteInGroupLabel = FALSE
+)
 }
 \value{
 SQL query to be searched.

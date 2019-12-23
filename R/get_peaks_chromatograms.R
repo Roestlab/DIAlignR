@@ -17,9 +17,9 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #'
 #' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sgolay",
-                             SgolayFiltOrd = 4, SgolayFiltLen = 9){
+                             SgolayFiltOrd = 4, SgolayFiltLen = 9, masterMzExperiment=NULL){
   tictoc::tic("getXICs4AlignObj -> getMZMLpointers: Elapsed time")
-  mzPntrs <- getMZMLpointers(dataPath, runs)
+  mzPntrs <- getMZMLpointers(dataPath, runs, masterMzExperiment)
   tictoc::toc()
   XICs <- vector("list", length(runs))
   names(XICs) <- names(runs)

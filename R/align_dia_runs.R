@@ -172,7 +172,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
-                         samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light"){
+                         samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light", masterMzExperiment=NULL){
   if(length(runs) != 2){
     print("For pairwise alignment, two runs are required.")
     return(NULL)
@@ -195,8 +195,9 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   tictoc::tic("getAlignObjs -> getOswFiles -> Get Precursors from the query and respectve chromatogram indices.... Elaspted time: ")
-  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
-                          oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
+  masterMzExperiment <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
+                          oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel, masterMzExperiment = masterMzExperiment)
+  oswFiles <- masterMzExperiment$oswFile
   tictoc::toc()
   # Report analytes that are not found
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
@@ -214,7 +215,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   # message("Fetching Extracted-ion chromatograms from runs")
   tictoc::tic("getAlignObjs -> getXICs4AlignObj -> Fetching Extracted-ion chromatograms from runs... Elapsed time: ")
   XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes, XICfilter = XICfilter,
-                           SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen)
+                           SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen, masterMzExperiment)
   tictoc::toc()
 
   ####################### Perfrom alignment ##########################################
