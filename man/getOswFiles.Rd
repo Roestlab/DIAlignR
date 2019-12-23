@@ -6,7 +6,7 @@
 \usage{
 getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
   oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics",
-  analyteInGroupLabel = FALSE)
+  analyteInGroupLabel = FALSE, mzPntrs = NULL)
 }
 \arguments{
 \item{dataPath}{(char) path to mzml and osw directory.}
@@ -24,7 +24,9 @@ To get filenames use DIAlignR::getRunNames function.}
 
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
-\item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+\item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
+
+\item{mzPntrs}{A list of mzRpwiz.
 FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
 }
 \value{

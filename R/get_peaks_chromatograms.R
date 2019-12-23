@@ -51,6 +51,7 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #' @param XICfilter (string) this must be one of the strings "sgolay", "none".
 #' @param SgolayFiltOrd (integer) it defines the polynomial order of filer.
 #' @param SgolayFiltLen (integer) must be an odd number. It defines the length of filter.
+#' @param mzPntrs A list of mzRpwiz.
 #' @return A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 #'
 #' @seealso \code{\link{getOswFiles}, \link{getRunNames}}
@@ -61,12 +62,13 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #'           "run0" =  "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
 #' oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
 #' analytes <- "QFNNTDIVLLEDFQK_3"
-#' \dontrun{
 #' XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
-#' }
+#' @export
 getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sgolay",
-                             SgolayFiltOrd = 4, SgolayFiltLen = 9){
-  mzPntrs <- getMZMLpointers(dataPath, runs)
+                             SgolayFiltOrd = 4, SgolayFiltLen = 9, mzPntrs = NULL){
+  if(is.null(mzPntrs)){
+    mzPntrs <- getMZMLpointers(dataPath, runs)
+  }
   XICs <- vector("list", length(runs))
   names(XICs) <- names(runs)
   for(i in seq_along(runs)){
