@@ -1,6 +1,7 @@
 CHANGES IN VERSION 0.99.8
 ------------------------
 Removed R version dependency, have rda files instead of Rdata
+Added option to include mz pointer in getOswFiles and getXIC4AlignObj
 
 
 CHANGES IN VERSION 0.99.7

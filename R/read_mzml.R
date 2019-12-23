@@ -47,9 +47,8 @@ readChromatogramHeader <- function(mzmlName){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
 #'  "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
-#' \dontrun{
 #' mzPntrs <- getMZMLpointers(dataPath = dataPath, runs = runs)
-#' }
+#' @export
 getMZMLpointers <- function(dataPath, runs){
   mzPntrs <- list()
   for(mzMLindex in seq_along(runs)){
