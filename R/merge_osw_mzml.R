@@ -33,9 +33,11 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
                          analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE, masterMzExperiment = NULL){
   oswFiles <- list()
   if ( is.null(masterMzExperiment) ){
+    message( "A masterMzExperiment object WAS NOT supplied...")
     masterMzExperiment <- list()
   } else {
-    message( "A masterMzExperiment object was supplied...")
+    message( "A masterMzExperiment object WAS supplied...")
+    print( masterMzExperiment )
   }
   for(i in 1:nrow(filenames)){
     run <- rownames(filenames)[i]
@@ -58,6 +60,7 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
     tictoc::tic("getOswFiles -> readChromatogramHeader: get chrom indices... Elapsed time")
     if ( !('mz' %in% names(masterMzExperiment[[run]]$mzExperiment)) ){
       message('An mz object was not found in the masterMZExperiment object supplied...')
+      print( (masterMzExperiment[[run]]$mzExperiment) )
       mzExperiment <- readChromatogramHeader(mzmlName)
     } else {
       if ( !('chromHead' %in% names(masterMzExperiment[[run]]$mzExperiment)) ){
