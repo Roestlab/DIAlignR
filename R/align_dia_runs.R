@@ -102,10 +102,11 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
   names(runs) <- rownames(filenames)
-  # Collect all the pointers for each mzML file.
-  message("Collecting metadata from mzML files.")
-  mzPntrs <- getMZMLpointers(dataPath, runs)
-  message("Metadata is collected from mzML files.")
+  # # Collect all the pointers for each mzML file.
+  # message("Collecting metadata from mzML files.")
+  # mzPntrs <- getMZMLpointers(dataPath, runs)
+  # message("Metadata is collected from mzML files.")
+  mzPntrs <- NULL
 
   ######### Initilize output tables. #######
   rtTbl <- matrix(NA, nrow = length(refAnalytes), ncol = length(runs))
@@ -292,13 +293,14 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   message("Following runs will be aligned:")
   message(filenames[, "runs"], sep = "\n")
   
-  ######### Collect pointers for each mzML file. #######
+  # ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
   names(runs) <- rownames(filenames)
-  # Collect all the pointers for each mzML file.
-  message("Collecting metadata from mzML files.")
-  mzPntrs <- getMZMLpointers(dataPath, runs)
-  message("Metadata is collected from mzML files.")
+  # # Collect all the pointers for each mzML file.
+  # message("Collecting metadata from mzML files.")
+  # mzPntrs <- getMZMLpointers(dataPath, runs)
+  # message("Metadata is collected from mzML files.")
+  mzPntrs <- NULL
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   #oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
