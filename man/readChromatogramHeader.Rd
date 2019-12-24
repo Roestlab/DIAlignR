@@ -4,7 +4,7 @@
 \alias{readChromatogramHeader}
 \title{Get chromatogram header from a mzML file}
 \usage{
-readChromatogramHeader(mzmlName)
+readChromatogramHeader(mzmlName, mzExperiment = NULL)
 }
 \arguments{
 \item{mzmlName}{(char) path to mzml file.}

@@ -4,10 +4,19 @@
 \alias{getXICs}
 \title{Get XICs of all analytes}
 \usage{
-getXICs(analytes, runs, dataPath = ".", maxFdrQuery = 1,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  runType = "DIA_proteomics", oswMerged = TRUE,
-  nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE)
+getXICs(
+  analytes,
+  runs,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  XICfilter = "sgolay",
+  SgolayFiltOrd = 4,
+  SgolayFiltLen = 9,
+  runType = "DIA_proteomics",
+  oswMerged = TRUE,
+  nameCutPattern = "(.*)(/)(.*)",
+  analyteInGroupLabel = FALSE
+)
 }
 \arguments{
 \item{analytes}{(string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}

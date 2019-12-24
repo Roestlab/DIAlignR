@@ -4,8 +4,13 @@
 \alias{getAnalytesQuery}
 \title{Generate SQL query to fetch limited information from osw files.}
 \usage{
-getAnalytesQuery(maxFdrQuery, oswMerged = TRUE, filename = NULL,
-  runType = "DIA_Proteomics", analyteInGroupLabel = FALSE)
+getAnalytesQuery(
+  maxFdrQuery,
+  oswMerged = TRUE,
+  filename = NULL,
+  runType = "DIA_Proteomics",
+  analyteInGroupLabel = FALSE
+)
 }
 \arguments{
 \item{maxFdrQuery}{(numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}

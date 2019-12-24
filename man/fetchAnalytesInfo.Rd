@@ -4,8 +4,15 @@
 \alias{fetchAnalytesInfo}
 \title{Fetch features of analytes}
 \usage{
-fetchAnalytesInfo(oswName, maxFdrQuery, oswMerged, analytes, filename,
-  runType, analyteInGroupLabel = FALSE)
+fetchAnalytesInfo(
+  oswName,
+  maxFdrQuery,
+  oswMerged,
+  analytes,
+  filename,
+  runType,
+  analyteInGroupLabel = FALSE
+)
 }
 \arguments{
 \item{oswName}{(char) path to the osw file.}

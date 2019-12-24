@@ -18,15 +18,25 @@
 #' \dontrun{
 #' chromHead <- readChromatogramHeader(mzmlName = mzmlName)
 #' }
-readChromatogramHeader <- function(mzmlName){
+#' @return A data-frame.
+readChromatogramHeader <- function(mzmlName, mzExperiment=NULL){
+  if ( is.null(mzExperiment) ){
+  message('An mz object was not passed, therefore, calling mzR::openMSfile to extract mz data...')
   mz <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
                  error = function(cnd) {
                    conditionMessage(cnd)
                    message("If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
                    stop(cnd)})
+  } else {
+    message('An mz object was passed, skipping mzR::openMSfile call...')
+    mz <- mzExperiment$mz
+  }
+  tictoc::tic('Calling chromatogramHeader...')
   chromHead <- mzR::chromatogramHeader(mz)
-  rm(mz)
-  chromHead
+  tictoc::toc()
+  mzExperiment <- list( mz=mz, chromHead=chromHead )
+  rm(mz, chromHead)
+  return( mzExperiment )
 }
 
 #' Get pointers to each mzML file.
@@ -49,16 +59,22 @@ readChromatogramHeader <- function(mzmlName){
 #'  "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
 #' mzPntrs <- getMZMLpointers(dataPath = dataPath, runs = runs)
 #' @export
-getMZMLpointers <- function(dataPath, runs){
+#' @return A list.
+getMZMLpointers <- function(dataPath, runs, masterMzExperiment=NULL){
   mzPntrs <- list()
   for(mzMLindex in seq_along(runs)){
     run <- names(runs)[mzMLindex]
     mzmlName <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
-    mzPntrs[[mzMLindex]] <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
-                                     error = function(cnd) {
-                                       conditionMessage(cnd)
-                                       message("If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
-                                       stop(cnd)})
+    mzPntrs[[mzMLindex]] <- tryCatch(
+      if( is.null(masterMzExperiment) ){
+        mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
+      } else {
+        mz <- masterMzExperiment[[mzMLindex]]$mzExperiment$mz
+      },
+      error = function(cnd) {
+        conditionMessage(cnd)
+        message("If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
+        stop(cnd)})
   }
   names(mzPntrs) <- names(runs)
   mzPntrs

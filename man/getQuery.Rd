@@ -4,9 +4,18 @@
 \alias{getQuery}
 \title{Generate SQL query to fetch information from osw files.}
 \usage{
-getQuery(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
-  filename = NULL, runType = "DIA_Proteomics",
-  analyteInGroupLabel = FALSE)
+getQuery(
+  maxFdrQuery,
+  oswMerged = TRUE,
+  analytes = NULL,
+  filename = NULL,
+  runType = "DIA_Proteomics",
+  analyteInGroupLabel = FALSE,
+  identifying = FALSE
+)
+}
+\arguments{
+\item{identifying}{logical value indicating the xtraction of identifying transitions. Default: FALSE}
 }
 \arguments{
 \item{maxFdrQuery}{(numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}

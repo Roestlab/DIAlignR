@@ -4,8 +4,7 @@
 \alias{pickNearestFeature}
 \title{Pick feature closest to reference peak}
 \usage{
-pickNearestFeature(eXpRT, analyte, oswFiles, runname, adaptiveRT,
-  featureFDR)
+pickNearestFeature(eXpRT, analyte, oswFiles, runname, adaptiveRT, featureFDR)
 }
 \arguments{
 \item{eXpRT}{(numeric) retention time in experiment run.}

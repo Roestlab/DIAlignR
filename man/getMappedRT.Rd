@@ -4,10 +4,26 @@
 \alias{getMappedRT}
 \title{Get mapping of reference RT on experiment run.}
 \usage{
-getMappedRT(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
-  samplingTime, normalization, simMeasure, goFactor, geFactor,
-  cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
-  hardConstrain, samples4gradient, objType = "light")
+getMappedRT(
+  refRT,
+  XICs.ref,
+  XICs.eXp,
+  Loess.fit,
+  alignType,
+  adaptiveRT,
+  samplingTime,
+  normalization,
+  simMeasure,
+  goFactor,
+  geFactor,
+  cosAngleThresh,
+  OverlapAlignment,
+  dotProdThresh,
+  gapQuantile,
+  hardConstrain,
+  samples4gradient,
+  objType = "light"
+)
 }
 \arguments{
 \item{refRT}{Peak's retention-time in reference run.}

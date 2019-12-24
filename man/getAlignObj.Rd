@@ -4,10 +4,24 @@
 \alias{getAlignObj}
 \title{Outputs AlignObj from an alignment of two XIC-groups}
 \usage{
-getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT, samplingTime,
-  normalization, simType, goFactor, geFactor, cosAngleThresh,
-  OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
-  samples4gradient, objType = "light")
+getAlignObj(
+  XICs.ref,
+  XICs.eXp,
+  Loess.fit,
+  adaptiveRT,
+  samplingTime,
+  normalization,
+  simType,
+  goFactor,
+  geFactor,
+  cosAngleThresh,
+  OverlapAlignment,
+  dotProdThresh,
+  gapQuantile,
+  hardConstrain,
+  samples4gradient,
+  objType = "light"
+)
 }
 \arguments{
 \item{XICs.ref}{List of extracted ion chromatograms from reference run.}

@@ -4,17 +4,38 @@
 \alias{getAlignObjs}
 \title{AlignObj for analytes between a pair of runs}
 \usage{
-getAlignObjs(analytes, runs, dataPath = ".", alignType = "hybrid",
-  runType = "DIA_Proteomics", refRun = NULL,
-  analyteInGroupLabel = FALSE, oswMerged = TRUE,
-  nameCutPattern = "(.*)(/)(.*)", maxFdrQuery = 0.05,
-  maxFdrLoess = 0.01, analyteFDR = 1, spanvalue = 0.1,
-  normalization = "mean", simMeasure = "dotProductMasked",
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-  hardConstrain = FALSE, samples4gradient = 100, samplingTime = 3.4,
-  RSEdistFactor = 3.5, objType = "light")
+getAlignObjs(
+  analytes,
+  runs,
+  dataPath = ".",
+  alignType = "hybrid",
+  runType = "DIA_Proteomics",
+  refRun = NULL,
+  analyteInGroupLabel = FALSE,
+  oswMerged = TRUE,
+  nameCutPattern = "(.*)(/)(.*)",
+  maxFdrQuery = 0.05,
+  maxFdrLoess = 0.01,
+  analyteFDR = 1,
+  spanvalue = 0.1,
+  normalization = "mean",
+  simMeasure = "dotProductMasked",
+  XICfilter = "sgolay",
+  SgolayFiltOrd = 4,
+  SgolayFiltLen = 9,
+  goFactor = 0.125,
+  geFactor = 40,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.5,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  samplingTime = 3.4,
+  RSEdistFactor = 3.5,
+  objType = "light",
+  masterMzExperiment = NULL
+)
 }
 \arguments{
 \item{analytes}{(vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.}

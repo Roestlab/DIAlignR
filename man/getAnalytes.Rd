@@ -4,10 +4,16 @@
 \alias{getAnalytes}
 \title{Get names of analytes found in all runs.}
 \usage{
-getAnalytes(dataPath, runs = NULL, oswMerged = TRUE,
-  runType = "DIA_Proteomics", commonAnalytes = FALSE,
-  maxFdrQuery = 0.05, nameCutPattern = "(.*)(/)(.*)",
-  analyteInGroupLabel = FALSE)
+getAnalytes(
+  dataPath,
+  runs = NULL,
+  oswMerged = TRUE,
+  runType = "DIA_Proteomics",
+  commonAnalytes = FALSE,
+  maxFdrQuery = 0.05,
+  nameCutPattern = "(.*)(/)(.*)",
+  analyteInGroupLabel = FALSE
+)
 }
 \arguments{
 \item{dataPath}{(char) Path to mzml and osw directory.}

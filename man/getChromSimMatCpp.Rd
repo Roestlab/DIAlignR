@@ -4,8 +4,14 @@
 \alias{getChromSimMatCpp}
 \title{Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms(XICs)}
 \usage{
-getChromSimMatCpp(l1, l2, normalization, simType, cosAngleThresh = 0.3,
-  dotProdThresh = 0.96)
+getChromSimMatCpp(
+  l1,
+  l2,
+  normalization,
+  simType,
+  cosAngleThresh = 0.3,
+  dotProdThresh = 0.96
+)
 }
 \arguments{
 \item{l1}{(list) A list of vectors. Length should be same as of l2.}

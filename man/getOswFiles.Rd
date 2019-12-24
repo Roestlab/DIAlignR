@@ -4,6 +4,7 @@
 \alias{getOswFiles}
 \title{Get list of peptides and their chromatogram indices.}
 \usage{
+<<<<<<< HEAD
 getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
   oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics",
   analyteInGroupLabel = FALSE, mzPntrs = NULL)
@@ -28,6 +29,19 @@ To get filenames use DIAlignR::getRunNames function.}
 
 \item{mzPntrs}{A list of mzRpwiz.
 FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+=======
+getOswFiles(
+  dataPath,
+  filenames,
+  maxFdrQuery = 0.05,
+  analyteFDR = 0.01,
+  oswMerged = TRUE,
+  analytes = NULL,
+  runType = "DIA_proteomics",
+  analyteInGroupLabel = FALSE,
+  masterMzExperiment = NULL
+)
+>>>>>>> justin_tests
 }
 \value{
 (data-frames) Data-frame has following columns:

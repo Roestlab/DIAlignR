@@ -4,8 +4,7 @@
 \alias{getGlobalAlignMaskCpp}
 \title{Outputs a mask for constraining similarity matrix}
 \usage{
-getGlobalAlignMaskCpp(tA, tB, B1p, B2p, noBeef = 50L,
-  hardConstrain = FALSE)
+getGlobalAlignMaskCpp(tA, tB, B1p, B2p, noBeef = 50L, hardConstrain = FALSE)
 }
 \arguments{
 \item{tA}{(numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.}

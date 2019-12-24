@@ -4,9 +4,14 @@
 \alias{getOswAnalytes}
 \title{Fetch analytes from OSW file}
 \usage{
-getOswAnalytes(dataPath, filenames, oswMerged = TRUE,
-  analyteInGroupLabel = FALSE, maxFdrQuery = 0.05,
-  runType = "DIA_proteomics")
+getOswAnalytes(
+  dataPath,
+  filenames,
+  oswMerged = TRUE,
+  analyteInGroupLabel = FALSE,
+  maxFdrQuery = 0.05,
+  runType = "DIA_proteomics"
+)
 }
 \arguments{
 \item{dataPath}{(char) path to mzml and osw directory.}

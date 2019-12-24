@@ -11,9 +11,13 @@
 #' @param filename (string) as mentioned in RUN table of osw files..
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#' @param identifying logical value indicating the xtraction of identifying transitions. Default: FALSE
+#'
 #' @return SQL query to be searched.
 getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
-                     filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
+                     filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE,
+                     identifying=FALSE
+                     ){
   if(is.null(analytes)){
     selectAnalytes <- ""
   } else{
@@ -94,17 +98,21 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
   FEATURE.RIGHT_WIDTH AS rightWidth,
   SCORE_MS2.RANK AS peak_group_rank,
   SCORE_MS2.QVALUE AS m_score,
-  TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id
+  TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+  TRANSITION.DETECTING as detecting_transitions,
+  TRANSITION.IDENTIFYING as identifying_transitions
   FROM PRECURSOR
   INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR.ID = PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID AND PRECURSOR.DECOY=0
   INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
   INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
   INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
   INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+  INNER JOIN TRANSITION ON TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID = TRANSITION.ID
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
   LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectAnalytes, matchFilename, "
-  ORDER BY transition_group_id,
+  WHERE SCORE_MS2.QVALUE < ", maxFdrQuery, selectAnalytes, matchFilename,
+  " AND TRANSITION.IDENTIFYING= ", identifying,
+  " ORDER BY transition_group_id,
   peak_group_rank;")
   }
   return(query)

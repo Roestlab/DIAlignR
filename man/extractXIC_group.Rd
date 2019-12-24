@@ -4,8 +4,13 @@
 \alias{extractXIC_group}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-extractXIC_group(mz, chromIndices, XICfilter = "sgolay",
-  SgolayFiltOrd = 4, SgolayFiltLen = 9)
+extractXIC_group(
+  mz,
+  chromIndices,
+  XICfilter = "sgolay",
+  SgolayFiltOrd = 4,
+  SgolayFiltLen = 9
+)
 }
 \arguments{
 \item{mz}{(mzRpwiz object)}

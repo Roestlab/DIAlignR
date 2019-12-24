@@ -4,8 +4,12 @@
 \alias{mergeOswAnalytes_ChromHeader}
 \title{Merge dataframes from OSW and mzML files}
 \usage{
-mergeOswAnalytes_ChromHeader(oswAnalytes, chromHead, analyteFDR = 1,
-  runType = "DIA_proteomics")
+mergeOswAnalytes_ChromHeader(
+  oswAnalytes,
+  chromHead,
+  analyteFDR = 1,
+  runType = "DIA_proteomics"
+)
 }
 \arguments{
 \item{oswAnalytes}{(dataframe) This is an output of getOswFiles.}

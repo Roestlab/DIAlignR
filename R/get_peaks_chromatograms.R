@@ -65,16 +65,17 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #' XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
 #' @export
 getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sgolay",
-                             SgolayFiltOrd = 4, SgolayFiltLen = 9, mzPntrs = NULL){
-  if(is.null(mzPntrs)){
-    mzPntrs <- getMZMLpointers(dataPath, runs)
-  }
+                             SgolayFiltOrd = 4, SgolayFiltLen = 9, masterMzExperiment=NULL){
+  tictoc::tic("getXICs4AlignObj -> getMZMLpointers: Elapsed time")
+  mzPntrs <- getMZMLpointers(dataPath, runs, masterMzExperiment)
+  tictoc::toc()
   XICs <- vector("list", length(runs))
   names(XICs) <- names(runs)
   for(i in seq_along(runs)){
     runname = names(runs)[i]
     message("Fetching XICs from run ", runs[[runname]])
-    XICs[[i]] <- lapply(seq_along(analytes), function(j){
+    tictoc::tic("getXICs4AlignObj -> Fecthing XICs... Elapsed time")
+    XICs[[i]] <- lapply(1:length(analytes), function(j){
       analyte <- analytes[j]
       chromIndices <- selectChromIndices(oswFiles, runname = runname, analyte = analyte)
       if(is.null(chromIndices)){
@@ -82,11 +83,14 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
         message("Skipping ", analyte)
         XIC_group <- NULL
       } else {
+        tictoc::tic("getXICs4AlignObj -> extractXIC_group: Elapsed time")
         XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices, XICfilter, SgolayFiltOrd, SgolayFiltLen)
+        tictoc::toc()
       }
       XIC_group
     })
     names(XICs[[i]]) <- analytes
+    tictoc::toc()
   }
   rm(mzPntrs)
   XICs
