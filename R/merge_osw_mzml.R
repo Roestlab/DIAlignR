@@ -73,7 +73,7 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @param mzPntrs A list of mzRpwiz.
 #'  FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
-#' @return (data-frames) Data-frame has following columns:
+#' @return A list that contains OSW results data-frames. Each data-frame has the following columns:
 #' \item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
 #' \item{filename}{(string) as mentioned in RUN table of osw files.}
 #' \item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
@@ -91,7 +91,8 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' filenames <- DIAlignR::getRunNames(dataPath = dataPath)
-#' oswFiles <- getOswFiles(dataPath = dataPath, filenames =filenames, analyteInGroupLabel = TRUE)
+#' masterMzExperiment <- getOswFiles(dataPath = dataPath, filenames =filenames, analyteInGroupLabel = TRUE)
+#' oswFiles <- masterMzExperiment$oswFiles
 #' @export
 getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
                          analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE, masterMzExperiment = NULL){

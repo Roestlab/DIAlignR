@@ -24,8 +24,9 @@ test_that("test_getXICs4AlignObj", {
                                      "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
-  oswFiles <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery = 0.05,
+  masterMzExperiment <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery = 0.05,
               analyteFDR = 0.01, oswMerged = TRUE, analyteInGroupLabel = FALSE)
+  oswFiles <- masterMzExperiment$oswFiles
   analytes <- "QFNNTDIVLLEDFQK_3"
   outData <- getXICs4AlignObj(dataPath = dataPath, runs, oswFiles, analytes,
                    SgolayFiltOrd = 4, SgolayFiltLen = 13)
@@ -36,8 +37,9 @@ test_that("test_getXICs4AlignObj", {
   expect_equal(outData[["run0"]][["QFNNTDIVLLEDFQK_3"]], XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
   expect_equal(outData[["run1"]][["QFNNTDIVLLEDFQK_3"]], XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)
 
-  oswFiles <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery = 0.05,
+  masterMzExperiment <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery = 0.05,
                           analyteFDR = 0.01, oswMerged = TRUE, analyteInGroupLabel = TRUE)
+  oswFiles <- masterMzExperiment$oswFiles
   outData <- getXICs4AlignObj(dataPath = dataPath, runs, oswFiles, analytes = "14299_QFNNTDIVLLEDFQK/3",
                               SgolayFiltOrd = 4, SgolayFiltLen = 13)
   expect_equal(outData[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], XICs[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-03)

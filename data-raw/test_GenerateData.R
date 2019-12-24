@@ -5,8 +5,9 @@ generateDIAlignRdata <- function(){
   oswMerged <- TRUE
   nameCutPattern <- "(.*)(/)(.*)"
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
-  oswFiles_DIAlignR <- getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
+  masterMzExperiment <- getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
                                    oswMerged, analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = TRUE)
+  oswFiles_DIAlignR <- masterMzExperiment$oswFiles
   save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2)
 
   analytes <- "14299_QFNNTDIVLLEDFQK/3"

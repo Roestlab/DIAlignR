@@ -4,7 +4,6 @@ author: "Shubham Gupta and Hannes Röst"
 package: DIAlignR
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-bibliography: DIAlignR.bib
 vignette: >
   %\VignetteIndexEntry{MS2 chromatograms based alignment of targeted mass-spectrometry runs}
   %\VignetteEngine{knitr::rmarkdown}

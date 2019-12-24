@@ -15,9 +15,6 @@ getQuery(
 )
 }
 \arguments{
-\item{identifying}{logical value indicating the xtraction of identifying transitions. Default: FALSE}
-}
-\arguments{
 \item{maxFdrQuery}{(numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
@@ -29,6 +26,8 @@ getQuery(
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
 \item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
+
+\item{identifying}{logical value indicating the xtraction of identifying transitions. Default: FALSE}
 }
 \value{
 SQL query to be searched.

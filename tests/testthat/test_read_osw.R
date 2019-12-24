@@ -21,6 +21,8 @@ test_that("test_fetchAnalytesInfo",{
                           "peak_group_rank" = rep(1, 6),
                           "m_score" = rep(0.001041916, 6),
                           "transition_id" = c(58312, 58313, 58314, 58315, 58316, 58317),
+                          "detecting_transitions" = c(1, 1, 1, 1, 1, 1),
+                          "identifying_transitions" = c(0, 0, 0, 0, 0, 0),
                           stringsAsFactors=FALSE)
   outData <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
                                analytes = c("19051_KLIVTSEGC[160]FK/2"), filename = filenames$filename[2],
@@ -40,6 +42,8 @@ test_that("test_fetchAnalytesInfo",{
                           "peak_group_rank" = c(rep(1, 6), rep(2, 6)),
                           "m_score" = c(rep(5.692077e-05, 6), rep(3.690986e-01,6)),
                           "transition_id" = rep(c(14843, 14844, 14845, 14846, 14847, 14848), 2),
+                          "detecting_transitions" = rep(c(1, 1, 1, 1, 1, 1),2),
+                          "identifying_transitions" = rep(c(0, 0, 0, 0, 0, 0),2),
                           stringsAsFactors=FALSE)
   expect_equal(outData, expOutput, tolerance=1e-6)
 })

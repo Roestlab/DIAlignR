@@ -84,9 +84,11 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   print(filenames[, "runs"], sep = "\n")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
-  oswFiles <- getOswFiles(dataPath, filenames,  maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
+  masterMzExperiment <- getOswFiles(dataPath, filenames,  maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
                           oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
-
+  
+  oswFiles <- masterMzExperiment$oswFiles
+  
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
   if(!is.null(analytes)){
     analytesFound <- intersect(analytes, refAnalytes)

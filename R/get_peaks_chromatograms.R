@@ -60,7 +60,8 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #' filenames <- DIAlignR::getRunNames(dataPath = dataPath)
 #' runs <- c("run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
 #'           "run0" =  "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
-#' oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
+#' masterMzExperiment <- DIAlignR::getOswFiles(dataPath, filenames)
+#' oswFiles <- masterMzExperiment$oswFiles
 #' analytes <- "QFNNTDIVLLEDFQK_3"
 #' XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
 #' @export
@@ -141,9 +142,10 @@ getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, XICfilter
   filenames <- filenames[filenames$runs %in% runs,]
 
   # Get Chromatogram indices for each peptide in each run.
-  oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = 1.00,
+  masterMzExperiment <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = 1.00,
                          oswMerged = oswMerged, analytes = analytes, runType = runType,
                          analyteInGroupLabel = analyteInGroupLabel)
+  oswFiles <- masterMzExperiment$oswFiles
   refAnalytes <- getAnalytesName(oswFiles, commonAnalytes = FALSE)
   analytesFound <- intersect(analytes, refAnalytes)
   analytesNotFound <- setdiff(analytes, analytesFound)

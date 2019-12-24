@@ -13,6 +13,8 @@ readChromatogramHeader(mzmlName, mzExperiment = NULL)
 (A data-frame) It has 10 columns. The two important columns are:
 \item{chromatogramId}{(integer) Fragment-ion ID that matches with transition ID in osw file.}
 \item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
+
+A data-frame.
 }
 \description{
 Get a table of chromatogram indices and respective transition IDs.

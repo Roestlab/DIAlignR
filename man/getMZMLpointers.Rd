@@ -13,6 +13,8 @@ getMZMLpointers(dataPath, runs, masterMzExperiment = NULL)
 }
 \value{
 (A list of mzRpwiz)
+
+A list.
 }
 \description{
 Returns instantiated mzRpwiz object associated to mzML file.

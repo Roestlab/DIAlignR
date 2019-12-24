@@ -4,17 +4,36 @@
 \alias{alignTargetedRuns}
 \title{Outputs intensities for each analyte from aligned Targeted-MS runs}
 \usage{
-alignTargetedRuns(dataPath, alignType = "hybrid",
-  analyteInGroupLabel = FALSE, oswMerged = TRUE, runs = NULL,
-  analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
-  maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
-  spanvalue = 0.1, runType = "DIA_Proteomics",
-  normalization = "mean", simMeasure = "dotProductMasked",
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-  hardConstrain = FALSE, samples4gradient = 100, samplingTime = 3.4,
-  RSEdistFactor = 3.5, saveFiles = FALSE)
+alignTargetedRuns(
+  dataPath,
+  alignType = "hybrid",
+  analyteInGroupLabel = FALSE,
+  oswMerged = TRUE,
+  runs = NULL,
+  analytes = NULL,
+  nameCutPattern = "(.*)(/)(.*)",
+  maxFdrQuery = 0.05,
+  maxFdrLoess = 0.01,
+  analyteFDR = 0.01,
+  spanvalue = 0.1,
+  runType = "DIA_Proteomics",
+  normalization = "mean",
+  simMeasure = "dotProductMasked",
+  XICfilter = "sgolay",
+  SgolayFiltOrd = 4,
+  SgolayFiltLen = 9,
+  goFactor = 0.125,
+  geFactor = 40,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.5,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  samplingTime = 3.4,
+  RSEdistFactor = 3.5,
+  saveFiles = FALSE
+)
 }
 \arguments{
 \item{dataPath}{(char) Path to mzml and osw directory.}

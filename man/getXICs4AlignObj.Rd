@@ -4,10 +4,16 @@
 \alias{getXICs4AlignObj}
 \title{Extract XICs of all analytes from oswFiles}
 \usage{
-<<<<<<< HEAD
-getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  mzPntrs = NULL)
+getXICs4AlignObj(
+  dataPath,
+  runs,
+  oswFiles,
+  analytes,
+  XICfilter = "sgolay",
+  SgolayFiltOrd = 4,
+  SgolayFiltLen = 9,
+  masterMzExperiment = NULL
+)
 }
 \arguments{
 \item{dataPath}{(char) path to mzml and osw directory.}
@@ -25,18 +31,6 @@ getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
 \item{SgolayFiltLen}{(integer) must be an odd number. It defines the length of filter.}
 
 \item{mzPntrs}{A list of mzRpwiz.}
-=======
-getXICs4AlignObj(
-  dataPath,
-  runs,
-  oswFiles,
-  analytes,
-  XICfilter = "sgolay",
-  SgolayFiltOrd = 4,
-  SgolayFiltLen = 9,
-  masterMzExperiment = NULL
-)
->>>>>>> justin_tests
 }
 \value{
 A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
@@ -50,7 +44,8 @@ dataPath <- system.file("extdata", package = "DIAlignR")
 filenames <- DIAlignR::getRunNames(dataPath = dataPath)
 runs <- c("run1" = "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
           "run0" =  "hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt")
-oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
+masterMzExperiment <- DIAlignR::getOswFiles(dataPath, filenames)
+oswFiles <- masterMzExperiment$oswFiles
 analytes <- "QFNNTDIVLLEDFQK_3"
 XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
 }

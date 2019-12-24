@@ -10,8 +10,9 @@ test_that("test_getAnalytesName",{
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
   dataPath <- system.file("extdata", package = "DIAlignR")
-  oswFiles <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
+  masterMzExperiment <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
                                    oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics")
+  oswFiles <- masterMzExperiment$oswFiles
   outData <- getAnalytesName(oswFiles, analyteFDR = 0.01, commonAnalytes = TRUE)
   expect_identical(length(outData), 137L)
   expect_identical(head(outData, 3), c("AAMIGGADATSNVR_2", "ADAFPGSLSGGQK_2", "ADKAGNVQALIGK_2"))

@@ -4,10 +4,17 @@
 \alias{getOswFiles}
 \title{Get list of peptides and their chromatogram indices.}
 \usage{
-<<<<<<< HEAD
-getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
-  oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics",
-  analyteInGroupLabel = FALSE, mzPntrs = NULL)
+getOswFiles(
+  dataPath,
+  filenames,
+  maxFdrQuery = 0.05,
+  analyteFDR = 0.01,
+  oswMerged = TRUE,
+  analytes = NULL,
+  runType = "DIA_proteomics",
+  analyteInGroupLabel = FALSE,
+  masterMzExperiment = NULL
+)
 }
 \arguments{
 \item{dataPath}{(char) path to mzml and osw directory.}
@@ -29,22 +36,9 @@ To get filenames use DIAlignR::getRunNames function.}
 
 \item{mzPntrs}{A list of mzRpwiz.
 FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
-=======
-getOswFiles(
-  dataPath,
-  filenames,
-  maxFdrQuery = 0.05,
-  analyteFDR = 0.01,
-  oswMerged = TRUE,
-  analytes = NULL,
-  runType = "DIA_proteomics",
-  analyteInGroupLabel = FALSE,
-  masterMzExperiment = NULL
-)
->>>>>>> justin_tests
 }
 \value{
-(data-frames) Data-frame has following columns:
+A list that contains OSW results data-frames. Each data-frame has the following columns:
 \item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
 \item{filename}{(string) as mentioned in RUN table of osw files.}
 \item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
@@ -65,7 +59,8 @@ For these analytes it fetches chromatogram indices by matching transition_id(osw
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 filenames <- DIAlignR::getRunNames(dataPath = dataPath)
-oswFiles <- getOswFiles(dataPath = dataPath, filenames =filenames, analyteInGroupLabel = TRUE)
+masterMzExperiment <- getOswFiles(dataPath = dataPath, filenames =filenames, analyteInGroupLabel = TRUE)
+oswFiles <- masterMzExperiment$oswFiles
 }
 \seealso{
 \code{\link{getRunNames}}

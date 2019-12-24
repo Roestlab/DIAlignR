@@ -4,11 +4,21 @@
 \alias{plotAnalyteXICs}
 \title{Plot extracted-ion chromatogram.}
 \usage{
-plotAnalyteXICs(analyte, run, dataPath = ".", maxFdrQuery = 1,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  runType = "DIA_proteomics", oswMerged = TRUE,
-  nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE,
-  peakAnnot = NULL, Title = NULL)
+plotAnalyteXICs(
+  analyte,
+  run,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  XICfilter = "sgolay",
+  SgolayFiltOrd = 4,
+  SgolayFiltLen = 9,
+  runType = "DIA_proteomics",
+  oswMerged = TRUE,
+  nameCutPattern = "(.*)(/)(.*)",
+  analyteInGroupLabel = FALSE,
+  peakAnnot = NULL,
+  Title = NULL
+)
 }
 \arguments{
 \item{analyte}{(string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}

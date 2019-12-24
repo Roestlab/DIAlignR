@@ -13,10 +13,10 @@ test_that("test_readChromatogramHeader",{
                           "productIsolationWindowLowerOffset" = c(0,0,0),
                           "productIsolationWindowUpperOffset" = c(0,0,0),
                           stringsAsFactors=FALSE)
-  expect_identical(dim(readChromatogramHeader(mzmlName)), c(72L, 10L))
-  expect_equal(readChromatogramHeader(mzmlName)[1:3,1:3], expOutput[,1:3], tolerance=1e-6)
+  expect_identical(dim(readChromatogramHeader(mzmlName)$chromHead), c(72L, 10L))
+  expect_equal(readChromatogramHeader(mzmlName)$chromHead[1:3,1:3], expOutput[,1:3], tolerance=1e-6)
   mzmlName <- "getError"
-  expect_error(readChromatogramHeader(mzmlName))
+  expect_error(readChromatogramHeader(mzmlName)$chromHead)
 })
 
 test_that("test_getMZMLpointers",{
