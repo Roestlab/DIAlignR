@@ -15,6 +15,8 @@
 #include "constrainMat.h"
 
 using namespace DIAlign;
+using namespace AffineAlignment;
+using namespace ConstrainMatrix;
 
 std::vector<std::string> split(const std::string& s, char delimiter)
 {

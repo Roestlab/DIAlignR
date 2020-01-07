@@ -7,6 +7,8 @@
 
 namespace DIAlign
 {
+namespace Utils
+{
 
 double getQuantile(std::vector<double> vec, double quantile){
   int n = vec.size();
@@ -49,4 +51,5 @@ double getQuantile(std::vector<double> vec, double quantile){
   return sampleQuant;
 }
 
+} // namespace Utils
 } // namespace DIAlign

@@ -8,6 +8,7 @@
 #define ASSERT(condition) if(!(condition)) {std::cout << "FAILED ON LINE " << __LINE__ << std::endl; throw 1;} // If you don't put the message, C++ will output the code.
 
 using namespace DIAlign;
+using namespace AffineAlignment;
 
 void test_doAffineAlignment(){
   double Inf = std::numeric_limits<double>::infinity();

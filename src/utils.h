@@ -19,7 +19,10 @@
 
 namespace DIAlign
 {
+namespace Utils
+{
   double getQuantile(std::vector<double> vec, double quantile);
+} // namespace Utils
 } // namespace DIAlign
 
 #endif // UTILS_H

@@ -7,6 +7,9 @@
 
 namespace DIAlign 
 {
+
+namespace SimilarityMatrix 
+{
 // functor for getting sum of previous result and square of current element.
 // TODO: Need to understand the implementation.
 template<typename T>
@@ -62,6 +65,7 @@ void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vecto
 
 SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, const std::string SimType, double cosAngleThresh, double dotProdThresh);
 
+} // namespace SimilarityMatrix
 } // namespace DIAlign
 
 #endif // CHROMSIMMATRIX_H

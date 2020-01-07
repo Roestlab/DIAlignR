@@ -7,6 +7,7 @@
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
 using namespace DIAlign;
+using namespace Utils;
 
 void test_getQuantile(){
   std::vector<double> vec = {

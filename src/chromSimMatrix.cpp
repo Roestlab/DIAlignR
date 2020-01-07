@@ -6,6 +6,9 @@
 namespace DIAlign 
 {
 
+namespace SimilarityMatrix 
+{
+
 double meanVecOfVec(const std::vector<std::vector<double> >& vov){
   double average = 0.0;
   // Sum-up mean of each vector using Range-based for loop.
@@ -392,4 +395,5 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
 }
 
 
+} // namespace SimilarityMatrix
 } // namespace DIAlign
