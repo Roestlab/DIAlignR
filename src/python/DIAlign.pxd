@@ -25,7 +25,7 @@ from libcpp.vector cimport vector as libcpp_vector
 from libcpp.string cimport string as libcpp_string
 from libcpp cimport bool
 
-cdef extern from "utils.h" namespace "DIAlign":
+cdef extern from "utils.h" namespace "DIAlign::Utils":
 
     double getQuantile(libcpp_vector[double] vec, double quantile) nogil except +
 
