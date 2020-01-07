@@ -328,7 +328,11 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   if (SimType == "dotProductMasked"){
     //Rcpp::Rcout << "dotProductMasked" << std::endl;
     SumOuterProd(d1, d2, Normalization, s);
+#if 0
+    static SimMatrix s2; // TODO: static matrix is faster here (but prevents multithreading)
+#else
     SimMatrix s2;
+#endif
     s2.n_row = s.n_row;
     s2.n_col = s.n_col;
     s2.data.resize(s.n_row*s.n_col, 0.0);
