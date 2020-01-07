@@ -80,7 +80,9 @@ namespace DIAlign
   }
 
   /*
-   * Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms (XICs) derived from two LC-MS/MS experiments A and B. 
+   * Calculates similarity matrix of two fragment-ion chromatogram groups or
+   * extracted-ion chromatograms (XICs) derived from two LC-MS/MS experiments A
+   * and B. 
    *
    * @param d1 The first set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run A
    * @param d2 The second set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run B
