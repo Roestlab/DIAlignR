@@ -18,13 +18,41 @@
 namespace DIAlign
 {
 
+  /*
+   * Align two pairs of chromatograms derived from two LC-MS/MS experiments A and B. 
+   *
+   * @param obj A object of type AffineAlignObj which needs to have at least capacity of the chromatogram length
+   * @param r1 The first set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run A
+   * @param r2 The second set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run B
+   * @param alignType Available alignment methods, must be one of "global", "local" and "hybrid".
+   * @param tA This vector has equally spaced timepoints of the XICs from run A.
+   * @param tB This vector has equally spaced timepoints of the XICs from run B.
+   * @param normalization Normalization method, must be one of "L2", "mean" or "none".
+   * @param simType Similarity computation method, defines how similarity between two chromatographic points is computed. Must be one of (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+   * @param B1p Timepoint mapped by global fit for tA[0].
+   * @param B2p Timepoint mapped by global fit for tA[tA.size()-1].
+   * @param noBeef It defines the distance from the global fit, upto which no penalization is performed. 
+   * The window length will be chosen as = 2*noBeef.
+   * @param goFactor Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
+   * @param geFactor Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+   * @param cosAngleThresh In simType == dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+   * @param OverlapAlignment If alignment should be performed with free end-gaps. False: Global alignment, True: overlap alignment.
+   * @param dotProdThresh In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+   * @param gapQuantile Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+   * @param hardConstrain Whether a hard constraint should be used for the similarity matrix. If false; indices farther from noBeef distance are filled with distance from linear fit line.
+   * @param samples4gradient This parameter modulates penalization of masked indices.
+   *
+   * @note r1 and r2 need to have the same length and the chromatograms need to be in the same order (e.g. r1[0] needs to be the same XIC trace as r2[0])
+   * @note If no global fit is available, set B1p to tB.front() and B2p to tB.back()
+*/
   void alignChromatogramsCpp( AffineAlignObj& obj,
                               const std::vector<std::vector<double> > & r1,
                               const std::vector<std::vector<double> > & r2,
                               std::string alignType,
                               const std::vector<double>& tA, const std::vector<double>& tB,
                               const std::string & normalization, const std::string& simType,
-                              double B1p = 0.0, double B2p =0.0, int noBeef = 0,
+                              double B1p = 0.0, double B2p =0.0,
+                              int noBeef = 0,
                               double goFactor = 0.125, double geFactor = 40,
                               double cosAngleThresh = 0.3, bool OverlapAlignment = true,
                               double dotProdThresh = 0.96, double gapQuantile = 0.5,
@@ -48,7 +76,47 @@ namespace DIAlign
       double maxVal = *maxIt;
       constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
     }
+    // std::cout << " start here ... " << std::endl;
     doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+    // std::cout << " all done ... " << std::endl;
     getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   }
+
+  /*
+   * Calculates similarity matrix of two fragment-ion chromatogram groups or extracted-ion chromatograms (XICs) derived from two LC-MS/MS experiments A and B. 
+   *
+   * @param d1 The first set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run A
+   * @param d2 The second set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run B
+   * @param Normalization Normalization method, must be one of "L2", "mean" or "none".
+   * @param SimType Similarity computation method, defines how similarity between two chromatographic points is computed. Must be one of (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+   * @param cosAngleThresh In simType == dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+   * @param dotProdThresh In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+   * @return Returns a similarity matrix
+*/
+  SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1,
+      const std::vector<std::vector<double>>& d2,
+      const std::string& Normalization,
+      const std::string& SimType,
+      double cosAngleThresh,
+      double dotProdThresh)
+  {
+    return SimilarityMatrix::getSimilarityMatrix(d1, d2, normalization, simType, cosAngleThresh, dotProdThresh);
+  }
+
+  /*
+   * Performs affine alignment on a given alignment object. 
+   *
+   * @note: Does not perform back-tracking, please call getAffineAlignedIndices afterwards.
+   *
+   * @param obj A object of type AffineAlignObj which needs to have at least capacity of the chromatogram length
+   * @param s A previously computed similarity matrix
+   * @param goFactor Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
+   * @param geFactor Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+   * @param OverlapAlignment If alignment should be performed with free end-gaps. False: Global alignment, True: overlap alignment.
+  */
+  void doAffineAlignment(AffineAlignObj& obj, const SimMatrix& s, double goFactor, double geFactor, bool OverlapAlignment)
+  {
+    return AffineAlignment::doAffineAlignment(obj, s, goFactor, geFactor, OverlapAlignment);
+  }
 }
+
