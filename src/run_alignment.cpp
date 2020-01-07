@@ -90,7 +90,7 @@ void alignChromatogramsCpp( AffineAlignObj& obj,
                             bool hardConstrain = false, double samples4gradient = 100.0)
 {
 
-  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
+  SimMatrix s = SimilarityMatrix::getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
   obj.reset(s.n_row + 1, s.n_col + 1);
 
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
