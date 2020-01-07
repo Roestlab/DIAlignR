@@ -7,7 +7,7 @@ generateDIAlignRdata <- function(){
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
   oswFiles_DIAlignR <- getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
                                    oswMerged, analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = TRUE)
-  save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.RData")
+  save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2)
 
   analytes <- "14299_QFNNTDIVLLEDFQK/3"
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
@@ -16,7 +16,7 @@ generateDIAlignRdata <- function(){
   outData <- getXICs4AlignObj(dataPath, runs, oswFiles_DIAlignR, analytes,
                               SgolayFiltOrd = 4, SgolayFiltLen = 13)
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
-  save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.RData")
+  save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
 }
 
 generateDIAlignRchrom <- function(){

@@ -5,7 +5,8 @@
 \title{Extract XICs of all analytes from oswFiles}
 \usage{
 getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9)
+  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
+  mzPntrs = NULL)
 }
 \arguments{
 \item{dataPath}{(char) path to mzml and osw directory.}
@@ -21,6 +22,8 @@ getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
 \item{SgolayFiltOrd}{(integer) it defines the polynomial order of filer.}
 
 \item{SgolayFiltLen}{(integer) must be an odd number. It defines the length of filter.}
+
+\item{mzPntrs}{A list of mzRpwiz.}
 }
 \value{
 A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
@@ -36,9 +39,7 @@ runs <- c("run1" = "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
           "run0" =  "hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt")
 oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
 analytes <- "QFNNTDIVLLEDFQK_3"
-\dontrun{
 XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
-}
 }
 \seealso{
 \code{\link{getOswFiles}, \link{getRunNames}}
