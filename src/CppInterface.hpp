@@ -75,9 +75,7 @@ namespace DIAlign
       double maxVal = *maxIt;
       constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
     }
-    // std::cout << " start here ... " << std::endl;
     doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
-    // std::cout << " all done ... " << std::endl;
     getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   }
 
@@ -109,13 +107,27 @@ namespace DIAlign
    *
    * @param obj A object of type AffineAlignObj which needs to have at least capacity of the chromatogram length
    * @param s A previously computed similarity matrix
-   * @param goFactor Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
-   * @param geFactor Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+   * @param goPenalty Penalty for introducing first gap in alignment.
+   * @param gePenalty Penalty for introducing subsequent gaps in alignment.
    * @param OverlapAlignment If alignment should be performed with free end-gaps. False: Global alignment, True: overlap alignment.
   */
-  void doAffineAlignment(AffineAlignObj& obj, const SimMatrix& s, double goFactor, double geFactor, bool OverlapAlignment)
+  void doAffineAlignment(AffineAlignObj& obj, const SimMatrix& s, double goPenalty, double gePenalty, bool OverlapAlignment)
   {
-    return AffineAlignment::doAffineAlignment(obj, s, goFactor, geFactor, OverlapAlignment);
+    return AffineAlignment::doAffineAlignment(obj, s, goPenalty, gePenalty, OverlapAlignment);
+  }
+
+  /*
+   * Compute path using AffineAlignObj
+   *
+   * @param obj A object of type AffineAlignObj which needs to have matrices A, B and M filled.
+   * @param bandwith Compute path for multiple matrix cells (bandwith is number of cells to be computed)
+   *
+   * @note: this assumes that matrices A, B and M have been computed. Use after calling doAffineAlignment.
+   * @note: this will compute the following members: indexA_aligned, indexB_aligned, score.
+  */
+  void getAffineAlignedIndices(AffineAlignObj &obj, int bandwidth = 0)
+  {
+    getAffineAlignedIndices(obj, bandwidth);
   }
 }
 
