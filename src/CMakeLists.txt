@@ -19,14 +19,14 @@ simpleFcn.cpp
 )
 
 add_library(DIAAlignment SHARED ${SOURCE_FILES})
-target_compile_definitions(DIAAlignment PRIVATE -DPURE_CPP=On)
+target_compile_definitions(DIAAlignment PRIVATE -DDIALIGN_PURE_CPP=On)
 # SHARED libraries are linked dynamically and loaded at runtime. Other options are
 # STATIC or MODULE
 
 # Actual executables
 add_executable(runAlignment run_alignment.cpp)
 target_link_libraries(runAlignment DIAAlignment)
-target_compile_definitions(runAlignment PRIVATE -DPURE_CPP=On)
+target_compile_definitions(runAlignment PRIVATE -DDIALIGN_PURE_CPP=On)
 
 # Test executables
 add_executable(runTest1 test_simpleFcn.cpp)
@@ -50,7 +50,7 @@ runTest8
 )
 
 foreach(TEST ${LIST_TESTS})
-  target_compile_definitions(${TEST} PRIVATE -DPURE_CPP=On)
+  target_compile_definitions(${TEST} PRIVATE -DDIALIGN_PURE_CPP=On)
   target_link_libraries(${TEST} DIAAlignment)
   add_test(${TEST} ${TEST})
 endforeach()

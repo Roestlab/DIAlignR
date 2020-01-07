@@ -1,7 +1,7 @@
 #include <cmath> // require for std::abs
 #include <assert.h>
 #include "constrainMat.h"
-#include "utils.h" //To propagate #define USE_Rcpp
+#include "utils.h" //To propagate #define DIALIGN_USE_Rcpp
 
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
@@ -180,7 +180,7 @@ void test_constrainSimilarity(){
   // ASSERT(cmp_arr3[3][4] == 2);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_constrainMat(){
 #else
 int main(){

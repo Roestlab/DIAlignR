@@ -57,7 +57,7 @@ void test_getQuantile(){
   ASSERT(std::abs(q95 - 0.0) < 1e-6);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_utils(){
 #else
 int main(){

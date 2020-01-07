@@ -5,7 +5,7 @@
 #include <assert.h>
 
 #include "alignment.h"
-#include "utils.h" //To propagate #define USE_Rcpp
+#include "utils.h" //To propagate #define DIALIGN_USE_Rcpp
 
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 using namespace DIAlign;
@@ -654,7 +654,7 @@ void test_getAlignedIndices(){
   test_getAlignedIndices_cases(obj, caseNum);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_aligment(){
 #else
 int main(){

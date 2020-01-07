@@ -1,7 +1,7 @@
 #include <cmath> // require for std::abs
 #include <assert.h>
 #include "gapPenalty.h"
-#include "utils.h" //To propagate #define USE_Rcpp
+#include "utils.h" //To propagate #define DIALIGN_USE_Rcpp
 
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
@@ -103,7 +103,7 @@ void test_getGapPenalty(){
   //ASSERT(std::abs(gNONE50 - 0.0) < 1e-6);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_gapPenalty(){
 #else
 int main(){
