@@ -362,9 +362,7 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
 #else
     for(auto& i : s2.data) i = std::cos(2*std::acos(i));
 #endif
-    double Quant = getQuantile(s.data, dotProdThresh);
-    //Quant = 28.30092;
-    //Rcpp::Rcout << Quant << std::endl;
+    double Quant = Utils::getQuantile(s.data, dotProdThresh);
     std::vector<double> MASK;
     MASK.resize(s.n_row*s.n_col, 0.0);
     for(int i = 0; i < MASK.size(); i++){
