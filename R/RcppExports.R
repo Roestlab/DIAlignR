@@ -17,7 +17,8 @@
 #' Match=10; MisMatch=-2
 #' seq1 = "GCAT"; seq2 = "CAGTG"
 #' getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
-#' matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2), 4, 5, byrow = F)
+#' matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2, -2, -2),
+#'  4, 5, byrow = FALSE)
 #' @export
 getSeqSimMatCpp <- function(seq1, seq2, match, misMatch) {
     .Call(`_DIAlignR_getSeqSimMatCpp`, seq1, seq2, match, misMatch)
@@ -45,36 +46,36 @@ getSeqSimMatCpp <- function(seq1, seq2, match, misMatch) {
 #' r2 <- list(c(1.4,2.0,1.5,4.0), c(0.0,0.5,0.0,0.0), c(2.0,3.0,4.0,0.9))
 #' round(getChromSimMatCpp(r1, r2, "L2", "dotProductMasked"), 3)
 #' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186, 0.240,
-#' 0.213, 0.313, 0.233, 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
+#' 0.213, 0.313, 0.233, 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = FALSE)
 #'
 #' round(getChromSimMatCpp(r1, r2, "L2", "dotProduct"), 3)
 #' matrix(c(0.125, 0.162, 0.144, 0.208, 0.186,0.240, 0.213, 0.313, 0.233,
-#' 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = F)
+#' 0.273, 0.253, 0.346, 0.101, 0.208, 0.154, 0.273), 4, 4, byrow = FALSE)
 #'
 #' round(getChromSimMatCpp(r1, r2, "L2", "cosineAngle"), 3)
 #' matrix(c(0.934, 0.999, 0.989, 0.986, 0.933, 0.989,
 #'  0.983, 0.996, 0.994, 0.960, 0.995, 0.939, 0.450,
-#'  0.761, 0.633, 0.772), 4, 4, byrow = F)
+#'  0.761, 0.633, 0.772), 4, 4, byrow = FALSE)
 #'
 #' round(getChromSimMatCpp(r1, r2, "L2", "cosine2Angle"), 3)
 #' matrix(c(0.744, 0.998, 0.957, 0.944, 0.740, 0.956, 0.932,
 #' 0.985, 0.974, 0.842, 0.978, 0.764, -0.596, 0.158,
-#' -0.200, 0.190), 4, 4, byrow = F)
+#' -0.200, 0.190), 4, 4, byrow = FALSE)
 #'
 #' round(getChromSimMatCpp(r1, r2, "mean", "euclideanDist"), 3)
 #' matrix(c(0.608, 0.614, 0.680, 0.434, 0.530, 0.742,
 #' 0.659, 0.641, 0.520, 0.541, 0.563, 0.511, 0.298,
-#' 0.375, 0.334, 0.355), 4, 4, byrow = F)
+#' 0.375, 0.334, 0.355), 4, 4, byrow = FALSE)
 #'
 #' round(getChromSimMatCpp(r1, r2, "L2", "covariance"), 3)
 #' matrix(c(0.025, 0.028, 0.027, 0.028, 0.032, 0.034,
 #' 0.033, 0.034, 0.055, 0.051, 0.053, 0.051,
-#' -0.004, 0.028, 0.012, 0.028), 4, 4, byrow = F)
+#' -0.004, 0.028, 0.012, 0.028), 4, 4, byrow = FALSE)
 #'
 #' round(getChromSimMatCpp(r1, r2, "L2", "correlation"), 3)
 #' matrix(c(0.874, 0.999, 0.974, 0.999, 0.923, 0.986, 0.993,
 #' 0.986, 0.991, 0.911, 0.990, 0.911, -0.065, 0.477,
-#' 0.214, 0.477), 4, 4, byrow = F)
+#' 0.214, 0.477), 4, 4, byrow = FALSE)
 #' @export
 getChromSimMatCpp <- function(l1, l2, normalization, simType, cosAngleThresh = 0.3, dotProdThresh = 0.96) {
     .Call(`_DIAlignR_getChromSimMatCpp`, l1, l2, normalization, simType, cosAngleThresh, dotProdThresh)
@@ -107,7 +108,7 @@ getChromSimMatCpp <- function(l1, l2, normalization, simType, cosAngleThresh = 0
 #' mask <- getGlobalAlignMaskCpp(tA, tB, B1p, B2p, noBeef, FALSE)
 #' round(mask, 3)
 #' matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
-#' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
+#' 0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = FALSE)
 #' @export
 getGlobalAlignMaskCpp <- function(tA, tB, B1p, B2p, noBeef = 50L, hardConstrain = FALSE) {
     .Call(`_DIAlignR_getGlobalAlignMaskCpp`, tA, tB, B1p, B2p, noBeef, hardConstrain)
@@ -124,12 +125,13 @@ getGlobalAlignMaskCpp <- function(tA, tB, B1p, B2p, noBeef = 50L, hardConstrain 
 #' @param samples4gradient (numeric) This paarameter modulates penalization of masked indices.
 #' @return s_new (matrix) A constrained similarity matrix.
 #' @examples
-#' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2), 4, 5, byrow = F)
+#' sim <- matrix(c(-2, 10, -2, -2, -2, -2, 10, -2, 10, -2, -2, -2, -2, -2, -2, 10, 10, -2,-2, -2),
+#'  4, 5, byrow = FALSE)
 #' MASK <- matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
-#' 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = F)
+#' 0.000, 0.000, 1.414, 0.707, 0, 0, 2.121, 1.414, 0, 0), 4, 5, byrow = FALSE)
 #' constrainSimCpp(sim, MASK, 10)
 #' matrix(c(-2, 10, -3.414, -4.828, -2, -2, 10, -3.414, 8.586, -2, -2, -2, -4.828,
-#' -3.414, -2, 10, 5.758, -4.828, -2, -2), 4, 5, byrow = F)
+#' -3.414, -2, 10, 5.758, -4.828, -2, -2), 4, 5, byrow = FALSE)
 #' @export
 constrainSimCpp <- function(sim, MASK, samples4gradient = 100.0) {
     .Call(`_DIAlignR_constrainSimCpp`, sim, MASK, samples4gradient)
@@ -137,7 +139,7 @@ constrainSimCpp <- function(sim, MASK, samples4gradient = 100.0) {
 
 #' Calculates gap penalty for dynamic programming based alignment.
 #'
-#' This function outputs base gap-penalty depending on simType used. In case of getting base gap-penalty
+#' This function outputs base gap-penalty depending on SimType used. In case of getting base gap-penalty
 #' from similarity matrix distribution, gapQuantile will be used to pick the value.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -145,11 +147,12 @@ constrainSimCpp <- function(sim, MASK, samples4gradient = 100.0) {
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-03-08
 #' @param sim (matrix) A numeric matrix. Input similarity matrix.
-#' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
+#' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
 #' @param gapQuantile (numeric) Must be between 0 and 1.
 #' @return baseGapPenalty (numeric).
 #' @examples
-#' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = F)
+#' sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80, 2, 22, 42, -2, -1.5, -2, 10), 4, 4,
+#'  byrow = FALSE)
 #' getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5) # -0.25
 #' @export
 getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
@@ -202,21 +205,30 @@ areaIntegrator <- function(l1, leftIdx, rightIdx) {
 #' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
 #' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
+#' @param objType (char) A character string. Must be either light, medium or heavy.
 #' @return affineAlignObj (S4class) A S4class object from C++ AffineAlignObj struct.
 #' @examples
-#' simMeasure <- "dotProductMasked"
-#' run_pair <- c("run1", "run2")
-#' peptide <- peptides[1]
-#' r1 <- lapply(StrepChroms[[run_pair[1]]][[peptide]], `[[`, 2)
-#' r2 <- lapply(StrepChroms[[run_pair[2]]][[peptide]], `[[`, 2)
-#' tRunAVec <- StrepChroms[[run_pair[1]]][[peptide]][[1]][["time"]]
-#' tRunBVec <- StrepChroms[[run_pair[2]]][[peptide]][[1]][["time"]]
-#' noBeef <- 6
-#' B1p <- predict(Loess.fit, tRunAVec[1]); B2p <- predict(Loess.fit, tRunAVec[length(tRunAVec)])
-#' Alignobj <- alignChromatogramsCpp(r1, r2, "hybrid", tRunAVec, tRunBVec, "mean", simMeasure, B1p, B2p, noBeef)
+#' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' oswFiles <- oswFiles_DIAlignR
+#' XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
+#' tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
+#' B1p <- 4964.752
+#' B2p <- 5565.462
+#' noBeef <- 77.82315/3.414
+#' l1 <- lapply(XICs.ref, `[[`, 2)
+#' l2 <- lapply(XICs.eXp, `[[`, 2)
+#' AlignObj <- alignChromatogramsCpp(l1, l2, alignType = "hybrid", tA = tVec.ref, tB = tVec.eXp,
+#'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p, noBeef = noBeef,
+#'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+#'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
+#'  objType = "light")
 #' @export
-alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, bandwidth = 9L) {
-    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, bandwidth)
+alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, objType = "heavy") {
+    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
 }
 
 #' Perform non-affine global and overlap alignment on a similarity matrix
@@ -246,7 +258,8 @@ alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simT
 #' obj_Global@optionalPaths
 #' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
 #' obj_Global@M_forw
-#' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274), nrow = 5, ncol =4, byrow = TRUE)
+#' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274),
+#'  nrow = 5, ncol =4, byrow = TRUE)
 #' @export
 doAlignmentCpp <- function(sim, gap, OverlapAlignment) {
     .Call(`_DIAlignR_doAlignmentCpp`, sim, gap, OverlapAlignment)
@@ -278,25 +291,14 @@ doAlignmentCpp <- function(sim, gap, OverlapAlignment) {
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
 #' objAffine_Global@score # 10  20  -2  -9 -11
-#' objAffine_Global@optionalPaths
-#' matrix(data = c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2), nrow = 4, ncol =6, byrow = TRUE)
 #' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
 #' objAffine_Olap@score # 10 20 18 18 18
-#'
-#' Match=1; MisMatch=-1
-#' seq1 = "TTTC"; seq2 = "TGC"
-#' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
-#' objAffine_Global <- doAffineAlignmentCpp(s, 2, 2, FALSE)
-#' objAffine_Global@optionalPaths
-#' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
-#' objAffine_Global@M_forw
-#' matrix(data = c(0,-Inf,-Inf,-Inf,-Inf,1,-3,-5,-Inf,-1,-10,-27,-Inf,-3,-25,-81,-Inf,-7,-49,-160), nrow = 5, ncol =4, byrow = TRUE)
 #'
 #' Match=10; MisMatch=-2
 #' seq1 = "CA"; seq2 = "AG"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
-#' objAffine_Global@score_forw # -706
+#' objAffine_Global@simScore_forw # -4
 #' @export
 doAffineAlignmentCpp <- function(sim, go, ge, OverlapAlignment) {
     .Call(`_DIAlignR_doAffineAlignmentCpp`, sim, go, ge, OverlapAlignment)

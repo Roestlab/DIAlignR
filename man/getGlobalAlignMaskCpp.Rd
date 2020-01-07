@@ -38,7 +38,7 @@ noBeef <- 1
 mask <- getGlobalAlignMaskCpp(tA, tB, B1p, B2p, noBeef, FALSE)
 round(mask, 3)
 matrix(c(0.000, 0.000, 0.707, 1.414, 0.000, 0.000, 0.000, 0.707, 0.707, 0.000,
-0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = F)
+0.000, 0.000, 1.414, 0.707, 0.000, 0.000), 4, 4, byrow = FALSE)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

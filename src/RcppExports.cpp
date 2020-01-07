@@ -91,8 +91,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // alignChromatogramsCpp
-S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType, const std::vector<double>& tA, const std::vector<double>& tB, std::string normalization, std::string simType, double B1p, double B2p, int noBeef, double goFactor, double geFactor, double cosAngleThresh, bool OverlapAlignment, double dotProdThresh, double gapQuantile, bool hardConstrain, double samples4gradient, int bandwidth);
-RcppExport SEXP _DIAlignR_alignChromatogramsCpp(SEXP l1SEXP, SEXP l2SEXP, SEXP alignTypeSEXP, SEXP tASEXP, SEXP tBSEXP, SEXP normalizationSEXP, SEXP simTypeSEXP, SEXP B1pSEXP, SEXP B2pSEXP, SEXP noBeefSEXP, SEXP goFactorSEXP, SEXP geFactorSEXP, SEXP cosAngleThreshSEXP, SEXP OverlapAlignmentSEXP, SEXP dotProdThreshSEXP, SEXP gapQuantileSEXP, SEXP hardConstrainSEXP, SEXP samples4gradientSEXP, SEXP bandwidthSEXP) {
+S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType, const std::vector<double>& tA, const std::vector<double>& tB, std::string normalization, std::string simType, double B1p, double B2p, int noBeef, double goFactor, double geFactor, double cosAngleThresh, bool OverlapAlignment, double dotProdThresh, double gapQuantile, bool hardConstrain, double samples4gradient, std::string objType);
+RcppExport SEXP _DIAlignR_alignChromatogramsCpp(SEXP l1SEXP, SEXP l2SEXP, SEXP alignTypeSEXP, SEXP tASEXP, SEXP tBSEXP, SEXP normalizationSEXP, SEXP simTypeSEXP, SEXP B1pSEXP, SEXP B2pSEXP, SEXP noBeefSEXP, SEXP goFactorSEXP, SEXP geFactorSEXP, SEXP cosAngleThreshSEXP, SEXP OverlapAlignmentSEXP, SEXP dotProdThreshSEXP, SEXP gapQuantileSEXP, SEXP hardConstrainSEXP, SEXP samples4gradientSEXP, SEXP objTypeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -114,8 +114,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type gapQuantile(gapQuantileSEXP);
     Rcpp::traits::input_parameter< bool >::type hardConstrain(hardConstrainSEXP);
     Rcpp::traits::input_parameter< double >::type samples4gradient(samples4gradientSEXP);
-    Rcpp::traits::input_parameter< int >::type bandwidth(bandwidthSEXP);
-    rcpp_result_gen = Rcpp::wrap(alignChromatogramsCpp(l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, bandwidth));
+    Rcpp::traits::input_parameter< std::string >::type objType(objTypeSEXP);
+    rcpp_result_gen = Rcpp::wrap(alignChromatogramsCpp(l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType));
     return rcpp_result_gen;
 END_RCPP
 }

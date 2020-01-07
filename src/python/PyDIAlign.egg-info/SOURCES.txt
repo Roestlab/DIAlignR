@@ -1,0 +1,14 @@
+PyDIAlign.pyx
+README.md
+setup.py
+./../affinealignment.cpp
+./../affinealignobj.cpp
+./../alignment.cpp
+./../chromSimMatrix.cpp
+./../constrainMat.cpp
+./../gapPenalty.cpp
+./../utils.cpp
+PyDIAlign.egg-info/PKG-INFO
+PyDIAlign.egg-info/SOURCES.txt
+PyDIAlign.egg-info/dependency_links.txt
+PyDIAlign.egg-info/top_level.txt

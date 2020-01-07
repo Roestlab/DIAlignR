@@ -1,11 +1,15 @@
 ---
-title: "Introduction to DIAlignR"
-author: "Shubham Gupta, Hannes Rost"
+title: "MS2 chromatograms based alignment of targeted mass-spectrometry runs"
+author: "Shubham Gupta and Hannes Röst"
+package: DIAlignR
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: DIAlignR.bib
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{MS2 chromatograms based alignment of targeted mass-spectrometry runs}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteKeywords{Retention time alignment, DIA, Targeted MS, mass spectrometry, proteomics, metabolomics}
+  %\VignettePackage{DIAlignR}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -16,9 +20,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this document we are presenting workflow of DIAlignR for retention time (RT) alignment of targeted proteomics (e.g. DIA, SWATH-MS, PRM, SRM) runs. This tool works with MS2 chromatograms and provides a hybrid approach of global and local alignment to establish correspondence between peaks.
+In this document we are presenting a workflow of retention-time alignment across multiple Targeted-MS (e.g. DIA, SWATH-MS, PRM, SRM) runs using DIAlignR. This tool requires MS2 chromatograms and provides a hybrid approach of global and local alignment to establish correspondence between peaks.
 
-# Install DIAlignR
+## Install DIAlignR
 ```{r installDIAlignR, eval=FALSE}
 require(devtools)
 install_github("Roestlab/DIAlignR")
@@ -28,271 +32,88 @@ install_github("Roestlab/DIAlignR")
 library(DIAlignR)
 ```
 
-# Citation
-Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 
+## Prepare input files for alignment
+Mass-spectrometry files mostly contains spectra. Targeted proteomics workflow identifyies analytes from their chromatographic elution profile. DIAlignR extends the same concept for retention-time (RT) alignment and, therefore, relies on MS2 chromatograms. DIAlignR expects raw chromatogram file (.chrom.mzML) and FDR-scored features (.osw) file.  
 
-# Prepare chromatograms from Spectra
-Mass-spec output file mostly contains spectra. Targeted proteomics works on identifying analytes from their chromatographic elution profile. DIAlignR extends the same concept for retention-time (RT) alignment. For RT alignment DIAlignR relies on MS2 chromatograms. Open-source software tools e.g. OpenSWATH can be used to extract features and extracted-ion chromatograms (XICs) from spectra file. A detailed [tutorial](http://openswath.org/en/latest/docs/openswath.html) to run OpenSWATH is availabe. In short, following command can be used:
+|     To obtain files for alignment, following three steps are needed:  
+
+* Step 1 Convert spectra files from vendor-specific format to standard mzMl format using [ProteoWizard-MSConvert](http://proteowizard.sourceforge.net/tools.shtml).    
+* Step 2 Extract features and raw extracted-ion chromatograms(XICs) for library analytes. A detailed tutorial using [OpenSWATH](http://openswath.org/en/latest/docs/openswath.html) is available for this steps. In short, following `bash` command can be used:  
+    
 ```{bash, eval=FALSE}
-./bin/OpenSwathWorkflow -in Spectra.mzML.gz -tr library.TraML -
-swath_windows_file swathsWindows.txt -sort_swath_maps -tr_irt
-iRTassays.TraML -out_tsv Feature.tsv -out_chrom XIC.chrom.mzML -readOptions cacheWorkingInMemory -tempDirectory temp/ -min_upper_edge_dist 1
+OpenSwathWorkflow -in Filename.mzML.gz -tr library.pqp -tr_irt
+iRTassays.TraML -out_osw Filename.osw -out_chrom Filename.chrom.mzML
 ```
 
-Output files **Feature.tsv** and **XIC.chrom.mzML** are needed to perform hybrid alignment through DIAlignR. Some chromatograms are stored in compressed form and could be difficult to have accessed by `mzR`. In such cases `mzR` would throw an error indicating `Invalid cvParam accession "1002746"`. To avoid this issue, uncompress chromatograms using OpenMS.
+|     Output files **Filename.osw** and **Filename.chrom.mzML** are required to next steps. Some chromatograms are stored in compressed form and currently inaccesible by `mzR`. In such cases `mzR` would throw an error indicating `Invalid cvParam accession "1002746"`. To avoid this issue, uncompress chromatograms using OpenMS.
+
 ```{bash, eval=FALSE}
-./bin/FileConverter -in XIC.chrom.mzML -in_type 'mzML' -out XIC.chrom.mzML
+FileConverter -in Filename.chrom.mzML -in_type 'mzML' -out Filename.chrom.mzML
 ```
 
-# Load MS2 chromatograms using mzR
-MS2 chromatograms can be extracted from mzML files using [mzR](https://bioconductor.org/packages/release/bioc/html/mzR.html) package. The workflow of extraction of a few chromatograms for this paper is provided below. From the FTP link provided [here](http://www.peptideatlas.org/PASS/PASS01280) download `mzML` files from these directories:   
+* Step 3: Score features and calculate their q-values. A machine-learning based workflow is available with [PyProphet](http://openswath.org/en/latest/docs/pyprophet.html). For multiplt-runs experiment-wide FDR is recommended. An example of running pyprophet on OpenSWATH results is given below:
 
-* Spyogenes/raw/hroest_K120808_Strep10PlasmaBiolRepl2_R02_SW   
-* Spyogenes/raw/hroest_K120808_Strep0PlasmaBiolRepl2_R01_SW    
-
-Few precursor IDs and their transition IDs are tabulated in this file at the same FTP link:
-
-* Spyogenes/assay/500Peptide4Alignment.csv      
-```{r loadChroms, eval=FALSE}
-library(mzR)
-library(signal)
-TargetPeptides <- read.table("500Peptide4Alignment.csv", sep = ",", header = T)
-temp <- list.files(pattern="*.mzML", recursive = TRUE)
-for(filename in temp){
-  # This makes sure that order of extracted MS2 chromatograms is same for each run.
-  mz <- openMSfile(filename, backend = "pwiz")
-  chromHead <- chromatogramHeader(mz)
-  filename <- gsub("(.*)(/hroest_)(.*)(_SW.chrom.mzML)", replacement = "\\3", filename)
-  chromatogramIndices <- chromHead$chromatogramIndex[match(TargetPeptides$transition_name, chromHead$chromatogramId)]
-  TargetPeptides[filename] <- chromatogramIndices
-  transition_group_ids <- unique(TargetPeptides$transition_group_id)
-  ChromsExtractedPerRun <- sapply(transition_group_ids, function(id){
-    chromIndices <- chromatogramIndices[TargetPeptides$transition_group_id == id]
-    # ChromsExtracted <- lapply(1:length(chromIndices), function(i) chromatograms(mz, chromIndices[i]))
-    ChromsExtracted <- lapply(1:length(chromIndices), function(i) {
-      rawChrom <- chromatograms(mz, chromIndices[i])
-      rawChrom[,2] <- sgolayfilt(rawChrom[,2], p = 4, n = 9) # To smooth chromatograms, use Savitzky-Golay filter
-      return(rawChrom)
-    } )
-    return(ChromsExtracted)
-  })
-  names(ChromsExtractedPerRun) <- transition_group_ids
-  rm(mz)
-  saveRDS(ChromsExtractedPerRun, paste0(filename, "_ChromSelected.rds"))
-}
-write.table(TargetPeptides, file = "TargetPeptidesWchromIndex.csv", sep = ",")
-
-# Load chromatograms of all runs 
-temp <- list.files(pattern = "*_ChromSelected.rds")
-StrepChroms1 <- list()
-for(i in 1:length(temp)){
-  StrepChroms1[[i]] <- readRDS(temp[i])
-}
-temp <- sapply(temp, strsplit, split = "_ChromSelected.rds", USE.NAMES = FALSE)
-names(StrepChroms1) <- temp
+```{bash, eval=FALSE}
+pyprophet merge --template=library.pqp --out=merged.osw *.osw
+pyprophet score --in=merged.osw --classifier=XGBoost --level=ms2 --xeval_num_iter=3 --ss_initial_fdr=0.05 --ss_iteration_fdr=0.01
+pyprophet peptide --in=merged.osw --context=experiment-wide
 ```
 
-# Dummy data
+|   Congrats! Now we have raw chromatogram files and associated scored features in merged.osw files. Move all .chrom.mzML files in `mzml` directory and merged.osw file in `osw` directory. The parent folder is given as `dataPath` to DIAlignR functions.
 
-We have provided MS2 chromatograms of 20 precursors across four runs with this package.     
-1. `StrepChroms` contains MS2 chromatograms for precursors.     
-2. `runnames` has names of runs matched with data in  [this repo](http://www.peptideatlas.org/PASS/PASS01280).     
-3. `StrepAnnot` has manual annotation of precursor peaks.     
-4. `oswOutStrep` has picked featured from each run using **OpenSWATH**.    
-5. `peptides` has names of all 20 precursors.
-```{r, eval=FALSE}
-runs <- names(StrepChroms);
-peptides <- names(StrepChroms[["run1"]])
+## Performing alignment on DIA runs
+`alignTargetedRuns` function aligns Proteomics or Metabolomics DIA runs. It expects two directories "osw" and "mzml" at `dataPath`. It outputs an intensity table where rows specify each analyte and columns specify runs. Use parameter `saveFiles = TRUE` to have aligned retetion time and intensities saved in the current directory.
+
+```{r, results=FALSE, message=FALSE, warning=FALSE}
+dataPath <- system.file("extdata", package = "DIAlignR")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+# For specific runs provide their names.
+intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = runs, analyteInGroupLabel = TRUE)
+# For specific analytes provide their names.
+intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = NULL, analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
+# For all the analytes in all runs, keep them as NULL.
+intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = NULL, analytes = NULL, analyteInGroupLabel = TRUE)
 ```
 
-## How do unaligned peak-groups look like?
+## Fetching AlignObj for analytes
 
-Here we present XICs of precursor `3505_LATWYSEMK/2` in `run3` and `run4`. In MS/MS, each precursor has a number of fragment traces. These traces are shown by different colors. co-elution of all fragment traces is annotated as true-peak. The peak is identified at t = 3513.6 sec in `run3` and and at t = 3606.0 sec `run4`.
+For getting alignment object which has aligned indices of XICs `getAlignObjs` function can be used. Like previous function, it expects two directories "osw" and "mzml" at `dataPath`. It performs alignment for exactly two runs. In case of `refRun` is not provided, m-score from osw files is used to select reference run.
+```{r, message=FALSE}
+dataPath <- system.file("extdata", package = "DIAlignR")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+AlignObjLight <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, objType	= "light")
+slotNames(AlignObjLight[["QFNNTDIVLLEDFQK_3"]][[1]])
+AlignObjMedium <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, objType	= "medium")
+slotNames(AlignObjMedium[["QFNNTDIVLLEDFQK_3"]][[1]])
+```
 
-## Visualize chromatograms, similarity matrix and alignment path
-```{r, echo = TRUE, warning=FALSE}
+
+## Visualizing the aligned chromatograms
+
+We can visualize aligned chromatograms using `plotAlignedAnalytes`. The top figure is experiment unaligned-XICs, middle one is reference XICs, last figure is experiment run aligned to reference.
+```{r, fig.width=6, fig.align='center', fig.height=6, message=FALSE}
+dataPath <- system.file("extdata", package = "DIAlignR")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+ "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+AlignObj <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath)
+plotAlignedAnalytes(AlignObj, annotatePeak = TRUE)
+```
+
+## Visualizing the alignment path
+
+We can also visualize the alignment path using `plotAlignemntPath` function.
+```{r, fig.width=5, fig.align='center', fig.height=5, message=FALSE}
 library(lattice)
-library(ggplot2)
-library(reshape2)
-library(zoo)
-
-plotChromatogram <- function(data, run, peptide, peakAnnot = NULL, printTitle =TRUE){
-  df <- do.call("cbind", data[[run]][[peptide]])
-  df <- df[,!duplicated(colnames(df))]
-  df <- melt(df, id.vars="time", value.name = "Intensity")
-  g <- ggplot(df, aes(time, Intensity, col=variable)) + geom_line(show.legend = FALSE) + theme_bw()
-  if(printTitle) g <- g + ggtitle(paste0(run, ", ",peptide)) + theme(plot.title = element_text(hjust = 0.5))
-  if(!is.null(peakAnnot)){
-    g <- g + geom_vline(xintercept=peakAnnot[peptide, run], lty="dotted", size = 0.4) 
-  }
-  return(g)
-}
-plotSingleAlignedChrom <- function(data, run, peptide, idx, t, printTitle = TRUE){
-  intensity <- list()
-  for(k in 1:length(data[[run]][[peptide]])){
-      mutateInt <- data[[run]][[peptide]][[k]][idx, 2]
-      mutateInt <- na.locf(na.locf(mutateInt, na.rm = FALSE),fromLast = TRUE)
-      intensity[[k]] <- mutateInt
-  }
-  df <- do.call("cbind", intensity)
-  Index <- 1:nrow(df)
-  df <- cbind(Index, as.data.frame(df))
-  df <- melt(df, id.vars="Index", value.name = "Intensity")
-
-  g <- ggplot(df, aes(Index, Intensity, col=variable)) + geom_line(show.legend = FALSE) + theme_bw()
-  if(printTitle) g <- g + ggtitle(paste0(run, ", ",peptide)) + theme(plot.title = element_text(hjust = 0.5))
-  return(g)}
+dataPath <- system.file("extdata", package = "DIAlignR")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+ "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, objType = "medium")
+plotAlignmentPath(AlignObjOutput)
 ```
 
 
-```{r VisualizeAlignment, fig.width=6, fig.align='center', fig.height=4, eval=TRUE, fig.show = "hold"}
-plotChromatogram(StrepChroms, "run3", "3505_LATWYSEMK/2", StrepAnnot)
-plotChromatogram(StrepChroms, "run4", "3505_LATWYSEMK/2", StrepAnnot)
-```
-
-# Establish correspondence between peaks
-Although, peaks in XICs can identified manually, it is unscalable and biased. We aim to have consistent peak picking by establishing pairwise correspondence. Pairwise correspondence is achieved by aligning retention-time of two runs. Following approaches are discussed in the literature:
-
-## Fit a global alignment function between runs
-A simple approach is to fit a liner or non-linear function that takes into account all peaks detected by peak-picking software. On our dummy dataset, we establish correspondence by having non-linear LOESS alignment. `getLOESSfit` and `getPepPeakCorp` functions from the package can be used to fit LOESS. It takes in OpenSWATH output features `oswOutStrep` and returns a non-linear fit. For testing test `peptides` are given so that `getLOESSfit` excludes them from training data. The average error for LOESS alignment is 4.051 sec.
-
-```{r globalFit, eval=TRUE}
-run_pair <- "run1_run2"
-loess.fit <- getLOESSfit(oswOutStrep[["run1"]], oswOutStrep[["run2"]], peptides, 0.15)
-StrepAnnot <- as.data.frame(StrepAnnot)
-predict.run2 <- predict(loess.fit, data.frame(RUN1 = StrepAnnot[, "run1"]))
-Err_global <- predict.run2 - StrepAnnot[,"run2"]
-sum(abs(Err_global))/20
-MappedTimeGlobal <- getPepPeakCorp(featureTable =  StrepAnnot, pairName = run_pair, alignType = "global", oswFeatureList = oswOutStrep, spanvalue = 0.15)
-Err_global <- StrepAnnot[,"run2"] #- MappedTimeGlobal
-sum(abs(Err_global))/20
-```
-
-## Fit a local alignment between chromatogram groups
-Another approach is to align each precursor without the influence of remaining precursors. This is termed as **local alignment**. `getPepPeakCorp` function aligns chromatogram-groups of a precursor non-linearly using dynamic programming. For 20 test peptides, the local alignment has average error of 2.46 sec. 
-```{r localFit, eval=TRUE}
-simMeasure <- "dotProductMasked"
-pair <- "run1_run2"
-MappedTimeLocal <- getPepPeakCorp(StrepAnnot, pair, StrepChroms[["run1"]], StrepChroms[["run2"]], "local", oswOutStrep)
-Err_local <- StrepAnnot[,"run2"] - MappedTimeLocal
-sum(abs(Err_local))/20
-```
-
-## Hybrid alignment of chromatograms
-We also provide a hybrid (local+global) approach which provides accuracy of local alignment and robustness of global alignment. `getPepPeakCorp` function uses global alignment to limit search space of `local` alignment. The average error for hybrid alignment is 2.46 sec.
-```{r hybridAlignParam}
-samplingTime <-3.4 # In example dataset, all points are acquired at 3.4 second interval.
-meanRSE <- 7.4 # Defines base upper limit of sampling space within that local alignment is done. 
-pair <- "run1_run2"
-MappedTimeHybrid <- getPepPeakCorp(StrepAnnot, pair, StrepChroms[["run1"]], StrepChroms[["run2"]], "hybrid", oswOutStrep, expRSE = meanRSE, samplingTime = samplingTime)
-Err_hybrid <- StrepAnnot[,"run2"] - MappedTimeHybrid
-sum(abs(Err_hybrid))/20
-```
-
-## plot fraction of aligned peptides
-From the figure below, we can see that `hybrid alignment` approach aligns more peptides within alignment error of 10 sec. 
-```{r}
-plotErrorCurve <- function(x, clr = "black", SameGraph = FALSE, xmax = 120, ...){
-    x <- x[!is.na(x)]
-    breaks = seq(0, xmax, by=0.5)
-    duration.cut = cut(x, breaks, right = FALSE) 
-    duration.freq = table(duration.cut)
-    cumfreq0 = c(0, cumsum(duration.freq))
-    if(SameGraph == TRUE){lines(breaks, cumfreq0/length(x), col = clr, ...)}
-    else{plot(breaks, cumfreq0/length(x), col = clr, type = "l", ...)}
-}
-```
-
-```{r plotErr, fig.width=6, fig.align='center', fig.height=6, fig.show='hold', eval=TRUE}
-plotErrorCurve(abs(Err_global), "blue",xmax = 60, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
-plotErrorCurve(abs(Err_local), "darkgreen", SameGraph = TRUE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
-plotErrorCurve(abs(Err_hybrid), "red", SameGraph = TRUE, xlab = "Retention time difference (in sec)", ylab = "Cumulative fraction of peptides")
-grid(); legend("bottomright",  c("global", "local", "hybrid"), col = c("blue", "darkgreen", "red"), lwd = 1.5, box.lwd = 1)
-```
-
-
-# How do these alignment approaches differ?
-## Global alignment
-Global alignment approach fits a global function using all detected peaks. In the figure below, blue line represents alignment function. Two test petides (solid green dots) have their retention times mapped from Run1 to Run2 using this function.     
-The two precursors are `15605_YFMPVHGEYR/3` and `9091_NDYGNTTLALR/2`.
-```{r, fig.width=6, fig.align='center', fig.height=6, echo=FALSE}
-run_pair <- c("run1", "run2")
-RUN1 <- oswOutStrep[[run_pair[1]]]; RUN2 <- oswOutStrep[[run_pair[2]]]
-cmp <- intersect(RUN1[,1], RUN2[,1]) # First column corresponds to transition_group_record
-RUN1 <- RUN1[which(RUN1[,1] %in% cmp), ]
-RUN2 <- RUN2[which(RUN2[,1] %in% cmp), ]
-RUN1 <- RUN1[match(cmp, RUN1[,1]),]
-RUN2 <- RUN2[match(cmp, RUN2[,1]),]
-RUNS_RT <- data.frame( "transition_group_record" = RUN1[,1], "RUN1" = RUN1$RT, "RUN2" = RUN2$RT)
-RUNS_RT <- RUNS_RT[order(RUNS_RT$RUN1), ]
-testPeptides <-intersect(cmp, peptides)
-plot(RUNS_RT[,"RUN1"], RUNS_RT[,"RUN2"], xlim = c(2820,2980), ylim = c(2820,2980), xlab = "Run1 retention time (sec)", ylab = "Run2 retention time (sec)", pch=4, cex = 0.4, main = "Non-linear global alignment")
-# For testing we want to avoid validation peptides getting used in the fit.
-Loess.fit <- loess(RUN2 ~ RUN1, data = RUNS_RT, subset = !transition_group_record %in% testPeptides,
-                   span = 0.15, control=loess.control(surface="direct"))
-lines(RUNS_RT[,"RUN1"], predict(Loess.fit, newdata=RUNS_RT[,"RUN1"]), col = "blue")
-points(StrepAnnot$run1[c(18,19)], StrepAnnot$run2[c(18,19)], col = "red", pch = 19)
-lines(RUNS_RT[,"RUN1"], predict(Loess.fit, newdata=RUNS_RT[,"RUN1"])-2*Loess.fit$s, lty = "dashed")
-lines(RUNS_RT[,"RUN1"], predict(Loess.fit, newdata=RUNS_RT[,"RUN1"])+2*Loess.fit$s, lty = "dashed")
-grid(); legend("topleft", c("LOESS fit", "2*RSE"), lty= c("solid", "dashed"), col = c("blue", "black"))
-```
-
-## Local alignment
-Local alignment uses raw MS2 chromatograms for alignment. Unaligned XICs of precursors "15605_YFMPVHGEYR/3" are shown below.
-```{r, fig.width=6, fig.align='center', fig.height=4, fig.show='hold'}
-plotChromatogram(StrepChroms, "run1", "15605_YFMPVHGEYR/3", StrepAnnot)
-plotChromatogram(StrepChroms, "run2", "15605_YFMPVHGEYR/3", StrepAnnot)
-```
-
-```{r, echo=FALSE}
-peptide <- "15605_YFMPVHGEYR/3"
-simMeasure <- "dotProductMasked"
-intensityListA <- lapply(StrepChroms[["run1"]][[peptide]], `[[`, 2) # Extracting intensity values
-intensityListB <- lapply(StrepChroms[["run2"]][[peptide]], `[[`, 2) # Extracting intensity values
-tA <- StrepChroms[["run1"]][[peptide]][[1]][["time"]] # Extracting time component
-tB <- StrepChroms[["run2"]][[peptide]][[1]][["time"]] # Extracting time component
-localObj <- alignChromatogramsCpp(intensityListA, intensityListB, "local", tA, tB, "mean", simMeasure)
-```
-
-At first, we build a similarity matrix for these XICs. Then we find alignment path through this similarity matrix using dynamic programming.
-```{r localAlign, fig.width=6, fig.align='center', fig.height=4}
-s <- localObj@s
-Path <- localObj@path[2:nrow(localObj@path), 2:ncol(localObj@path)]
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index")
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index", main = paste0("Local alignment through the similarity matrix\n for ", peptide), fontsize = 7) + latticeExtra::as.layer(levelplot(Path, col.regions = c("transparent", "green"), alpha = 1, axes = FALSE))
-```
-
-
-Following the path, we have aligned time-points through which we can develop aligned chromatograms.
-```{r, fig.width=6, fig.align='center', fig.height=4, fig.show='hold'}
-pTR <- plotSingleAlignedChrom(StrepChroms, "run1", peptide, localObj@indexA_aligned, tA, TRUE) + geom_vline(xintercept=which.min(abs(tA - StrepAnnot[peptide, "run1"])), lty="dotted", size = 0.4)
-pBR <- plotSingleAlignedChrom(StrepChroms, "run2", peptide, localObj@indexB_aligned, tB, TRUE) + geom_vline(xintercept=which.min(abs(tB - StrepAnnot[peptide, "run2"])), lty="dotted", size = 0.4)
-pBR <- pBR + geom_vline(xintercept=which.min(abs(tA - StrepAnnot[peptide, "run1"])), lty="dashed", size = 0.4, color = "red")
-pTR
-pBR
-```
-
-
-## Hybrid alignment
-In hybrid alignment, we follow similar steps like local alignment, except for, before finding path we penalize similarity matrix.
-```{r hybridAlign, fig.width=6, fig.align='center', fig.height=4}
-hybridObj <- getAlignedObj(peptide, pair, StrepChroms[["run1"]], StrepChroms[["run2"]], "hybrid", oswOutStrep, samplingTime = 3.4)
-s <- hybridObj@s
-Path <- hybridObj@path[2:nrow(hybridObj@path), 2:ncol(hybridObj@path)]
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index")
-levelplot(s, axes = TRUE, xlab = "run1 index", ylab = "run2 index", main = paste0("Hybrid alignment through the similarity matrix\n for ", peptide), fontsize = 7) + latticeExtra::as.layer(levelplot(Path, col.regions = c("transparent", "green"), alpha = 1, axes = FALSE))
-```
-
-
-# Citation
+## Citation
 Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 
-
-# Session Info
-```{r sessionInfo, eval=TRUE}
-devtools::session_info()
-```
-
-<br>
 
 ## Last compilation
 Last compiled at `r Sys.Date()`.
