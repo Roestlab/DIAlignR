@@ -15,6 +15,7 @@ test_that("test_readChromatogramHeader",{
                           stringsAsFactors=FALSE)
   expect_identical(dim(readChromatogramHeader(mzmlName)), c(72L, 10L))
   expect_equal(readChromatogramHeader(mzmlName)[1:3,1:3], expOutput[,1:3], tolerance=1e-6)
+
   mzmlName <- "getError"
   expect_error(readChromatogramHeader(mzmlName))
 })

@@ -71,6 +71,7 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' @param analytes (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
+#' @param mzPntrs A list of mzRpwiz.
 #'  FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
 #' @return (data-frames) Data-frame has following columns:
 #' \item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
@@ -93,7 +94,8 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' oswFiles <- getOswFiles(dataPath = dataPath, filenames =filenames, analyteInGroupLabel = TRUE)
 #' @export
 getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
-                         analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE){
+                         analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE,
+                        mzPntrs = NULL){
   oswFiles <- list()
   for(i in 1:nrow(filenames)){
     run <- rownames(filenames)[i]
@@ -109,8 +111,13 @@ getOswFiles <- function(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.
                                      filename = filenames$filename[i], runType, analyteInGroupLabel)
 
     # Get chromatogram indices from the header file.
-    mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
-    chromHead <- readChromatogramHeader(mzmlName)
+    if(is.null(mzPntrs)){
+      mzmlName <- file.path(dataPath, "mzml", paste0(filenames$runs[i], ".chrom.mzML"))
+      chromHead <- readChromatogramHeader(mzmlName)
+    } else{
+      runname <- rownames(filenames)[i]
+      chromHead <- mzR::chromatogramHeader(mzPntrs[[runname]])
+    }
     chromatogramIdAsInteger(chromHead)
     # Merge chromatogram indices with transition indices and save them.
     # Following function merges analytesInfo dataframe with the chromatogram Header.
