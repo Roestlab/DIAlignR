@@ -1,3 +1,28 @@
+CHANGES IN VERSION 0.99.8
+------------------------
+Removed R version dependency, have rda files instead of Rdata
+
+
+CHANGES IN VERSION 0.99.7
+------------------------
+Lowered R version dependency
+
+
+CHANGES IN VERSION 0.99.4
+------------------------
+Upadted version number
+
+
+CHANGES IN VERSION 1.2.3
+------------------------
+Corrected tests
+
+
+CHANGES IN VERSION 1.2.2
+------------------------
+Updated tests to reflect mzR updates, included travis-CI build
+
+
 CHANGES IN VERSION 1.2.0
 ------------------------
 Moved package to Bioconductor
