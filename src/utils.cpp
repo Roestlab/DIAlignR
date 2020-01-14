@@ -10,6 +10,7 @@ namespace DIAlign
 namespace Utils
 {
 
+#if 1
 double getQuantile(std::vector<double> vec, double quantile){
   int n = vec.size();
   double p = quantile;
@@ -18,7 +19,8 @@ double getQuantile(std::vector<double> vec, double quantile){
   double g = n*p + m - j;
   double gamma = g;
 
-  // sort(vec.begin(), vec.end()); This algorithm is O(n^2).
+  // sort(vec.begin(), vec.end()); This algorithm is O(n^2). Takes ca 10x longer in benchmarks.
+  //
   // nth_element does partial sorting and take O(n) in worst case. With having if condition
   // we are utilizing its O(log(n)) performance. With one nth_element, we get substantial error
   // in certain edge cases if results are compared to R output.
@@ -35,6 +37,7 @@ double getQuantile(std::vector<double> vec, double quantile){
   if (p <= 0.5)
   {
     std::nth_element(vec.begin(), vec.begin()+j, vec.end(), std::less<double>());
+    // takes 100 ms
     sampleQuant = gamma*vec[j];
     std::nth_element(vec.begin(), vec.begin()+j-1, vec.begin()+j, std::less<double>()); // second largest value
     sampleQuant = sampleQuant + (1.0 - gamma)*vec[j-1];
@@ -51,5 +54,6 @@ double getQuantile(std::vector<double> vec, double quantile){
   return sampleQuant;
 }
 
+#endif
 } // namespace Utils
 } // namespace DIAlign

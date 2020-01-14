@@ -132,7 +132,8 @@ void doAlignment_small()
   const std::vector<double> tA;
   const std::vector<double> tB;
   int noBeef = 5; // nr of matrix cells w/o penalty
-  AffineAlignObj obj(256, 256, false); // Initialize AffineAlignObj
+  // AffineAlignObj obj(256, 256, false); // Initialize AffineAlignObj
+  AffineAlignObj obj(202, 202, false); // Initialize AffineAlignObj
   for (int k = 0; k < 1e3; k++)
   {
     alignChromatogramsCpp(obj, data1.data, data2.data, 
@@ -144,6 +145,6 @@ void doAlignment_small()
 }
 
 int main(){
-  doAlignment();
+  doAlignment_small();
   return 0;
 }

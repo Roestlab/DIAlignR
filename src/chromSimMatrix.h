@@ -9,6 +9,7 @@
 namespace DIAlign 
 {
 
+/** Similarity matrix namespace */
 namespace SimilarityMatrix 
 {
 // functor for getting sum of previous result and square of current element.

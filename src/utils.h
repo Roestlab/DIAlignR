@@ -17,10 +17,23 @@
 #define DIALIGN_PRECONDITION(condition, message); // If DIALIGN_USE_DIALIGN_PRECONDITION is defined, compiler will replace calls with empty.
 #endif
 
+#include <cmath>
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
+
 namespace DIAlign
 {
+/** Utility namespace */
 namespace Utils
 {
+  /**
+   * @brief Computes the quantile of the vector
+   *
+   * @param vec The vector with the values
+   * @param quantile The n-th quantile to compute
+   *
+  */
   double getQuantile(std::vector<double> vec, double quantile);
 } // namespace Utils
 } // namespace DIAlign

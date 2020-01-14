@@ -21,15 +21,18 @@ struct AlignedIndices{
     std::vector<double> score;
 };
 
+/**
+   @brief An alignment object (for non-affine alignment)
+*/
 struct AlignObj
 {
     std::vector<double> s_data;
-    std::vector<TracebackType> Traceback;
+    std::vector<Traceback::TracebackType> Traceback;
     std::vector<double> M;
     std::vector<double> M_forw;
-    std::vector<bool> Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
+    std::vector<bool> Path; ///< Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
     std::vector<bool> simPath;
-    std::vector<int> OptionalPaths; // Highlight the number of all optimal paths.
+    std::vector<int> OptionalPaths; ///< Highlight the number of all optimal paths.
     int signalA_len;
     int signalB_len;
     double GapOpen;
@@ -39,8 +42,8 @@ struct AlignObj
     std::vector<int> indexB_aligned;
     std::vector<double> score;
     double score_forw;
-    double simScore_forw; // Summation of similarity score along the alignment path-band.
-    double alterAlignScore; // Alignment score of 2nd best peak alignment.
+    double simScore_forw; ///< Summation of similarity score along the alignment path-band.
+    double alterAlignScore; ///< Alignment score of 2nd best peak alignment.
     int nGaps;
 
     // Not a default constructor
@@ -48,7 +51,7 @@ struct AlignObj
     {
       M.resize(ROW_SIZE * COL_SIZE, 0);
       M_forw.resize(ROW_SIZE * COL_SIZE, 0);
-      Traceback.resize(ROW_SIZE * COL_SIZE, SS);
+      Traceback.resize(ROW_SIZE * COL_SIZE, Traceback::SS);
       Path.resize(ROW_SIZE * COL_SIZE, false);
       simPath.resize(ROW_SIZE * COL_SIZE, false);
       OptionalPaths.resize(ROW_SIZE * COL_SIZE, 0);
@@ -72,14 +75,30 @@ struct AlignObj
     {  }
 };
 
-// This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
+/**
+ * @brief Contains some of the core alignment functions for non-affine alignment
+ *
+ * See doAlignment() and getAlignedIndices()
+ */
+namespace Alignment
+{
+
+/** 
+ * @brief This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
+ */
 AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment);
 
-// This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
+/**
+ * @brief This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
+ *
+ * It calculates row and column index pair associated with the highest scoring
+ * path through similarity matrix. Output is a list of row-column index pairs
+ * of all highest scoring traceback paths.
+ *
+*/
 void getAlignedIndices(AlignObj &alignObj);
 
-void fillsimPath(std::vector<bool> &simPath, int bandwidth, int ROW_IDX, int COL_IDX, int ROW_SIZE, int COL_SIZE);
-
+}
 }
 
 #endif // ALIGNMENT_H
