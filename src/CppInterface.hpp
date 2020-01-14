@@ -1,9 +1,11 @@
+/** @cond */
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
+/** @endcond */
 
 #include "alignment.h"
 
@@ -14,15 +16,53 @@
 #include "affinealignment.h"
 #include "constrainMat.h"
 
+/** @file */
+
 // Why do we create a new namespace? 
 // Does it not conflict with the same namespace DIAlign we had in other files.
 // Wait! Don't these namespace override each other? Can you just keep-on adding stuff in namespace?
 // namespace is like a package, you add stuff inside it without breaking other parts.
 
+/**
+ * @namespace DIAlign
+ * @brief Generic namespace for all classes and functions of DIAlign
+ *
+ * This contains a brief description of the available functions in DIAlign. The
+ * DIAlign algorithm can be called through the interface provided by
+ * alignChromatogramsCpp(), which allows alignment of a set of chromatograms.
+ *
+ * @code
+ *
+
+  std::vector< std::vector<double > > data1, data2; // chrom coordinates
+  std::vector<double > rt_data1, data2; // RT coordinates
+  std::vector<double > rt_mapping; // global RT alignment
+
+  int noBeef = 5; // nr of matrix cells w/o penalty
+
+  AffineAlignObj alignment_obj(rt_data1.size(), rt_data1.size(), false); // Initialize AffineAlignObj
+
+  alignChromatogramsCpp(alignment_obj,
+    data1, data2,
+    "hybrid", 
+    rt_data1, rt_data2,
+    "mean", "dotProductMasked",
+    rt_mapping.front(), rt_mapping.back(),
+    noBeef);
+
+ * @endcode
+ *
+ * The AffineAlignObj will have the fields indexA_aligned, indexB_aligned and
+ * score populated, providing the aligned indices as output.
+ *
+ * Individual functions that perform the alignment can be called through
+ * getSimilarityMatrix(), doAffineAlignment(), getAffineAlignedIndices().
+ */
 namespace DIAlign
 {
 
-  /*
+
+  /**
    * Align two pairs of chromatograms derived from two LC-MS/MS experiments A and B. 
    *
    * @param obj A object of type AffineAlignObj which needs to have at least capacity of the chromatogram length
@@ -47,7 +87,8 @@ namespace DIAlign
    * @param samples4gradient This parameter modulates penalization of masked indices.
    *
    * @note r1 and r2 need to have the same length and the chromatograms need to be in the same order (e.g. r1[0] needs to be the same XIC trace as r2[0])
-   * @note If no global fit is available, set B1p to tB.front() and B2p to tB.back()
+   *
+   * @note If no global fit is available, it is recommended to set B1p to tB.front() and B2p to tB.back()
 */
   void alignChromatogramsCpp( AffineAlignObj& obj,
                               const std::vector<std::vector<double> > & r1,
@@ -83,7 +124,7 @@ namespace DIAlign
     AffineAlignment::getAffineAlignedIndices(obj); // Performs traceback and fills aligned indices in AffineAlignObj struct
   }
 
-  /*
+  /**
    * Calculates similarity matrix of two fragment-ion chromatogram groups or
    * extracted-ion chromatograms (XICs) derived from two LC-MS/MS experiments A
    * and B. 
@@ -106,10 +147,10 @@ namespace DIAlign
     return SimilarityMatrix::getSimilarityMatrix(d1, d2, Normalization, SimType, cosAngleThresh, dotProdThresh);
   }
 
-  /*
+  /**
    * Performs affine alignment on a given alignment object. 
    *
-   * @note: Does not perform back-tracking, please call getAffineAlignedIndices afterwards.
+   * @note Does not perform back-tracking, please call getAffineAlignedIndices afterwards.
    *
    * @param obj A object of type AffineAlignObj which needs to have at least capacity of the chromatogram length
    * @param s A previously computed similarity matrix
@@ -122,18 +163,19 @@ namespace DIAlign
     return AffineAlignment::doAffineAlignment(obj, s, goPenalty, gePenalty, OverlapAlignment);
   }
 
-  /*
+  /**
    * Compute path using AffineAlignObj
    *
    * @param obj A object of type AffineAlignObj which needs to have matrices A, B and M filled.
    * @param bandwith Compute path for multiple matrix cells (bandwith is number of cells to be computed)
    *
-   * @note: this assumes that matrices A, B and M have been computed. Use after calling doAffineAlignment.
-   * @note: this will compute the following members: indexA_aligned, indexB_aligned, score.
+   * @note this assumes that matrices A, B and M have been computed. Use after calling doAffineAlignment.
+   * @note this will compute the following members: indexA_aligned, indexB_aligned, score.
   */
   void getAffineAlignedIndices(AffineAlignObj &obj, int bandwidth = 0)
   {
     getAffineAlignedIndices(obj, bandwidth);
   }
+
 }
 

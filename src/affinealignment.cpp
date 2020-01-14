@@ -28,6 +28,9 @@ namespace {
 
 namespace DIAlign
 {
+
+using namespace Traceback;
+
 namespace AffineAlignment
 {
 

@@ -6,6 +6,7 @@ double getGapPenalty(const SimMatrix& s, double gapQuantile, std::string SimType
   double gapPenalty;
   if (SimType == "dotProductMasked")
     gapPenalty = Utils::getQuantile(s.data, gapQuantile);
+    // gapPenalty = 0.96;
   else if (SimType == "dotProduct")
     gapPenalty = Utils::getQuantile(s.data, gapQuantile);
   else if(SimType == "cosineAngle")

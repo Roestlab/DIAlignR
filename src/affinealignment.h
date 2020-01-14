@@ -16,7 +16,7 @@ void doAffineAlignment(AffineAlignObj&,const SimMatrix& s, double go, double ge,
 
 void getAffineAlignedIndices(AffineAlignObj &affineAlignObj, int bandwidth = 0);
 
-double getOlapAffineAlignStartIndices(double* MatrixM, double* MatrixA, double* MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, tbJump &MatrixName);
+double getOlapAffineAlignStartIndices(double* MatrixM, double* MatrixA, double* MatrixB, int ROW_SIZE, int COL_SIZE, int &OlapStartRow, int &OlapStartCol, Traceback::tbJump &MatrixName);
 
 void fillSimPath(bool* simPath, int bandwidth, int ROW_IDX, int COL_IDX, int ROW_SIZE, int COL_SIZE);
 
