@@ -5,14 +5,14 @@
 #include <vector>
 #include <assert.h>
 
-#include "alignment.h"
+#include "../alignment.h"
 
-#include "chromSimMatrix.h"
-#include "alignment.h"
-#include "gapPenalty.h"
-#include "affinealignobj.h"
-#include "affinealignment.h"
-#include "constrainMat.h"
+#include "../chromSimMatrix.h"
+#include "../alignment.h"
+#include "../gapPenalty.h"
+#include "../affinealignobj.h"
+#include "../affinealignment.h"
+#include "../constrainMat.h"
 
 // Why do we create a new namespace? 
 // Does it not conflict with the same namespace DIAlign we had in other files.

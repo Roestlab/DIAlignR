@@ -8,14 +8,14 @@ SET(CMAKE_CXX_FLAGS  "-march=native")  # about a 10% improvement
 aux_source_directory(. SRC_LIST)
 set (CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES
-affinealignment.cpp
-affinealignobj.cpp
-alignment.cpp
-chromSimMatrix.cpp
-constrainMat.cpp
-gapPenalty.cpp
-utils.cpp
-simpleFcn.cpp
+../affinealignment.cpp
+../affinealignobj.cpp
+../alignment.cpp
+../chromSimMatrix.cpp
+../constrainMat.cpp
+../gapPenalty.cpp
+../utils.cpp
+../simpleFcn.cpp
 )
 
 add_library(DIAAlignment SHARED ${SOURCE_FILES})
@@ -24,19 +24,19 @@ target_compile_definitions(DIAAlignment PRIVATE -DPURE_CPP=On)
 # STATIC or MODULE
 
 # Actual executables
-add_executable(runAlignment run_alignment.cpp)
+add_executable(runAlignment ../run_alignment.cpp)
 target_link_libraries(runAlignment DIAAlignment)
 target_compile_definitions(runAlignment PRIVATE -DPURE_CPP=On)
 
 # Test executables
-add_executable(runTest1 test_simpleFcn.cpp)
-add_executable(runTest2 test_utils.cpp)
-add_executable(runTest3 test_gapPenalty.cpp)
-add_executable(runTest4 test_constrainMat.cpp)
-add_executable(runTest5 test_chromSimMatrix.cpp)
-add_executable(runTest6 test_alignment.cpp)
-add_executable(runTest7 test_affinealignobj.cpp)
-add_executable(runTest8 test_affinealignment.cpp)
+add_executable(runTest1 ../test/test_simpleFcn.cpp)
+add_executable(runTest2 ../test/test_utils.cpp)
+add_executable(runTest3 ../test/test_gapPenalty.cpp)
+add_executable(runTest4 ../test/test_constrainMat.cpp)
+add_executable(runTest5 ../test/test_chromSimMatrix.cpp)
+add_executable(runTest6 ../test/test_alignment.cpp)
+add_executable(runTest7 ../test/test_affinealignobj.cpp)
+add_executable(runTest8 ../test/test_affinealignment.cpp)
 
 set(LIST_TESTS
 runTest1

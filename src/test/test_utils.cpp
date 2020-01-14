@@ -1,7 +1,7 @@
 #include <vector>
 #include <cmath> // require for std::abs
 #include <assert.h>
-#include "utils.h"
+#include "../utils.h"
 
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.

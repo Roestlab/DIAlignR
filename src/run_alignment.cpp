@@ -111,8 +111,8 @@ void alignChromatogramsCpp( AffineAlignObj& obj,
 
 void doAlignment()
 {
-  auto data1 = readFile("test_large.tsv");
-  auto data2 = readFile("test_large.tsv");
+  auto data1 = readFile("test/test_large.tsv");
+  auto data2 = readFile("test/test_large.tsv");
 
   const std::vector<double> tA;
   const std::vector<double> tB;
@@ -124,8 +124,8 @@ void doAlignment()
 
 void doAlignment_small()
 {
-  auto data1 = readFile("test_small.tsv");
-  auto data2 = readFile("test_small.tsv");
+  auto data1 = readFile("test/test_small.tsv");
+  auto data2 = readFile("test/test_small.tsv");
 
   const std::vector<double> tA;
   const std::vector<double> tB;

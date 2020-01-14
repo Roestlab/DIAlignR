@@ -1,6 +1,6 @@
 #include <vector>
 #include <assert.h>
-#include "simpleFcn.h"
+#include "../simpleFcn.h"
 
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
