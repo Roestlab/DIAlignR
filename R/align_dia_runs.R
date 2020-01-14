@@ -289,10 +289,19 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
 
   message("Following runs will be aligned:")
   message(filenames[, "runs"], sep = "\n")
+  
+  ######### Collect pointers for each mzML file. #######
+  runs <- filenames$runs
+  names(runs) <- rownames(filenames)
+  # Collect all the pointers for each mzML file.
+  message("Collecting metadata from mzML files.")
+  mzPntrs <- getMZMLpointers(dataPath, runs)
+  message("Metadata is collected from mzML files.")
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   oswFiles <- getOswFiles(dataPath, filenames, maxFdrQuery = maxFdrQuery, analyteFDR = analyteFDR,
-                          oswMerged = oswMerged, analytes = NULL, runType = runType, analyteInGroupLabel = analyteInGroupLabel)
+                          oswMerged = oswMerged, analytes = NULL, runType = runType,
+                          analyteInGroupLabel = analyteInGroupLabel, mzPntrs = mzPntrs)
 
   # Report analytes that are not found
   refAnalytes <- getAnalytesName(oswFiles, analyteFDR, commonAnalytes = FALSE)
@@ -309,7 +318,8 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
   # Get Chromatogram for each peptide in each run.
   message("Fetching Extracted-ion chromatograms from runs")
   XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes, XICfilter = XICfilter,
-                           SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen)
+                           SgolayFiltOrd = SgolayFiltOrd, SgolayFiltLen = SgolayFiltLen,
+                           mzPntrs = mzPntrs)
 
   ####################### Perfrom alignment ##########################################
   AlignObjs <- vector("list", length(analytes))

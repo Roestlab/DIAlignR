@@ -138,6 +138,7 @@ public:
 
     allocateMemory_(ROW_SIZE, COL_SIZE);
     copyData_(rhs, ROW_SIZE, COL_SIZE);
+    return *this;
   }
 
   // Rule 1 Copy constructor
