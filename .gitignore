@@ -18,4 +18,9 @@ src/build/*
 # Data files
 data/testData2
 data/testData2/*
-
+# Python
+src/python/build/*
+src/python/*.so
+src/python/__pycache__
+src/python/__pycache__/*
+src/python/PyDIAlign.cpp
