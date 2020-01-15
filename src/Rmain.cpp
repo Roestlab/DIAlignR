@@ -10,6 +10,12 @@
 #include "integrateArea.h"
 using namespace Rcpp;
 using namespace DIAlign;
+using namespace AffineAlignment;
+using namespace Alignment;
+using namespace SimilarityMatrix;
+using namespace ConstrainMatrix;
+using namespace Utils;
+using namespace Traceback;
 
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
 // [[Rcpp::plugins(cpp11)]]

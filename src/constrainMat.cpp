@@ -3,6 +3,8 @@
 
 namespace DIAlign 
 {
+namespace ConstrainMatrix 
+{
 
 // TODO Use ascii art
 // TODO Make sure A1 < A2, B1 < B2 and B1p < B2p
@@ -70,4 +72,5 @@ void constrainSimilarity(SimMatrix& s, const SimMatrix& MASK, double constrainVa
   for(std::size_t i = 0; i < s.data.size(); i++)
     s.data[i] += constrainVal*MASK.data[i];
 }
+} // namespace ConstrainMatrix
 } // namespace DIAlign
