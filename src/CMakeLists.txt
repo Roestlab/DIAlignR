@@ -29,14 +29,14 @@ target_link_libraries(runAlignment DIAAlignment)
 target_compile_definitions(runAlignment PRIVATE -DPURE_CPP=On)
 
 # Test executables
-add_executable(runTest1 test_simpleFcn.cpp)
-add_executable(runTest2 test_utils.cpp)
-add_executable(runTest3 test_gapPenalty.cpp)
-add_executable(runTest4 test_constrainMat.cpp)
-add_executable(runTest5 test_chromSimMatrix.cpp)
-add_executable(runTest6 test_alignment.cpp)
-add_executable(runTest7 test_affinealignobj.cpp)
-add_executable(runTest8 test_affinealignment.cpp)
+add_executable(runTest1 test/test_simpleFcn.cpp)
+add_executable(runTest2 test/test_utils.cpp)
+add_executable(runTest3 test/test_gapPenalty.cpp)
+add_executable(runTest4 test/test_constrainMat.cpp)
+add_executable(runTest5 test/test_chromSimMatrix.cpp)
+add_executable(runTest6 test/test_alignment.cpp)
+add_executable(runTest7 test/test_affinealignobj.cpp)
+add_executable(runTest8 test/test_affinealignment.cpp)
 
 set(LIST_TESTS
 runTest1
