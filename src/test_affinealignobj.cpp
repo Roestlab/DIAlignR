@@ -7,6 +7,7 @@
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 using namespace DIAlign;
+using namespace Traceback;
 
 void test_EnumToChar(){
   std::vector<TracebackType> tb = {DA, SS, TM, DM, TA, DB, TB, TM, LA, SS, LB, LM};

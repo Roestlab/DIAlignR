@@ -9,6 +9,7 @@
 
 using namespace DIAlign;
 using namespace AffineAlignment;
+using namespace Traceback;
 
 // Anonymous namespace: Only valid for this file.
 namespace {
