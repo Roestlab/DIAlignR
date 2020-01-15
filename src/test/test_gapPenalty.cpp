@@ -103,7 +103,7 @@ void test_getGapPenalty(){
   //ASSERT(std::abs(gNONE50 - 0.0) < 1e-6);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_gapPenalty(){
 #else
 int main(){

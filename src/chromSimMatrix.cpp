@@ -6,6 +6,9 @@
 namespace DIAlign 
 {
 
+namespace SimilarityMatrix 
+{
+
 double meanVecOfVec(const std::vector<std::vector<double> >& vov){
   double average = 0.0;
   // Sum-up mean of each vector using Range-based for loop.
@@ -108,8 +111,8 @@ std::vector<std::vector<double>> divideVecOfVec(const std::vector<std::vector<do
 }
 
 void ElemWiseSumOuterProd(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s){
-  PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
-  PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
   int nrow = d1.size();
   int ncol = d2.size();
   for (int i = 0; i < nrow; i++){
@@ -120,8 +123,8 @@ void ElemWiseSumOuterProd(const std::vector<double>& d1, const std::vector<doubl
 }
 
 void ElemWiseSumOuterProdMeanSub(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s, const std::vector<double>& mean1, const std::vector<double>& mean2){
-  PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
-  PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
   int nrow = d1.size();
   int ncol = d2.size();
   for (int i = 0; i < nrow; i++){
@@ -132,8 +135,8 @@ void ElemWiseSumOuterProdMeanSub(const std::vector<double>& d1, const std::vecto
 }
 
 void ElemWiseSumOuterEucl(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s){
-  PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
-  PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
   int nrow = d1.size();
   int ncol = d2.size();
   for (int i = 0; i < nrow; i++){
@@ -144,10 +147,10 @@ void ElemWiseSumOuterEucl(const std::vector<double>& d1, const std::vector<doubl
 }
 
 void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double>& d2, const std::vector<double>& d1_mag, const std::vector<double>& d2_mag, SimMatrix& s){
-  PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
-  PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
-  PRECONDITION(d1_mag.size() == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
-  PRECONDITION(d2_mag.size() == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(d1_mag.size() == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(d2_mag.size() == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
   int nrow = s.n_row;
   int ncol = s.n_col;
   for (int i = 0; i < nrow; i++){
@@ -158,11 +161,11 @@ void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double
 }
 
 void SumOuterProd(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s){
-  PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
-  PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
-  PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
-  PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
-  PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
+  DIALIGN_PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
+  DIALIGN_PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
+  DIALIGN_PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
+  DIALIGN_PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
+  DIALIGN_PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
   std::vector<std::vector<double>> d1_new, d2_new;
   if(Normalization == "mean"){
     // Mean normalize each vector of vector.
@@ -184,11 +187,11 @@ void SumOuterProd(const std::vector<std::vector<double>>& d1, const std::vector<
 }
 
 void SumOuterCov(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s){
-  PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
-  PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
-  PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
-  PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
-  PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
+  DIALIGN_PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
+  DIALIGN_PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
+  DIALIGN_PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
+  DIALIGN_PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
+  DIALIGN_PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
   std::vector<std::vector<double>> d1_new, d2_new;
   if(Normalization == "mean"){
     // Mean normalize each vector of vector.
@@ -213,11 +216,11 @@ void SumOuterCov(const std::vector<std::vector<double>>& d1, const std::vector<s
 }
 
 void SumOuterCorr(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s){
-  PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
-  PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
-  PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
-  PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
-  PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
+  DIALIGN_PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
+  DIALIGN_PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
+  DIALIGN_PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
+  DIALIGN_PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
+  DIALIGN_PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
   std::vector<std::vector<double>> d1_new, d2_new;
   if(Normalization == "mean"){
     // Mean normalize each vector of vector.
@@ -257,11 +260,11 @@ void SumOuterCorr(const std::vector<std::vector<double>>& d1, const std::vector<
 }
 
 void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s){
-  PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
-  PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
-  PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
-  PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
-  PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
+  DIALIGN_PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
+  DIALIGN_PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
+  DIALIGN_PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
+  DIALIGN_PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
+  DIALIGN_PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
   std::vector<std::vector<double>> d1_new, d2_new;
   if(Normalization == "mean"){
     // Mean normalize each vector of vector.
@@ -288,11 +291,11 @@ void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<
 }
 
 void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s){
-  PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
-  PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
-  PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
-  PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
-  PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
+  DIALIGN_PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
+  DIALIGN_PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
+  DIALIGN_PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
+  DIALIGN_PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
+  DIALIGN_PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
   std::vector<std::vector<double>> d1_new, d2_new;
   if(Normalization == "mean"){
     // Mean normalize each vector of vector.
@@ -328,7 +331,11 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
   if (SimType == "dotProductMasked"){
     //Rcpp::Rcout << "dotProductMasked" << std::endl;
     SumOuterProd(d1, d2, Normalization, s);
+#if 0
+    static SimMatrix s2; // TODO: static matrix is faster here (but prevents multithreading)
+#else
     SimMatrix s2;
+#endif
     s2.n_row = s.n_row;
     s2.n_col = s.n_col;
     s2.data.resize(s.n_row*s.n_col, 0.0);
@@ -355,9 +362,7 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
 #else
     for(auto& i : s2.data) i = std::cos(2*std::acos(i));
 #endif
-    double Quant = getQuantile(s.data, dotProdThresh);
-    //Quant = 28.30092;
-    //Rcpp::Rcout << Quant << std::endl;
+    double Quant = Utils::getQuantile(s.data, dotProdThresh);
     std::vector<double> MASK;
     MASK.resize(s.n_row*s.n_col, 0.0);
     for(int i = 0; i < MASK.size(); i++){
@@ -388,4 +393,5 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
 }
 
 
+} // namespace SimilarityMatrix
 } // namespace DIAlign

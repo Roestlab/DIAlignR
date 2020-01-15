@@ -15,6 +15,8 @@
 #include "constrainMat.h"
 
 using namespace DIAlign;
+using namespace AffineAlignment;
+using namespace ConstrainMatrix;
 
 std::vector<std::string> split(const std::string& s, char delimiter)
 {
@@ -88,7 +90,7 @@ void alignChromatogramsCpp( AffineAlignObj& obj,
                             bool hardConstrain = false, double samples4gradient = 100.0)
 {
 
-  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
+  SimMatrix s = SimilarityMatrix::getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
   obj.reset(s.n_row + 1, s.n_col + 1);
 
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
@@ -130,7 +132,8 @@ void doAlignment_small()
   const std::vector<double> tA;
   const std::vector<double> tB;
   int noBeef = 5; // nr of matrix cells w/o penalty
-  AffineAlignObj obj(256, 256, false); // Initialize AffineAlignObj
+  // AffineAlignObj obj(256, 256, false); // Initialize AffineAlignObj
+  AffineAlignObj obj(202, 202, false); // Initialize AffineAlignObj
   for (int k = 0; k < 1e3; k++)
   {
     alignChromatogramsCpp(obj, data1.data, data2.data, 
@@ -142,6 +145,6 @@ void doAlignment_small()
 }
 
 int main(){
-  doAlignment();
+  doAlignment_small();
   return 0;
 }

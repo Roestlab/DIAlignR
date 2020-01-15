@@ -29,14 +29,7 @@ from libcpp.vector cimport vector as libcpp_vector
 from libcpp.string cimport string as libcpp_string
 from libcpp cimport bool
 
-# Why don't we need this? or mention that utils.cpp is a source?
-# cdef extern from "Rectangle.cpp":
-#     pass
-
-# Do we need to tell what is the source?
-# distutils: sources = affinealignobj.cpp in pyx file
-
-cdef extern from "utils.h" namespace "DIAlign":
+cdef extern from "utils.h" namespace "DIAlign::Utils":
 
     double getQuantile(libcpp_vector[double] vec, double quantile) nogil except +
 

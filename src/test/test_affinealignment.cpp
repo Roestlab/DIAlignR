@@ -3,11 +3,11 @@
 #include <assert.h>
 #include "../affinealignment.h"
 #include "../utils.h" //To propagate #define USE_Rcpp
-
 //TODO update this statement so we know which line failed.
 #define ASSERT(condition) if(!(condition)) {std::cout << "FAILED ON LINE " << __LINE__ << std::endl; throw 1;} // If you don't put the message, C++ will output the code.
 
 using namespace DIAlign;
+using namespace AffineAlignment;
 
 // Anonymous namespace: Only valid for this file.
 namespace {
@@ -826,7 +826,7 @@ void test_getOlapAffineAlignStartIndices(){
   ASSERT(std::abs(affineAlignmentScore - 0.0) < 1e-6);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_affinealignment(){
 #else
 int main(){

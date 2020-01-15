@@ -19,7 +19,7 @@ void test_EnumToChar(){
   }
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_affinealignobj(){
 #else
 int main(){

@@ -8,7 +8,7 @@
 
 namespace DIAlign
 {
-double areaBwBoundaries(std::vector<std::vector<double> > vov, int leftIdx, int rightIdx);
+  double areaBwBoundaries(std::vector<std::vector<double> > vov, int leftIdx, int rightIdx);
 } // namespace DIAlign
 
 #endif // INTEGRATEAREA_H

@@ -3,7 +3,26 @@
 namespace DIAlign
 {
 
-// This function performs dynamic programming and calculates "M" and "Traceback". Traceback matrix keeps record of the path as we fill matrix M.
+using namespace Traceback;
+
+namespace Alignment
+{
+
+/** @cond */
+void fillsimPath(std::vector<bool> &simPath, int bandwidth, int ROW_IDX, int COL_IDX, int ROW_SIZE, int COL_SIZE){
+  for (int i = ROW_IDX-bandwidth; i<=ROW_IDX+bandwidth; i++){
+    if(i>=0 && i<ROW_SIZE){
+      simPath[i*COL_SIZE+COL_IDX] = true;
+    }
+  }
+  for (int j = ROW_IDX-bandwidth; j<=ROW_IDX+bandwidth; j++){
+    if(j>=0 && j<COL_SIZE){
+      simPath[ROW_IDX*COL_SIZE+j] = true;
+    }
+  }
+}
+/** @endcond */
+
 AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
   int signalA_len = s.n_row;
   int signalB_len = s.n_col;
@@ -108,9 +127,6 @@ AlignObj doAlignment(SimMatrix s, double gap, bool OverlapAlignment){
   return alignObj;
 }
 
-// This tracebacks along the highest scoring path, preparing list of scores and aligned indices.
-// It calculates row and column index pair associated with the highest scoring path through similarity
-// matrix. Output is a list of row-column index pairs of all highest scoring traceback paths.
 void getAlignedIndices(AlignObj &alignObj){
   AlignedIndices alignedIdx; // initialize empty struct
   TracebackType TracebackPointer;
@@ -235,17 +251,6 @@ void getAlignedIndices(AlignObj &alignObj){
   alignObj.score = alignedIdx.score;
 }
 
-void fillsimPath(std::vector<bool> &simPath, int bandwidth, int ROW_IDX, int COL_IDX, int ROW_SIZE, int COL_SIZE){
-  for (int i = ROW_IDX-bandwidth; i<=ROW_IDX+bandwidth; i++){
-    if(i>=0 && i<ROW_SIZE){
-      simPath[i*COL_SIZE+COL_IDX] = true;
-    }
-  }
-  for (int j = ROW_IDX-bandwidth; j<=ROW_IDX+bandwidth; j++){
-    if(j>=0 && j<COL_SIZE){
-      simPath[ROW_IDX*COL_SIZE+j] = true;
-    }
-  }
-}
 
+} // namespace Alignment
 } // namespace DIAlign
