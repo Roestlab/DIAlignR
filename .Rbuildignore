@@ -4,3 +4,7 @@
 ^\.Rproj\.user$
 ^data-raw$
 ^\.travis\.yml$
+src/python/
+src/doc
+src/test
+src/build
