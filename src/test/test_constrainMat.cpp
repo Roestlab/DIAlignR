@@ -7,6 +7,7 @@
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
 using namespace DIAlign;
+using namespace ConstrainMatrix;
 
 void test_calcNoBeefMask(){
   double A1 = 3353.2, A2 = 3363.5;
@@ -179,7 +180,7 @@ void test_constrainSimilarity(){
   // ASSERT(cmp_arr3[3][4] == 2);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_constrainMat(){
 #else
 int main(){

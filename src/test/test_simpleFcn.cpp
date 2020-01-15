@@ -107,7 +107,7 @@ void test_getseqSim(){
   // 0 0 0 0 0
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_simpleFcn(){
 #else
 int main(){

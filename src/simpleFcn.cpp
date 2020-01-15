@@ -3,7 +3,7 @@
 namespace DIAlign
 {
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 /***
 // TODO Write unit test for it.
 // Outputs a NumericMatrix of given row and column size.

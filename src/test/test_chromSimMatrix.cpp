@@ -8,6 +8,7 @@
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
 using namespace DIAlign;
+using namespace SimilarityMatrix;
 
 void test_meanVecOfVec(){
   std::vector< std::vector< double > > vov;
@@ -1002,7 +1003,7 @@ void test_getSimilarityMatrix(){
   }
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_chromSimMatrix(){
 #else
 int main(){

@@ -8,6 +8,8 @@
 #define ASSERT(condition) if(!(condition)) {std::cout << "FAILED ON LINE " << __LINE__ << std::endl; throw 1;} // If you don't put the message, C++ will output the code.
 
 using namespace DIAlign;
+using namespace AffineAlignment;
+using namespace Traceback;
 
 // Anonymous namespace: Only valid for this file.
 namespace {
@@ -826,7 +828,7 @@ void test_getOlapAffineAlignStartIndices(){
   ASSERT(std::abs(affineAlignmentScore - 0.0) < 1e-6);
 }
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 int main_affinealignment(){
 #else
 int main(){
