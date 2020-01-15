@@ -15,6 +15,7 @@ src/*.dll
 # Cpp build file
 src/build
 src/build/*
+!src/build/CMakeLists.txt
 # Data files
 data/testData2
 data/testData2/*
