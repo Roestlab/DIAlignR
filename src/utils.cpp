@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <functional>
 
 #include "utils.h"
 
