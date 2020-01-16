@@ -62,7 +62,7 @@ ext_modules = [Extension("DIAlignPy", src_files,
 setup(
     ext_modules = ext_modules,
     cmdclass = {'build_ext': build_ext},
-    name="PyDIAlign",
+    name="DIAlignPy",
     version="0.9.0"
 )
 
