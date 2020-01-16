@@ -36,7 +36,7 @@ from Cython.Distutils import build_ext
 import os
 curr_dir = os.path.dirname(os.path.realpath(__file__))
 curr_dir = "."
-src_dir = os.path.join(curr_dir, "..") 
+src_dir = os.path.join(curr_dir, "..", "..", "src")
 src_files = [
                        "affinealignment.cpp",
                        "affinealignobj.cpp",
