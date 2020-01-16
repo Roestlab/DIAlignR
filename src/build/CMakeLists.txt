@@ -18,7 +18,7 @@ set(SOURCE_FILES
 ../simpleFcn.cpp
 )
 
-add_library(DIAAlignment SHARED ${SOURCE_FILES})
+add_library(DIAAlignment ${SOURCE_FILES})
 target_compile_definitions(DIAAlignment PRIVATE -DDIALIGN_PURE_CPP=On)
 # SHARED libraries are linked dynamically and loaded at runtime. Other options are
 # STATIC or MODULE
