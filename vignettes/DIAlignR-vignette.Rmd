@@ -3,7 +3,10 @@ title: "MS2 chromatograms based alignment of targeted mass-spectrometry runs"
 author: "Shubham Gupta and Hannes Röst"
 package: DIAlignR
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+    BiocStyle::html_document:
+        toc: true
+        toc_float: true 
 bibliography: DIAlignR.bib
 vignette: >
   %\VignetteIndexEntry{MS2 chromatograms based alignment of targeted mass-spectrometry runs}
@@ -24,8 +27,9 @@ In this document we are presenting a workflow of retention-time alignment across
 
 ## Install DIAlignR
 ```{r installDIAlignR, eval=FALSE}
-require(devtools)
-install_github("Roestlab/DIAlignR")
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("DIAlignR")
 ```
 
 ```{r loadDIAlignR}
@@ -33,9 +37,13 @@ library(DIAlignR)
 ```
 
 ## Prepare input files for alignment
-Mass-spectrometry files mostly contains spectra. Targeted proteomics workflow identifyies analytes from their chromatographic elution profile. DIAlignR extends the same concept for retention-time (RT) alignment and, therefore, relies on MS2 chromatograms. DIAlignR expects raw chromatogram file (.chrom.mzML) and FDR-scored features (.osw) file.  
+Mass-spectrometry files mostly contains spectra. Targeted proteomics workflow identifyies analytes from their chromatographic elution profile. DIAlignR extends the same concept for retention-time (RT) alignment and, therefore, relies on MS2 chromatograms. DIAlignR expects raw chromatogram file (.chrom.mzML) and FDR-scored features (.osw) file.   
+Example files are available with this package and can be located with this command:
+```{r getDataPath}
+dataPath <- system.file("extdata", package = "DIAlignR")
+```
 
-|     To obtain files for alignment, following three steps are needed:  
+|     (Optional) To obtain files for alignment, following three steps are needed:  
 
 * Step 1 Convert spectra files from vendor-specific format to standard mzMl format using [ProteoWizard-MSConvert](http://proteowizard.sourceforge.net/tools.shtml).    
 * Step 2 Extract features and raw extracted-ion chromatograms(XICs) for library analytes. A detailed tutorial using [OpenSWATH](http://openswath.org/en/latest/docs/openswath.html) is available for this steps. In short, following `bash` command can be used:  
@@ -55,7 +63,8 @@ FileConverter -in Filename.chrom.mzML -in_type 'mzML' -out Filename.chrom.mzML
 
 ```{bash, eval=FALSE}
 pyprophet merge --template=library.pqp --out=merged.osw *.osw
-pyprophet score --in=merged.osw --classifier=XGBoost --level=ms2 --xeval_num_iter=3 --ss_initial_fdr=0.05 --ss_iteration_fdr=0.01
+pyprophet score --in=merged.osw --classifier=XGBoost --level=ms2 --xeval_num_iter=3 \
+--ss_initial_fdr=0.05 --ss_iteration_fdr=0.01
 pyprophet peptide --in=merged.osw --context=experiment-wide
 ```
 
@@ -65,25 +74,29 @@ pyprophet peptide --in=merged.osw --context=experiment-wide
 `alignTargetedRuns` function aligns Proteomics or Metabolomics DIA runs. It expects two directories "osw" and "mzml" at `dataPath`. It outputs an intensity table where rows specify each analyte and columns specify runs. Use parameter `saveFiles = TRUE` to have aligned retetion time and intensities saved in the current directory.
 
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
-dataPath <- system.file("extdata", package = "DIAlignR")
-runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+          "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 # For specific runs provide their names.
 intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = runs, analyteInGroupLabel = TRUE)
 # For specific analytes provide their names.
-intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = NULL, analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
+intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = NULL,
+                                  analytes = c("QFNNTDIVLLEDFQK_3"), analyteInGroupLabel = FALSE)
 # For all the analytes in all runs, keep them as NULL.
-intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = NULL, analytes = NULL, analyteInGroupLabel = TRUE)
+intensityTbl <- alignTargetedRuns(dataPath = dataPath, runs = NULL, analytes = NULL,
+                                  analyteInGroupLabel = TRUE)
 ```
 
 ## Fetching AlignObj for analytes
 
 For getting alignment object which has aligned indices of XICs `getAlignObjs` function can be used. Like previous function, it expects two directories "osw" and "mzml" at `dataPath`. It performs alignment for exactly two runs. In case of `refRun` is not provided, m-score from osw files is used to select reference run.
 ```{r, message=FALSE}
-dataPath <- system.file("extdata", package = "DIAlignR")
-runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-AlignObjLight <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, objType	= "light")
+runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+          "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+AlignObjLight <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath,
+                              objType	= "light")
 slotNames(AlignObjLight[["QFNNTDIVLLEDFQK_3"]][[1]])
-AlignObjMedium <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, objType	= "medium")
+AlignObjMedium <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath,
+                               objType	= "medium")
 slotNames(AlignObjMedium[["QFNNTDIVLLEDFQK_3"]][[1]])
 ```
 
@@ -92,7 +105,6 @@ slotNames(AlignObjMedium[["QFNNTDIVLLEDFQK_3"]][[1]])
 
 We can visualize aligned chromatograms using `plotAlignedAnalytes`. The top figure is experiment unaligned-XICs, middle one is reference XICs, last figure is experiment run aligned to reference.
 ```{r, fig.width=6, fig.align='center', fig.height=6, message=FALSE}
-dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 AlignObj <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath)
@@ -104,10 +116,10 @@ plotAlignedAnalytes(AlignObj, annotatePeak = TRUE)
 We can also visualize the alignment path using `plotAlignemntPath` function.
 ```{r, fig.width=5, fig.align='center', fig.height=5, message=FALSE}
 library(lattice)
-dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs, dataPath = dataPath, objType = "medium")
+AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs = runs,
+                               dataPath = dataPath, objType = "medium")
 plotAlignmentPath(AlignObjOutput)
 ```
 
@@ -115,5 +127,7 @@ plotAlignmentPath(AlignObjOutput)
 ## Citation
 Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 
 
-## Last compilation
-Last compiled at `r Sys.Date()`.
+## Session Info
+```{r}
+sessionInfo()
+```
