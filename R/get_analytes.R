@@ -6,7 +6,7 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom dplyr %>%
 #' @param oswFiles (list of data-frames) it is output from getOswFiles function.
@@ -14,6 +14,7 @@
 #' @param commonAnalytes (logical) TRUE: intersect across all runs, FASLE: union across all runs.
 #' @return A vector of strings.
 #' @seealso \code{\link{getOswFiles}}
+#' @keywords internal
 #' @examples
 #' data("oswFiles_DIAlignR", package = "DIAlignR")
 #' \dontrun{
@@ -49,7 +50,7 @@ getAnalytesName <- function(oswFiles, analyteFDR = 1.00, commonAnalytes = TRUE){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param runs (A vector of string) Names of mzml file without extension.

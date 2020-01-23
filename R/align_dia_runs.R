@@ -10,7 +10,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("transition_group_id", "
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param alignType Available alignment methods are "global", "local" and "hybrid".
@@ -212,7 +212,7 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param analytes (vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.
 #' @param runs (A vector of string) Names of mzml file without extension.
@@ -289,7 +289,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
 
   message("Following runs will be aligned:")
   message(filenames[, "runs"], sep = "\n")
-  
+
   ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
   names(runs) <- rownames(filenames)

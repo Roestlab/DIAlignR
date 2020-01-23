@@ -1,33 +1,25 @@
+CHANGES IN VERSION 0.99.10 (January 22, 2020)
+------------------------
++ Made changes as suggested in initial review. https://github.com/Bioconductor/Contributions/issues/1328#issuecomment-576806498
+
 CHANGES IN VERSION 0.99.9
 ------------------------
-Added option to include mz pointer in getOswFiles and getXIC4AlignObj
++ Added option to include mz pointer in getOswFiles and getXIC4AlignObj
 
 
 CHANGES IN VERSION 0.99.8
 ------------------------
-Removed R version dependency, have rda files instead of Rdata
++ Removed R version dependency, have rda files instead of Rdata
 
 
 CHANGES IN VERSION 0.99.7
 ------------------------
-Lowered R version dependency
++ Lowered R version dependency
 
 
 CHANGES IN VERSION 0.99.4
 ------------------------
-Upadted version number
-
-
-CHANGES IN VERSION 1.2.3
-------------------------
-Corrected tests
-
-
-CHANGES IN VERSION 1.2.2
-------------------------
-Updated tests to reflect mzR updates, included travis-CI build
-
-
-CHANGES IN VERSION 1.2.0
-------------------------
-Moved package to Bioconductor
++ Upadted version number
++ Corrected tests
++ Updated tests to reflect mzR updates, included travis-CI build
++ Moved package to Bioconductor

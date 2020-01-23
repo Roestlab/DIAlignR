@@ -9,7 +9,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("time", "Transition"))
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
 #' @param XIC_group (list) It is a list of dataframe which has two columns. First column is for time
@@ -49,7 +49,7 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
 #' @param analyte (string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
@@ -98,13 +98,14 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param XIC_group (list) It is a list of dataframe which has two columns. First column is for time
 #'  and second column indicates intensity.
 #' @param idx (integer) Indices of aligned chromatograms.
 #' @param peakAnnot (numeric) Peak-apex time.
 #' @return A plot to the current device.
+#' @keywords internal
 plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   intensity <- list()
   # Update intensities with aligned time indices.
@@ -129,7 +130,7 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #' Plot aligned XICs group for a specific peptide.
 #'
 #' @description
-#' AlignObjOutput is the output from getAlignObjs fucntion.
+#' AlignObj is the output from getAlignObjs fucntion. This function prepares ggplot objects from AlignObj.
 #'
 #' @importFrom ggplot2 geom_vline xlab scale_y_continuous
 #' @importFrom scales scientific_format
@@ -137,7 +138,7 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
 #' @param AlignObj (S4 object)
@@ -158,6 +159,7 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #' XICs.ref <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[2]]
 #' XICs.eXp <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[3]]
 #' refPeakLabel <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[4]]
+#' @keywords internal
 getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
                                annotatePeak = FALSE){
   AlignedIndices <- cbind(AlignObj@indexA_aligned, AlignObj@indexB_aligned,
@@ -210,7 +212,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
 #' @param AlignObjOutput (list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.
@@ -274,7 +276,7 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", DrawAlignR = F
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param AlignObjOutput (list) The list contains AlignObj, raw XICs for reference and experiment, and reference-peak label.
 #' @return A plot to the current device.

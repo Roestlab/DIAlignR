@@ -5,7 +5,7 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param mz (mzRpwiz object)
 #' @param chromIndices (vector of Integers) Indices of chromatograms to be extracted.
@@ -13,6 +13,7 @@
 #' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
 #' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
 #' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+#' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
@@ -42,7 +43,7 @@ extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltO
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param dataPath (char) path to mzml and osw directory.
 #' @param runs (vector of string) names of mzML files without extension. Names of the vector must be a combination of "run" and an iteger e.g. "run2".
@@ -102,7 +103,7 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
 #' @param analytes (string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.

@@ -9,7 +9,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param oswFiles (list of data-frames) it is output from getOswFiles function.
 #' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
@@ -21,6 +21,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "14299_QFNNTDIVLLEDFQK/3")
 #' }
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @keywords internal
 getRefRun <- function(oswFiles, analyte){
   # Select reference run based on m-score
   minMscore <- 1
@@ -47,7 +48,7 @@ getRefRun <- function(oswFiles, analyte){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param oswFiles (list of data-frames) it is the output from getOswFiles function.
 #' @param runname (string) Must be a combination of "run" and an iteger e.g. "run2".
@@ -61,6 +62,7 @@ getRefRun <- function(oswFiles, analyte){
 #'  analyte = "14299_QFNNTDIVLLEDFQK/3")
 #' }
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @keywords internal
 selectChromIndices <- function(oswFiles, runname, analyte){
   # Pick chromatrogram indices from osw table.
   chromIndices <- oswFiles[[runname]] %>%

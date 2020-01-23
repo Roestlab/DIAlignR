@@ -5,13 +5,14 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param mzmlName (char) path to mzml file.
 #' @return (A data-frame) It has 10 columns. The two important columns are:
 #' \item{chromatogramId}{(integer) Fragment-ion ID that matches with transition ID in osw file.}
 #' \item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
 #'
+#' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' mzmlName <-paste0(dataPath,"/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
@@ -37,7 +38,7 @@ readChromatogramHeader <- function(mzmlName){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param dataPath (char) path to mzml and osw directory.
 #' @param runs (A vector of string) names of mzml file without extension. Vector must have names as shown in the example.

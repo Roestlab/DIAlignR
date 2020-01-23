@@ -5,7 +5,7 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param eXpRT (numeric) retention time in experiment run.
 #' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
@@ -22,6 +22,7 @@
 #' \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
 #'
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @keywords internal
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' \dontrun{
@@ -55,7 +56,7 @@ pickNearestFeature <- function(eXpRT, analyte, oswFiles, runname, adaptiveRT, fe
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param timeVec A numeric vector
 #' @param idx An integer vector
@@ -80,7 +81,7 @@ mapIdxToTime <- function(timeVec, idx){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
 #' @param refRT (numeric) retention time in reference run.
@@ -88,6 +89,7 @@ mapIdxToTime <- function(timeVec, idx){
 #' @param tVec.eXp (numeric) time vector of experiment run.
 #' @param AlignObj (S4 object)
 #' @return (numeric)
+#' @keywords internal
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' tVec.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]

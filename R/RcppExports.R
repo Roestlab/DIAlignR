@@ -168,10 +168,12 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-03-08
 #' @param l1 (list) A list of vectors. All vectors must be of same length.
-#' @param leftIdx (numeric) Left index of the boundary.
-#' @param rightIdx (numeric) Right index of the boundary.
+#' @param leftIdx (numeric) Left index (0-based) of the boundary.
+#' @param rightIdx (numeric) Right index (0-based) of the boundary.
 #' @return area (numeric).
 #' @examples
+#' l1 <- list(1:10, 1:10, 1:10)
+#' areaIntegrator(l1, leftIdx = 4, rightIdx = 6) # 54
 #' @export
 areaIntegrator <- function(l1, leftIdx, rightIdx) {
     .Call(`_DIAlignR_areaIntegrator`, l1, leftIdx, rightIdx)
@@ -247,17 +249,17 @@ alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simT
 #' seq1 = "GCAT"; seq2 = "CAGTG"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' obj_Global <- doAlignmentCpp(s, 22, FALSE)
-#' obj_Global@score # -2 -4 -6 4 -18
+#' slot(obj_Global, "score") # -2 -4 -6 4 -18
 #' obj_Olap <- doAlignmentCpp(s, 22, TRUE)
-#' obj_Olap@score # 0 10 20 18 18 18
+#' slot(obj_Olap, "score") # 0 10 20 18 18 18
 #'
 #' Match=1; MisMatch=-1
 #' seq1 = "TTTC"; seq2 = "TGC"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' obj_Global <- doAlignmentCpp(s, 2, FALSE)
-#' obj_Global@optionalPaths
+#' slot(obj_Global, "optionalPaths")
 #' matrix(data = c(1,1,1,1,1,1,1,1,1,2,1,2,1,3,3,1,1,3,6,3), nrow = 5, ncol =4, byrow = TRUE)
-#' obj_Global@M_forw
+#' slot(obj_Global, "M_forw")
 #' matrix(data = c(0,-2,-4,-6,-2,-7,-22,-45,-4,-20,-72,-184,-6,-41,-178,-547,-8,-72,-366,-1274),
 #'  nrow = 5, ncol =4, byrow = TRUE)
 #' @export
@@ -282,23 +284,23 @@ doAlignmentCpp <- function(sim, gap, OverlapAlignment) {
 #' seq1 = "GCAT"; seq2 = "CAGTG"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
-#' objAffine_Global@score # -2  -4  -6  4 -18
+#' slot(objAffine_Global, "score") # -2  -4  -6  4 -18
 #' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
-#' objAffine_Olap@score # 0 10 20 18 18 18
+#' slot(objAffine_Olap, "score") # 0 10 20 18 18 18
 #'
 #' Match=10; MisMatch=-2
 #' seq1 = "CAT"; seq2 = "CAGTG"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
-#' objAffine_Global@score # 10  20  -2  -9 -11
+#' slot(objAffine_Global, "score") # 10  20  -2  -9 -11
 #' objAffine_Olap <- doAffineAlignmentCpp(s, 22, 7, TRUE)
-#' objAffine_Olap@score # 10 20 18 18 18
+#' slot(objAffine_Olap, "score") # 10 20 18 18 18
 #'
 #' Match=10; MisMatch=-2
 #' seq1 = "CA"; seq2 = "AG"
 #' s <- getSeqSimMatCpp(seq1, seq2, Match, MisMatch)
 #' objAffine_Global <- doAffineAlignmentCpp(s, 22, 7, FALSE)
-#' objAffine_Global@simScore_forw # -4
+#' slot(objAffine_Global, "simScore_forw") # -4
 #' @export
 doAffineAlignmentCpp <- function(sim, go, ge, OverlapAlignment) {
     .Call(`_DIAlignR_doAffineAlignmentCpp`, sim, go, ge, OverlapAlignment)

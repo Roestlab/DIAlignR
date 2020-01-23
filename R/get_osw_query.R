@@ -3,7 +3,7 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param maxFdrQuery (numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
@@ -12,6 +12,7 @@
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
+#' @keywords internal
 getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
                      filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   if(is.null(analytes)){
@@ -116,7 +117,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param maxFdrQuery (numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
@@ -125,6 +126,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
 #' @seealso \code{\link{getOswAnalytes}}
+#' @keywords internal
 getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
                              runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   if(oswMerged){

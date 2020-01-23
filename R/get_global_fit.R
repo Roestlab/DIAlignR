@@ -9,7 +9,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("m_score"))
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param oswFiles (list of data-frames) it is output from getOswFiles function.
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
@@ -20,6 +20,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("m_score"))
 #' @importFrom stats loess loess.control
 #' @return An object of class "loess".
 #' @seealso \code{\link{getLinearfit}, \link{getOswFiles}}
+#' @keywords internal
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' \dontrun{
@@ -47,7 +48,7 @@ getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param oswFiles (list of data-frames) it is output from getOswFiles function.
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
@@ -57,6 +58,7 @@ getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
 #' @importFrom stats lm
 #' @return An object of class "lm".
 #' @seealso \code{\link{getLOESSfit}, \link{getOswFiles}}
+#' @keywords internal
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' \dontrun{
@@ -83,7 +85,7 @@ getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param oswFiles (list of data-frames) it is output from getOswFiles function.
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
