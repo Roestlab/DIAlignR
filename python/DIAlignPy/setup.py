@@ -34,9 +34,10 @@ from setuptools import setup, Extension
 from Cython.Distutils import build_ext
 
 import os
+import numpy
 curr_dir = os.path.dirname(os.path.realpath(__file__))
 curr_dir = "."
-src_dir = os.path.join(curr_dir, "..") 
+src_dir = os.path.join(curr_dir, "..", "..", "src")
 src_files = [
                        "affinealignment.cpp",
                        "affinealignobj.cpp",
@@ -50,7 +51,7 @@ src_files = [
 src_files = [os.path.join(src_dir, f) for f in src_files]
 src_files.append("PyDIAlign.pyx") 
 
-include_dirs = [src_dir]
+include_dirs = [src_dir, numpy.get_include()]
 
 ext_modules = [Extension("DIAlignPy", src_files,
                      language='c++',
@@ -61,10 +62,7 @@ ext_modules = [Extension("DIAlignPy", src_files,
 setup(
     ext_modules = ext_modules,
     cmdclass = {'build_ext': build_ext},
-
-    name="PyDIAlign",
-
-    version="0.1.0"
-
+    name="DIAlignPy",
+    version="0.9.0"
 )
 
