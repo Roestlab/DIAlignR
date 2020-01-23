@@ -28,7 +28,8 @@ Suggests:
     lattice,
     latticeExtra,
     rmarkdown,
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    BiocStyle
 VignetteBuilder: knitr
 BugReports: https://github.com/shubham1637/DIAlignR/issues
 LinkingTo: 
