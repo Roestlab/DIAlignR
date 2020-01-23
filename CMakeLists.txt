@@ -3,19 +3,23 @@ include(CTest)
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
-SET(CMAKE_CXX_FLAGS  "-march=native")  # about a 10% improvement
+if (MSVC)
+  # MSVC specific flags
+else()
+  SET(CMAKE_CXX_FLAGS  "-march=native")  # about a 10% improvement
+endif()
 
 aux_source_directory(. SRC_LIST)
 set (CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES
-../affinealignment.cpp
-../affinealignobj.cpp
-../alignment.cpp
-../chromSimMatrix.cpp
-../constrainMat.cpp
-../gapPenalty.cpp
-../utils.cpp
-../simpleFcn.cpp
+src/affinealignment.cpp
+src/affinealignobj.cpp
+src/alignment.cpp
+src/chromSimMatrix.cpp
+src/constrainMat.cpp
+src/gapPenalty.cpp
+src/utils.cpp
+src/simpleFcn.cpp
 )
 
 add_library(DIAAlignment ${SOURCE_FILES})
@@ -24,19 +28,19 @@ target_compile_definitions(DIAAlignment PRIVATE -DDIALIGN_PURE_CPP=On)
 # STATIC or MODULE
 
 # Actual executables
-add_executable(runAlignment ../run_alignment.cpp)
+add_executable(runAlignment src/run_alignment.cpp)
 target_link_libraries(runAlignment DIAAlignment)
 target_compile_definitions(runAlignment PRIVATE -DDIALIGN_PURE_CPP=On)
 
 # Test executables
-add_executable(runTest1 ../test/test_simpleFcn.cpp)
-add_executable(runTest2 ../test/test_utils.cpp)
-add_executable(runTest3 ../test/test_gapPenalty.cpp)
-add_executable(runTest4 ../test/test_constrainMat.cpp)
-add_executable(runTest5 ../test/test_chromSimMatrix.cpp)
-add_executable(runTest6 ../test/test_alignment.cpp)
-add_executable(runTest7 ../test/test_affinealignobj.cpp)
-add_executable(runTest8 ../test/test_affinealignment.cpp)
+add_executable(runTest1 src/test/test_simpleFcn.cpp)
+add_executable(runTest2 src/test/test_utils.cpp)
+add_executable(runTest3 src/test/test_gapPenalty.cpp)
+add_executable(runTest4 src/test/test_constrainMat.cpp)
+add_executable(runTest5 src/test/test_chromSimMatrix.cpp)
+add_executable(runTest6 src/test/test_alignment.cpp)
+add_executable(runTest7 src/test/test_affinealignobj.cpp)
+add_executable(runTest8 src/test/test_affinealignment.cpp)
 
 set(LIST_TESTS
 runTest1
