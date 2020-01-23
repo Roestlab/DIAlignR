@@ -21,6 +21,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "14299_QFNNTDIVLLEDFQK/3")
 #' }
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @keywords internal
 getRefRun <- function(oswFiles, analyte){
   # Select reference run based on m-score
   minMscore <- 1
@@ -61,6 +62,7 @@ getRefRun <- function(oswFiles, analyte){
 #'  analyte = "14299_QFNNTDIVLLEDFQK/3")
 #' }
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @keywords internal
 selectChromIndices <- function(oswFiles, runname, analyte){
   # Pick chromatrogram indices from osw table.
   chromIndices <- oswFiles[[runname]] %>%

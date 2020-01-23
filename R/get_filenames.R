@@ -9,6 +9,7 @@
 #' @param dataPath (char) path to mzml and osw directory.
 #' @param pattern (char) must be either *.osw or *merged.osw .
 #' @return A dataframe with single column.
+#' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' \dontrun{
@@ -62,6 +63,7 @@ filenamesFromOSW <- function(dataPath, pattern){
 #' Date: 2019-12-14
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @return A named vector.
+#' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' \dontrun{

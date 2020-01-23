@@ -15,6 +15,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("chromatogramHeader", "c
 #' Date: 2019-12-13
 #' @param chromatogramHeader (dataframe)
 #' @return Invisible NULL
+#' @keywords internal
 chromatogramIdAsInteger <- function(chromatogramHeader){
   assign("chromHead", dplyr::mutate(dplyr::select(chromatogramHeader, chromatogramId, chromatogramIndex),
                                     chromatogramId = as.integer(chromatogramId)),
@@ -40,6 +41,7 @@ chromatogramIdAsInteger <- function(chromatogramHeader){
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @return Invisible NULL
 #' @seealso \code{\link{getOswFiles}}
+#' @keywords internal
 mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1.00, runType = "DIA_proteomics"){
   # TODO: Make sure that transition_id has same order across runs. IMO should be specified in query.
   assign("oswAnalytes", dplyr::left_join(oswAnalytes, chromHead,

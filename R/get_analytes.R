@@ -14,6 +14,7 @@
 #' @param commonAnalytes (logical) TRUE: intersect across all runs, FASLE: union across all runs.
 #' @return A vector of strings.
 #' @seealso \code{\link{getOswFiles}}
+#' @keywords internal
 #' @examples
 #' data("oswFiles_DIAlignR", package = "DIAlignR")
 #' \dontrun{

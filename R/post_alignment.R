@@ -22,6 +22,7 @@
 #' \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
 #'
 #' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @keywords internal
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' \dontrun{
@@ -88,6 +89,7 @@ mapIdxToTime <- function(timeVec, idx){
 #' @param tVec.eXp (numeric) time vector of experiment run.
 #' @param AlignObj (S4 object)
 #' @return (numeric)
+#' @keywords internal
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' tVec.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]

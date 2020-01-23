@@ -12,6 +12,7 @@
 #' \item{chromatogramId}{(integer) Fragment-ion ID that matches with transition ID in osw file.}
 #' \item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
 #'
+#' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' mzmlName <-paste0(dataPath,"/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")

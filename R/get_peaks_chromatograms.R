@@ -13,6 +13,7 @@
 #' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
 #' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
 #' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+#' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")

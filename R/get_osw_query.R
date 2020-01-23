@@ -12,6 +12,7 @@
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
+#' @keywords internal
 getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
                      filename = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   if(is.null(analytes)){
@@ -125,6 +126,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
 #' @seealso \code{\link{getOswAnalytes}}
+#' @keywords internal
 getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
                              runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   if(oswMerged){

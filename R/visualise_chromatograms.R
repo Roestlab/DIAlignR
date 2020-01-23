@@ -105,6 +105,7 @@ plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
 #' @param idx (integer) Indices of aligned chromatograms.
 #' @param peakAnnot (numeric) Peak-apex time.
 #' @return A plot to the current device.
+#' @keywords internal
 plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
   intensity <- list()
   # Update intensities with aligned time indices.
@@ -158,6 +159,7 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #' XICs.ref <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[2]]
 #' XICs.eXp <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[3]]
 #' refPeakLabel <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[4]]
+#' @keywords internal
 getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
                                annotatePeak = FALSE){
   AlignedIndices <- cbind(AlignObj@indexA_aligned, AlignObj@indexB_aligned,

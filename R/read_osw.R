@@ -30,6 +30,7 @@
 #' \item{transition_id}{(integer) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 #'
 #' @seealso \code{\link{getRunNames}}
+#' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' filenames <- DIAlignR::getRunNames(dataPath = dataPath)
