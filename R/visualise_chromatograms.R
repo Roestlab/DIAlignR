@@ -130,7 +130,7 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #' Plot aligned XICs group for a specific peptide.
 #'
 #' @description
-#' AlignObjOutput is the output from getAlignObjs fucntion.
+#' AlignObj is the output from getAlignObjs fucntion. This function prepares ggplot objects from AlignObj.
 #'
 #' @importFrom ggplot2 geom_vline xlab scale_y_continuous
 #' @importFrom scales scientific_format
