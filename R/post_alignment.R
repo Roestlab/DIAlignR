@@ -5,7 +5,7 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param eXpRT (numeric) retention time in experiment run.
 #' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
@@ -56,7 +56,7 @@ pickNearestFeature <- function(eXpRT, analyte, oswFiles, runname, adaptiveRT, fe
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @param timeVec A numeric vector
 #' @param idx An integer vector
@@ -81,7 +81,7 @@ mapIdxToTime <- function(timeVec, idx){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
 #' @param refRT (numeric) retention time in reference run.

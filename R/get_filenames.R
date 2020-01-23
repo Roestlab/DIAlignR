@@ -4,7 +4,7 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param dataPath (char) path to mzml and osw directory.
 #' @param pattern (char) must be either *.osw or *merged.osw .
@@ -59,7 +59,7 @@ filenamesFromOSW <- function(dataPath, pattern){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @return A named vector.
@@ -85,7 +85,7 @@ filenamesFromMZML <- function(dataPath){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.

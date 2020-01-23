@@ -4,7 +4,7 @@
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom methods setClass new
 #' @seealso \code{\link{doAffineAlignmentCpp}}
@@ -27,7 +27,7 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom methods setClass new
 #' @seealso \code{\link{doAffineAlignmentCpp}}
@@ -43,7 +43,7 @@ AffineAlignObjLight <- setClass(Class="AffineAlignObjLight",
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom methods setClass new
 #' @seealso \code{\link{doAffineAlignmentCpp}}
@@ -61,7 +61,7 @@ AffineAlignObjMedium <- setClass(Class="AffineAlignObjMedium",
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + MIT
+#' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom methods setClass new
 #' @seealso \code{\link{doAlignmentCpp}}
