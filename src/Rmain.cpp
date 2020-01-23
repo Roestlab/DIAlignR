@@ -219,10 +219,12 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
 //' @param l1 (list) A list of vectors. All vectors must be of same length.
-//' @param leftIdx (numeric) Left index of the boundary.
-//' @param rightIdx (numeric) Right index of the boundary.
+//' @param leftIdx (numeric) Left index (0-based) of the boundary.
+//' @param rightIdx (numeric) Right index (0-based) of the boundary.
 //' @return area (numeric).
 //' @examples
+//' l1 <- list(1:10, 1:10, 1:10)
+//' areaIntegrator(l1, leftIdx = 4, rightIdx = 6) # 54
 //' @export
 // [[Rcpp::export]]
 double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx){
