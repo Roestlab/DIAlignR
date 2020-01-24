@@ -106,15 +106,10 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   message("Metadata is collected from mzML files.")
 
   ######### Initilize output tables. #######
-  rtTbl <- matrix(NA, nrow = length(refAnalytes), ncol = length(runs))
-  intesityTbl <- matrix(NA, nrow = length(refAnalytes), ncol = length(runs))
-  lwTbl <- matrix(NA, nrow = length(refAnalytes), ncol = length(runs))
-  rwTbl <- matrix(NA, nrow = length(refAnalytes), ncol = length(runs))
-  rownames(rtTbl) <- refAnalytes; colnames(rtTbl) <- names(runs)
-  rownames(intesityTbl) <- refAnalytes; colnames(intesityTbl) <- names(runs)
-  rownames(lwTbl) <- refAnalytes; colnames(lwTbl) <- names(runs)
-  rownames(rwTbl) <- refAnalytes; colnames(rwTbl) <- names(runs)
-
+  rtTbl <- lapply(1:length(refAnalytes), function(i) rep(NA, length(runs)))
+  intesityTbl <- lapply(1:length(refAnalytes), function(i) rep(NA, length(runs)))
+  lwTbl <- lapply(1:length(refAnalytes), function(i) rep(NA, length(runs)))
+  rwTbl <- lapply(1:length(refAnalytes), function(i) rep(NA, length(runs)))
   ######### Container to save loess fits.  #######
   loessFits <- list()
   #alignedTables <- performRefAlignment(alignType, ...)
@@ -146,6 +141,7 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
     # Align all runs to reference run
     for(eXp in exps){
       # Get XIC_group from experiment run
+      eXpIdx <- which(names(runs) == eXp)
       chromIndices <- selectChromIndices(oswFiles, runname = eXp, analyte = analyte)
       if(!is.null(chromIndices)){
         XICs.eXp <- extractXIC_group(mzPntrs[[eXp]], chromIndices)
@@ -168,10 +164,10 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
                                           adaptiveRT = adaptiveRT, featureFDR = 0.05)
         if(!is.null(eXp_feature)){
           # A feature is found. Use this feature for quantification.
-          lwTbl[analyteIdx, eXp] <- eXp_feature[["leftWidth"]]
-          rtTbl[analyteIdx, eXp] <- eXp_feature[["RT"]]
-          rwTbl[analyteIdx, eXp] <- eXp_feature[["rightWidth"]]
-          intesityTbl[analyteIdx, eXp] <- eXp_feature[["Intensity"]]
+          lwTbl[[analyteIdx]][[eXpIdx]] <- eXp_feature[["leftWidth"]]
+          rtTbl[[analyteIdx]][[eXpIdx]] <- eXp_feature[["RT"]]
+          rwTbl[[analyteIdx]][[eXpIdx]] <- eXp_feature[["rightWidth"]]
+          intesityTbl[[analyteIdx]][[eXpIdx]] <- eXp_feature[["Intensity"]]
         } else {
           # Feature is not found.}
         }
@@ -181,16 +177,26 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
       }
     }
     # Get the feature from reference run
-    lwTbl[analyteIdx, refRunIdx] <- refPeak[["leftWidth"]]
-    rtTbl[analyteIdx, refRunIdx] <- refPeak[["RT"]]
-    rwTbl[analyteIdx, refRunIdx] <- refPeak[["rightWidth"]]
-    intesityTbl[analyteIdx, refRunIdx] <- refPeak[["Intensity"]]
+    lwTbl[[analyteIdx]][[refRunIdx]] <- refPeak[["leftWidth"]]
+    rtTbl[[analyteIdx]][[refRunIdx]] <- refPeak[["RT"]]
+    rwTbl[[analyteIdx]][[refRunIdx]] <- refPeak[["rightWidth"]]
+    intesityTbl[[analyteIdx]][[refRunIdx]] <- refPeak[["Intensity"]]
   }
   ######### Cleanup.  #######
   rm(mzPntrs)
   # Report the execution time for hybrid alignment step.
   end_time <- Sys.time()
   message("Execution time for alignment = ", end_time - start_time)
+
+  rtTbl <- do.call(rbind, rtTbl)
+  intesityTbl <- do.call(rbind, intesityTbl)
+  lwTbl <- do.call(rbind, lwTbl)
+  rwTbl <- do.call(rbind, rwTbl)
+
+  rownames(rtTbl) <- refAnalytes; colnames(rtTbl) <- names(runs)
+  rownames(intesityTbl) <- refAnalytes; colnames(intesityTbl) <- names(runs)
+  rownames(lwTbl) <- refAnalytes; colnames(lwTbl) <- names(runs)
+  rownames(rwTbl) <- refAnalytes; colnames(rwTbl) <- names(runs)
 
   colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
   colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
@@ -289,7 +295,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
 
   message("Following runs will be aligned:")
   message(filenames[, "runs"], sep = "\n")
-  
+
   ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
   names(runs) <- rownames(filenames)
