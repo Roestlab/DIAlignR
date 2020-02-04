@@ -11,7 +11,8 @@
   \item{intensity}{Intensity of signal for the transition}
 }}
 \source{
-data-raw/test_GenerateData.R has source code.
+Raw files are downloaded from [Peptide Atlas](http://www.peptideatlas.org/PASS/PASS01508).
+data-raw/test_GenerateData.R has [source code](https://github.com/shubham1637/DIAlignR/tree/master/data-raw).
 }
 \usage{
 XIC_QFNNTDIVLLEDFQK_3_DIAlignR

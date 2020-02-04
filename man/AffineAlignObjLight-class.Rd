@@ -6,7 +6,8 @@
 \alias{AffineAlignObjLight}
 \title{An S4 object for class AffineAlignObj. It only contains aligned indices.}
 \description{
-An S4 object for class AffineAlignObj. It only contains aligned indices.
+indexA_aligned and indexB_aligned are aligned indices of signalA and SignalB. The cumulative
+alignment score is in score vector.
 }
 \seealso{
 \code{\link{doAffineAlignmentCpp}}
@@ -16,6 +17,6 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 
 ORCID: 0000-0003-3500-8152
 
-License: (c) Author (2019) + MIT
+License: (c) Author (2019) + GPL-3
 Date: 2019-12-14
 }

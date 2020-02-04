@@ -24,7 +24,7 @@ and second column indicates intensity.}
 A plot to the current device.
 }
 \description{
-AlignObjOutput is the output from getAlignObjs fucntion.
+AlignObj is the output from getAlignObjs fucntion. This function prepares ggplot objects from AlignObj.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
@@ -41,7 +41,7 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 
 ORCID: 0000-0003-3500-8152
 
-License: (c) Author (2019) + MIT
+License: (c) Author (2019) + GPL-3
 Date: 2019-12-13
 }
 \keyword{internal}
