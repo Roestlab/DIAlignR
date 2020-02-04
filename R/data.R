@@ -13,7 +13,9 @@
 #'   \item{time}{Retention time of ananlyte in the run, in sec}
 #'   \item{intensity}{Intensity of signal for the transition}
 #' }
-#' @source data-raw/test_GenerateData.R has source code.
+#' @source Raw files are downloaded from \href{http://www.peptideatlas.org/PASS/PASS01508}{Peptide Atlas}.
+#' File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}
+#' to generate the example data.
 "XIC_QFNNTDIVLLEDFQK_3_DIAlignR"
 
 #' Analytes information from osw files
@@ -40,5 +42,7 @@
 #'   \item{chromatogramIndex}{Indices of XICs of the feature in corresponding mzML}
 #'   \item{transition_ids}{Transition IDs (chromatogram IDs) of the feature}
 #' }
-#' @source data-raw/test_GenerateData.R has source code.
+#' @source Raw files are downloaded from \href{http://www.peptideatlas.org/PASS/PASS01508}{Peptide Atlas}.
+#' File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}
+#' to generate the example data.
 "oswFiles_DIAlignR"
