@@ -1,3 +1,8 @@
+CHANGES IN VERSION 0.99.11 (February 04, 2020)
+------------------------
++ Made changes as suggested in initial review. Updated man/ pages associated with function.
++ Link to the file for generating example data is updated.
+
 CHANGES IN VERSION 0.99.10 (January 22, 2020)
 ------------------------
 + Made changes as suggested in initial review. https://github.com/Bioconductor/Contributions/issues/1328#issuecomment-576806498
