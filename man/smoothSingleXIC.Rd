@@ -28,6 +28,16 @@ is good at preserving peak-shape compared to gaussian and boxcar smoothing. Howe
 equidistant points that fortunately is the case for DIA data. This requires a quadratic memory
 to store the fit and slower than other smoothing methods.
 }
+\details{
+Gaussian smoothing uses a gaussian function whose bandwidth is scaled by 0.3706505 to have
+quartiles at +/- 0.25*bandwidth. The point selection cut-off is also hard at 0.3706505*4*bandwidth.
+
+qnorm(0.75, sd = 0.3706505)
+
+The definition of C_ksmooth can be found using
+getAnywhere('C_ksmooth')
+stats:::C_ksmooth
+}
 \examples{
 data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
 chrom <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
@@ -36,7 +46,8 @@ newChrom <- smoothSingleXIC(chrom, type = "sgolay", samplingTime = 3.42, kernelL
 }
 \seealso{
 \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},
- \url{https://rafalab.github.io/dsbook/smoothing.html}
+ \url{https://rafalab.github.io/dsbook/smoothing.html},
+ \url{https://github.com/SurajGupta/r-source/blob/master/src/library/stats/src/ksmooth.c}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

@@ -5,6 +5,15 @@
 #' equidistant points that fortunately is the case for DIA data. This requires a quadratic memory
 #' to store the fit and slower than other smoothing methods.
 #'
+#' Gaussian smoothing uses a gaussian function whose bandwidth is scaled by 0.3706505 to have
+#' quartiles at +/- 0.25*bandwidth. The point selection cut-off is also hard at 0.3706505*4*bandwidth.
+#'
+#' qnorm(0.75, sd = 0.3706505)
+#'
+#' The definition of C_ksmooth can be found using
+#' getAnywhere('C_ksmooth')
+#' stats:::C_ksmooth
+#'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -24,17 +33,20 @@
 #' newChrom <- smoothSingleXIC(chrom, type = "sgolay", samplingTime = 3.42, kernelLen = 9,
 #'  polyOrd = 3)
 #' @seealso \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},
-#'  \url{https://rafalab.github.io/dsbook/smoothing.html}
+#'  \url{https://rafalab.github.io/dsbook/smoothing.html},
+#'  \url{https://github.com/SurajGupta/r-source/blob/master/src/library/stats/src/ksmooth.c}
 smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen = NULL, polyOrd = NULL){
   time <- chromatogram[[1]]
   if(type == "sgolay"){
     intensity <- signal::sgolayfilt(chromatogram[[2]], p = polyOrd, n = kernelLen)
     intensity[intensity < 0.0] <- 0.0
   } else if (type == "boxcar"){
-    intensity <- ksmooth(time, chromatogram[[2]], kernel = "box", bandwidth = kernelLen*samplingTime)
+    intensity <- ksmooth(time, chromatogram[[2]], kernel = "box",
+                         bandwidth = kernelLen*samplingTime, n.points = length(time))
     intensity <- intensity[["y"]]
   } else if (type == "gaussian"){
-    intensity <- ksmooth(time, chromatogram[[2]], kernel = "normal", bandwidth = kernelLen)
+    intensity <- ksmooth(time, chromatogram[[2]], kernel = "normal",
+                         bandwidth = kernelLen*samplingTime, n.points = length(time))
     intensity <- intensity[["y"]]
   } else if (type == "loess") {
     spanvalue <- kernelLen/length(time)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/chromatogram_smooth.R
 \name{smoothXICs}
 \alias{smoothXICs}
-\title{Smooth a chromatogram signal from a list}
+\title{Smooth chromatogram signals from a list}
 \usage{
 smoothXICs(XICs, type = "none", samplingTime = NULL,
   kernelLen = NULL, polyOrd = NULL)
