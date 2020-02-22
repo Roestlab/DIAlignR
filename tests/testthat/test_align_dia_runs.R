@@ -56,11 +56,11 @@ test_that("test_getAlignObjs",{
                hardConstrain = FALSE, samples4gradient = 100,
                samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light")
   expData <- testAlignObj()
-  #expect_equal(outData[[analyte]][[1]], expData, tolerance = 1e-05)
+  expect_equal(outData[[analyte]][[1]], expData, tolerance = 1e-05)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
-  expect_equal(outData[[analyte]][[refRun]], XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
-  expect_equal(outData[[analyte]][[setdiff(runs, refRun)]], XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
+  #expect_equal(outData[[analyte]][[refRun]], XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
+  #expect_equal(outData[[analyte]][[setdiff(runs, refRun)]], XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
   expData <- data.frame("leftWidth" = 5220.758, "RT" = 5238.35, "rightWidth" = 5261.723)
   expect_equal(as.data.frame(outData[[analyte]][[4]]), expData, tolerance = 1e-05)
 
@@ -77,11 +77,11 @@ test_that("test_getAlignObjs",{
                           hardConstrain = FALSE, samples4gradient = 100,
                           samplingTime = 3.4,  RSEdistFactor = 3.5, objType = "light")
   expData <- testAlignObj(analyteInGroupLabel = TRUE)
-  #expect_equal(outData[[analyte]][[1]], expData, tolerance = 1e-05)
+  expect_equal(outData[[analyte]][[1]], expData, tolerance = 1e-05)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
-  expect_equal(outData[[analyte]][[refRun]], XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
-  expect_equal(outData[[analyte]][[setdiff(runs, refRun)]], XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
+  #expect_equal(outData[[analyte]][[refRun]], XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
+  #expect_equal(outData[[analyte]][[setdiff(runs, refRun)]], XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]], tolerance = 1e-05)
   expData <- data.frame("leftWidth" = 5220.758, "RT" = 5238.35, "rightWidth" = 5261.723)
   expect_equal(as.data.frame(outData[[analyte]][[4]]), expData, tolerance = 1e-05)
 })

@@ -86,7 +86,9 @@ test_that("test_alignChromatogramsCpp",{
   oswFiles <- oswFiles_DIAlignR
   Loess.fit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
   XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- smoothXICs(XICs.ref, type = "sgolay", kernelLen = 13, polyOrd = 4)
   XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- smoothXICs(XICs.eXp, type = "sgolay", kernelLen = 13, polyOrd = 4)
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
   B1p <- predict(Loess.fit, tVec.ref[1])
@@ -102,7 +104,7 @@ test_that("test_alignChromatogramsCpp",{
                          dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
                          samples4gradient = 100, objType = "light")
   expData <- testAlignObj()
-  # expect_equal(outData, expData, tolerance = 1e-03)
+  expect_equal(outData, expData, tolerance = 1e-03)
 })
 
 test_that("test_doAlignmentCpp",{

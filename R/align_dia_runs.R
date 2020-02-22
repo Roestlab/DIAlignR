@@ -341,11 +341,13 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
     ref <- names(runs)[refRunIdx]
     exps <- setdiff(names(runs), ref)
     XICs.ref <- XICs[[ref]][[analyte]]
+    XICs.ref <- smoothXICs(XICs.ref, type = XICfilter, kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
 
     # Align experiment run to reference run
     for(eXp in exps){
       # Get XIC_group from experiment run
       XICs.eXp <- XICs[[eXp]][[analyte]]
+      XICs.eXp <- smoothXICs(XICs.eXp, type = XICfilter, kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
       if(!is.null(XICs.eXp)){
         # Get the loess fit for hybrid alignment
         pair <- paste(ref, eXp, sep = "_")
