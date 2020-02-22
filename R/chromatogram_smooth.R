@@ -39,7 +39,6 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
   time <- chromatogram[[1]]
   if(type == "sgolay"){
     intensity <- signal::sgolayfilt(chromatogram[[2]], p = polyOrd, n = kernelLen)
-    intensity[intensity < 0.0] <- 0.0
   } else if (type == "boxcar"){
     intensity <- ksmooth(time, chromatogram[[2]], kernel = "box",
                          bandwidth = kernelLen*samplingTime, n.points = length(time))
@@ -52,7 +51,6 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
     spanvalue <- kernelLen/length(time)
     fit <- suppressWarnings(loess(chromatogram[[2]] ~ time, span = spanvalue, degree = polyOrd))
     intensity <- predict(fit, time)
-    intensity[intensity < 0.0] <- 0.0
   } else {
     intensity <- chromatogram[[2]]
   }
