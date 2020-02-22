@@ -133,9 +133,9 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
       message("Skipping ", analyte)
       next
     } else {
-      XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices,
-                                   XICfilter = XICfilter, SgolayFiltOrd = SgolayFiltOrd,
-                                   SgolayFiltLen = SgolayFiltLen)
+      XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices)
+      XICs.ref.s <- smoothXICs(XICs.ref, type = XICfilter,
+                             kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
     }
 
     # Align all runs to reference run
@@ -145,6 +145,8 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
       chromIndices <- selectChromIndices(oswFiles, runname = eXp, analyte = analyte)
       if(!is.null(chromIndices)){
         XICs.eXp <- extractXIC_group(mzPntrs[[eXp]], chromIndices)
+        XICs.eXp.s <- smoothXICs(XICs.eXp, type = XICfilter,
+                               kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
         # Get the loess fit for hybrid alignment
         pair <- paste(ref, eXp, sep = "_")
         if(any(pair %in% names(loessFits))){
@@ -156,7 +158,7 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
         # Set up constraints for penalizing similarity matrix
         adaptiveRT <- RSEdistFactor*Loess.fit$s
         # Get retention time in experiment run mapped to reference run retention time.
-        eXpRT <- getMappedRT(refPeak$RT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT, samplingTime,
+        eXpRT <- getMappedRT(refPeak$RT, XICs.ref.s, XICs.eXp.s, Loess.fit, alignType, adaptiveRT, samplingTime,
                              normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                              OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
                              samples4gradient)
@@ -345,12 +347,14 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
     ref <- names(runs)[refRunIdx]
     exps <- setdiff(names(runs), ref)
     XICs.ref <- XICs[[ref]][[analyte]]
+    XICs.ref.s <- smoothXICs(XICs.ref, type = XICfilter, kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
 
     # Align experiment run to reference run
     for(eXp in exps){
       # Get XIC_group from experiment run
       XICs.eXp <- XICs[[eXp]][[analyte]]
-      if(!is.null(XICs.eXp)){
+      XICs.eXp.s <- smoothXICs(XICs.eXp, type = XICfilter, kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
+      if(!is.null(XICs.eXp.s)){
         # Get the loess fit for hybrid alignment
         pair <- paste(ref, eXp, sep = "_")
         if(any(pair %in% names(loessFits))){
@@ -361,7 +365,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
         }
         adaptiveRT <-  RSEdistFactor*Loess.fit$s # Residual Standard Error
         # Fetch alignment object between XICs.ref and XICs.eXp
-        AlignObj <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = adaptiveRT, samplingTime,
+        AlignObj <- getAlignObj(XICs.ref.s, XICs.eXp.s, Loess.fit, adaptiveRT = adaptiveRT, samplingTime,
                                 normalization, simType = simMeasure, goFactor, geFactor,
                                 cosAngleThresh, OverlapAlignment,
                                 dotProdThresh, gapQuantile, hardConstrain, samples4gradient,
