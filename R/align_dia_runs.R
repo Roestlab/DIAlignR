@@ -138,9 +138,9 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
       message("Skipping ", analyte)
       next
     } else {
-      XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices,
-                                   XICfilter = XICfilter, SgolayFiltOrd = SgolayFiltOrd,
-                                   SgolayFiltLen = SgolayFiltLen)
+      XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices)
+      XICs.ref <- smoothXICs(XICs.ref, type = XICfilter,
+                             kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
     }
 
     # Align all runs to reference run
@@ -149,6 +149,8 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
       chromIndices <- selectChromIndices(oswFiles, runname = eXp, analyte = analyte)
       if(!is.null(chromIndices)){
         XICs.eXp <- extractXIC_group(mzPntrs[[eXp]], chromIndices)
+        XICs.eXp <- smoothXICs(XICs.eXp, type = XICfilter,
+                               kernelLen = SgolayFiltLen, polyOrd = SgolayFiltOrd)
         # Get the loess fit for hybrid alignment
         pair <- paste(ref, eXp, sep = "_")
         if(any(pair %in% names(loessFits))){
@@ -289,7 +291,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", alignType = "hybrid",
 
   message("Following runs will be aligned:")
   message(filenames[, "runs"], sep = "\n")
-  
+
   ######### Collect pointers for each mzML file. #######
   runs <- filenames$runs
   names(runs) <- rownames(filenames)

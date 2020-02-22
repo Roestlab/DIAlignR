@@ -19,18 +19,14 @@
 #' mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 #' chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
 #' \dontrun{
-#' XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
+#' XIC_group <- extractXIC_group(mz, chromIndices)
 #' }
-extractXIC_group <- function(mz, chromIndices, XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9){
+extractXIC_group <- function(mz, chromIndices){
   XIC_group <- lapply(seq_along(chromIndices), function(i) {
     rawChrom <- mzR::chromatograms(mz, chromIndices[i])
-    # Savitzky-Golay filter to smooth chromatograms, filter order p = 3, filter length n = 13
-    if(XICfilter == "sgolay"){
-      rawChrom[,2] <- signal::sgolayfilt(rawChrom[,2], p = SgolayFiltOrd, n = SgolayFiltLen)
-    }
     return(rawChrom)
   })
-  return(XIC_group)
+  XIC_group
 }
 
 #' Extract XICs of all analytes from oswFiles
@@ -82,7 +78,7 @@ getXICs4AlignObj <- function(dataPath, runs, oswFiles, analytes, XICfilter = "sg
         message("Skipping ", analyte)
         XIC_group <- NULL
       } else {
-        XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices, XICfilter, SgolayFiltOrd, SgolayFiltLen)
+        XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices)
       }
       XIC_group
     })

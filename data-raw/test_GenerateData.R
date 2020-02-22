@@ -1,7 +1,7 @@
 context("Generate test data")
 
 generateDIAlignRdata <- function(){
-  dataPath <- "../../data/example/"
+  dataPath <- system.file("extdata", package = "DIAlignR")
   oswMerged <- TRUE
   nameCutPattern <- "(.*)(/)(.*)"
   filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
@@ -13,8 +13,7 @@ generateDIAlignRdata <- function(){
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
             "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-  outData <- getXICs4AlignObj(dataPath, runs, oswFiles_DIAlignR, analytes,
-                              SgolayFiltOrd = 4, SgolayFiltLen = 13)
+  outData <- getXICs4AlignObj(dataPath, runs, oswFiles_DIAlignR, analytes, XICfilter = "none")
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
   save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
 }

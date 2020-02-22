@@ -4,8 +4,7 @@
 \alias{extractXIC_group}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-extractXIC_group(mz, chromIndices, XICfilter = "sgolay",
-  SgolayFiltOrd = 4, SgolayFiltLen = 9)
+extractXIC_group(mz, chromIndices)
 }
 \arguments{
 \item{mz}{(mzRpwiz object)}
@@ -30,7 +29,7 @@ mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_
 mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
 \dontrun{
-XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
+XIC_group <- extractXIC_group(mz, chromIndices)
 }
 }
 \author{
