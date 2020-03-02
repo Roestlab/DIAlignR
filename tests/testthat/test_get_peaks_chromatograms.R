@@ -4,12 +4,12 @@ test_that("test_extractXIC_group", {
   mzmlName <- file.path(system.file("extdata", package = "DIAlignR"), "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
   mz <- mzR::openMSfile(filename = mzmlName, backend = "pwiz")
   chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
-  outData <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
+  outData <- extractXIC_group(mz, chromIndices)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
   expect_identical(length(outData), 6L)
   expect_equal(outData[[2]][,1], XICs[[2]][,1], tolerance = 1e-04)
-  expect_equal(outData[[2]][,2], XICs[[2]][,2], tolerance = 1e-04)
+  expect_equal(outData[[1]][,2], XICs[[1]][,2], tolerance = 1e-04)
 })
 
 test_that("test_getXICs4AlignObj", {

@@ -8,42 +8,50 @@
 
 namespace DIAlign
 {
+
+namespace Traceback
+{
+
 enum TracebackType {SS = 0, DM = 1, DA = 2, DB = 3, TM = 4, TA = 5, TB = 6, LM = 7, LA = 8, LB = 9};
 enum tbJump {M = 0, A = 1, B = 2};
 
-// This function overloads << to display TracebackType.
+/// This function overloads << to display TracebackType.
 std::ostream& operator<<(std::ostream& out, const TracebackType value);
 
-// This function converts TracebackType Enum to characters.
+/// This function converts TracebackType Enum to characters.
 std::vector<char> EnumToChar(std::vector<TracebackType> v);
+}
 
+/**
+   @brief An affine alignment object
+*/
 struct AffineAlignObj
 {
 private:
-  int signalA_capacity; // Capacity of matrix for signal A (rows)
-  int signalB_capacity; // Capacity of matrix for signal B (columns)
+  int signalA_capacity; ///< Capacity of matrix for signal A (rows)
+  int signalB_capacity; ///< Capacity of matrix for signal B (columns)
 
 public:
-  double* s_data; // similarity matrix
-  double* M; // Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
-  double* A; // Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
-  double* B; // Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
-  TracebackType* Traceback;
-  bool* Path; // Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
+  double* s_data; ///< similarity matrix
+  double* M; ///< Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
+  double* A; ///< Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
+  double* B; ///< Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
+  Traceback::TracebackType* Traceback;
+  bool* Path; ///< Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
   bool* simPath;
   // s_data, M, A and B should be private. Now there is a possibility of memory-leak.
   // TODO Make above variables private.
-  int signalA_len; // Number of data-points in signal A
-  int signalB_len; // Number of data-points in signal B
-  double GapOpen; // Penalty for Gap opening
-  double GapExten; // Penalty for Gap extension
+  int signalA_len; ///< Number of data-points in signal A
+  int signalB_len; ///< Number of data-points in signal B
+  double GapOpen; ///< Penalty for Gap opening
+  double GapExten; ///< Penalty for Gap extension
   // For single gap: Penalty = GapOpen
   // For two consecutive gaps: Penalty = GapOpen + GapExten
   // For n consecutive gaps: Penalty = GapOpen + (n-1)*GapExten
-  bool FreeEndGaps; // True for Overlap alignment
-  std::vector<int> indexA_aligned; // Aligned signalA indices after affine alignment
-  std::vector<int> indexB_aligned; // Aligned signalB indices after affine alignment
-  std::vector<double> score;  // Score along the aligned path
+  bool FreeEndGaps; ///< True for Overlap alignment
+  std::vector<int> indexA_aligned; ///< Aligned signalA indices after affine alignment
+  std::vector<int> indexB_aligned; ///< Aligned signalB indices after affine alignment
+  std::vector<double> score;  ///< Score along the aligned path
   int nGaps;
 
   // Not a default constructor
@@ -61,7 +69,7 @@ public:
       std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
       std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
       std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-      std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+      std::memset(Traceback, Traceback::SS, 3 * ROW_SIZE * COL_SIZE * sizeof(Traceback::TracebackType));
       std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
       std::memset(simPath, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
     }
@@ -77,6 +85,7 @@ public:
     signalB_capacity = COL_SIZE-1;
   }
 
+  /// Reset object to initial state (without allocating new memory)
   void reset(int ROW_SIZE, int COL_SIZE)
   {
     if (ROW_SIZE -1 > signalA_capacity || COL_SIZE -1 > signalB_capacity)
@@ -92,7 +101,7 @@ public:
     std::memset(M, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memset(A, 0, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memset(B, 0, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memset(Traceback, SS, 3 * ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+    std::memset(Traceback, Traceback::SS, 3 * ROW_SIZE * COL_SIZE * sizeof(Traceback::TracebackType));
     std::memset(Path, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memset(simPath, 0, ROW_SIZE * COL_SIZE * sizeof(bool));
 
@@ -187,7 +196,7 @@ private:
     M = new double[ROW_SIZE * COL_SIZE];
     A = new double[ROW_SIZE * COL_SIZE];
     B = new double[ROW_SIZE * COL_SIZE];
-    Traceback = new TracebackType[3* ROW_SIZE * COL_SIZE];
+    Traceback = new Traceback::TracebackType[3* ROW_SIZE * COL_SIZE];
     Path = new bool[ROW_SIZE * COL_SIZE];
     simPath = new bool[ROW_SIZE * COL_SIZE];
   }
@@ -198,7 +207,7 @@ private:
     std::memcpy(M, rhs.M, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(A, rhs.A, ROW_SIZE * COL_SIZE * sizeof(double));
     std::memcpy(B, rhs.B, ROW_SIZE * COL_SIZE * sizeof(double));
-    std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(TracebackType));
+    std::memcpy(Traceback, rhs.Traceback, 3 *ROW_SIZE * COL_SIZE * sizeof(Traceback::TracebackType));
     std::memcpy(Path, rhs.Path, ROW_SIZE * COL_SIZE * sizeof(bool));
     std::memcpy(simPath, rhs.simPath, ROW_SIZE * COL_SIZE * sizeof(bool));
   }

@@ -6,7 +6,9 @@ test_that("test_getAlignObj", {
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
   XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- smoothXICs(XICs.ref, type = "sgolay", kernelLen = 13, polyOrd = 4)
   XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- smoothXICs(XICs.eXp, type = "sgolay", kernelLen = 13, polyOrd = 4)
   Loess.fit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
   outData <- getAlignObj(XICs.ref, XICs.eXp, Loess.fit, adaptiveRT = 77.82315, samplingTime = 3.414,
                          normalization = "mean", simType = "dotProductMasked", goFactor = 0.125, geFactor = 40,

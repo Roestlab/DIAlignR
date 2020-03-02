@@ -6,14 +6,14 @@
 #include "similarityMatrix.h"
 #include "utils.h"
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 #include <Rcpp.h>
 #endif
 
 namespace DIAlign
 {
 
-#ifdef USE_Rcpp
+#ifdef DIALIGN_USE_Rcpp
 using namespace Rcpp;
 /***
 //' Outputs a NumericMatrix of given row and column size.

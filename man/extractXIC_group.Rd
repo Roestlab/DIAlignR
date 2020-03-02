@@ -4,19 +4,12 @@
 \alias{extractXIC_group}
 \title{Extract XICs of all transitions requested in chromIndices.}
 \usage{
-extractXIC_group(mz, chromIndices, XICfilter = "sgolay",
-  SgolayFiltOrd = 4, SgolayFiltLen = 9)
+extractXIC_group(mz, chromIndices)
 }
 \arguments{
 \item{mz}{(mzRpwiz object)}
 
 \item{chromIndices}{(vector of Integers) Indices of chromatograms to be extracted.}
-
-\item{XICfilter}{(string) This must be one of the strings "sgolay", "none".}
-
-\item{SgolayFiltOrd}{(integer) It defines the polynomial order of filer.}
-
-\item{SgolayFiltLen}{(integer) Must be an odd number. It defines the length of filter.}
 }
 \value{
 A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
@@ -30,7 +23,7 @@ mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_
 mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
 \dontrun{
-XIC_group <- extractXIC_group(mz, chromIndices, SgolayFiltOrd = 4, SgolayFiltLen = 13)
+XIC_group <- extractXIC_group(mz, chromIndices)
 }
 }
 \author{
