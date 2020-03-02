@@ -9,15 +9,19 @@ areaIntegrator(l1, leftIdx, rightIdx)
 \arguments{
 \item{l1}{(list) A list of vectors. All vectors must be of same length.}
 
-\item{leftIdx}{(numeric) Left index of the boundary.}
+\item{leftIdx}{(numeric) Left index (0-based) of the boundary.}
 
-\item{rightIdx}{(numeric) Right index of the boundary.}
+\item{rightIdx}{(numeric) Right index (0-based) of the boundary.}
 }
 \value{
 area (numeric).
 }
 \description{
 This function sums all the intensities between left-index and right-index.
+}
+\examples{
+l1 <- list(1:10, 1:10, 1:10)
+areaIntegrator(l1, leftIdx = 4, rightIdx = 6) # 54
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

@@ -6,7 +6,13 @@
 \alias{AlignObj}
 \title{An S4 object for class AlignObj}
 \description{
-An S4 object for class AlignObj
+s is a point-wise similarity matrix between signalA and signalB.
+Intermediate matrices M is calculated from s for alignment. Each cell of the Traceback
+matrix has coordinate of its parent cell. path matrix is a binary matrix with ones indicating path
+of maximum cumulative score.
+GapOpen and GapExten are gap-opening and gap-extension penalties used by alignment algorithm. They
+must be the same. indexA_aligned and indexB_aligned are aligned indices of signalA and SignalB.
+The cumulative alignment score is in score vector.
 }
 \seealso{
 \code{\link{doAlignmentCpp}}
@@ -16,6 +22,6 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 
 ORCID: 0000-0003-3500-8152
 
-License: (c) Author (2019) + MIT
+License: (c) Author (2019) + GPL-3
 Date: 2019-12-14
 }
