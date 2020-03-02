@@ -10,12 +10,6 @@ extractXIC_group(mz, chromIndices)
 \item{mz}{(mzRpwiz object)}
 
 \item{chromIndices}{(vector of Integers) Indices of chromatograms to be extracted.}
-
-\item{XICfilter}{(string) This must be one of the strings "sgolay", "none".}
-
-\item{SgolayFiltOrd}{(integer) It defines the polynomial order of filer.}
-
-\item{SgolayFiltLen}{(integer) Must be an odd number. It defines the length of filter.}
 }
 \value{
 A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.

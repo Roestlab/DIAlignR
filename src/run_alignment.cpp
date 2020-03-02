@@ -45,8 +45,8 @@ ChromData readFile(std::string inputfile)
   //read the header
   std::string meta;
   std::string header;
-  getline(file, meta, '\n'); 
-  getline(file, header, '\n'); 
+  getline(file, meta, '\n');
+  getline(file, header, '\n');
 
   if (meta.empty() || meta[0] != '#')
   {
@@ -120,7 +120,7 @@ void doAlignment()
   const std::vector<double> tB;
   int noBeef = 5; // nr of matrix cells w/o penalty
   AffineAlignObj obj(data1.data[0].size()+1, data2.data[0].size()+1, false); // Initialize AffineAlignObj
-  alignChromatogramsCpp(obj, data1.data, data2.data, "hybrid", 
+  alignChromatogramsCpp(obj, data1.data, data2.data, "hybrid",
       data1.rt_data, data2.rt_data, "mean", "dotProductMasked", data2.rt_data.front(), data2.rt_data.back(), noBeef);
 }
 
@@ -136,8 +136,8 @@ void doAlignment_small()
   AffineAlignObj obj(202, 202, false); // Initialize AffineAlignObj
   for (int k = 0; k < 1e3; k++)
   {
-    alignChromatogramsCpp(obj, data1.data, data2.data, 
-        "hybrid", // "none", 
+    alignChromatogramsCpp(obj, data1.data, data2.data,
+        "hybrid", // "none",
         data1.rt_data, data2.rt_data, "mean", "dotProductMasked",
         data2.rt_data.front(), data2.rt_data.back(), noBeef);
   }

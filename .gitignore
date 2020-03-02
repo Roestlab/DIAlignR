@@ -1,11 +1,12 @@
 Meta
 # Rstudio files
 .Rproj.user
-
 # Histpry files
 .Rhistory
 # Session data files
 .RData
+# Travis CI
+.travis.yml
 # User specific files
 .Ruserdata
 # Rcpp build file

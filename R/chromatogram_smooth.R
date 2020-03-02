@@ -14,6 +14,7 @@
 #' getAnywhere('C_ksmooth')
 #' stats:::C_ksmooth
 #'
+#' @importFrom stats ksmooth predict
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -30,8 +31,10 @@
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
 #' chrom <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
+#' \dontrun{
 #' newChrom <- smoothSingleXIC(chrom, type = "sgolay", samplingTime = 3.42, kernelLen = 9,
 #'  polyOrd = 3)
+#' }
 #' @seealso \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},
 #'  \url{https://rafalab.github.io/dsbook/smoothing.html},
 #'  \url{https://github.com/SurajGupta/r-source/blob/master/src/library/stats/src/ksmooth.c}
@@ -80,8 +83,10 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
 #' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' \dontrun{
 #' newXICs <- smoothXICs(XICs, type = "sgolay", samplingTime = 3.42, kernelLen = 9,
 #'  polyOrd = 3)
+#' }
 #' @seealso \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},
 #'  \url{https://rafalab.github.io/dsbook/smoothing.html}
 smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = NULL, polyOrd = NULL){
