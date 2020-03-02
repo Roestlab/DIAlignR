@@ -3,6 +3,7 @@
 language: R
 r: bioc-devel
 cache: packages
+warnings_are_errors: false
 
 addons:
   apt:
