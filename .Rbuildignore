@@ -3,4 +3,17 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
+src/python/
+src/doc
+src/test
+src/build
+^python$
 ^\.travis\.yml$
+^CMakeLists\.txt$
+^TODO$
+^src/CppInterface\.hpp$
+^src/run_alignment\.cpp$
+^src/doc$
+^src/test$
+^src/build$
+^src/python$

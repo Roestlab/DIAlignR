@@ -6,6 +6,8 @@ DIAlignR.Rproj
 .Rhistory
 # Session data files
 .RData
+# Travis CI
+.travis.yml
 # User specific files
 .Ruserdata
 # Rcpp build file
@@ -15,8 +17,23 @@ src/*.dll
 # Cpp build file
 src/build
 src/build/*
+!src/build/CMakeLists.txt
 # Data files
 data/testData2
 data/testData2/*
+<<<<<<< HEAD
 # Vignette
 vignettes/DIAlignR*.html
+||||||| merged common ancestors
+
+=======
+# Python
+src/python/build/*
+src/python/*.so
+src/python/__pycache__
+src/python/__pycache__/*
+src/python/PyDIAlign.cpp
+# Vignette
+vignettes/DIAlignR-vignette.R
+vignettes/DIAlignR-vignette.html
+>>>>>>> roestlab/master

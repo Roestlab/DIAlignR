@@ -1,3 +1,11 @@
+CHANGES IN VERSION 0.99.12 (March 02, 2020)
+------------------------
++ Added boxcar, Gaussian kernel and loess for chromatogram smoothing
++ Started documentation for C++ code
++ Added support for Microsoft Visual Studio compiler
++ Using lists instead of matrix while updating RT and intensities
++ Moved python code out of the src directory
+
 CHANGES IN VERSION 0.99.10 (January 22, 2020)
 ------------------------
 + Made changes as suggested in initial review. https://github.com/Bioconductor/Contributions/issues/1328#issuecomment-576806498

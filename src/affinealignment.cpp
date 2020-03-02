@@ -25,8 +25,15 @@ namespace {
   }
 }
 
+
 namespace DIAlign
 {
+
+using namespace Traceback;
+
+namespace AffineAlignment
+{
+
 // It performs affine alignment on similarity matrix and fills three matrices M, A and B, and corresponding traceback matrices.
 void doAffineAlignment(AffineAlignObj& affineAlignObj, const SimMatrix& s, double go, double ge, bool OverlapAlignment){
   validate(affineAlignObj, s, go, ge);
@@ -509,4 +516,5 @@ double getForwardSim(const SimMatrix& s, bool* simPath){
  *
  ***/
 
+} // namespace AffineAlignment
 } // namespace DIAlign
