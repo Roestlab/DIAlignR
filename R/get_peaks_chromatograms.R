@@ -9,9 +9,6 @@
 #' Date: 2019-12-13
 #' @param mz (mzRpwiz object)
 #' @param chromIndices (vector of Integers) Indices of chromatograms to be extracted.
-#' @param XICfilter (string) This must be one of the strings "sgolay", "none".
-#' @param SgolayFiltOrd (integer) It defines the polynomial order of filer.
-#' @param SgolayFiltLen (integer) Must be an odd number. It defines the length of filter.
 #' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
