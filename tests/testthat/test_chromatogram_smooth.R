@@ -7,25 +7,25 @@ test_that("test_smoothSingleXIC", {
   chrom <- data.frame(time, y)
 
   ## Savitzky- Golay smoothing
-  outData <- smoothSingleXIC(chrom, type = "sgolay", kernelLen = 9, polyOrd = 5)
+  outData1 <- smoothSingleXIC(chrom, type = "sgolay", kernelLen = 9, polyOrd = 5)
   expOutput <- data.frame(time, "intensity" = c(0.20636662, 0.88411087, 2.19019973, 3.76695006,
                           5.12687085, 5.77230554, 5.56200672, 4.5968725 , 3.2886408 , 1.97239146,
                           0.93076564, 0.34700936, 0.19229358, 0.14383756))
-  expect_equal(outData, expOutput, tolerance = 1e-05)
+  expect_equal(outData1, expOutput, tolerance = 1e-03)
 
   ## Boxcar smoothing
-  outData <- smoothSingleXIC(chrom, type = "boxcar", samplingTime = 3.4, kernelLen = 4)
+  outData2 <- smoothSingleXIC(chrom, type = "boxcar", samplingTime = 3.4, kernelLen = 4)
   expOutput <- data.frame(time, "intensity" = c(1.098981, 1.754553, 2.436694, 3.561461, 4.493395,
                                                 4.965447, 4.885457, 4.242122, 3.266758, 2.223707,
                                                 1.350471, 0.714626, 0.406136, 0.224157))
-  expect_equal(outData, expOutput, tolerance = 1e-05)
+  expect_equal(outData2, expOutput, tolerance = 1e-03)
 
   ## Gaussian smoothing
-  outData <- smoothSingleXIC(chrom, type = "gaussian", samplingTime = 3.4, kernelLen = 4)
+  outData3 <- smoothSingleXIC(chrom, type = "gaussian", samplingTime = 3.4, kernelLen = 4)
   expOutput <- data.frame(time, "intensity" = c(1.032401, 1.630418, 2.516603, 3.572851, 4.497432,
                                                 4.975738, 4.860700, 4.215738, 3.249920, 2.219575,
                                                 1.345037, 0.746991, 0.416589, 0.263005))
-  expect_equal(outData, expOutput, tolerance = 1e-05)
+  expect_equal(outData3, expOutput, tolerance = 1e-03)
 
   ## Loess smoothing
   # Python code
@@ -36,16 +36,16 @@ test_that("test_smoothSingleXIC", {
   #               4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923])
   # z = lowess(y, x, frac= 4/len(x), it = 0)
   # z[:,1]
-  outData <- smoothSingleXIC(chrom, type = "loess", kernelLen = 4, polyOrd = 1)
+  outData4 <- smoothSingleXIC(chrom, type = "loess", kernelLen = 4, polyOrd = 1)
   expOutput <- data.frame(time, "intensity" = c(0.1281750, 1.0687961, 2.2619976, 3.701112, 4.9418347,
                                                 5.5575143, 5.3461718, 4.4903257, 3.284981, 2.0563014,
                                                 1.0591135, 0.4709123, 0.2208847, 0.133756))
-  expect_equal(outData, expOutput, tolerance = 1e-05)
+  expect_equal(outData4, expOutput, tolerance = 1e-03)
 
   ## None
-  outData <- smoothSingleXIC(chrom, type = "none")
+  outData5 <- smoothSingleXIC(chrom, type = "none")
   expOutput <- data.frame(time, "intensity" = y)
-  expect_equal(outData, expOutput, tolerance = 1e-05)
+  expect_equal(outData5, expOutput, tolerance = 1e-05)
 })
 
 test_that("test_smoothXICs", {

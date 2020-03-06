@@ -21,12 +21,6 @@ src/build/*
 # Data files
 data/testData2
 data/testData2/*
-<<<<<<< HEAD
-# Vignette
-vignettes/DIAlignR*.html
-||||||| merged common ancestors
-
-=======
 # Python
 src/python/build/*
 src/python/*.so
@@ -36,4 +30,3 @@ src/python/PyDIAlign.cpp
 # Vignette
 vignettes/DIAlignR-vignette.R
 vignettes/DIAlignR-vignette.html
->>>>>>> roestlab/master
