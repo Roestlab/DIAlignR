@@ -13,3 +13,5 @@ Information content after alignment, Feature mapping.
 MSnExp from MSnbase for fast-access.
 Look into rOpenSci.
 Remove pipes, they are slow.
+Fix x-axis in plot of aligned chromatogram
+Don't crash if mz not found
