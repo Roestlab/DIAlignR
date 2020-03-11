@@ -45,8 +45,6 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
   } else if (type == "boxcar"){
     intensity <- ksmooth(time, chromatogram[[2]], kernel = "box",
                          bandwidth = kernelLen*samplingTime, n.points = length(time))
-    print("ksmooth output, kernel = box")
-    print(intensity[["y"]])
     intensity <- intensity[["y"]]
   } else if (type == "gaussian"){
     intensity <- ksmooth(time, chromatogram[[2]], kernel = "normal",
