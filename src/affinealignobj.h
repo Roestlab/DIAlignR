@@ -6,13 +6,24 @@
 #include <vector>
 #include <algorithm>
 
+/**
+ * @namespace DIAlign
+ * @brief Generic namespace for all classes and functions of DIAlign
+ *
+ */
 namespace DIAlign
 {
 
+/**
+ * @brief Generic namespace for Traceback that includes source matrix name and the arrow direction.
+ *
+ */
 namespace Traceback
 {
-
+/// All combinations of cumulative score-matrix name and arrow directions.
 enum TracebackType {SS = 0, DM = 1, DA = 2, DB = 3, TM = 4, TA = 5, TB = 6, LM = 7, LA = 8, LB = 9};
+
+/// cumulative score-matrix names
 enum tbJump {M = 0, A = 1, B = 2};
 
 /// This function overloads << to display TracebackType.
@@ -23,39 +34,48 @@ std::vector<char> EnumToChar(std::vector<TracebackType> v);
 }
 
 /**
-   @brief An affine alignment object
-*/
+ * @brief An affine alignment object.
+ *
+ * This object contains similarity matrix, three matrices M, A and B storing cumulative-scores for dynamic programming.
+ * Traceback matrices store source matrix name and direction as matrices are filled with dynamic programming.
+ * Path matrix encode alignment path that results in the highest cumulative score.
+ * The aligned indices are also stored for signal A and signal B.
+ */
 struct AffineAlignObj
 {
 private:
-  int signalA_capacity; ///< Capacity of matrix for signal A (rows)
-  int signalB_capacity; ///< Capacity of matrix for signal B (columns)
+  int signalA_capacity; ///< Capacity of matrix for signal A (rows).
+  int signalB_capacity; ///< Capacity of matrix for signal B (columns).
 
 public:
-  double* s_data; ///< similarity matrix
+  double* s_data; ///< similarity score matrix.
   double* M; ///< Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.
   double* A; ///< Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.
   double* B; ///< Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.
-  Traceback::TracebackType* Traceback;
+  Traceback::TracebackType* Traceback; ///< Traceback matrices store source matrix name and direction as matrices are filled with dynamic programming.
   bool* Path; ///< Path matrix would represent alignment path through similarity matrix as binary-hot encoding.
-  bool* simPath;
+  bool* simPath; ///< Not needed, will be removed.
   // s_data, M, A and B should be private. Now there is a possibility of memory-leak.
   // TODO Make above variables private.
-  int signalA_len; ///< Number of data-points in signal A
-  int signalB_len; ///< Number of data-points in signal B
-  double GapOpen; ///< Penalty for Gap opening
-  double GapExten; ///< Penalty for Gap extension
-  // For single gap: Penalty = GapOpen
-  // For two consecutive gaps: Penalty = GapOpen + GapExten
-  // For n consecutive gaps: Penalty = GapOpen + (n-1)*GapExten
-  bool FreeEndGaps; ///< True for Overlap alignment
-  std::vector<int> indexA_aligned; ///< Aligned signalA indices after affine alignment
-  std::vector<int> indexB_aligned; ///< Aligned signalB indices after affine alignment
-  std::vector<double> score;  ///< Score along the aligned path
-  int nGaps;
+  int signalA_len; ///< Number of data-points in signal A.
+  int signalB_len; ///< Number of data-points in signal B.
+  double GapOpen; ///< Penalty for Gap opening. For n consecutive gaps: Penalty = GapOpen + (n-1)*GapExten.
+  double GapExten; ///< Penalty for Gap extension. For n consecutive gaps: Penalty = GapOpen + (n-1)*GapExten.
+  bool FreeEndGaps; ///< True for Overlap alignment.
+  std::vector<int> indexA_aligned; ///< Aligned signalA indices after affine alignment.
+  std::vector<int> indexB_aligned; ///< Aligned signalB indices after affine alignment.
+  std::vector<double> score;  ///< Cumulative score along the aligned path.
+  int nGaps; ///< Total number of gaps in the alignment path.
 
+  /**
+   * @brief Constructor for AffineAlignObj.
+   *
+   * Allocates memory for s_data, M, A, B, Traceback, Path matrices. Initialize them with zero if clearMemory is set true.
+   * @param ROW_SIZE Number of rows in matrix M.
+   * @param COL_SIZE Number of columns in matrix M.
+   * @param clearMemory If true, matrices are initialized with zero.
+   */
   // Not a default constructor
-
   AffineAlignObj(int ROW_SIZE, int COL_SIZE, bool clearMemory = true)
   {
     allocateMemory_(ROW_SIZE, COL_SIZE);
@@ -116,7 +136,9 @@ public:
     nGaps = 0;
   }
 
-  // Rule 2 Copy assignment operator
+  /**
+   * @brief Overloading copy assignment operator.
+   */
   AffineAlignObj& operator=(const AffineAlignObj& rhs)
   {
     freeMemory_();
@@ -141,7 +163,9 @@ public:
     return *this;
   }
 
-  // Rule 1 Copy constructor
+  /**
+   * @brief Copy constructor.
+   */
   AffineAlignObj(const AffineAlignObj& rhs)
   {
     freeMemory_();
@@ -166,7 +190,7 @@ public:
     copyData_(rhs, ROW_SIZE, COL_SIZE);
   }
 
-  // Rule 3 Not a default destructor
+  /// Destructor: frees memory.
   ~AffineAlignObj()
   {
     freeMemory_();
@@ -174,8 +198,10 @@ public:
 
 private:
 
+  // Should be deleted?
   AffineAlignObj() {}
 
+  /// Frees memory for s_data, M, A, B, Traceback, Path matrices.
   void freeMemory_()
   {
     delete[] s_data;
@@ -187,6 +213,7 @@ private:
     delete[] simPath;
   }
 
+  /// Allocates memory for s_data, M, A, B, Traceback, Path matrices.
   void allocateMemory_(int ROW_SIZE, int COL_SIZE)
   {
     // new allocate memory in heap. Here we just keep the memory address in our object's member.
@@ -201,6 +228,7 @@ private:
     simPath = new bool[ROW_SIZE * COL_SIZE];
   }
 
+  /// Memory copy s_data, M, A, B, Traceback, Path matrices.
   void copyData_(const AffineAlignObj& rhs, int ROW_SIZE, int COL_SIZE)
   {
     std::memcpy(s_data, rhs.s_data, (ROW_SIZE -1) * (COL_SIZE-1) * sizeof(double));
