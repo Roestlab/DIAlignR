@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace DIAlign 
+namespace DIAlign
 {
   /**
      @brief Similarity matrix
@@ -18,6 +18,12 @@ namespace DIAlign
     int n_col;
   };
 
+  /**
+   @brief Path matrix
+
+   Boolean similarity matrix is used to store the alignment path as true-hot encoding.
+   */
+  // TODO: It should be called Path matrix.
   struct SimMatrix_bool
   {
     std::vector<bool> data;

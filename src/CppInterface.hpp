@@ -18,7 +18,7 @@
 
 /** @file */
 
-// Why do we create a new namespace? 
+// Why do we create a new namespace?
 // Does it not conflict with the same namespace DIAlign we had in other files.
 // Wait! Don't these namespace override each other? Can you just keep-on adding stuff in namespace?
 // namespace is like a package, you add stuff inside it without breaking other parts.
@@ -44,7 +44,7 @@
 
   alignChromatogramsCpp(alignment_obj,
     data1, data2,
-    "hybrid", 
+    "hybrid",
     rt_data1, rt_data2,
     "mean", "dotProductMasked",
     rt_mapping.front(), rt_mapping.back(),
@@ -63,7 +63,7 @@ namespace DIAlign
 
 
   /**
-   * Align two pairs of chromatograms derived from two LC-MS/MS experiments A and B. 
+   * Align two pairs of chromatograms derived from two LC-MS/MS experiments A and B.
    *
    * @param obj A object of type AffineAlignObj which needs to have at least capacity of the chromatogram length
    * @param r1 The first set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run A
@@ -75,7 +75,7 @@ namespace DIAlign
    * @param simType Similarity computation method, defines how similarity between two chromatographic points is computed. Must be one of (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
    * @param B1p Timepoint mapped by global fit for tA[0].
    * @param B2p Timepoint mapped by global fit for tA[tA.size()-1].
-   * @param noBeef It defines the distance from the global fit, upto which no penalization is performed. 
+   * @param noBeef It defines the distance from the global fit, upto which no penalization is performed.
    * The window length will be chosen as = 2*noBeef.
    * @param goFactor Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
    * @param geFactor Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
@@ -127,7 +127,7 @@ namespace DIAlign
   /**
    * Calculates similarity matrix of two fragment-ion chromatogram groups or
    * extracted-ion chromatograms (XICs) derived from two LC-MS/MS experiments A
-   * and B. 
+   * and B.
    *
    * @param d1 The first set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run A
    * @param d2 The second set of chromatograms, where each chromatogram is a vector of intensities. These chromatograms are XICs derived from a single analyte in run B
@@ -148,9 +148,9 @@ namespace DIAlign
   }
 
   /**
-   * Performs affine alignment on a given alignment object. 
+   * Performs affine alignment on a given alignment object.
    *
-   * @note Does not perform back-tracking, please call getAffineAlignedIndices afterwards.
+   * @note Does not perform back-tracking, please call getAffineAlignedIndices() afterwards.
    *
    * @param obj A object of type AffineAlignObj which needs to have at least capacity of the chromatogram length
    * @param s A previously computed similarity matrix
@@ -169,7 +169,7 @@ namespace DIAlign
    * @param obj A object of type AffineAlignObj which needs to have matrices A, B and M filled.
    * @param bandwith Compute path for multiple matrix cells (bandwith is number of cells to be computed)
    *
-   * @note this assumes that matrices A, B and M have been computed. Use after calling doAffineAlignment.
+   * @note this assumes that matrices A, B and M have been computed. Use after calling doAffineAlignment().
    * @note this will compute the following members: indexA_aligned, indexB_aligned, score.
   */
   void getAffineAlignedIndices(AffineAlignObj &obj, int bandwidth = 0)

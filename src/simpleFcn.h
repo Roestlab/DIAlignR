@@ -8,31 +8,14 @@
 
 #ifdef DIALIGN_USE_Rcpp
 #include <Rcpp.h>
-#endif
+#endif // DIALIGN_USE_RCPP
 
 namespace DIAlign
 {
 
 #ifdef DIALIGN_USE_Rcpp
 using namespace Rcpp;
-/***
-//' Outputs a NumericMatrix of given row and column size.
-//'
-//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-//' ORCID: 0000-0003-3500-8152
-//' License: (c) Author (2019) + MIT
-//' Date: 2019-03-05
-//' @param initVal (char) Matrix intialization value
-//' @param ROW_SIZE (int) Number of rows
-//' @param COL_SIZE (int) Number of columns
-//' @return s (NumericMatrix) A matrix
-//' @examples
-//' # Get a matrix of type NumericMatrix
-//' initializeMatrix(0, ROW_SIZE = 4, COL_SIZE = 5)
-//' @export
-// [[Rcpp::export]]
-NumericMatrix initializeMatrix(double initVal, int ROW_SIZE, int COL_SIZE);
-***/
+
 // Template definitions should always be in header file.
 template<class T>
 void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
@@ -44,8 +27,9 @@ void printMatrix(T Mat, int ROW_SIZE, int COL_SIZE){
   }
 }
 
-#endif
+#endif // DIALIGN_USE_RCPP
 
+/// Returns similatrity score matrix between seq1 and seq2.
 SimMatrix getseqSim(std::string seq1, std::string seq2, double match, double misMatch);
 
 } // namespace DIAlign
