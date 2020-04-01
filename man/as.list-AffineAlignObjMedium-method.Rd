@@ -10,6 +10,9 @@
 \arguments{
 \item{x}{An object of class AffineAlignObjMedium}
 }
+\value{
+list
+}
 \description{
 Converts instances of class AffineAlignObjMedium into list
 }

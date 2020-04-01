@@ -10,6 +10,9 @@
 \arguments{
 \item{x}{An object of class AffineAlignObjLight}
 }
+\value{
+list
+}
 \description{
 Converts instances of class AffineAlignObjLight into list
 }

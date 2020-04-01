@@ -10,6 +10,9 @@
 \arguments{
 \item{x}{An object of class AlignObj}
 }
+\value{
+list
+}
 \description{
 Converts instances of class AlignObj into list
 }

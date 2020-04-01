@@ -30,6 +30,7 @@ AffineAlignObjLight <- setClass(Class="AffineAlignObjLight",
 #' Date: 2020-03-31
 #' @importFrom methods setMethod slot slotNames
 #' @param x An object of class AffineAlignObjLight
+#' @return list
 #' @export
 setMethod("as.list", signature(x="AffineAlignObjLight"), function(x) {
   mapply(function(slotname) slot(x, slotname), slotNames(class(x)), SIMPLIFY=FALSE)
@@ -69,6 +70,7 @@ AffineAlignObjMedium <- setClass(Class="AffineAlignObjMedium",
 #' Date: 2020-03-31
 #' @importFrom methods setMethod slot slotNames
 #' @param x An object of class AffineAlignObjMedium
+#' @return list
 #' @export
 setMethod("as.list", signature(x="AffineAlignObjMedium"), function(x) {
   mapply(function(slotname) slot(x, slotname), slotNames(class(x)), SIMPLIFY=FALSE)
@@ -117,6 +119,7 @@ AffineAlignObj <- setClass(Class="AffineAlignObj",
 #' Date: 2020-03-31
 #' @importFrom methods setMethod slot slotNames
 #' @param x An object of class AffineAlignObj.
+#' @return list
 #' @export
 setMethod("as.list", signature(x="AffineAlignObj"), function(x) {
   mapply(function(slotname) slot(x, slotname), slotNames(class(x)), SIMPLIFY=FALSE)
@@ -165,6 +168,7 @@ AlignObj <- setClass(Class="AlignObj",
 #' Date: 2020-03-31
 #' @importFrom methods setMethod slot slotNames
 #' @param x An object of class AlignObj
+#' @return list
 #' @export
 setMethod("as.list", signature(x="AlignObj"), function(x) {
   mapply(function(slotname) slot(x, slotname), slotNames(class(x)), SIMPLIFY=FALSE)
