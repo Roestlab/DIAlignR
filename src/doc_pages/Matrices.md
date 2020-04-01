@@ -1,4 +1,4 @@
-@page Matrices
+@subpage Matrices
 
 @section Matrices_section1 Overlap Alignment
 

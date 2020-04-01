@@ -1,6 +1,4 @@
 @mainpage %DIAlign: Alignment of MS/MS chromatograms  
-@subpage Initialization
-@subpage Matrices
 @tableofcontents
 
 Data Independent Acqusition (DIA) is a widely used method in mass-spectrometry based proteomics. DIAlign is a software for the alignment of MS/MS chromatograms across runs. We have DIAlign namespace that includes functions for building similarity matrix from raw MS2 chromatograms. On the similarity matrix,  affine-alignment is performed using dynamic programming. Aligned indices, alignment path through the matrix and intermediate cumulative scoring matrices are included in the alignment object. 
@@ -50,7 +48,7 @@ s | 1 | 2 | 3 | 4 | 5
 3 | -2 | -2 | -2 | 10 | -2
 
 @subsection subsecce Initialization
-The corresponding M, A and B matrices are initialized with some set of rules for overlap and non-overlap alignment. See @ref Initialization for an example. 
+The corresponding M, A and B matrices are initialized with some set of rules for overlap and non-overlap alignment. See initialization for @ref Init_section1 and @ref Init_section2 for our example. 
 
 @subsection subsection3 Best score calculation
 
@@ -62,7 +60,7 @@ Highest score for each cell is calculated using the following equations:
 \f$ B_{i,j} = max \left\{\begin{matrix} M_{i,j-1} - gapOpen \\ A_{i,j-1} - gapOpen \\ B_{i,j-1} - gapExtension \end{matrix}\right\} \f$
 
 It is clear that these matrices restricts the direction. Matrix M only allows diagonal path (upperleft to downright), matrix A allows up to down and matrix B permits left to right path only.
-The example matrices are presented here: @ref Matrices
+  The example matrices are presented for @ref Matrices_section1 and @ref Matrices_section2 .
 
 @subsection subsection4 Traceback
 
