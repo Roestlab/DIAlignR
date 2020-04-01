@@ -1,6 +1,4 @@
 @mainpage %DIAlign: Alignment of MS/MS chromatograms  
-@subpage Initialization
-@subpage Matrices
 @tableofcontents
 
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
@@ -52,7 +50,7 @@ s | 1 | 2 | 3 | 4 | 5
 3 | -2 | -2 | -2 | 10 | -2
 
 @subsection subsecce Initialization
-The corresponding M, A and B matrices are initialized with some set of rules for overlap and non-overlap alignment. See @ref Initialization for an example. 
+The corresponding M, A and B matrices are initialized with some set of rules for overlap and non-overlap alignment. See initialization for @ref Init_section1 and @ref Init_section2 for our example. 
 
 @subsection subsection3 Best score calculation
 
@@ -64,7 +62,7 @@ Highest score for each cell is calculated using the following equations:
 \f$ B_{i,j} = max \left\{\begin{matrix} M_{i,j-1} - gapOpen \\ A_{i,j-1} - gapOpen \\ B_{i,j-1} - gapExtension \end{matrix}\right\} \f$
 
 It is clear that these matrices restricts the direction. Matrix M only allows diagonal path (upperleft to downright), matrix A allows up to down and matrix B permits left to right path only.
-The example matrices are presented here: @ref Matrices
+  The example matrices are presented for @ref Matrices_section1 and @ref Matrices_section2 .
 
 @subsection subsection4 Traceback
 

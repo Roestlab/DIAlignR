@@ -1,4 +1,4 @@
-@page Initialization
+@subpage Initialization
 
 We initialize M, A and B matrices for overlap alignment and non-overlap alignment.
 * Aligning A<sub>i</sub> with B<sub>0</sub> without a gap. Not possible, hence, First column of M is initialized with -\f$\infty\f$.
