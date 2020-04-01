@@ -17,5 +17,6 @@ src/build
 ^src/test$
 ^src/build$
 ^src/python$
+^src/doc_pages$
 ^vignettes/DIAlignR-vignette.R$
 ^vignettes/DIAlignR-vignette.html$
