@@ -3,6 +3,8 @@
 @subpage Matrices
 @tableofcontents
 
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
 Data Independent Acqusition (DIA) is a widely used method in mass-spectrometry based proteomics. DIAlign is a software for the alignment of MS/MS chromatograms across runs. We have DIAlign namespace that includes functions for building similarity matrix from raw MS2 chromatograms. On the similarity matrix,  affine-alignment is performed using dynamic programming. Aligned indices, alignment path through the matrix and intermediate cumulative scoring matrices are included in the alignment object. 
 
 @section section0 MS/MS Chromatogram group
