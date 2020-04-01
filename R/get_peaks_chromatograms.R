@@ -20,10 +20,7 @@
 #' XIC_group <- extractXIC_group(mz, chromIndices)
 #' }
 extractXIC_group <- function(mz, chromIndices){
-  XIC_group <- lapply(seq_along(chromIndices), function(i) {
-    rawChrom <- mzR::chromatograms(mz, chromIndices[i])
-    return(rawChrom)
-  })
+  XIC_group <- mzR::chromatograms(mz, chromIndices)
   XIC_group
 }
 
