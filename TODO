@@ -19,3 +19,4 @@ Item 18 : Plot retention time distribution. Score disctibution of alignment.
 Item 19: Number of points in area integration
 Item 20: Use MS1 in alignment.
 Item 21: Remove index from example data.
+Item 22: Change Traceback to lower-case.

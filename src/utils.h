@@ -28,7 +28,7 @@ namespace DIAlign
 namespace Utils
 {
   /**
-   * @brief Computes the quantile of the vector
+   * @brief Returns the quantile of the vector
    *
    * @param vec The vector with the values
    * @param quantile The n-th quantile to compute

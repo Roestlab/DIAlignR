@@ -201,9 +201,10 @@ void getAffineAlignedIndices(AffineAlignObj &affineAlignObj, int bandwidth){
   int COL_SIZE = (affineAlignObj.signalB_len)+1;
 
   if(affineAlignObj.FreeEndGaps == true){
-    // Overlap Alignment
-    // Maximum score and corresponding indices along the last column and last row is searched across all three matrices.
-    // Matrix name and maximum score indices are passed by reference.
+    /// Overlap Alignment
+    ///
+    /// Maximum score and corresponding indices along the last column and last row is searched across all three matrices.
+    /// Matrix name and maximum score indices are passed by reference.
     affineAlignmentScore = getOlapAffineAlignStartIndices(affineAlignObj.M, affineAlignObj.A, affineAlignObj.B, ROW_SIZE, COL_SIZE, ROW_IDX, COL_IDX, MatName);
     if(ROW_IDX != affineAlignObj.signalA_len){
       // Maximum score is obtained in last column. Align all row indices below max-score-index to NA.

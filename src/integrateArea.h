@@ -8,6 +8,10 @@
 
 namespace DIAlign
 {
+  /**
+   * @brief returns the summation of signals between leftIdx and rightIdx from vov.
+   *
+   */
   double areaBwBoundaries(std::vector<std::vector<double> > vov, int leftIdx, int rightIdx);
 } // namespace DIAlign
 
