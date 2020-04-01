@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['initialization',['Initialization',['../md_Initialization.html',1,'']]]
+  ['initialization',['Initialization',['../md_doc_pages_Initialization.html',1,'']]]
 ];
