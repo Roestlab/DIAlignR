@@ -1,5 +1,9 @@
 CHANGES IN VERSION 0.99.12 (March 02, 2020)
 ------------------------
++ Added as.list for S4 objects
+
+CHANGES IN VERSION 0.99.12 (March 02, 2020)
+------------------------
 + Added boxcar, Gaussian kernel and loess for chromatogram smoothing
 + Started documentation for C++ code
 + Added support for Microsoft Visual Studio compiler
