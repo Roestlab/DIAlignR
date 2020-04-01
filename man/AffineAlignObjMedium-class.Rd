@@ -4,7 +4,7 @@
 \name{AffineAlignObjMedium-class}
 \alias{AffineAlignObjMedium-class}
 \alias{AffineAlignObjMedium}
-\title{An S4 object for class AffineAlignObj. It only contains similarity matrix and aligned indices.}
+\title{An S4 object for class AffineAlignObjMedium. It only contains similarity matrix and aligned indices.}
 \description{
 s is a point-wise similarity matrix between signalA and signalB.
 path matrix is a binary matrix with ones indicating path of maximum cumulative score.
