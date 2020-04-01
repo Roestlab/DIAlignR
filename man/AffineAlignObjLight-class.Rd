@@ -4,7 +4,7 @@
 \name{AffineAlignObjLight-class}
 \alias{AffineAlignObjLight-class}
 \alias{AffineAlignObjLight}
-\title{An S4 object for class AffineAlignObj. It only contains aligned indices.}
+\title{An S4 object for class AffineAlignObjLight It only contains aligned indices.}
 \description{
 indexA_aligned and indexB_aligned are aligned indices of signalA and SignalB. The cumulative
 alignment score is in score vector.

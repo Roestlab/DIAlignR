@@ -28,5 +28,3 @@ src/python/__pycache__
 src/python/__pycache__/*
 src/python/PyDIAlign.cpp
 # Vignette
-vignettes/DIAlignR-vignette.R
-vignettes/DIAlignR-vignette.html
