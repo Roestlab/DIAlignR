@@ -2,6 +2,7 @@ var NAVTREE =
 [
   [ "DIAlign", "index.html", [
     [ "DIAlign: Alignment of MS/MS chromatograms", "index.html", [
+      [ "API documentation", "index.html#sectionAPI", null ],
       [ "MS/MS Chromatogram group", "index.html#section0", null ],
       [ "Similarity Matrix", "index.html#section1", [
         [ "Gap Penalty", "index.html#subsection1", null ],

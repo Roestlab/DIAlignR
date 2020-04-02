@@ -109,7 +109,8 @@ $(document).ready(function(){initNavTree('index.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#section0">MS/MS Chromatogram group</a></li>
+<ul><li class="level1"><a href="#sectionAPI">API documentation</a></li>
+<li class="level1"><a href="#section0">MS/MS Chromatogram group</a></li>
 <li class="level1"><a href="#section1">Similarity Matrix</a><ul><li class="level2"><a href="#subsection1">Gap Penalty</a></li>
 <li class="level2"><a href="#subsection2">Constraint</a></li>
 </ul>
@@ -122,6 +123,9 @@ $(document).ready(function(){initNavTree('index.html','');});
 </ul>
 </div>
 <div class="textblock"><p>Data Independent Acqusition (DIA) is a widely used method in mass-spectrometry based proteomics. <a class="el" href="namespaceDIAlign.html" title="Generic namespace for all classes and functions of DIAlign. ">DIAlign</a> is a software for the alignment of MS/MS chromatograms across runs. We have <a class="el" href="namespaceDIAlign.html" title="Generic namespace for all classes and functions of DIAlign. ">DIAlign</a> namespace that includes functions for building similarity matrix from raw MS2 chromatograms. On the similarity matrix, affine-alignment is performed using dynamic programming. Aligned indices, alignment path through the matrix and intermediate cumulative scoring matrices are included in the alignment object.</p>
+<h1><a class="anchor" id="sectionAPI"></a>
+API documentation</h1>
+<p>For API documentation look at <a class="el" href="namespaceDIAlign.html" title="Generic namespace for all classes and functions of DIAlign. ">DIAlign</a> namespace.</p>
 <h1><a class="anchor" id="section0"></a>
 MS/MS Chromatogram group</h1>
 <p>A chromatogram is a time-series signal with time and intensity. We define a group as a collection of chromatograms having the same time values. The algorithm aligns a chromatogram group from run A to the same of run B. Both groups must contain the same number of chromatograms.</p>
