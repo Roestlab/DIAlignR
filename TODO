@@ -18,3 +18,4 @@ Item 20: Use MS1 in alignment.
 Item 21: Remove index from example data.
 Item 22: Change Traceback to lower-case.
 Item 23: Add similarity matrices of same multipeptide.
+Item 24: Add table with intensity, left width, right width etc.
