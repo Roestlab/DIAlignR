@@ -1,4 +1,4 @@
-Item 1 : Kernel based similarity
+  Item 1 : Kernel based similarity
 Item 2 : Gap penalty zero case
 Item 3 : Understand unit of expRSE
 Item 4 : Multiple parameterised query SQL. Reimplement OswFiles
@@ -10,7 +10,7 @@ Item 9 : Read about FDR stuff.
 Item 10 : Manual annotation: Fully supervised.
 Item 11 : Multi-threading for each alignment.
 Item 12 : Information content after alignment, Feature mapping.
-Item 13 : MSnExp from MSnbase for fast-access.
+Item 13 : MSnExp from MSnbase for fast-access. Accessing using C++, however MSDataFile function (https://github.com/sneumann/mzR/blob/master/src/pwiz/data/msdata/MSDataFile.hpp) is slow for some reason.
 Item 14 : Look into rOpenSci, software peer-review. https://ropensci.org/software-review/ . https://devguide.ropensci.org/
 Item 15 : Remove pipes, they are slow. Fix x-axis in plot of aligned chromatogram
 Item 16 : Don't crash if mz not found
