@@ -1,10 +1,8 @@
-  Item 1 : Kernel based similarity
+Item 1 : Kernel based similarity
 Item 2 : Gap penalty zero case
-Item 3 : Understand unit of expRSE
 Item 4 : Multiple parameterised query SQL. Reimplement OswFiles
 Item 5 : BigMemory package and parallel processing package
 Item 6 : ChromHead by environment, rebind v/s assign
-Item 7 : Increase and shorten the length of chromatogram: mean and sd
 Item 8 : Divide by 64 nodes
 Item 9 : Read about FDR stuff.
 Item 10 : Manual annotation: Fully supervised.
@@ -13,10 +11,10 @@ Item 12 : Information content after alignment, Feature mapping.
 Item 13 : MSnExp from MSnbase for fast-access. Accessing using C++, however MSDataFile function (https://github.com/sneumann/mzR/blob/master/src/pwiz/data/msdata/MSDataFile.hpp) is slow for some reason.
 Item 14 : Look into rOpenSci, software peer-review. https://ropensci.org/software-review/ . https://devguide.ropensci.org/
 Item 15 : Remove pipes, they are slow. Fix x-axis in plot of aligned chromatogram
-Item 16 : Don't crash if mz not found
-Item 17 : Implenment alignment on a part of XICs.
+Item 16 : Don't crash if mz not found. Will never happen.
 Item 18 : Plot retention time distribution. Score disctibution of alignment.
 Item 19: Number of points in area integration
 Item 20: Use MS1 in alignment.
 Item 21: Remove index from example data.
 Item 22: Change Traceback to lower-case.
+Item 23: Add similarity matrices of same multipeptide.
