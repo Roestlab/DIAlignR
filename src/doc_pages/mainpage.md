@@ -3,6 +3,9 @@
 
 Data Independent Acqusition (DIA) is a widely used method in mass-spectrometry based proteomics. DIAlign is a software for the alignment of MS/MS chromatograms across runs. We have DIAlign namespace that includes functions for building similarity matrix from raw MS2 chromatograms. On the similarity matrix,  affine-alignment is performed using dynamic programming. Aligned indices, alignment path through the matrix and intermediate cumulative scoring matrices are included in the alignment object. 
 
+@section sectionAPI API documentation
+For API documentation look at DIAlign namespace.
+
 @section section0 MS/MS Chromatogram group
 A chromatogram is a time-series signal with time and intensity. We define a group as a collection of chromatograms having the same time values. The algorithm aligns a chromatogram group from run A to the same of run B. Both groups must contain the same number of chromatograms.
 
