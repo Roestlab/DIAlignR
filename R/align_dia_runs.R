@@ -41,6 +41,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("transition_group_id", "
 #' @param samplingTime (numeric) Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.
 #' @param RSEdistFactor (numeric) This defines how much distance in the unit of rse remains a noBeef zone.
 #' @param saveFiles (logical) Must be selected from light, medium and heavy.
+#' @param outFile (char) Name of the output file.
 #' @return Two tables of intensity and rention times for every analyte in each run.
 #' @seealso \code{\link{getRunNames}, \link{getOswFiles}, \link{getAnalytesName}, \link{getMappedRT}}
 #' @examples
@@ -65,7 +66,7 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5,
                          hardConstrain = FALSE, samples4gradient = 100,
-                         samplingTime = 3.4,  RSEdistFactor = 3.5, saveFiles = FALSE){
+                         samplingTime = 3.4,  RSEdistFactor = 3.5, saveFiles = FALSE, outFile = "DIAlignR.csv"){
   # Check if filter length is odd for Savitzky-Golay filter.
   if( (SgolayFiltLen %% 2) != 1){
     return(stop("SgolayFiltLen can only be odd number"))
@@ -190,26 +191,9 @@ alignTargetedRuns <- function(dataPath, alignType = "hybrid", analyteInGroupLabe
   end_time <- Sys.time()
   message("Execution time for alignment = ", end_time - start_time)
 
-  rtTbl <- do.call(rbind, rtTbl)
-  intesityTbl <- do.call(rbind, intesityTbl)
-  lwTbl <- do.call(rbind, lwTbl)
-  rwTbl <- do.call(rbind, rwTbl)
-
-  rownames(rtTbl) <- refAnalytes; colnames(rtTbl) <- names(runs)
-  rownames(intesityTbl) <- refAnalytes; colnames(intesityTbl) <- names(runs)
-  rownames(lwTbl) <- refAnalytes; colnames(lwTbl) <- names(runs)
-  rownames(rwTbl) <- refAnalytes; colnames(rwTbl) <- names(runs)
-
-  colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
-  colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
-  if(saveFiles){
-    utils::write.table(rtTbl,file = "rtTbl.csv", col.names = NA, sep = ",")
-    utils::write.table(intesityTbl,file = "intesityTbl.csv", col.names = NA, sep = ",")
-    print("Data matrix is available in the current directory")
-    return(1)
-  } else {
-    return(intesityTbl)
-  }
+  writeTables(refAnalytes, runs, outFile, intesityTbl, rtTbl, lwTbl, rwTbl)
+  message("Retention time alignment across runs is done.")
+  message(paste0(outFile, " file has been written."))
 }
 
 #' AlignObj for analytes between a pair of runs

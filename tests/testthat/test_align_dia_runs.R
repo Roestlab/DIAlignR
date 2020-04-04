@@ -1,11 +1,13 @@
 context("Align DIA runs")
 
 test_that("test_alignTargetedRuns",{
-  runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-  analyte <- "QFNNTDIVLLEDFQK_3"
+  runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
+            "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+            "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+  analyte <- c("14299_QFNNTDIVLLEDFQK/3", "13597_VVAGGELFKESVVVNDK/3")
   dataPath <- system.file("extdata", package = "DIAlignR")
-  outData <- alignTargetedRuns(dataPath = dataPath, alignType = "hybrid",
-                               analyteInGroupLabel = FALSE, oswMerged = TRUE,
+  alignTargetedRuns(dataPath = dataPath, alignType = "hybrid",
+                               analyteInGroupLabel = TRUE, oswMerged = TRUE,
                                runs = runs, analytes = analyte, nameCutPattern = "(.*)(/)(.*)",
                                maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
                                spanvalue = 0.1, runType = "DIA_Proteomics",
@@ -15,15 +17,21 @@ test_that("test_alignTargetedRuns",{
                                cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                                dotProdThresh = 0.96, gapQuantile = 0.5,
                                hardConstrain = FALSE, samples4gradient = 100,
-                               samplingTime = 3.4,  RSEdistFactor = 3.5, saveFiles = FALSE)
-  expData <- matrix(c(310.01, 255.496), nrow = 1, ncol = 2, byrow = TRUE,
-                    dimnames = list(c("QFNNTDIVLLEDFQK_3"), c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-                                                           "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")))
-  expect_equal(outData, expData)
+                               samplingTime = 3.4,  RSEdistFactor = 3.5, outFile = "temp.csv")
+  outData <- read.table("temp.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  expData <- read.table("test2.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  expect_identical(dim(outData), dim(expData))
+  expect_identical(colnames(outData), colnames(expData))
+  expect_identical(outData[["peptide"]], expData[["peptide"]])
+  expect_identical(outData[["run"]], expData[["run"]])
+  for(i in 3:6){
+    expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
+  }
+  file.remove("temp.csv")
 
   outData <- alignTargetedRuns(dataPath = dataPath, alignType = "hybrid",
-                               analyteInGroupLabel = TRUE, oswMerged = TRUE,
-                               runs = runs, analytes = "14299_QFNNTDIVLLEDFQK/3", nameCutPattern = "(.*)(/)(.*)",
+                               analyteInGroupLabel = FALSE, oswMerged = TRUE,
+                               runs = runs, analytes = "QFNNTDIVLLEDFQK_3", nameCutPattern = "(.*)(/)(.*)",
                                maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
                                spanvalue = 0.1, runType = "DIA_Proteomics",
                                normalization = "mean", simMeasure = "dotProductMasked",
@@ -32,11 +40,17 @@ test_that("test_alignTargetedRuns",{
                                cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                                dotProdThresh = 0.96, gapQuantile = 0.5,
                                hardConstrain = FALSE, samples4gradient = 100,
-                               samplingTime = 3.4,  RSEdistFactor = 3.5, saveFiles = FALSE)
-  expData <- matrix(c(310.01, 255.496), nrow = 1, ncol = 2, byrow = TRUE,
-                    dimnames = list(c("14299_QFNNTDIVLLEDFQK/3"), c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-                                                              "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")))
-  expect_equal(outData, expData)
+                               samplingTime = 3.4,  RSEdistFactor = 3.5, outFile = "temp.csv")
+  outData <- read.table("temp.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  expData <- read.table("test3.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  expect_identical(dim(outData), dim(expData))
+  expect_identical(colnames(outData), colnames(expData))
+  expect_identical(outData[["peptide"]], expData[["peptide"]])
+  expect_identical(outData[["run"]], expData[["run"]])
+  for(i in 3:6){
+    expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
+  }
+  file.remove("temp.csv")
 })
 
 test_that("test_getAlignObjs",{

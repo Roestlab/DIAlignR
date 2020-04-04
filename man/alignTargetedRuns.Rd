@@ -14,7 +14,7 @@ alignTargetedRuns(dataPath, alignType = "hybrid",
   goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
   hardConstrain = FALSE, samples4gradient = 100, samplingTime = 3.4,
-  RSEdistFactor = 3.5, saveFiles = FALSE)
+  RSEdistFactor = 3.5, saveFiles = FALSE, outFile = "DIAlignR.csv")
 }
 \arguments{
 \item{dataPath}{(char) Path to mzml and osw directory.}
@@ -73,6 +73,8 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 \item{RSEdistFactor}{(numeric) This defines how much distance in the unit of rse remains a noBeef zone.}
 
 \item{saveFiles}{(logical) Must be selected from light, medium and heavy.}
+
+\item{outFile}{(char) Name of the output file.}
 }
 \value{
 Two tables of intensity and rention times for every analyte in each run.

@@ -82,6 +82,72 @@ selectChromIndices <- function(oswFiles, runname, analyte){
 }
 
 
+
+#' Writes the output table for DIAlignR
+#'
+#' select chromatogram indices by matching analyte and runname in oswFiles.
+#' @importFrom dplyr %>%
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + GPL-3
+#' Date: 2019-12-13
+#' @importFrom tidyr pivot_longer
+#' @param refAnalytes (list of data-frames) it is the output from getOswFiles function.
+#' @param filename (list of data-frames) it is the output from getOswFiles function.
+#' @param intesityTbl (string) Must be a combination of "run" and an iteger e.g. "run2".
+#' @param rtTbl (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
+#' @param lwTbl dd
+#' @param rwTbl fff
+#' @return None
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' \dontrun{
+#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run2", analyte = "AQPPVSTEY_2")
+#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0",
+#'  analyte = "14299_QFNNTDIVLLEDFQK/3")
+#' }
+#' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @keywords internal
+writeTables <- function(refAnalytes, runs, filename,
+                        intesityTbl, rtTbl, lwTbl, rwTbl){
+  # convert lists into tables
+  rtTbl <- as.data.frame(do.call(rbind, rtTbl))
+  intesityTbl <- as.data.frame(do.call(rbind, intesityTbl))
+  lwTbl <- as.data.frame(do.call(rbind, lwTbl))
+  rwTbl <- as.data.frame(do.call(rbind, rwTbl))
+
+  # Assign row names and column names
+  rownames(rtTbl) <- refAnalytes; colnames(rtTbl) <- names(runs)
+  rownames(intesityTbl) <- refAnalytes; colnames(intesityTbl) <- names(runs)
+  rownames(lwTbl) <- refAnalytes; colnames(lwTbl) <- names(runs)
+  rownames(rwTbl) <- refAnalytes; colnames(rwTbl) <- names(runs)
+
+  colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
+  colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
+  colnames(lwTbl) <- unname(runs[colnames(lwTbl)])
+  colnames(rwTbl) <- unname(runs[colnames(rwTbl)])
+
+  # Changing format from wide to long
+  intesityTbl$peptide <- rownames(intesityTbl)
+  intesityTbl <- pivot_longer(intesityTbl, -peptide, names_to = "run", values_to = "intensity")
+  rtTbl$peptide <- rownames(rtTbl)
+  rtTbl <- pivot_longer(rtTbl, -peptide, names_to = "run", values_to = "RT")
+  lwTbl$peptide <- rownames(lwTbl)
+  lwTbl <- pivot_longer(lwTbl, -peptide, names_to = "run", values_to = "leftWidth")
+  rwTbl$peptide <- rownames(rwTbl)
+  rwTbl <- pivot_longer(rwTbl, -peptide, names_to = "run", values_to = "rightWidth")
+
+  # Merging all into one table
+  finalTbl <- merge(x = intesityTbl, y = rtTbl, by = c("peptide", "run"), all = TRUE)
+  finalTbl <- merge(x = finalTbl, y = lwTbl, by = c("peptide", "run"), all = TRUE)
+  finalTbl <- merge(x = finalTbl, y = rwTbl, by = c("peptide", "run"), all = TRUE)
+
+  utils::write.table(finalTbl, file = filename, sep = ",", row.names = FALSE)
+}
+
+
 testAlignObj <- function(analyteInGroupLabel = FALSE){
   if(analyteInGroupLabel){
     AlignObj <- new("AffineAlignObjLight",
