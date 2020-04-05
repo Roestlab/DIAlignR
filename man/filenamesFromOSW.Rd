@@ -12,7 +12,10 @@ filenamesFromOSW(dataPath, pattern)
 \item{pattern}{(char) must be either *.osw or *merged.osw .}
 }
 \value{
-A dataframe with single column.
+A dataframe with three columns:
+\item{spectraFile}{(string) as mentioned in RUN table of osw files.}
+\item{spectraFileID}{(string) ID in RUN table of osw files.}
+\item{featureFile}{(string) Path to the feature file.}
 }
 \description{
 Get mzML filenames from osw RUN table.

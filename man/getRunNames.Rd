@@ -15,8 +15,11 @@ getRunNames(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)")
 }
 \value{
 (dataframe) it has two columns:
-\item{filename}{(string) as mentioned in RUN table of osw files.}
-\item{runs}{(string) contain respective mzML names without extension.}
+\item{spectraFile}{(string) as mentioned in RUN table of osw files.}
+\item{runName}{(string) contain respective mzML names without extension.}
+\item{spectraFileID}{(string) ID in RUN table of osw files.}
+\item{featureFile}{(string) Path to the feature file.}
+\item{chromatogramFile}{(string) Path to the chromatogram file.}
 }
 \description{
 Fetches all osw files, then, keeps only those runs which has corresponding mzML files.

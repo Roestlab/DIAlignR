@@ -8,7 +8,10 @@
 #' Date: 2019-12-14
 #' @param dataPath (char) path to mzml and osw directory.
 #' @param pattern (char) must be either *.osw or *merged.osw .
-#' @return A dataframe with single column.
+#' @return A dataframe with three columns:
+#' \item{spectraFile}{(string) as mentioned in RUN table of osw files.}
+#' \item{spectraFileID}{(string) ID in RUN table of osw files.}
+#' \item{featureFile}{(string) Path to the feature file.}
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -18,7 +21,7 @@
 #' }
 filenamesFromOSW <- function(dataPath, pattern){
   # Fetch mzML filenames from RUN table.
-  query <- "SELECT DISTINCT RUN.FILENAME AS filename FROM RUN"
+  query <- "SELECT DISTINCT RUN.FILENAME AS filename, RUN.ID AS ID FROM RUN"
   if(pattern == "*.osw"){
     message("Looking for .osw files.")
     # Look for .osw files in osw/ directory.
@@ -26,29 +29,32 @@ filenamesFromOSW <- function(dataPath, pattern){
     # Throw an error if no .osw files are found.
     if(length(temp) == 0){return(stop("No .osw files are found."))}
     filenames <- vapply(seq_along(temp), function(i){
-      con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[i]))
+      oswName <- file.path(dataPath, "osw", temp[i])
+      con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
       # Fetch mzML filenames from RUN table.
-      tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
+      cbind(tryCatch(expr = DBI::dbGetQuery(con, statement = query),
+                     finally = DBI::dbDisconnect(con)), oswName)
     }, c(list))
-    filenames <- as.data.frame(unique(unlist(filenames)))
-    colnames(filenames) <-  c("filename")
-    # Convert filename column from factor to character
-    filenames$filename <- as.character(filenames$filename)
+    filenames <- as.data.frame(do.call(rbind, filenames))
     message(nrow(filenames), " .osw files are found.")
   } else if (pattern == "*merged.osw") {
-    message("Looking for merged.osw file.")
     # Look for merged.osw files in osw/ directory.
+    message("Looking for merged.osw file.")
     temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
     # Throw an error if no merged.osw files are found.
     if(length(temp) == 0){return(stop("No merged.osw file is found."))}
-    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = file.path(dataPath, "osw", temp[1]))
+    oswName <- file.path(dataPath, "osw", temp[1])
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
     # Fetch mzML filenames from RUN table.
-    filenames <- tryCatch(expr = DBI::dbGetQuery(con, statement = query), finally = DBI::dbDisconnect(con))
-    message(nrow(filenames), " are in ", temp[1], " file")
+    filenames <- cbind(tryCatch(expr = DBI::dbGetQuery(con, statement = query),
+                          finally = DBI::dbDisconnect(con)), oswName)
+    message(nrow(filenames), " runs are in ", temp[1], " file")
   } else {
     message("Only .osw and merged.osw files can be read.")
-    filenames <- NULL
+    return(NULL)
   }
+  colnames(filenames) <- c("spectraFile", "spectraFileID", "featureFile")
+  filenames[["spectraFileID"]] <- as.character(filenames[["spectraFileID"]]) # Convert from integer64 to character.
   filenames
 }
 
@@ -62,7 +68,9 @@ filenamesFromOSW <- function(dataPath, pattern){
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @param dataPath (char) Path to mzml and osw directory.
-#' @return A named vector.
+#' @return  A dataframe with two columns:
+#' \item{runName}{(string) contain respective mzML names without extension.}
+#' \item{chromatogramFile}{(string) Path to the chromatogram file.}
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -73,7 +81,7 @@ filenamesFromMZML <- function(dataPath){
   temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
   message(length(temp), " .chrom.mzML files are found.")
   mzMLfiles <- vapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1], "")
-  mzMLfiles
+  data.frame("runName" = unname(mzMLfiles), "chromatogramFile" = file.path(dataPath, "mzml", temp))
 }
 
 #' Get names of all runs
@@ -91,8 +99,11 @@ filenamesFromMZML <- function(dataPath){
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
 #' @return (dataframe) it has two columns:
-#' \item{filename}{(string) as mentioned in RUN table of osw files.}
-#' \item{runs}{(string) contain respective mzML names without extension.}
+#' \item{spectraFile}{(string) as mentioned in RUN table of osw files.}
+#' \item{runName}{(string) contain respective mzML names without extension.}
+#' \item{spectraFileID}{(string) ID in RUN table of osw files.}
+#' \item{featureFile}{(string) Path to the feature file.}
+#' \item{chromatogramFile}{(string) Path to the chromatogram file.}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' getRunNames(dataPath = dataPath)
@@ -105,24 +116,25 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
     filenames <- filenamesFromOSW(dataPath, pattern = "*merged.osw")
   }
   # Get names of mzml files.
-  runs <- vapply(filenames[,"filename"], function(x) gsub(nameCutPattern, replacement = "\\3", x), "")
+  runs <- vapply(filenames[["spectraFile"]], function(x) gsub(nameCutPattern, replacement = "\\3", x), "")
   fileExtn <- strsplit(runs[[1]], "\\.")[[1]][2]
   fileExtn <- paste0(".", fileExtn)
-  filenames$runs <- vapply(runs, function(x) strsplit(x, split = fileExtn)[[1]][1], "")
+  filenames[["runName"]] <- vapply(runs, function(x) strsplit(x, split = fileExtn)[[1]][1], "")
 
   mzMLfiles <- filenamesFromMZML(dataPath)
   # Check if osw files have corresponding mzML file.
-  runs <- intersect(filenames$runs, mzMLfiles)
-  if(length(runs) != length(filenames$runs)){
+  runs <- intersect(filenames[["runName"]], mzMLfiles[["runName"]])
+  if(length(runs) != length(filenames[["runName"]])){
     cat("Following files did not have their counterpart in mzml directory\n")
-    print(setdiff(filenames$runs, mzMLfiles))
+    print(setdiff(filenames[["runName"]], mzMLfiles[["runName"]]))
   }
   if(length(runs) == 0){
     message("Names in RUN table of osw files aren't matching to mzML filenames.")
     message("Check if you have correct file names.")
     return(stop("Name mismatch between osw and mzML files."))
   }
-  filenames <- filenames[filenames$runs %in% runs,]
+  filenames <- filenames[filenames[["runName"]] %in% runs,]
+  filenames <- merge(filenames, mzMLfiles, by = "runName")
   rownames(filenames) <- paste0("run", 0:(nrow(filenames)-1), "")
   filenames
 }
