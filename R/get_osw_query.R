@@ -8,7 +8,7 @@
 #' @param maxFdrQuery (numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param analytes (vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.
-#' @param filename (string) as mentioned in RUN table of osw files..
+#' @param filename (string) as mentioned in RUN table of osw files.
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
@@ -184,4 +184,65 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
   peak_group_rank;")
   }
   return(query)
+}
+
+#  https://stackoverflow.com/questions/10622260/how-do-you-query-an-int-column-for-any-value
+#' Get precursor Info.
+#'
+#' For each precursor in the table respective transition ids are fetched.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + GPL-3
+#' Date: 2019-04-04
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return SQL query to be searched.
+#' @seealso \code{\link{fetchPrecursorsInfo}}
+#' @keywords internal
+getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
+  query <- "SELECT PRECURSOR.ID AS transition_group_id,
+      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+      PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
+      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+      PRECURSOR.CHARGE AS charge,
+      PRECURSOR.GROUP_LABEL AS group_label
+      FROM PRECURSOR
+      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      ORDER BY transition_group_id, transition_id;"
+  query
+}
+
+#' Get features from a SQLite file.
+#'
+#' Query is generated to identify features below a FDR cut-off from a run.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + GPL-3
+#' Date: 2019-04-07
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return SQL query to be searched.
+#' @seealso \code{\link{fetchFeaturesFromRun}}
+#' @keywords internal
+getFeaturesQuery <- function(runType = "DIA_Proteomics"){
+  query <- "SELECT PRECURSOR.ID AS transition_group_id,
+  FEATURE.EXP_RT AS RT,
+  FEATURE_MS2.AREA_INTENSITY AS intensity,
+  FEATURE.LEFT_WIDTH AS leftWidth,
+  FEATURE.RIGHT_WIDTH AS rightWidth,
+  SCORE_MS2.RANK AS peak_group_rank,
+  SCORE_MS2.QVALUE AS m_score
+  FROM PRECURSOR
+  INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+  INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+  LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
+  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR
+  ORDER BY transition_group_id, peak_group_rank;"
+  query
 }
