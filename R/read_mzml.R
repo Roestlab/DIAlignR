@@ -40,27 +40,24 @@ readChromatogramHeader <- function(mzmlName){
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
-#' @param dataPath (char) path to mzml and osw directory.
-#' @param runs (A vector of string) names of mzml file without extension. Vector must have names as shown in the example.
+#' @param fileInfo (data-frame) Output of DIAlignR::getRunNames function
 #' @return (A list of mzRpwiz)
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
-#'  "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
-#' mzPntrs <- getMZMLpointers(dataPath = dataPath, runs = runs)
+#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+#' mzPntrs <- getMZMLpointers(fileInfo)
 #' @export
-getMZMLpointers <- function(dataPath, runs){
-  mzPntrs <- list()
-  for(mzMLindex in seq_along(runs)){
-    run <- names(runs)[mzMLindex]
-    mzmlName <- file.path(dataPath, "mzml", paste0(runs[run], ".chrom.mzML"))
-    mzPntrs[[mzMLindex]] <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
+getMZMLpointers <- function(fileInfo){
+  mzPntrs <- vector(mode = "list", length = nrow(fileInfo))
+  for(i in seq_along(mzPntrs)){
+    mzmlName <- as.character(fileInfo[["chromatogramFile"]][[i]])
+    mzPntrs[[i]] <- tryCatch(expr = mzR::openMSfile(mzmlName, backend = "pwiz"),
                                      error = function(cnd) {
                                        conditionMessage(cnd)
                                        message("If error includes invalid cvParam accession 1002746, use FileConverter from OpenMS to decompress chromatograms")
                                        stop(cnd)})
   }
-  names(mzPntrs) <- names(runs)
+  names(mzPntrs) <- rownames(fileInfo)
   mzPntrs
 }
