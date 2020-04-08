@@ -4,41 +4,87 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' Fetch the reference run-index.
 #'
 #' Provides the reference run-index based on lowest m-score.
-#' @importFrom dplyr %>%
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2019) + GPL-3
-#' Date: 2019-12-13
-#' @param oswFiles (list of data-frames) it is output from getOswFiles function.
-#' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
-#' @return An integer
+#' Date: 2020-04-08
+#' @param multipeptide (list of data-frames) Each element of the is collection of features associated with a precursor.
+#' @return (dataframe) has two columns:
+#' \item{transition_group_id}{(integer) a unique id for each precursor.}
+#' \item{run}{(string) run identifier.}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' \dontrun{
-#' getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "AQPPVSTEY_2")
-#' getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "14299_QFNNTDIVLLEDFQK/3")
+#' getRefRun(multipeptide)
 #' }
-#' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
+#' @seealso \code{\link{getMultipeptide}}
 #' @keywords internal
-getRefRun <- function(oswFiles, analyte){
-  # Select reference run based on m-score
-  minMscore <- 1
-  refRunIdx <- NULL
-  for(runIdx in seq_along(oswFiles)){
-    m_score <- oswFiles[[runIdx]] %>%
-      dplyr::filter(transition_group_id == analyte & peak_group_rank == 1) %>% .$m_score
-    # Check for numeric(0) condition and proceed.
-    if(length(m_score) != 0){
-      if(m_score < minMscore){
-        minMscore <- m_score
-        refRunIdx <- runIdx
+getRefRun <- function(multipeptide){
+  refRun <- data.frame()
+  for(pep in multipeptide){
+    df <- pep[which.min(pep$m_score), c("transition_group_id", "run")]
+    refRun <- rbind(refRun, df, make.row.names = FALSE)
+  }
+  refRun
+}
+
+#' Get multipeptides
+#'
+#' Each element of the multipeptide is a collection of features associated with a precursor.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2019) + GPL-3
+#' Date: 2020-04-08
+#' @param precursors (data-frames) Contains precursors and associated transition IDs.
+#' @param features (list of data-frames) Contains features and their properties identified in each run.
+#' @return (list) of dataframes having following columns:
+#' \item{transition_group_id}{(integer) a unique id for each precursor.}
+#' \item{run}{(string) run identifier.}
+#' \item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
+#' \item{Intensity}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
+#' \item{leftWidth}{(numeric) as in FEATURE.LEFT_WIDTH of osw files.}
+#' \item{rightWidth}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
+#' \item{peak_group_rank}{(integer) rank of each feature associated with transition_group_id.}
+#' \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
+#'
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+#' features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
+#' multipeptide <- getMultipeptide(precursors, features)
+#' @seealso \code{\link{getPrecursors}, \link{getFeatures}}
+#' @export
+getMultipeptide <- function(precursors, features){
+  multipeptide <- vector(mode = "list", length = length(precursors[["transition_group_id"]]))
+  for(i in seq_along(multipeptide)){
+    analyte <- precursors[["transition_group_id"]][i]
+    multipeptide[[i]] <- data.frame()
+    for(run in names(features)){
+      # Match precursor in each run, if not found add NA
+      index <- which(features[[run]][["transition_group_id"]] == analyte)
+      if(length(index) != 0){
+        df <- features[[run]][index, ]
+        df["run"] <- run
+      } else {
+        df <- data.frame("transition_group_id" = analyte, "run" = run,
+                         "RT" = NA_real_, "intensity" = NA_real_,
+                         "leftWidth" = NA_real_, "rightWidth" = NA_real_,
+                         "peak_group_rank" = NA_integer_, "m_score" = NA_real_)
       }
+      multipeptide[[i]] <- rbind(multipeptide[[i]], df, make.row.names = FALSE)
     }
   }
-  refRunIdx
+
+  # Convert precursors as character. Add names to the multipeptide list.
+  names(multipeptide) <- as.character(precursors[["transition_group_id"]])
+  multipeptide
 }
+
 
 #' Chromatogram indices of analyte in a run.
 #'

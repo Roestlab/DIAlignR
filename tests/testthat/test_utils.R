@@ -1,12 +1,44 @@
 context("Utility functions")
 
 test_that("test_getRefRun", {
-  data(oswFiles_DIAlignR, package="DIAlignR")
-  oswFiles <- oswFiles_DIAlignR
-  expect_identical(getRefRun(oswFiles, analyte = "14299_QFNNTDIVLLEDFQK/3"), 1L)
-  expect_identical(getRefRun(oswFiles, analyte = "AQPPVSTEY_2"), NULL)
-  expect_identical(getRefRun(oswFiles, analyte = "19051_KLIVTSEGC[160]FK/2"), 2L)
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+  features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
+  allIDs <- unique(unlist(lapply(features, `[[`, "transition_group_id"),
+                          recursive = FALSE, use.names = FALSE))
+  precursors <- precursors[precursors[["transition_group_id"]] %in% allIDs, ]
+  multipeptide <- getMultipeptide(precursors, features)
+  outData <- getRefRun(multipeptide)
+
+  expData <- data.frame("transition_group_id" = c(32L, 470L),
+                        "run" = c("run0","run0"),
+                        stringsAsFactors = FALSE)
+  expect_identical(dim(outData), c(199L, 2L))
+  expect_identical(outData[1:2,], expData)
 })
+
+test_that("test_getMultipeptide", {
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+  features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
+  outData <- getMultipeptide(precursors, features)
+
+  expData <- data.frame("transition_group_id" = 9723L,
+                        "run" = c("run0", "run1", "run2"),
+                        "RT" = c(NA_real_, 4057.14, NA_real_),
+                        "intensity" = c(NA_real_, 36.1802, NA_real_),
+                        "leftWidth" = c(NA_real_, 4049.51, NA_real_),
+                        "rightWidth" = c(NA_real_, 4083.649, NA_real_),
+                        "peak_group_rank" = c(NA_integer_, 1L, NA_integer_),
+                        "m_score" = c(NA_real_, 0.03737512, NA_real_),
+                        stringsAsFactors = TRUE)
+  expect_identical(length(outData), 322L)
+  expect_equal(outData[[150]], expData, tolerance = 1e-04)
+  expect_equal(outData[["9723"]], expData, tolerance = 1e-04)
+})
+
 
 test_that("test_selectChromIndices", {
   data(oswFiles_DIAlignR, package="DIAlignR")

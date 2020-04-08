@@ -4,15 +4,15 @@
 \alias{getRefRun}
 \title{Fetch the reference run-index.}
 \usage{
-getRefRun(oswFiles, analyte)
+getRefRun(multipeptide)
 }
 \arguments{
-\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
-
-\item{analyte}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+\item{multipeptide}{(list of data-frames) Each element of the is collection of features associated with a precursor.}
 }
 \value{
-An integer
+(dataframe) has two columns:
+\item{transition_group_id}{(integer) a unique id for each precursor.}
+\item{run}{(string) run identifier.}
 }
 \description{
 Provides the reference run-index based on lowest m-score.
@@ -20,12 +20,11 @@ Provides the reference run-index based on lowest m-score.
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
 \dontrun{
-getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "AQPPVSTEY_2")
-getRefRun(oswFiles = oswFiles_DIAlignR, analyte = "14299_QFNNTDIVLLEDFQK/3")
+getRefRun(multipeptide)
 }
 }
 \seealso{
-\code{\link{getOswFiles}, \link{getOswAnalytes}}
+\code{\link{getMultipeptide}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -33,6 +32,6 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 ORCID: 0000-0003-3500-8152
 
 License: (c) Author (2019) + GPL-3
-Date: 2019-12-13
+Date: 2020-04-08
 }
 \keyword{internal}
