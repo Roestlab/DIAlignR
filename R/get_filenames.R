@@ -98,7 +98,7 @@ filenamesFromMZML <- function(dataPath){
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
-#' @return (dataframe) it has two columns:
+#' @return (dataframe) it has five columns:
 #' \item{spectraFile}{(string) as mentioned in RUN table of osw files.}
 #' \item{runName}{(string) contain respective mzML names without extension.}
 #' \item{spectraFileID}{(string) ID in RUN table of osw files.}
