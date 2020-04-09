@@ -101,7 +101,7 @@ getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
 #' Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
 #' @export
-getGlobalAlignment <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1, fitType = "loess"){
+getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlobal = 0.01, spanvalue = 0.1){
   if(fitType == "loess"){
     fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrGlobal, spanvalue)
   }
@@ -109,4 +109,33 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1
     fit <- getLinearfit(oswFiles, ref, eXp, maxFdrGlobal)
   }
   fit
+}
+
+
+#' Calculates Residual Standard Error of the fit
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-04-08
+#' @param fit (lm or loess) Linear or loess fit object between reference and experiment run.
+#' @return (numeric)
+#' @seealso \code{\link{getLOESSfit}, \link{getLinearfit}, \link{getGlobalAlignment}}
+#' @keywords internal
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' \dontrun{
+#' Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+#' maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
+#' getRSE(Loess.fit)
+#' }
+getRSE <- function(fit){
+  if(class(fit) == "loess"){
+    RSE <- fit[["s"]]
+  } else{
+    RSE <- summary(fit)[["sigma"]]
+  }
+  RSE
 }

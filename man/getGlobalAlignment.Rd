@@ -4,8 +4,8 @@
 \alias{getGlobalAlignment}
 \title{Calculates global alignment between RT of two runs}
 \usage{
-getGlobalAlignment(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1,
-  fitType = "loess")
+getGlobalAlignment(oswFiles, ref, eXp, fitType = "linear",
+  maxFdrGlobal = 0.01, spanvalue = 0.1)
 }
 \arguments{
 \item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
@@ -14,11 +14,11 @@ getGlobalAlignment(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1,
 
 \item{eXp}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
 
+\item{fitType}{(char) Must be from "loess" or "linear".}
+
 \item{maxFdrGlobal}{(numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in global fit.}
 
 \item{spanvalue}{(numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.}
-
-\item{fitType}{(char) Must be from "loess" or "linear".}
 }
 \value{
 An object of class "loess".

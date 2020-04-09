@@ -41,3 +41,14 @@ test_that("test_getGlobalAlignment", {
   outData <- predict(globalFit, newdata = data.frame("RT.ref"=5575.8))[[1]]
   expect_equal(outData, 5577.561, tolerance = 1e-05)
 })
+
+
+test_that("test_getGlobalAlignment", {
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  oswFiles <- oswFiles_DIAlignR
+  globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1, fitType = "loess")
+  expect_equal(getRSE(globalFit), 22.23519, tolerance = 1e-05)
+
+  globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, fitType = "linear")
+  expect_equal(getRSE(globalFit), 30.12705, tolerance = 1e-05)
+})
