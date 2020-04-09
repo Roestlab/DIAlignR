@@ -16,14 +16,12 @@ A mutated time vector
 }
 \description{
 Takes a time vector and index vector of same length. This function create a
-new time vector given indices specified in \code{idx}. For \code{NA} indices
-it uses last index to fill time value. For \code{NA} appearing at the start
-of \code{idx}, it uses next index to get time value.
+new time vector given indices specified in \code{idx}.
 }
 \examples{
 timeVec <- c(1.3,5.6,7.8)
 idx <- c(NA, NA, 1L, 2L, NA, NA, 3L, NA)
-mapIdxToTime(timeVec, idx) # c(1.3, 1.3, 1.3, 5.6, 5.6, 5.6, 7.8, 7.8)
+mapIdxToTime(timeVec, idx) # c(NA, NA, 1.3, 5.6, 6.333, 7.066, 7.8, NA)
 
 }
 \author{

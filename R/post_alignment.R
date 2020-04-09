@@ -48,10 +48,7 @@ pickNearestFeature <- function(eXpRT, analyte, oswFiles, runname, adaptiveRT, fe
 #' Establishes mapping from index to time
 #'
 #' Takes a time vector and index vector of same length. This function create a
-#' new time vector given indices specified in \code{idx}. For \code{NA} indices
-#' it uses last index to fill time value. For \code{NA} appearing at the start
-#' of \code{idx}, it uses next index to get time value.
-#' @importFrom dplyr %>%
+#' new time vector given indices specified in \code{idx}.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -64,12 +61,12 @@ pickNearestFeature <- function(eXpRT, analyte, oswFiles, runname, adaptiveRT, fe
 #' @examples
 #' timeVec <- c(1.3,5.6,7.8)
 #' idx <- c(NA, NA, 1L, 2L, NA, NA, 3L, NA)
-#' mapIdxToTime(timeVec, idx) # c(1.3, 1.3, 1.3, 5.6, 5.6, 5.6, 7.8, 7.8)
+#' mapIdxToTime(timeVec, idx) # c(NA, NA, 1.3, 5.6, 6.333, 7.066, 7.8, NA)
 #'
 #' @importFrom zoo na.locf
 #' @export
 mapIdxToTime <- function(timeVec, idx){
-  mutateT <- na.locf(na.locf(timeVec[idx], na.rm = FALSE), fromLast = TRUE)
+  mutateT <- na.approx(timeVec[idx], na.rm = FALSE)
   return(mutateT)
 }
 

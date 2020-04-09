@@ -21,8 +21,8 @@ test_that("test_mapIdxToTime", {
   timeVec <- c(1.3,5.6,7.8)
   idx <- c(NA, NA, 1L, 2L, NA, NA, 3L, NA)
   outData <- mapIdxToTime(timeVec, idx)
-  expData <- c(1.3, 1.3, 1.3, 5.6, 5.6, 5.6, 7.8, 7.8)
-  expect_equal(outData, expData)
+  expData <- c(NA, NA, 1.3, 5.6, 6.333333, 7.066667, 7.8, NA)
+  expect_equal(outData, expData, tolerance = 1e-04)
 })
 
 test_that("test_mappedRTfromAlignObj", {
