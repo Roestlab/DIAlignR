@@ -135,6 +135,8 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
   }
   filenames <- filenames[filenames[["runName"]] %in% runs,]
   filenames <- merge(filenames, mzMLfiles, by = "runName")
+  filenames[["chromatogramFile"]] <- as.character(filenames[["chromatogramFile"]])
+  filenames[["featureFile"]] <- as.character(filenames[["featureFile"]])
   rownames(filenames) <- paste0("run", 0:(nrow(filenames)-1), "")
   filenames
 }
