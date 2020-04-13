@@ -33,8 +33,8 @@
 // $Maintainer: Shubham Gupta$
 // $Authors: Marc Sturm, Stephan Aiche $
 // --------------------------------------------------------------------------
-
-#pragma once
+#ifndef DPOSITION_H
+#define DPOSITION_H
 
 #include <algorithm>
 #include <limits>
@@ -460,3 +460,4 @@ std::ostream& operator<<(std::ostream& os, const DPosition<D, TCoordinateType>& 
 }
 
 } // namespace PeakIntegration
+#endif // DPOSITION_H

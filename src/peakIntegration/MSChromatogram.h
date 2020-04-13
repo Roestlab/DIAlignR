@@ -34,7 +34,8 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#pragma once
+#ifndef MSCHROMATOGRAM_H
+#define MSCHROMATOGRAM_H
 
 #include "ChromatogramPeak.h"
 
@@ -357,3 +358,4 @@ protected:
 std::ostream& operator<<(std::ostream& os, const MSChromatogram& chrom);
 
 } // namespace PeakIntegration
+#endif // MSCHROMATOGRAM_H

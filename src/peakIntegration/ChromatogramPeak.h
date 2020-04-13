@@ -33,8 +33,8 @@
 // $Maintainer: Shubham Gupta $
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
-
-#pragma once
+#ifndef CHROMATOGRAMPEAK_H
+#define CHROMATOGRAMPEAK_H
 
 #include <iosfwd>
 #include <functional>
@@ -285,3 +285,4 @@ protected:
   std::ostream & operator<<(std::ostream & os, const ChromatogramPeak & point);
 
 } // namespace PeakIntegration
+#endif // CHROMATOGRAMPEAK_H

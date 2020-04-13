@@ -34,6 +34,9 @@
 // $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 
+#ifndef PEAKINTEGRATOR_H
+#define PEAKINTEGRATOR_H
+
 #include "MSChromatogram.h"
 #include <exception>
 #include <stdexcept>
@@ -751,3 +754,4 @@ private:
   }
 };
 } // PeakIntegration
+#endif // PEAKINTEGRATOR_H

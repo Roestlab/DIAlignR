@@ -7,7 +7,7 @@
 
 namespace DIAlign
 {
-namespace PeakIntegration
+namespace PeakGroupIntensity
 {
    /**
     * @brief returns the summation of signals between leftIdx and rightIdx from vov.
@@ -15,7 +15,7 @@ namespace PeakIntegration
     */
    double peakGroupArea(std::vector<std::vector<double> > position, std::vector<std::vector<double> > intensity,
                         double left, double right, const std::string integrationType, const std::string baselineType, bool fitEMG);
-} //namespace PeakIntegration
+} //namespace PeakGroupIntensity
 } // namespace DIAlign
 
 #endif // INTEGRATEAREA_H

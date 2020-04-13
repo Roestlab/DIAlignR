@@ -8,7 +8,7 @@
 #define ASSERT(condition) if(!(condition)) throw 1; // If you don't put the message, C++ will output the code.
 
 using namespace DIAlign;
-using namespace PeakIntegration;
+using namespace PeakGroupIntensity;
 
 void test_peakGroupArea(){
   const double left = 2.472833334;
@@ -51,31 +51,31 @@ void test_peakGroupArea(){
   intensity_arr.push_back(intensity);
 
   double area;
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "base_to_base", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "base_to_base", false);
   ASSERT(std::abs(area - 123446.661339019) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "base_to_base", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "base_to_base", false);
   ASSERT(std::abs(area - 1140.392865964) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "base_to_base", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "base_to_base", false);
   //ASSERT(std::abs(area - 123446.661339019) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_min", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_min", false);
   ASSERT(std::abs(area - 50217) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_min", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_min", false);
   ASSERT(std::abs(area - 476.606316373) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_min", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_min", false);
   //ASSERT(std::abs(area - 123446.661339019) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_max", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_max", false);
   ASSERT(std::abs(area - 190095) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_max", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_max", false);
   ASSERT(std::abs(area - 1804.179415555) < 1e-03);
 
-  area = DIAlign::PeakIntegration::peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_max", false);
+  area = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_max", false);
   //ASSERT(std::abs(area - 123446.661339019) < 1e-03);
 
   //........................  CASE 2 ........................................
