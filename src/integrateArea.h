@@ -2,17 +2,20 @@
 #define INTEGRATEAREA_H
 
 #include <vector>
-#include <cmath>
 #include "utils.h"
-#include "similarityMatrix.h"
+#include "peakIntegration/PeakIntegrator.h"
 
 namespace DIAlign
 {
-  /**
-   * @brief returns the summation of signals between leftIdx and rightIdx from vov.
-   *
-   */
-  double areaBwBoundaries(std::vector<std::vector<double> > vov, int leftIdx, int rightIdx);
+namespace PeakIntegration
+{
+   /**
+    * @brief returns the summation of signals between leftIdx and rightIdx from vov.
+    *
+    */
+   double peakGroupArea(std::vector<std::vector<double> > position, std::vector<std::vector<double> > intensity,
+                        double left, double right, const std::string integrationType, const std::string baselineType, bool fitEMG);
+} //namespace PeakIntegration
 } // namespace DIAlign
 
 #endif // INTEGRATEAREA_H

@@ -20,6 +20,11 @@ src/constrainMat.cpp
 src/gapPenalty.cpp
 src/utils.cpp
 src/simpleFcn.cpp
+src/integrateArea.cpp
+src/peakIntegration/PeakIntegrator.cpp
+src/peakIntegration/MSChromatogram.cpp
+src/peakIntegration/ChromatogramPeak.cpp
+src/peakIntegration/DPosition.cpp
 )
 
 add_library(DIAAlignment ${SOURCE_FILES})
@@ -41,6 +46,7 @@ add_executable(runTest5 src/test/test_chromSimMatrix.cpp)
 add_executable(runTest6 src/test/test_alignment.cpp)
 add_executable(runTest7 src/test/test_affinealignobj.cpp)
 add_executable(runTest8 src/test/test_affinealignment.cpp)
+add_executable(runTest9 src/test/test_integrateArea.cpp)
 
 set(LIST_TESTS
 runTest1
@@ -51,6 +57,7 @@ runTest5
 runTest6
 runTest7
 runTest8
+runTest9
 )
 
 foreach(TEST ${LIST_TESTS})

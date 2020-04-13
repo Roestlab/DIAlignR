@@ -1,14 +1,36 @@
 #include "integrateArea.h"
-#include <numeric>
 
 namespace DIAlign
 {
-double areaBwBoundaries(std::vector<std::vector<double> > vov, int leftIdx, int rightIdx){
-  double area = 0.0;
-  int n_frag = vov.size();
-  for(int fragIon = 0; fragIon < n_frag; fragIon++){
-    area += std::accumulate(vov[fragIon].begin()+leftIdx, vov[fragIon].begin()+rightIdx+1, 0);
+namespace PeakIntegration
+{
+  double peakGroupArea(std::vector<std::vector<double> > position, std::vector<std::vector<double> > intensity,
+                        double left, double right, const std::string integrationType, const std::string baselineType, bool fitEMG){
+    double area = 0.0;
+
+    /***
+    PeakIntegrator* ptr = new PeakIntegrator();
+    Param params;
+    params.setIntegrationType(integrationType);
+    params.setBaselineType(baselineType);
+    ptr->updateMembers(params);
+
+    PeakIntegrator::PeakArea pa;
+    PeakIntegrator::PeakBackground pb;
+
+    int n_frag = position.size();
+    for(int fragIon = 0; fragIon < n_frag; fragIon++){
+
+      MSChromatogram chromatogram;
+      for (Size i = 0; i < position[fragIon].size(); ++i)
+      {
+        chromatogram.push_back(ChromatogramPeak(position[fragIon][i], intensity[fragIon][i]));
+      }
+      pa = ptr->integratePeak(chromatogram, left, right);
+      pb = ptr->estimateBackground(chromatogram, left, right, pa.apex_pos);
+      area += pb.area;
+    }*/
+    return area;
   }
-  return area;
-}
-}
+} //namespace PeakIntegration
+} // namespace DIAlign
