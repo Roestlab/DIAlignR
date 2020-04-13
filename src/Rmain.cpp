@@ -8,6 +8,10 @@
 #include "affinealignment.h"
 #include "constrainMat.h"
 #include "integrateArea.h"
+#include "PeakIntegrator.h"
+#include "MSChromatogram.h"
+#include "ChromatogramPeak.h"
+#include "DPosition.h"
 using namespace Rcpp;
 using namespace DIAlign;
 using namespace AffineAlignment;
@@ -16,6 +20,7 @@ using namespace SimilarityMatrix;
 using namespace ConstrainMatrix;
 using namespace Utils;
 using namespace Traceback;
+using namespace PeakGroupIntensity;
 
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
 // [[Rcpp::plugins(cpp11)]]
@@ -233,9 +238,11 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
 //' areaIntegrator(l1, leftIdx = 4, rightIdx = 6) # 54
 //' @export
 // [[Rcpp::export]]
-double areaIntegrator(Rcpp::List l1, int leftIdx, int rightIdx){
-  std::vector<std::vector<double> > vov = list2VecOfVec(l1);
-  double area = areaBwBoundaries(vov, leftIdx, rightIdx);
+double areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right,
+                      std::string integrationType, std::string baselineType, bool fitEMG){
+  std::vector<std::vector<double> > vov1 = list2VecOfVec(l1);
+  std::vector<std::vector<double> > vov2 = list2VecOfVec(l2);
+  double area = peakGroupArea(vov1, vov2, left, right, integrationType, baselineType, fitEMG= false);
   return area;
 }
 

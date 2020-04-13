@@ -175,8 +175,8 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' l1 <- list(1:10, 1:10, 1:10)
 #' areaIntegrator(l1, leftIdx = 4, rightIdx = 6) # 54
 #' @export
-areaIntegrator <- function(l1, leftIdx, rightIdx) {
-    .Call(`_DIAlignR_areaIntegrator`, l1, leftIdx, rightIdx)
+areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, fitEMG) {
+    .Call(`_DIAlignR_areaIntegrator`, l1, l2, left, right, integrationType, baselineType, fitEMG)
 }
 
 #' Aligns MS2 extracted-ion chromatograms(XICs) pair.

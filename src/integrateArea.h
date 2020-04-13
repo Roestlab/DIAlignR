@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "utils.h"
-#include "peakIntegration/PeakIntegrator.h"
+#include "PeakIntegrator.h"
 
 namespace DIAlign
 {

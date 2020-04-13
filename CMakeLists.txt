@@ -21,10 +21,10 @@ src/gapPenalty.cpp
 src/utils.cpp
 src/simpleFcn.cpp
 src/integrateArea.cpp
-src/peakIntegration/PeakIntegrator.cpp
-src/peakIntegration/MSChromatogram.cpp
-src/peakIntegration/ChromatogramPeak.cpp
-src/peakIntegration/DPosition.cpp
+src/PeakIntegrator.cpp
+src/MSChromatogram.cpp
+src/ChromatogramPeak.cpp
+src/DPosition.cpp
 )
 
 add_library(DIAAlignment ${SOURCE_FILES})
