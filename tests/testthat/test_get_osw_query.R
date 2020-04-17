@@ -60,3 +60,21 @@ test_that("test_getFeaturesQuery",{
   ORDER BY transition_group_id, peak_group_rank;"
   expect_identical(outData, expOutput)
 })
+
+
+test_that("test_getPrecursorsQueryID",{
+  outData <- getPrecursorsQueryID(c(32L, 43L), runType = "DIA_Proteomics")
+  expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
+      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+      PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
+      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+      PRECURSOR.CHARGE AS charge,
+      PRECURSOR.GROUP_LABEL AS group_label
+      FROM PRECURSOR
+      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      WHERE  transition_group_id IN ('32','43')
+      ORDER BY transition_group_id, transition_id;"
+  expect_identical(outData, expOutput)
+})

@@ -187,7 +187,7 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
 }
 
 #  https://stackoverflow.com/questions/10622260/how-do-you-query-an-int-column-for-any-value
-#' Get precursor Info.
+#' Get precursor Info
 #'
 #' For each precursor in the table respective transition ids are fetched.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -195,7 +195,7 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2019) + GPL-3
-#' Date: 2019-04-04
+#' Date: 2020-04-04
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchPrecursorsInfo}}
@@ -215,7 +215,7 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
   query
 }
 
-#' Get features from a SQLite file.
+#' Get features from a SQLite file
 #'
 #' Query is generated to identify features below a FDR cut-off from a run.
 #'
@@ -224,7 +224,7 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2019) + GPL-3
-#' Date: 2019-04-07
+#' Date: 2020-04-07
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchFeaturesFromRun}}
@@ -244,5 +244,38 @@ getFeaturesQuery <- function(runType = "DIA_Proteomics"){
   LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
   WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR
   ORDER BY transition_group_id, peak_group_rank;"
+  query
+}
+
+
+#' Get precursor Info
+#'
+#' For each precursor in the table respective transition ids are fetched.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-04-04
+#' @param analytes (integer) A vector of integer that is searched in PRECURSOR.ID.
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return SQL query to be searched.
+#' @seealso \code{\link{fetchPrecursorsInfo}}
+#' @keywords internal
+getPrecursorsQueryID <- function(analytes, runType = "DIA_Proteomics"){
+  selectAnalytes <- paste0(" transition_group_id IN ('", paste(analytes, collapse="','"),"')")
+
+  query <- paste0("SELECT PRECURSOR.ID AS transition_group_id,
+      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+      PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
+      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+      PRECURSOR.CHARGE AS charge,
+      PRECURSOR.GROUP_LABEL AS group_label
+      FROM PRECURSOR
+      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      WHERE ", selectAnalytes, "
+      ORDER BY transition_group_id, transition_id;")
   query
 }
