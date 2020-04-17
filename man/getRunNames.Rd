@@ -4,14 +4,12 @@
 \alias{getRunNames}
 \title{Get names of all runs}
 \usage{
-getRunNames(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)")
+getRunNames(dataPath, oswMerged = TRUE)
 }
 \arguments{
 \item{dataPath}{(char) Path to mzml and osw directory.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
-
-\item{nameCutPattern}{(string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.}
 }
 \value{
 (dataframe) it has five columns:
@@ -27,7 +25,7 @@ mzML file names must match with RUN.FILENAME columns of osw files.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-getRunNames(dataPath = dataPath)
+getRunNames(dataPath = dataPath, oswMerged = TRUE)
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

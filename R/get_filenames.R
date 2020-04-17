@@ -97,7 +97,6 @@ filenamesFromMZML <- function(dataPath){
 #' Date: 2019-12-14
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param nameCutPattern (string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
 #' @return (dataframe) it has five columns:
 #' \item{spectraFile}{(string) as mentioned in RUN table of osw files.}
 #' \item{runName}{(string) contain respective mzML names without extension.}
@@ -106,9 +105,9 @@ filenamesFromMZML <- function(dataPath){
 #' \item{chromatogramFile}{(string) Path to the chromatogram file.}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' getRunNames(dataPath = dataPath)
+#' getRunNames(dataPath = dataPath, oswMerged = TRUE)
 #' @export
-getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"){
+getRunNames <- function(dataPath, oswMerged = TRUE){
   # Get filenames from RUN table of osw files.
   if(oswMerged == FALSE){
     filenames <- filenamesFromOSW(dataPath, pattern = "*.osw")
@@ -116,6 +115,7 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
     filenames <- filenamesFromOSW(dataPath, pattern = "*merged.osw")
   }
   # Get names of mzml files.
+  nameCutPattern = "(.*)(/)(.*)" # regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
   runs <- vapply(filenames[["spectraFile"]], function(x) gsub(nameCutPattern, replacement = "\\3", x), "")
   fileExtn <- strsplit(runs[[1]], "\\.")[[1]][2]
   fileExtn <- paste0(".", fileExtn)
@@ -139,4 +139,40 @@ getRunNames <- function(dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*
   filenames[["featureFile"]] <- as.character(filenames[["featureFile"]])
   rownames(filenames) <- paste0("run", 0:(nrow(filenames)-1), "")
   filenames
+}
+
+
+#' Get intersection of runs and fileInfo
+#'
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-04-15
+#' @param fileInfo (data-frame) output of getRunNames function.
+#' @param runs (vector of string) names of mzML files without extension.
+#' @return (dataframe) it has five columns:
+#' \item{spectraFile}{(string) as mentioned in RUN table of osw files.}
+#' \item{runName}{(string) contain respective mzML names without extension.}
+#' \item{spectraFileID}{(string) ID in RUN table of osw files.}
+#' \item{featureFile}{(string) path to the feature file.}
+#' \item{chromatogramFile}{(string) path to the chromatogram file.}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath = dataPath, oswMerged = TRUE)
+#' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+#'           "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
+#' updateFileInfo(fileInfo, runs)
+#' @export
+updateFileInfo <- function(fileInfo, runs = NULL){
+  if(!is.null(runs)){
+    fileInfo <- fileInfo[fileInfo$runName %in% runs,]
+    missingRun <- setdiff(runs, fileInfo$runName)
+    if(length(missingRun) != 0){
+      return(stop(missingRun, " runs are not found."))
+    }
+  }
+  fileInfo
 }

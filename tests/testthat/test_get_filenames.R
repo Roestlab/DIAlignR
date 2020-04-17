@@ -44,7 +44,7 @@ test_that("test_getRunNames", {
                                                  file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
-  expect_identical(getRunNames(dataPath = dataPath, oswMerged = TRUE, nameCutPattern = "(.*)(/)(.*)"), expOutput)
+  expect_identical(getRunNames(dataPath = dataPath, oswMerged = TRUE), expOutput)
   expect_error(getRunNames(dataPath = ".", oswMerged = TRUE), "No merged.osw file is found.")
   expect_error(getRunNames(dataPath = ".", oswMerged = FALSE), "No .osw files are found.")
 })
