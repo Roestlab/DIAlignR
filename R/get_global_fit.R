@@ -133,7 +133,7 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
 #' getRSE(Loess.fit)
 #' }
 getRSE <- function(fit){
-  if(class(fit) == "loess"){
+  if(is(fit, "loess")){
     RSE <- fit[["s"]]
   } else{
     RSE <- summary(fit)[["sigma"]]
