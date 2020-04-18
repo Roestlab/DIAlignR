@@ -167,13 +167,23 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' ORCID: 0000-0003-3500-8152
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-03-08
-#' @param l1 (list) A list of vectors. All vectors must be of same length.
-#' @param leftIdx (numeric) Left index (0-based) of the boundary.
-#' @param rightIdx (numeric) Right index (0-based) of the boundary.
+#' @param l1 (list) A list of time vectors.
+#' @param l2 (list) A list of intensity vectors.
+#' @param left (numeric) left boundary of the peak.
+#' @param right (numeric) right boundary of the peak.
+#' @param integrationType (string) method to ompute the area of a peak contained in XICs. Must be
+#'  from "intensity_sum", "trapezoid", "simpson".
+#' @param baselineType (string) method to estimate the background of a peak contained in XICs. Must be
+#'  from "base_to_base", "vertical_division_min", "vertical_division_max".
+#' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
 #' @return area (numeric).
 #' @examples
-#' l1 <- list(1:10, 1:10, 1:10)
-#' areaIntegrator(l1, leftIdx = 4, rightIdx = 6) # 54
+#' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' l1 <- lapply(XICs, `[[`, 1)
+#' l2 <- lapply(XICs, `[[`, 2)
+#' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE)
+#' # 224.9373
 #' @export
 areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, fitEMG) {
     .Call(`_DIAlignR_areaIntegrator`, l1, l2, left, right, integrationType, baselineType, fitEMG)
