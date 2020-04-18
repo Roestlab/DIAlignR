@@ -45,7 +45,7 @@ readChromatogramHeader <- function(mzmlName){
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+#' fileInfo <- getRunNames(dataPath = dataPath)
 #' mzPntrs <- getMZMLpointers(fileInfo)
 #' @export
 getMZMLpointers <- function(fileInfo){
