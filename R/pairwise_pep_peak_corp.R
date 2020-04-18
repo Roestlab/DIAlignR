@@ -10,8 +10,8 @@
 #' @param XICs.ref List of extracted ion chromatograms from reference run.
 #' @param XICs.eXp List of extracted ion chromatograms from experiment run.
 #' @param globalFit Linear or loess fit object between reference and experiment run.
+#' @param alignType Available alignment methods are "global", "local" and "hybrid".
 #' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
-#' @param samplingTime (numeric) Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.
 #' @param normalization (character) Must be selected from "mean", "l2".
 #' @param simType (string) Must be selected from dotProduct, cosineAngle,
 #' cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
@@ -37,8 +37,8 @@
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
-#' AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, adaptiveRT = 77.82315,
-#'  samplingTime = 3.414, normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
+#' AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
+#'  normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
 #'   geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
 #'   gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100, objType = "light")
 #' @export
@@ -101,6 +101,7 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
 #' @param objType (char) Must be selected from light, medium and heavy.
 #' @return (numeric)
 #' @seealso \code{\link{alignChromatogramsCpp}}
+#' @keywords internal
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(oswFiles_DIAlignR, package="DIAlignR")
@@ -109,12 +110,13 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
 #' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
+#' \dontrun{
 #' getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
-#'  adaptiveRT = adaptiveRT, samplingTime = 3.414, normalization = "mean",
+#'  adaptiveRT = adaptiveRT, normalization = "mean",
 #'   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
 #'   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
 #'   samples4gradient = 100)
-#' @export
+#' }
 getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                         normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                         OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
@@ -156,8 +158,8 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #' @param hardConstrain (logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
 #' @param objType (char) Must be selected from light, medium and heavy.
-#' @return (numeric)
-#' @seealso \code{\link{alignChromatogramsCpp}}
+#' @return (list) the first element corresponds to the aligned reference time, the second element is the aligned experiment time.
+#' @seealso \code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(oswFiles_DIAlignR, package="DIAlignR")
@@ -167,7 +169,7 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
 #' getAlignedIndices(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
-#'  adaptiveRT = adaptiveRT, samplingTime = 3.414, normalization = "mean",
+#'  adaptiveRT = adaptiveRT, normalization = "mean",
 #'   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
 #'   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
 #'   samples4gradient = 100)

@@ -59,11 +59,13 @@ XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]
 globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
  maxFdrGlobal = 0.05, spanvalue = 0.1)
 adaptiveRT <- 77.82315 #3.5*globalFit$s
+\dontrun{
 getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
- adaptiveRT = adaptiveRT, samplingTime = 3.414, normalization = "mean",
+ adaptiveRT = adaptiveRT, normalization = "mean",
   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
   samples4gradient = 100)
+}
 }
 \seealso{
 \code{\link{alignChromatogramsCpp}}
@@ -76,3 +78,4 @@ ORCID: 0000-0003-3500-8152
 License: (c) Author (2019) + GPL-3
 Date: 2019-12-13
 }
+\keyword{internal}

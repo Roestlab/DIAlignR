@@ -44,7 +44,7 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 \item{objType}{(char) Must be selected from light, medium and heavy.}
 }
 \value{
-(numeric)
+(list) the first element corresponds to the aligned reference time, the second element is the aligned experiment time.
 }
 \description{
 This function aligns XICs of reference and experiment runs.
@@ -59,13 +59,13 @@ globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
  maxFdrGlobal = 0.05, spanvalue = 0.1)
 adaptiveRT <- 77.82315 #3.5*globalFit$s
 getAlignedIndices(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
- adaptiveRT = adaptiveRT, samplingTime = 3.414, normalization = "mean",
+ adaptiveRT = adaptiveRT, normalization = "mean",
   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
   samples4gradient = 100)
 }
 \seealso{
-\code{\link{alignChromatogramsCpp}}
+\code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
