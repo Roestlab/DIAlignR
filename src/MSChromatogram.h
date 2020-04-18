@@ -38,6 +38,8 @@
 #define MSCHROMATOGRAM_H
 
 #include "ChromatogramPeak.h"
+#include <vector>
+#include <cmath>
 
 namespace PeakIntegration
 {
