@@ -2,47 +2,43 @@
 % Please edit documentation in R/get_peaks_chromatograms.R
 \name{getXICs4AlignObj}
 \alias{getXICs4AlignObj}
-\title{Extract XICs of all analytes from oswFiles}
+\title{Extract XICs of analytes}
 \usage{
-getXICs4AlignObj(dataPath, runs, oswFiles, analytes,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  mzPntrs = NULL)
+getXICs4AlignObj(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 }
 \arguments{
-\item{dataPath}{(char) path to mzml and osw directory.}
+\item{mzPntrs}{a list of mzRpwiz.}
 
-\item{runs}{(vector of string) names of mzML files without extension. Names of the vector must be a combination of "run" and an iteger e.g. "run2".}
+\item{fileInfo}{(data-frame) output of getRunNames().}
 
-\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
+\item{runs}{(vector of string) names of mzML files without extension.}
 
-\item{analytes}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+\item{prec2chromIndex}{(list of data-frames) output of getChromatogramIndices(). Each dataframe has two columns: transition_group_id and chromatogramIndex.}
 
-\item{XICfilter}{(string) this must be one of the strings "sgolay", "none".}
-
-\item{SgolayFiltOrd}{(integer) it defines the polynomial order of filer.}
-
-\item{SgolayFiltLen}{(integer) must be an odd number. It defines the length of filter.}
-
-\item{mzPntrs}{A list of mzRpwiz.}
+\item{analytes}{(integer) a vector of precursor IDs.}
 }
 \value{
 A list of list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 }
 \description{
-For all the analytes requested, it fetches chromatogram indices from oswFiles and
-extract chromatograms from mzML files.
+For all the analytes requested, it fetches chromatogram indices from prec2chromIndex and
+extracts chromatograms using mzPntrs.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-filenames <- DIAlignR::getRunNames(dataPath = dataPath)
-runs <- c("run1" = "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
-          "run0" =  "hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt")
-oswFiles <- DIAlignR::getOswFiles(dataPath, filenames)
-analytes <- "QFNNTDIVLLEDFQK_3"
-XICs <- getXICs4AlignObj(dataPath, runs, oswFiles, analytes)
+runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
+          "hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt")
+analytes <- c(32L, 898L, 2474L)
+fileInfo <- getRunNames(dataPath = dataPath)
+fileInfo <- updateFileInfo(fileInfo, runs)
+precursors <- getPrecursorByID(analytes,fileInfo)
+mzPntrs <- getMZMLpointers(fileInfo)
+prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
+XICs <- getXICs4AlignObj(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
+rm(mzPntrs)
 }
 \seealso{
-\code{\link{getOswFiles}, \link{getRunNames}}
+\code{\link{getChromatogramIndices}, \link{getRunNames}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

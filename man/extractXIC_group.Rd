@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_peaks_chromatograms.R
 \name{extractXIC_group}
 \alias{extractXIC_group}
-\title{Extract XICs of all transitions requested in chromIndices.}
+\title{Extract XICs of chromIndices}
 \usage{
 extractXIC_group(mz, chromIndices)
 }
@@ -15,7 +15,7 @@ extractXIC_group(mz, chromIndices)
 A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 }
 \description{
-Extracts XICs using mz object. Generally Savitzky–Golay filter is used, however, filter can be turned-off as well.
+Extracts XICs using mz object. Each chromatogram represents a transition of precursor.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
