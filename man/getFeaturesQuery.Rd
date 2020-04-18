@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_osw_query.R
 \name{getFeaturesQuery}
 \alias{getFeaturesQuery}
-\title{Get features from a SQLite file.}
+\title{Get features from a SQLite file}
 \usage{
 getFeaturesQuery(runType = "DIA_Proteomics")
 }
@@ -24,6 +24,6 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 ORCID: 0000-0003-3500-8152
 
 License: (c) Author (2019) + GPL-3
-Date: 2019-04-07
+Date: 2020-04-07
 }
 \keyword{internal}
