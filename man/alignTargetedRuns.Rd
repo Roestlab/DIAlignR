@@ -4,99 +4,109 @@
 \alias{alignTargetedRuns}
 \title{Outputs intensities for each analyte from aligned Targeted-MS runs}
 \usage{
-alignTargetedRuns(dataPath, alignType = "hybrid",
-  analyteInGroupLabel = FALSE, oswMerged = TRUE, runs = NULL,
-  analytes = NULL, nameCutPattern = "(.*)(/)(.*)",
-  maxFdrQuery = 0.05, maxFdrLoess = 0.01, analyteFDR = 0.01,
-  spanvalue = 0.1, runType = "DIA_Proteomics",
+alignTargetedRuns(dataPath, outFile = "DIAlignR.csv", oswMerged = TRUE,
+  runs = NULL, runType = "DIA_Proteomics", maxFdrQuery = 0.05,
+  XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
+  globalAlignment = "loess", globalAlignmentFdr = 0.01,
+  globalAlignmentSpan = 0.1, RSEdistFactor = 3.5,
   normalization = "mean", simMeasure = "dotProductMasked",
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-  hardConstrain = FALSE, samples4gradient = 100, samplingTime = 3.4,
-  RSEdistFactor = 3.5, saveFiles = FALSE, outFile = "DIAlignR.csv")
+  alignType = "hybrid", goFactor = 0.125, geFactor = 40,
+  cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+  samples4gradient = 100, analyteFDR = 0.01, unalignedFDR = 0.01,
+  alignedFDR = 0.05, baselineType = "base_to_base",
+  integrationType = "intensity_sum", fitEMG = FALSE,
+  recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE)
 }
 \arguments{
-\item{dataPath}{(char) Path to mzml and osw directory.}
+\item{dataPath}{(string) path to mzml and osw directory.}
 
-\item{alignType}{Available alignment methods are "global", "local" and "hybrid".}
-
-\item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
+\item{outFile}{(string) name of the output file.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runs}{(A vector of string) Names of mzml file without extension.}
+\item{runs}{(A vector of string) names of mzml file without extension.}
 
-\item{analytes}{(vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.}
+\item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
-\item{nameCutPattern}{(string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.}
+\item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
-\item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
+\item{XICfilter}{(string) must be either sgolay, boxcar, gaussian, loess or none.}
 
-\item{maxFdrLoess}{(numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.}
+\item{polyOrd}{(integer) order of the polynomial to be fit in the kernel.}
 
-\item{analyteFDR}{(numeric) only analytes that have m-score less than this, will be included in the output.}
+\item{kernelLen}{(integer) number of data-points to consider in the kernel.}
 
-\item{spanvalue}{(numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.}
+\item{globalAlignment}{(string) must be from "loess" or "linear".}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{globalAlignmentFdr}{(numeric) a numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.}
 
-\item{normalization}{(character) Must be selected from "mean", "l2".}
+\item{globalAlignmentSpan}{(numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.}
 
-\item{simMeasure}{(string) Must be selected from dotProduct, cosineAngle,
+\item{RSEdistFactor}{(numeric) defines how much distance in the unit of rse remains a noBeef zone.}
+
+\item{normalization}{(character) must be selected from "mean", "l2".}
+
+\item{simMeasure}{(string) must be selected from dotProduct, cosineAngle,
 cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 
-\item{XICfilter}{(string) This must be one of the strings "sgolay", "none".}
+\item{alignType}{available alignment methods are "global", "local" and "hybrid".}
 
-\item{SgolayFiltOrd}{(integer) It defines the polynomial order of filer.}
+\item{goFactor}{(numeric) penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
 
-\item{SgolayFiltLen}{(integer) Must be an odd number. It defines the length of filter.}
+\item{geFactor}{(numeric) penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.}
 
-\item{goFactor}{(numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
+\item{cosAngleThresh}{(numeric) in simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.}
 
-\item{geFactor}{(numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.}
+\item{OverlapAlignment}{(logical) an input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.}
 
-\item{cosAngleThresh}{(numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.}
+\item{dotProdThresh}{(numeric) in simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
 
-\item{OverlapAlignment}{(logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.}
+\item{gapQuantile}{(numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
 
-\item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
+\item{hardConstrain}{(logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
 
-\item{gapQuantile}{(numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
+\item{samples4gradient}{(numeric) modulates penalization of masked indices.}
 
-\item{hardConstrain}{(logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
+\item{analyteFDR}{(numeric) Not implemented.}
 
-\item{samples4gradient}{(numeric) This parameter modulates penalization of masked indices.}
+\item{unalignedFDR}{(numeric) must be between 0 and maxFdrQuery. Features below unalignedFDR are
+considered for quantification even without the RT alignment.}
 
-\item{samplingTime}{(numeric) Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.}
+\item{alignedFDR}{(numeric) must be between unalignedFDR and 1. Features below alignedFDR are
+considered for quantification after the alignment.}
 
-\item{RSEdistFactor}{(numeric) This defines how much distance in the unit of rse remains a noBeef zone.}
+\item{baselineType}{(string) method to estimate the background of a peak contained in XICs. Must be
+from "base_to_base", "vertical_division_min", "vertical_division_max".}
 
-\item{saveFiles}{(logical) Must be selected from light, medium and heavy.}
+\item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
+from "intensity_sum", "trapezoid", "simpson".}
 
-\item{outFile}{(char) Name of the output file.}
+\item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
+
+\item{recalIntensity}{(logical) recalculate intensity for all analytes.}
+
+\item{fillMissing}{(logical) calculate intensity for ananlytes for which features are not found.}
+
+\item{smoothPeakArea}{(logical) FALSE: raw chromatograms will be used for quantification. TRUE: smoothed chromatograms will be used for quantification.}
 }
 \value{
-Two tables of intensity and rention times for every analyte in each run.
+An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
+ peak_group_rank, m_score, alignment_rank, peptide_id, sequence, charge, group_label.
 }
 \description{
 This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.
-It then align XICs of each analyte to its reference XICs. Best peak, which has lowest m-score, about the aligned retention time is picked for quantification.
+It then align XICs of its reference XICs. Best peak, which has lowest m-score, about the aligned retention time is picked for quantification.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
-intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("QFNNTDIVLLEDFQK_3"),
- analyteInGroupLabel = FALSE)
-intensityTbl <- alignTargetedRuns(dataPath, runs = runs, analytes = c("14299_QFNNTDIVLLEDFQK/3"),
- analyteInGroupLabel = TRUE)
+alignTargetedRuns(dataPath, outFile = "testDIAlignR.csv", oswMerged = TRUE)
 }
 \references{
 Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 }
 \seealso{
-\code{\link{getRunNames}, \link{getOswFiles}, \link{getAnalytesName}, \link{getMappedRT}}
+\code{\link{getRunNames}, \link{getFeatures}, \link{setAlignmentRank}, \link{getMultipeptide}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
