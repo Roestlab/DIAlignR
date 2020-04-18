@@ -21,8 +21,7 @@ library(lattice)
 dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
  "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
-AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath,
- objType = "medium")
+AlignObjOutput <- getAlignObjs(analytes = 4618L, runs, dataPath = dataPath, objType = "medium")
 plotAlignmentPath(AlignObjOutput)
 }
 \author{
