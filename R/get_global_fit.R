@@ -1,6 +1,3 @@
-## quiets concerns of R CMD check re: the .'s that appear in pipelines
-if(getRversion() >= "2.15.1")  utils::globalVariables(c())
-
 #' Calculates LOESS fit between RT of two runs
 #'
 #' This function selects features from oswFiles which has m-score < maxFdrLoess. It fits LOESS on these feature.
@@ -121,6 +118,7 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
+#' @importFrom methods is
 #' @param fit (lm or loess) Linear or loess fit object between reference and experiment run.
 #' @return (numeric)
 #' @seealso \code{\link{getLOESSfit}, \link{getLinearfit}, \link{getGlobalAlignment}}
