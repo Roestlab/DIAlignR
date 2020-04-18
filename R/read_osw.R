@@ -83,40 +83,37 @@ fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
 #' \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
 #' \item{transition_id}{(integer) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 #'
+#' @keywords internal
 #' @seealso \code{\link{getRunNames}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' filenames <- DIAlignR::getRunNames(dataPath = dataPath)
+#' filenames <- getRunNames(dataPath = dataPath)
+#' \dontrun{
 #' oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames,
 #'  analyteInGroupLabel = TRUE)
 #' oswFiles[["run0"]][1,]
 #' oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames,
 #'  analyteInGroupLabel = FALSE)
 #' oswFiles[["run0"]][1,]
-#' @export
-getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE, analyteInGroupLabel = FALSE,
+#' }
+getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FALSE,
                            maxFdrQuery = 0.05, runType  = "DIA_proteomics"){
   oswFiles <- list()
-  for(i in 1:nrow(filenames)){
+  for(i in 1:nrow(fileInfo)){
     # Get a query to search against the osw files.
-    if(oswMerged == TRUE){
-      oswName <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
-      oswName <- file.path(dataPath, "osw", oswName[1])
-    } else{
-      oswName <- paste0(file.path(dataPath, "osw", filenames$runs[i]), ".osw")
-    }
+    oswName <- as.character(fileInfo[["featureFile"]][[i]])
     # Establish a connection of SQLite file.
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
     # Generate a query.
     query <- getAnalytesQuery(maxFdrQuery = maxFdrQuery, oswMerged = oswMerged,
-                      filename = filenames$filename[i], runType = runType,
+                      filename = fileInfo$spectraFile[i], runType = runType,
                       analyteInGroupLabel = analyteInGroupLabel)
     # Run query to get peptides, their coordinates and scores.
           oswAnalytes <- tryCatch(expr = DBI::dbGetQuery(con, statement = query),
                              finally = DBI::dbDisconnect(con))
     oswFiles[[i]] <- oswAnalytes
   }
-  names(oswFiles) <- rownames(filenames)
+  names(oswFiles) <- rownames(fileInfo)
   oswFiles
 }
 
@@ -133,6 +130,7 @@ getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE, analyteInGroup
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-04
 #' @importFrom dplyr %>%
+#' @importFrom rlang .data
 #' @param filename (string) Should be from the RUN.FILENAME column from osw files.
 #' @param runType (string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @return (data-frames) Data-frame has following columns:
@@ -152,18 +150,23 @@ getOswAnalytes <- function(dataPath, filenames, oswMerged = TRUE, analyteInGroup
 #' precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics")
 #' dim(precursorsInfo) # 303  6
 #' }
-fetchPrecursorsInfo <- function(filename, runType){
+fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
   # Establish a connection of SQLite file.
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = as.character(filename))
   # Generate a query.
-  query <- getPrecursorsQuery(runType)
+
+  if(is.null(selectIDs)){
+    query <- getPrecursorsQuery(runType)
+  } else{
+    query <- getPrecursorsQueryID(selectIDs, runType)
+  }
   # Run query to get peptides, their coordinates and scores.
   precursorsInfo <- tryCatch(expr = { output <- DBI::dbSendQuery(con, statement = query)
                                         DBI::dbFetch(output)},
                            finally = {DBI::dbClearResult(output)
                              DBI::dbDisconnect(con)})
   # Each precursor has only one row. tidyr::nest creates a tibble object that is twice as heavy to regular list.
-  precursorsInfo <- dplyr::group_by(precursorsInfo, transition_group_id, peptide_id, sequence, charge, group_label) %>%
+  precursorsInfo <- dplyr::group_by(precursorsInfo, .data$transition_group_id, .data$peptide_id, .data$sequence, .data$charge, .data$group_label) %>%
     dplyr::summarise(transition_ids = dplyr::lst(transition_id)) %>% dplyr::ungroup() %>% as.data.frame()
   precursorsInfo
 }
@@ -216,6 +219,55 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
   message(paste0(nrow(precursors), " precursors are found."))
   precursors
 }
+
+
+#' Find precursors given their IDs
+#'
+#' Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id and amino-acid sequences.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2019-04-06
+#' @importFrom dplyr %>%
+#' @param analytes (integer) a vector of integers.
+#' @param fileInfo (data-frame) output of getRunNames function.
+#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param runType (string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return (data-frames) A data-frame having following columns:
+#' \item{transition_group_id}{(integer) a unique id for each precursor.}
+#' \item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
+#' \item{peptide_id}{(integer) a unique id for each peptide. A peptide can have multiple precursors.}
+#' \item{sequence}{(string) amino-acid sequence of the precursor with possible modifications.}
+#' \item{charge}{(integer) charge on the precursor.}
+#' \item{group_label}{(string) TODO Figure it out.}
+#'
+#' @seealso \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath = dataPath, oswMerged = TRUE)
+#' precursors <- getPrecursorByID(c(32L, 2474L), fileInfo, oswMerged = TRUE)
+#' @export
+getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"){
+  if(oswMerged == TRUE){
+    # Get precursor information from merged.osw file
+    oswName <- unique(fileInfo[["featureFile"]])
+    precursors <- fetchPrecursorsInfo(oswName, runType, analytes)
+  } else {
+    # Iterate over each file and collect precursor information
+    precursors <- data.frame("transition_group_id" = integer())
+    for(i in 1:nrow(fileInfo)){
+      oswName <- fileInfo[["featureFile"]][[i]]
+      temp <- fetchPrecursorsInfo(oswName, runType, analytes)
+      precursors <- merge(precursors, temp, by = c("transition_group_id", all.x = TRUE, all.y = TRUE))
+    }
+  }
+  message(paste0(nrow(precursors), " precursors are found."))
+  precursors
+}
+
 
 #' Get features from a feature file.
 #'

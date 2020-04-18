@@ -46,15 +46,8 @@ test_that("test_fetchAnalytesInfo",{
 
 test_that("test_getOswAnalytes",{
   dataPath <- system.file("extdata", package = "DIAlignR")
-  filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
-                                         "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
-                                         "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
-                          "runs" = c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
-                                     "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-                                     "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
-                          row.names = c("run0", "run1", "run2"),
-                          stringsAsFactors=FALSE)
-  outData <- getOswAnalytes(dataPath = dataPath, filenames, oswMerged = TRUE,
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  outData <- getOswAnalytes(fileInfo, oswMerged = TRUE,
                             maxFdrQuery = 0.01, runType  = "DIA_proteomics")
   expData <- data.frame("transition_group_id" = rep("AAMIGGADATSNVR_2", 2),
                         "filename" = rep("data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 2),
@@ -99,6 +92,23 @@ test_that("test_getPrecursors",{
   expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
   expect_identical(outData[1,], expData)
   expect_identical(dim(outData), c(322L, 6L))
+})
+
+test_that("test_getPrecursorByID",{
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- data.frame("featureFile" = rep(file.path(dataPath, "osw", "merged.osw"),3),
+                         row.names = c("run0", "run1", "run2"),
+                         stringsAsFactors=FALSE)
+  outData <- getPrecursorByID(c(32L, 2474L), fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = c(32L, 2474L),
+                        "peptide_id" = c(7040L, 8496L),
+                        "sequence" = c("GNNSVYMNNFLNLILQNER", "IHFLSPVRPFTLTPGDEEESFIQLITPVR"),
+                        "charge" = c(3L, 3L),
+                        "group_label" = c("10030_GNNSVYMNNFLNLILQNER/3", "12300_IHFLSPVRPFTLTPGDEEESFIQLITPVR/3"),
+                        stringsAsFactors = FALSE)
+  expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
+  expData[2, "transition_ids"][[1]] <- list(c(14843L, 14844L, 14845L, 14846L, 14847L, 14848L))
+  expect_identical(outData, expData)
 })
 
 test_that("test_fetchFeaturesFromRun",{
