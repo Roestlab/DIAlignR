@@ -55,6 +55,7 @@ filenamesFromOSW <- function(dataPath, pattern){
   }
   colnames(filenames) <- c("spectraFile", "spectraFileID", "featureFile")
   filenames[["spectraFileID"]] <- as.character(filenames[["spectraFileID"]]) # Convert from integer64 to character.
+  filenames[["featureFile"]] <- as.character(filenames[["featureFile"]]) # Convert from factor to character.
   filenames
 }
 
@@ -81,7 +82,10 @@ filenamesFromMZML <- function(dataPath){
   temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
   message(length(temp), " .chrom.mzML files are found.")
   mzMLfiles <- vapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1], "")
-  data.frame("runName" = unname(mzMLfiles), "chromatogramFile" = file.path(dataPath, "mzml", temp))
+  output <- data.frame("runName" = unname(mzMLfiles), "chromatogramFile" = file.path(dataPath, "mzml", temp))
+  output[["chromatogramFile"]] <- as.character(output[["chromatogramFile"]]) # Convert from factor to character.
+  output[["runName"]] <- as.character(output[["runName"]]) # Convert from factor to character.
+  output
 }
 
 #' Get names of all runs

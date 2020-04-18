@@ -8,12 +8,7 @@ test_that("test_filenamesFromOSW", {
                           "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
                           "featureFile" = file.path(dataPath, "osw", "merged.osw"),
                         stringsAsFactors=FALSE)
-  expOutput$featureFile <- as.factor(expOutput$featureFile)
-  # expect_identical(filenamesFromOSW(dataPath = dataPath, "*.osw"), expOutput)
   outData <- filenamesFromOSW(dataPath = dataPath, "*merged.osw")
-  print(class(outData[["spectraFile"]]))
-  print(class(outData[["spectraFileID"]]))
-  print(class(outData[["featureFile"]]))
   expect_identical(outData, expOutput)
   expect_message(filenamesFromOSW(dataPath = dataPath, "*.mzML"), "Only .osw and merged.osw files can be read.")
 })
@@ -21,12 +16,12 @@ test_that("test_filenamesFromOSW", {
 test_that("test_filenamesFromMZML", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   expOutput <- data.frame("runName" = c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
-                               "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
+                                 "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
                                "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
                  "chromatogramFile" = c(file.path(dataPath, "mzml", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML"),
                                         file.path(dataPath, "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"),
                                         file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
-                 stringsAsFactors=TRUE)
+                 stringsAsFactors=FALSE)
   expect_identical(filenamesFromMZML(dataPath = dataPath), expOutput)
   expect_message(filenamesFromMZML(dataPath = "."), "0 .chrom.mzML files are found.")
   expect_identical(names(filenamesFromMZML(dataPath = ".")), c("runName", "chromatogramFile"))
