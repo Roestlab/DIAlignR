@@ -4,8 +4,7 @@
 \alias{calculateIntensity}
 \title{Calculates area of a peak in XIC group}
 \usage{
-calculateIntensity(XICs, left, right, integrationType, baselineType,
-  fitEMG)
+calculateIntensity(XICs, left, right, integrationType, baselineType, fitEMG)
 }
 \arguments{
 \item{XICs}{(list) list of extracted ion chromatograms of a precursor.}

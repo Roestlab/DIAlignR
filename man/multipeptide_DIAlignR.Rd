@@ -4,7 +4,8 @@
 \name{multipeptide_DIAlignR}
 \alias{multipeptide_DIAlignR}
 \title{Analytes information from multipeptide.}
-\format{A list of 199 elements where each element represents a precursor and consists of a dataframe:
+\format{
+A list of 199 elements where each element represents a precursor and consists of a dataframe:
 \describe{
   \item{transition_group_id}{ID of each precursor. Same as the name of the list}
   \item{RT}{Retention time, in sec}
@@ -15,7 +16,8 @@
   \item{m_score}{qvalue of associated feature}
   \item{run}{Name of the run, feature is from}
   \item{alignment_rank}{Rank of the feature after alignment}
-}}
+}
+}
 \source{
 Raw files are downloaded from \href{http://www.peptideatlas.org/PASS/PASS01508}{Peptide Atlas}.
 File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}

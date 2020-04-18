@@ -4,8 +4,13 @@
 \alias{getOswAnalytes}
 \title{Fetch analytes from OSW file}
 \usage{
-getOswAnalytes(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FALSE,
-  maxFdrQuery = 0.05, runType = "DIA_proteomics")
+getOswAnalytes(
+  fileInfo,
+  oswMerged = TRUE,
+  analyteInGroupLabel = FALSE,
+  maxFdrQuery = 0.05,
+  runType = "DIA_proteomics"
+)
 }
 \arguments{
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}

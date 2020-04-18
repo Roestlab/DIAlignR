@@ -4,19 +4,41 @@
 \alias{alignTargetedRuns}
 \title{Outputs intensities for each analyte from aligned Targeted-MS runs}
 \usage{
-alignTargetedRuns(dataPath, outFile = "DIAlignR.csv", oswMerged = TRUE,
-  runs = NULL, runType = "DIA_Proteomics", maxFdrQuery = 0.05,
-  XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
-  globalAlignment = "loess", globalAlignmentFdr = 0.01,
-  globalAlignmentSpan = 0.1, RSEdistFactor = 3.5,
-  normalization = "mean", simMeasure = "dotProductMasked",
-  alignType = "hybrid", goFactor = 0.125, geFactor = 40,
-  cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
-  samples4gradient = 100, analyteFDR = 0.01, unalignedFDR = 0.01,
-  alignedFDR = 0.05, baselineType = "base_to_base",
-  integrationType = "intensity_sum", fitEMG = FALSE,
-  recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE)
+alignTargetedRuns(
+  dataPath,
+  outFile = "DIAlignR.csv",
+  oswMerged = TRUE,
+  runs = NULL,
+  runType = "DIA_Proteomics",
+  maxFdrQuery = 0.05,
+  XICfilter = "sgolay",
+  polyOrd = 4,
+  kernelLen = 9,
+  globalAlignment = "loess",
+  globalAlignmentFdr = 0.01,
+  globalAlignmentSpan = 0.1,
+  RSEdistFactor = 3.5,
+  normalization = "mean",
+  simMeasure = "dotProductMasked",
+  alignType = "hybrid",
+  goFactor = 0.125,
+  geFactor = 40,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.5,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  analyteFDR = 0.01,
+  unalignedFDR = 0.01,
+  alignedFDR = 0.05,
+  baselineType = "base_to_base",
+  integrationType = "intensity_sum",
+  fitEMG = FALSE,
+  recalIntensity = FALSE,
+  fillMissing = TRUE,
+  smoothPeakArea = FALSE
+)
 }
 \arguments{
 \item{dataPath}{(string) path to mzml and osw directory.}

@@ -4,10 +4,24 @@
 \alias{getAlignedIndices}
 \title{Get aligned Retention times.}
 \usage{
-getAlignedIndices(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
-  normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
-  OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
-  samples4gradient, objType = "light")
+getAlignedIndices(
+  XICs.ref,
+  XICs.eXp,
+  globalFit,
+  alignType,
+  adaptiveRT,
+  normalization,
+  simMeasure,
+  goFactor,
+  geFactor,
+  cosAngleThresh,
+  OverlapAlignment,
+  dotProdThresh,
+  gapQuantile,
+  hardConstrain,
+  samples4gradient,
+  objType = "light"
+)
 }
 \arguments{
 \item{XICs.ref}{List of extracted ion chromatograms from reference run.}

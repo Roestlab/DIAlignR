@@ -4,9 +4,23 @@
 \alias{setAlignmentRank}
 \title{Set Alignment rank to the aligned feature}
 \usage{
-setAlignmentRank(multipeptide, ref, eXp, analyte_chr, unalignedFDR,
-  alignedFDR, adaptiveRT, tAligned, XICs.ref, XICs.eXp, integrationType,
-  baselineType, fitEMG, recalIntensity, fillMissing = TRUE)
+setAlignmentRank(
+  multipeptide,
+  ref,
+  eXp,
+  analyte_chr,
+  unalignedFDR,
+  alignedFDR,
+  adaptiveRT,
+  tAligned,
+  XICs.ref,
+  XICs.eXp,
+  integrationType,
+  baselineType,
+  fitEMG,
+  recalIntensity,
+  fillMissing = TRUE
+)
 }
 \arguments{
 \item{multipeptide}{(list of data-frames) each element of the list is collection of features associated with a precursor.}

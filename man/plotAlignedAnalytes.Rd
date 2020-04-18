@@ -5,9 +5,13 @@
 \title{Plot aligned XICs group for a specific peptide.
 AlignObjOutput is the output from getAlignObjs fucntion.}
 \usage{
-plotAlignedAnalytes(AlignObjOutput, plotType = "All",
-  outFile = "AlignedAnalytes.pdf", annotatePeak = FALSE,
-  saveFigs = FALSE)
+plotAlignedAnalytes(
+  AlignObjOutput,
+  plotType = "All",
+  outFile = "AlignedAnalytes.pdf",
+  annotatePeak = FALSE,
+  saveFigs = FALSE
+)
 }
 \arguments{
 \item{AlignObjOutput}{(list) list contains fileInfo, AlignObj, raw XICs for reference and experiment, and reference-peak label.}

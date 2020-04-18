@@ -4,8 +4,12 @@
 \alias{getPrecursorByID}
 \title{Find precursors given their IDs}
 \usage{
-getPrecursorByID(analytes, fileInfo, oswMerged = TRUE,
-  runType = "DIA_proteomics")
+getPrecursorByID(
+  analytes,
+  fileInfo,
+  oswMerged = TRUE,
+  runType = "DIA_proteomics"
+)
 }
 \arguments{
 \item{analytes}{(integer) a vector of integers.}

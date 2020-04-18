@@ -4,8 +4,13 @@
 \alias{getAlignedFigs}
 \title{Plot aligned XICs group for a specific peptide.}
 \usage{
-getAlignedFigs(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
-  annotatePeak = FALSE)
+getAlignedFigs(
+  AlignObj,
+  XICs.ref,
+  XICs.eXp,
+  refPeakLabel,
+  annotatePeak = FALSE
+)
 }
 \arguments{
 \item{AlignObj}{(S4 object)}

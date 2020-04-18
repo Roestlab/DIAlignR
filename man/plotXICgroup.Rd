@@ -28,7 +28,7 @@ XICs <- getXICs(analytes = 4618L, runs = runs, dataPath = dataPath, oswMerged = 
 plotXICgroup(XICs[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]])
 XICs <- smoothXICs(XICs[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]],
   type = "sgolay", kernelLen = 13, polyOrd = 4)
-plotXICgroup(XICs, Title = "Precursor 4618 \\n
+plotXICgroup(XICs, Title = "Precursor 4618 \n
  run hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt")
 
 }

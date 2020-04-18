@@ -4,8 +4,13 @@
 \alias{smoothSingleXIC}
 \title{Smooth chromatogram signal}
 \usage{
-smoothSingleXIC(chromatogram, type, samplingTime = NULL,
-  kernelLen = NULL, polyOrd = NULL)
+smoothSingleXIC(
+  chromatogram,
+  type,
+  samplingTime = NULL,
+  kernelLen = NULL,
+  polyOrd = NULL
+)
 }
 \arguments{
 \item{chromatogram}{(dataframe) A dataframe of two columns. First column must always be

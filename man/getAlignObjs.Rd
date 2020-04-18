@@ -4,16 +4,35 @@
 \alias{getAlignObjs}
 \title{AlignObj for analytes between a pair of runs}
 \usage{
-getAlignObjs(analytes, runs, dataPath = ".", refRun = NULL,
-  oswMerged = TRUE, runType = "DIA_Proteomics", maxFdrQuery = 0.05,
-  analyteFDR = 0.01, XICfilter = "sgolay", polyOrd = 4,
-  kernelLen = 9, globalAlignment = "loess",
-  globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
-  RSEdistFactor = 3.5, normalization = "mean",
-  simMeasure = "dotProductMasked", alignType = "hybrid",
-  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-  hardConstrain = FALSE, samples4gradient = 100, objType = "light")
+getAlignObjs(
+  analytes,
+  runs,
+  dataPath = ".",
+  refRun = NULL,
+  oswMerged = TRUE,
+  runType = "DIA_Proteomics",
+  maxFdrQuery = 0.05,
+  analyteFDR = 0.01,
+  XICfilter = "sgolay",
+  polyOrd = 4,
+  kernelLen = 9,
+  globalAlignment = "loess",
+  globalAlignmentFdr = 0.01,
+  globalAlignmentSpan = 0.1,
+  RSEdistFactor = 3.5,
+  normalization = "mean",
+  simMeasure = "dotProductMasked",
+  alignType = "hybrid",
+  goFactor = 0.125,
+  geFactor = 40,
+  cosAngleThresh = 0.3,
+  OverlapAlignment = TRUE,
+  dotProdThresh = 0.96,
+  gapQuantile = 0.5,
+  hardConstrain = FALSE,
+  samples4gradient = 100,
+  objType = "light"
+)
 }
 \arguments{
 \item{analytes}{(vector of integers) transition_group_ids for which features are to be extracted.}

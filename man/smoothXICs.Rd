@@ -4,8 +4,13 @@
 \alias{smoothXICs}
 \title{Smooth chromatogram signals from a list}
 \usage{
-smoothXICs(XICs, type = "none", samplingTime = NULL,
-  kernelLen = NULL, polyOrd = NULL)
+smoothXICs(
+  XICs,
+  type = "none",
+  samplingTime = NULL,
+  kernelLen = NULL,
+  polyOrd = NULL
+)
 }
 \arguments{
 \item{XICs}{(A list) A list of dataframe that consists of two columns. First column must be

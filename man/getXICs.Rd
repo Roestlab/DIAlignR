@@ -4,8 +4,14 @@
 \alias{getXICs}
 \title{Get XICs of all analytes}
 \usage{
-getXICs(analytes, runs, dataPath = ".", maxFdrQuery = 1,
-  runType = "DIA_proteomics", oswMerged = TRUE)
+getXICs(
+  analytes,
+  runs,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  runType = "DIA_proteomics",
+  oswMerged = TRUE
+)
 }
 \arguments{
 \item{analytes}{(integer) a vector of precursor IDs.}

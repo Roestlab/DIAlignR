@@ -4,8 +4,12 @@
 \alias{fetchFeaturesFromRun}
 \title{Get features from a feature file.}
 \usage{
-fetchFeaturesFromRun(filename, runID, maxFdrQuery = 1,
-  runType = "DIA_proteomics")
+fetchFeaturesFromRun(
+  filename,
+  runID,
+  maxFdrQuery = 1,
+  runType = "DIA_proteomics"
+)
 }
 \arguments{
 \item{filename}{(string) Path to the feature file.}

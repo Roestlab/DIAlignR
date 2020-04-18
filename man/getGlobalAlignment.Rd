@@ -4,8 +4,14 @@
 \alias{getGlobalAlignment}
 \title{Calculates global alignment between RT of two runs}
 \usage{
-getGlobalAlignment(oswFiles, ref, eXp, fitType = "linear",
-  maxFdrGlobal = 0.01, spanvalue = 0.1)
+getGlobalAlignment(
+  oswFiles,
+  ref,
+  eXp,
+  fitType = "linear",
+  maxFdrGlobal = 0.01,
+  spanvalue = 0.1
+)
 }
 \arguments{
 \item{oswFiles}{(list of data-frames) it is output from getFeatures function.}

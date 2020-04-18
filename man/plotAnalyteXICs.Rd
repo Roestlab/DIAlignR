@@ -4,10 +4,19 @@
 \alias{plotAnalyteXICs}
 \title{Plot extracted-ion chromatogram.}
 \usage{
-plotAnalyteXICs(analyte, run, dataPath = ".", maxFdrQuery = 1,
-  XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
-  runType = "DIA_proteomics", oswMerged = TRUE, peakAnnot = NULL,
-  Title = NULL)
+plotAnalyteXICs(
+  analyte,
+  run,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  XICfilter = "sgolay",
+  polyOrd = 4,
+  kernelLen = 9,
+  runType = "DIA_proteomics",
+  oswMerged = TRUE,
+  peakAnnot = NULL,
+  Title = NULL
+)
 }
 \arguments{
 \item{analyte}{(integer) an analyte is a PRECURSOR.ID from the osw file.}
