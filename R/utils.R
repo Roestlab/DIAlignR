@@ -73,7 +73,8 @@ getMultipeptide <- function(precursors, features){
         df <- data.frame("transition_group_id" = analyte, "run" = run,
                          "RT" = NA_real_, "intensity" = NA_real_,
                          "leftWidth" = NA_real_, "rightWidth" = NA_real_,
-                         "peak_group_rank" = NA_integer_, "m_score" = NA_real_)
+                         "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
+                         stringsAsFactors = FALSE)
       }
       multipeptide[[i]] <- rbind(multipeptide[[i]], df, make.row.names = FALSE)
     }
