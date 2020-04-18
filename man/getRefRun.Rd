@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{getRefRun}
 \alias{getRefRun}
-\title{Fetch the reference run-index.}
+\title{Fetch the reference run for each precursor}
 \usage{
 getRefRun(multipeptide)
 }
 \arguments{
-\item{multipeptide}{(list of data-frames) Each element of the is collection of features associated with a precursor.}
+\item{multipeptide}{(list of data-frames) Each element of the list is collection of features associated with a precursor.}
 }
 \value{
 (dataframe) has two columns:
@@ -15,10 +15,10 @@ getRefRun(multipeptide)
 \item{run}{(string) run identifier.}
 }
 \description{
-Provides the reference run-index based on lowest m-score.
+Provides the reference run based on lowest m-score.
 }
 \examples{
-data(oswFiles_DIAlignR, package="DIAlignR")
+dataPath <- system.file("extdata", package = "DIAlignR")
 \dontrun{
 getRefRun(multipeptide)
 }
@@ -31,7 +31,7 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 
 ORCID: 0000-0003-3500-8152
 
-License: (c) Author (2019) + GPL-3
+License: (c) Author (2020) + GPL-3
 Date: 2020-04-08
 }
 \keyword{internal}

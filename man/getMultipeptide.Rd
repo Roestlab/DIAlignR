@@ -21,6 +21,7 @@ getMultipeptide(precursors, features)
 \item{rightWidth}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
 \item{peak_group_rank}{(integer) rank of each feature associated with transition_group_id.}
 \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
+\item{alignment_rank}{(integer) rank of each feature post-alignment.}
 }
 \description{
 Each element of the multipeptide is a collection of features associated with a precursor.
@@ -40,6 +41,6 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 
 ORCID: 0000-0003-3500-8152
 
-License: (c) Author (2019) + GPL-3
+License: (c) Author (2020) + GPL-3
 Date: 2020-04-08
 }

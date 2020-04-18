@@ -2,46 +2,41 @@
 % Please edit documentation in R/utils.R
 \name{writeTables}
 \alias{writeTables}
-\title{Writes the output table for DIAlignR}
+\title{Writes the output table post-alignment}
 \usage{
-writeTables(refAnalytes, runs, filename, intesityTbl, rtTbl, lwTbl, rwTbl)
+writeTables(filename, fileInfo, multipeptide, precursors)
 }
 \arguments{
-\item{refAnalytes}{(list of data-frames) it is the output from getOswFiles function.}
+\item{filename}{(string) Name of the output file.}
 
-\item{filename}{(list of data-frames) it is the output from getOswFiles function.}
+\item{fileInfo}{(data-frame) Output of getRunNames function.}
 
-\item{intesityTbl}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
+\item{multipeptide}{(list of data-frames) Each element of the list is collection of features associated with a precursor.}
 
-\item{rtTbl}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
-
-\item{lwTbl}{dd}
-
-\item{rwTbl}{fff}
+\item{precursors}{(data-frame) for each transition_group_id, contains peptide sequence and charge.}
 }
 \value{
-None
+An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
+ peak_group_rank, m_score, alignment_rank, peptide_id, sequence, charge, group_label.
 }
 \description{
-select chromatogram indices by matching analyte and runname in oswFiles.
+Selects all features from multipeptide with alignment rank = 1, and write them onto the disk.
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
 \dontrun{
-selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run2", analyte = "AQPPVSTEY_2")
-selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0",
- analyte = "14299_QFNNTDIVLLEDFQK/3")
+writeTables("DIAlignR.csv", fileInfo, multipeptide, precursors)
 }
 }
 \seealso{
-\code{\link{getOswFiles}, \link{getOswAnalytes}}
+\code{\link{getRunNames}, \link{getMultipeptide}, \link{getPrecursors}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 
 ORCID: 0000-0003-3500-8152
 
-License: (c) Author (2019) + GPL-3
-Date: 2019-12-13
+License: (c) Author (2020) + GPL-3
+Date: 2020-04-14
 }
 \keyword{internal}

@@ -1,21 +1,22 @@
 ## quiets concerns of R CMD check re: the .'s that appear in pipelines
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-#' Fetch the reference run-index.
+#' Fetch the reference run for each precursor
 #'
-#' Provides the reference run-index based on lowest m-score.
+#' Provides the reference run based on lowest m-score.
+#'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + GPL-3
+#' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
-#' @param multipeptide (list of data-frames) Each element of the is collection of features associated with a precursor.
+#' @param multipeptide (list of data-frames) Each element of the list is collection of features associated with a precursor.
 #' @return (dataframe) has two columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{run}{(string) run identifier.}
 #' @examples
-#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' dataPath <- system.file("extdata", package = "DIAlignR")
 #' \dontrun{
 #' getRefRun(multipeptide)
 #' }
@@ -37,7 +38,7 @@ getRefRun <- function(multipeptide){
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
-#' License: (c) Author (2019) + GPL-3
+#' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
 #' @param precursors (data-frames) Contains precursors and associated transition IDs.
 #' @param features (list of data-frames) Contains features and their properties identified in each run.
@@ -50,6 +51,7 @@ getRefRun <- function(multipeptide){
 #' \item{rightWidth}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
 #' \item{peak_group_rank}{(integer) rank of each feature associated with transition_group_id.}
 #' \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
+#' \item{alignment_rank}{(integer) rank of each feature post-alignment.}
 #'
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -78,6 +80,7 @@ getMultipeptide <- function(precursors, features){
       }
       multipeptide[[i]] <- rbind(multipeptide[[i]], df, make.row.names = FALSE)
     }
+    multipeptide[[i]][["alignment_rank"]] <- NA_integer_
   }
 
   # Convert precursors as character. Add names to the multipeptide list.
@@ -85,126 +88,120 @@ getMultipeptide <- function(precursors, features){
   multipeptide
 }
 
-
-#' Chromatogram indices of analyte in a run.
+#' Writes the output table post-alignment
 #'
-#' select chromatogram indices by matching analyte and runname in oswFiles.
-#' @importFrom dplyr %>%
-#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-#'
-#' ORCID: 0000-0003-3500-8152
-#'
-#' License: (c) Author (2019) + GPL-3
-#' Date: 2019-12-13
-#' @param oswFiles (list of data-frames) it is the output from getOswFiles function.
-#' @param runname (string) Must be a combination of "run" and an iteger e.g. "run2".
-#' @param analyte (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
-#' @return A vector of Integers
-#' @examples
-#' data(oswFiles_DIAlignR, package="DIAlignR")
-#' \dontrun{
-#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run2", analyte = "AQPPVSTEY_2")
-#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0",
-#'  analyte = "14299_QFNNTDIVLLEDFQK/3")
-#' }
-#' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
-#' @keywords internal
-selectChromIndices <- function(oswFiles, runname, analyte){
-  # Pick chromatrogram indices from osw table.
-  chromIndices <- oswFiles[[runname]] %>%
-    dplyr::filter(transition_group_id == analyte) %>% .$chromatogramIndex
-  # Check for character(0) condition and proceed.
-  if(length(chromIndices) != 0){
-    chromIndices <- as.integer(strsplit(chromIndices, split = ",")[[1]])
-  } else {
-    return(NULL)
-  }
-  if(any(is.na(chromIndices))){
-    # Indices for one or more fragment-ions are missing. This could happen if .chrom.mzML file doesn't have them.
-    return(NULL)
-  }
-  # Select the first row if there are many peak-groups.
-  chromIndices
-}
-
-
-
-#' Writes the output table for DIAlignR
-#'
-#' select chromatogram indices by matching analyte and runname in oswFiles.
-#' @importFrom dplyr %>%
-#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-#'
-#' ORCID: 0000-0003-3500-8152
-#'
-#' License: (c) Author (2019) + GPL-3
-#' Date: 2019-12-13
+#' Selects all features from multipeptide with alignment rank = 1, and write them onto the disk.
 #' @importFrom tidyr pivot_longer
-#' @param refAnalytes (list of data-frames) it is the output from getOswFiles function.
-#' @param filename (list of data-frames) it is the output from getOswFiles function.
-#' @param intesityTbl (string) Must be a combination of "run" and an iteger e.g. "run2".
-#' @param rtTbl (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
-#' @param lwTbl dd
-#' @param rwTbl fff
-#' @return None
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-04-14
+#' @importFrom rlang .data
+#' @param filename (string) Name of the output file.
+#' @param fileInfo (data-frame) Output of getRunNames function.
+#' @param multipeptide (list of data-frames) Each element of the list is collection of features associated with a precursor.
+#' @param precursors (data-frame) for each transition_group_id, contains peptide sequence and charge.
+#' @return An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
+#'  peak_group_rank, m_score, alignment_rank, peptide_id, sequence, charge, group_label.
+#' @seealso \code{\link{getRunNames}, \link{getMultipeptide}, \link{getPrecursors}}
+#' @keywords internal
+#'
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' \dontrun{
-#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run2", analyte = "AQPPVSTEY_2")
-#' selectChromIndices(oswFiles = oswFiles_DIAlignR, runname = "run0",
-#'  analyte = "14299_QFNNTDIVLLEDFQK/3")
+#' writeTables("DIAlignR.csv", fileInfo, multipeptide, precursors)
 #' }
-#' @seealso \code{\link{getOswFiles}, \link{getOswAnalytes}}
-#' @keywords internal
-writeTables <- function(refAnalytes, runs, filename,
-                        intesityTbl, rtTbl, lwTbl, rwTbl){
-  # convert lists into tables
+writeTables <- function(filename, fileInfo, multipeptide, precursors){
+  allIDs <- as.integer(names(multipeptide))
+  runs <- rownames(fileInfo)
+
+  ######### Initilize output tables. #######
+  rtTbl <- lapply(1:length(allIDs), function(i) rep(NA, length(runs)))
+  intesityTbl <- lapply(1:length(allIDs), function(i) rep(NA, length(runs)))
+  lwTbl <- lapply(1:length(allIDs), function(i) rep(NA, length(runs)))
+  rwTbl <- lapply(1:length(allIDs), function(i) rep(NA, length(runs)))
+  prTbl <- lapply(1:length(allIDs), function(i) rep(NA, length(runs)))
+  mTbl <- lapply(1:length(allIDs), function(i) rep(NA, length(runs)))
+  arTbl <- lapply(1:length(allIDs), function(i) rep(NA, length(runs)))
+
+  #### Fill tables. ###########
+  for(i in seq_along(multipeptide)){
+    for(run in seq_along(runs)){
+      idx <- which(multipeptide[[i]][["run"]] == runs[run] & multipeptide[[i]][["alignment_rank"]] == 1L)
+      if(length(idx) == 0) next
+      rtTbl[[i]][run] <- multipeptide[[i]][["RT"]][idx]
+      intesityTbl[[i]][run] <- multipeptide[[i]][["intensity"]][idx]
+      lwTbl[[i]][run] <- multipeptide[[i]][["leftWidth"]][idx]
+      rwTbl[[i]][run] <- multipeptide[[i]][["rightWidth"]][idx]
+      prTbl[[i]][run] <- multipeptide[[i]][["peak_group_rank"]][idx]
+      mTbl[[i]][run] <- multipeptide[[i]][["m_score"]][idx]
+      arTbl[[i]][run] <- multipeptide[[i]][["alignment_rank"]][idx]
+    }
+  }
+
+  ##### Convert lists into tables. ############
   rtTbl <- as.data.frame(do.call(rbind, rtTbl))
   intesityTbl <- as.data.frame(do.call(rbind, intesityTbl))
   lwTbl <- as.data.frame(do.call(rbind, lwTbl))
   rwTbl <- as.data.frame(do.call(rbind, rwTbl))
+  prTbl <- as.data.frame(do.call(rbind, prTbl))
+  mTbl <- as.data.frame(do.call(rbind, mTbl))
+  arTbl <- as.data.frame(do.call(rbind, arTbl))
 
-  # Assign row names and column names
-  rownames(rtTbl) <- refAnalytes; colnames(rtTbl) <- names(runs)
-  rownames(intesityTbl) <- refAnalytes; colnames(intesityTbl) <- names(runs)
-  rownames(lwTbl) <- refAnalytes; colnames(lwTbl) <- names(runs)
-  rownames(rwTbl) <- refAnalytes; colnames(rwTbl) <- names(runs)
+  ######## Assign column names. ###############
+  colnames(rtTbl) <- fileInfo[["runName"]]
+  colnames(intesityTbl) <- fileInfo[["runName"]]
+  colnames(lwTbl) <- fileInfo[["runName"]]
+  colnames(rwTbl) <- fileInfo[["runName"]]
+  colnames(prTbl) <- fileInfo[["runName"]]
+  colnames(mTbl) <- fileInfo[["runName"]]
+  colnames(arTbl) <- fileInfo[["runName"]]
 
-  colnames(rtTbl) <- unname(runs[colnames(rtTbl)])
-  colnames(intesityTbl) <- unname(runs[colnames(intesityTbl)])
-  colnames(lwTbl) <- unname(runs[colnames(lwTbl)])
-  colnames(rwTbl) <- unname(runs[colnames(rwTbl)])
+  ######### Add precursor column. ##############
+  rtTbl[["precursor"]] <- allIDs
+  intesityTbl[["precursor"]] <- allIDs
+  lwTbl[["precursor"]] <- allIDs
+  rwTbl[["precursor"]] <- allIDs
+  prTbl[["precursor"]] <- allIDs
+  mTbl[["precursor"]] <- allIDs
+  arTbl[["precursor"]] <- allIDs
 
-  # Changing format from wide to long
-  intesityTbl$peptide <- rownames(intesityTbl)
-  intesityTbl <- pivot_longer(intesityTbl, -peptide, names_to = "run", values_to = "intensity")
-  rtTbl$peptide <- rownames(rtTbl)
-  rtTbl <- pivot_longer(rtTbl, -peptide, names_to = "run", values_to = "RT")
-  lwTbl$peptide <- rownames(lwTbl)
-  lwTbl <- pivot_longer(lwTbl, -peptide, names_to = "run", values_to = "leftWidth")
-  rwTbl$peptide <- rownames(rwTbl)
-  rwTbl <- pivot_longer(rwTbl, -peptide, names_to = "run", values_to = "rightWidth")
+  ##### Changing format from wide to long. ############
+  rtTbl <- pivot_longer(rtTbl, -.data$precursor, names_to = "run", values_to = "RT")
+  intesityTbl <- pivot_longer(intesityTbl, -.data$precursor, names_to = "run", values_to = "intensity")
+  lwTbl <- pivot_longer(lwTbl, -.data$precursor, names_to = "run", values_to = "leftWidth")
+  rwTbl <- pivot_longer(rwTbl, -.data$precursor, names_to = "run", values_to = "rightWidth")
+  prTbl <- pivot_longer(prTbl, -.data$precursor, names_to = "run", values_to = "peak_group_rank")
+  mTbl <- pivot_longer(mTbl, -.data$precursor, names_to = "run", values_to = "m_score")
+  arTbl <- pivot_longer(arTbl, -.data$precursor, names_to = "run", values_to = "alignment_rank")
 
-  # Merging all into one table
-  finalTbl <- merge(x = intesityTbl, y = rtTbl, by = c("peptide", "run"), all = TRUE)
-  finalTbl <- merge(x = finalTbl, y = lwTbl, by = c("peptide", "run"), all = TRUE)
-  finalTbl <- merge(x = finalTbl, y = rwTbl, by = c("peptide", "run"), all = TRUE)
+  ##### Merging all into one table. ###################
+  finalTbl <- merge(x = intesityTbl, y = rtTbl, by = c("precursor", "run"), all = TRUE)
+  finalTbl <- merge(x = finalTbl, y = lwTbl, by = c("precursor", "run"), all = TRUE)
+  finalTbl <- merge(x = finalTbl, y = rwTbl, by = c("precursor", "run"), all = TRUE)
+  finalTbl <- merge(x = finalTbl, y = prTbl, by = c("precursor", "run"), all = TRUE)
+  finalTbl <- merge(x = finalTbl, y = mTbl, by = c("precursor", "run"), all = TRUE)
+  finalTbl <- merge(x = finalTbl, y = arTbl, by = c("precursor", "run"), all = TRUE)
+
+  ##### Merging precursor information. ###################
+  finalTbl <- merge(x = finalTbl, y = precursors[,-which(names(precursors) %in% c("transition_ids"))],
+                    by.x = "precursor", by.y = "transition_group_id", all.x = TRUE)
 
   utils::write.table(finalTbl, file = filename, sep = ",", row.names = FALSE)
+  finalTbl
 }
 
-
-testAlignObj <- function(analyteInGroupLabel = FALSE){
-  if(analyteInGroupLabel){
-    AlignObj <- new("AffineAlignObjLight",
+# Alignment of precursor 4618 , sequence = QFNNTDIVLLEDFQK/3 across runs
+# ref = hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt
+# eXp = hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+# Example: test_getAlignObj
+testAlignObj <- function(){
+  AlignObj <- new("AffineAlignObjLight",
                     indexA_aligned = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,0,20,0,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,0,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,0,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,0,162,0,163,164,165,166,0,167,0,168,169,170,171,172,173,174,175,176),
                     indexB_aligned = c(0,0,0,1,0,2,0,3,0,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,0,92,0,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176),
                     score = c(0,0,0,2.675751,2.385165,4.745081,4.454496,6.67706,6.386474,9.641135,15.48268,26.87968,46.67034,77.78939,121.8607,170.8698,214.2358,244.4554,262.8537,262.5631,270.8538,270.5632,288.2477,319.3287,364.6418,413.4873,453.1931,479.6588,496.5207,506.6607,512.7442,515.267,516.8242,518.2747,519.8424,521.2872,522.6472,524.2912,525.6285,526.5892,526.9713,527.1531,527.4022,527.1116,530.9457,547.7525,588.2834,658.8819,748.3079,833.8337,898.3289,935.5809,948.8015,952.0709,952.8035,953.4267,954.0863,954.8143,955.4842,956.0834,956.802,957.535,958.2853,959.0355,959.7972,960.7983,961.8922,963.0142,964.2597,965.5837,966.878,968.0037,968.4412,968.1507,968.1958,968.9242,985.3144,1085.833,1364.976,1846.928,2409.31,2869.416,3132.509,3231.061,3257.015,3264.422,3269.377,3275.003,3282.515,3290.524,3297.864,3304.43,3310.324,3314.403,3316.806,3317.992,3318.933,3318.642,3319.328,3319.038,3320.17,3321.781,3323.71,3325.64,3327.855,3330.382,3332.989,3335.319,3337.555,3339.96,3342.381,3344.48,3346.456,3348.605,3350.446,3352.092,3353.829,3355.911,3358.256,3360.576,3363.292,3367.099,3372.687,3380.124,3389.957,3401.498,3414.81,3428.762,3441.046,3451.052,3459.235,3466.392,3473.212,3480.14,3490.173,3506.584,3530.062,3561.003,3595.718,3624.828,3642.574,3650.352,3653.893,3656.295,3658.798,3661.361,3663.704,3665.936,3667.714,3669.478,3670.721,3671.991,3673.278,3674.689,3676.068,3677.317,3678.688,3680.062,3681.513,3683.097,3684.786,3686.565,3688.24,3689.741,3690.859,3690.568,3691.496,3691.205,3692.31,3693.465,3694.458,3695.352,3695.061,3695.892,3695.602,3696.512,3697.468,3698.18,3698.799,3699.363,3699.94,3700.634,3701.585,3702.988))
-  } else {
-    AlignObj <- new("AffineAlignObjLight",
-                    indexA_aligned = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,0,52,0,53,0,54,0,55,0,56,0,57,0,58,0,59,0,60,0,61,0,62,0,63,0,64,0,65,0,66,0,67,0,68,0,69,0,70,0,71,0,72,0,73,0,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,0,162,0,163,164,165,166,0,167,0,168,169,170,171,172,173,174,175,176),
-                    indexB_aligned = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,0,10,0,11,0,12,0,13,0,14,0,15,0,16,0,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,0,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176),
-                    score = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8.258636,21.70066,37.77944,56.28491,77.49291,102.7556,131.1216,159.8879,186.0392,185.7486,199.3454,199.0548,208.9874,208.6968,224.2224,223.9318,235.3893,235.0987,239.616,239.3254,239.8545,239.5639,239.7825,239.4919,264.0039,345.6801,518.224,760.9532,1002.997,1171.843,1255.645,1283.27,1289.328,1289.037,1289.66,1289.37,1289.694,1289.404,1289.829,1289.538,1290.128,1289.838,1290.421,1290.13,1290.703,1290.413,1291.675,1291.385,1292.812,1292.522,1293.994,1293.704,1295.055,1294.764,1295.694,1295.403,1296.342,1296.051,1297.042,1296.752,1297.599,1297.308,1298.15,1297.859,1298.766,1298.475,1299.462,1299.172,1300.227,1299.936,1300.543,1300.252,1300.388,1300.097,1300.442,1300.151,1301.528,1301.238,1350.073,1535.732,1925.536,2471.722,2995.898,3355.553,3518.7,3568.132,3579.685,3585.838,3592.471,3599.173,3606.964,3614.774,3621.711,3627.712,3632.502,3635.622,3637.255,3638.218,3638.903,3639.589,3639.299,3640.431,3642.042,3643.971,3645.901,3648.116,3650.643,3653.25,3655.58,3657.816,3660.221,3662.642,3664.741,3666.717,3668.866,3670.707,3672.353,3674.09,3676.172,3678.516,3680.837,3683.553,3687.36,3692.948,3700.384,3710.218,3721.758,3735.07,3749.023,3761.307,3771.312,3779.496,3786.653,3793.472,3800.401,3810.434,3826.845,3850.323,3881.263,3915.979,3945.088,3962.835,3970.613,3974.154,3976.556,3979.059,3981.622,3983.965,3986.197,3987.975,3989.738,3990.982,3992.252,3993.539,3994.95,3996.329,3997.578,3998.949,4000.323,4001.774,4003.358,4005.047,4006.826,4008.501,4010.002,4011.12,4010.829,4011.757,4011.466,4012.571,4013.726,4014.719,4015.612,4015.322,4016.153,4015.862,4016.773,4017.729,4018.441,4019.06,4019.624,4020.201,4020.895,4021.846,4023.249))
-  }
+
   AlignObj
 }
