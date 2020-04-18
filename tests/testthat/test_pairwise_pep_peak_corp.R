@@ -10,7 +10,7 @@ test_that("test_getAlignObj", {
   XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
   XICs.eXp <- smoothXICs(XICs.eXp, type = "sgolay", kernelLen = 13, polyOrd = 4)
   globalFit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
-  outData <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
+  outData <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 38.6594179136227,
                          normalization = "mean", simType = "dotProductMasked", goFactor = 0.125, geFactor = 40,
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                          dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
