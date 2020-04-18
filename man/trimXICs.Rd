@@ -10,7 +10,7 @@ trimXICs(XICs, len = 1)
 \item{XICs}{(A list) A list of dataframe that consists of two columns. First column must be
 monotonically increasing.}
 
-\item{length}{(numeric) must be between 0.1 and 1.}
+\item{len}{(numeric) must be between 0.1 and 1.}
 }
 \value{
 A list.

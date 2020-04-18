@@ -89,6 +89,7 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
 #' }
 #' @seealso \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},
 #'  \url{https://rafalab.github.io/dsbook/smoothing.html}
+#' @export
 smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = NULL, polyOrd = NULL){
   newXICs <- lapply(XICs, smoothSingleXIC, type, samplingTime, kernelLen, polyOrd)
   for(i in seq_along(newXICs)){
@@ -111,7 +112,7 @@ smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = NUL
 #' Date: 2020-04-01
 #' @param XICs (A list) A list of dataframe that consists of two columns. First column must be
 #' monotonically increasing.
-#' @param length (numeric) must be between 0.1 and 1.
+#' @param len (numeric) must be between 0.1 and 1.
 #' @return A list.
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
