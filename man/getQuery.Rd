@@ -15,7 +15,7 @@ getQuery(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
 
 \item{analytes}{(vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.}
 
-\item{filename}{(string) as mentioned in RUN table of osw files..}
+\item{filename}{(string) as mentioned in RUN table of osw files.}
 
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 

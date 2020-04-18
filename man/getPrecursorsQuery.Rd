@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_osw_query.R
 \name{getPrecursorsQuery}
 \alias{getPrecursorsQuery}
-\title{Get precursor Info.}
+\title{Get precursor Info}
 \usage{
 getPrecursorsQuery(runType = "DIA_Proteomics")
 }
@@ -24,6 +24,6 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 ORCID: 0000-0003-3500-8152
 
 License: (c) Author (2019) + GPL-3
-Date: 2019-04-04
+Date: 2020-04-04
 }
 \keyword{internal}
