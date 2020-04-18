@@ -69,24 +69,19 @@ test_that("test_mergeOswAnalytes_ChromHeader", {
 
 test_that("test_getOswFiles", {
   dataPath <- system.file("extdata", package = "DIAlignR")
-  filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
-                                         "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
-                                         "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
-                          "runs" = c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
-                                     "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-                                     "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
-                          row.names = c("run0", "run1", "run2"),
-                          stringsAsFactors=FALSE)
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  mzPntrs <- getMZMLpointers(fileInfo)
   maxFdrQuery <- 0.05
   analyteFDR <- 0.01
   oswMerged <- TRUE
-  outData <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = FALSE)
+  outData <- getOswFiles(fileInfo, mzPntrs, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = FALSE)
+  rm(mzPntrs)
+
   expect_identical(length(outData), 3L)
-  expect_identical(dim(outData[["run0"]]), c(211L, 12L))
-  expect_identical(dim(outData[["run1"]]), c(227L, 12L))
-  expect_identical(dim(outData[["run2"]]), c(212L, 12L))
+  expect_identical(dim(outData[["run0"]]), c(211L, 11L))
+  expect_identical(dim(outData[["run1"]]), c(227L, 11L))
+  expect_identical(dim(outData[["run2"]]), c(212L, 11L))
   expData <- data.frame("transition_group_id" = "AAAEMGIDLGQVPGTGPK_3",
-                        "filename" = "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                         "RT" = 3884.56,
                         "delta_rt" = 17.0629,
                         "assay_RT" = 53,
@@ -99,9 +94,11 @@ test_that("test_getOswFiles", {
                         "transition_ids" = "106468,106469,106470,106471,106472,106473",
                         stringsAsFactors=FALSE)
   expect_equal(as.data.frame(outData[["run1"]][1,]), expData, tolerance=1e-5)
-  outData <- getOswFiles(dataPath = dataPath, filenames, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = TRUE)
+
+  mzPntrs <- getMZMLpointers(fileInfo)
+  outData <- getOswFiles(fileInfo, mzPntrs, maxFdrQuery, analyteFDR, oswMerged, analyteInGroupLabel = TRUE)
+  rm(mzPntrs)
   expData <- data.frame("transition_group_id" = "10434_LIPNEAADVYVK/2",
-                        "filename" = "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
                         "RT" = 3239.48,
                         "delta_rt" = 9.10682,
                         "assay_RT" = 34.5,
