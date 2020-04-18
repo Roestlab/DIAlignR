@@ -3,10 +3,8 @@ context("Generate test data")
 generateDIAlignRdata <- function(){
   dataPath <- system.file("extdata", package = "DIAlignR")
   oswMerged <- TRUE
-  nameCutPattern <- "(.*)(/)(.*)"
-  filenames <- getRunNames(dataPath, oswMerged, nameCutPattern)
-  oswFiles_DIAlignR <- getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
-                                   oswMerged, analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = TRUE)
+  filenames <- getRunNames(dataPath, oswMerged)
+  oswFiles_DIAlignR <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2)
 
   analytes <- "14299_QFNNTDIVLLEDFQK/3"
@@ -16,6 +14,14 @@ generateDIAlignRdata <- function(){
   outData <- getXICs4AlignObj(dataPath, runs, oswFiles_DIAlignR, analytes, XICfilter = "none")
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
   save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
+
+  precursors <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics")
+  precursors_DIAlignR <- precursors
+  save(precursors_DIAlignR, file = "precursors_DIAlignR.rda", version = 2)
+
+  multipeptide <- getMultipeptide(precursors, oswFiles_DIAlignR)
+  multipeptide_DIAlignR <- multipeptide
+  save(multipeptide_DIAlignR, file = "multipeptide_DIAlignR.rda", version = 2)
 }
 
 generateDIAlignRchrom <- function(){
@@ -174,3 +180,4 @@ generateMergedOsw <- function(){
   DBI::dbExecute(con, "VACUUM")
   DBI::dbDisconnect(con)
 }
+

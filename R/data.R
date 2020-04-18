@@ -30,19 +30,41 @@
 #' @format A list of three elements where each element consists of a dataframe:
 #' \describe{
 #'   \item{transition_group_id}{ID of each peptide}
-#'   \item{filename}{Name of corresponding mzML file}
 #'   \item{RT}{Retention time, in sec}
-#'   \item{delta_rt}{Retention time difference to library, in sec}
-#'   \item{assay_RT}{Library retention time, in sec}
-#'   \item{Intensity}{Inensity of associated feature}
+#'   \item{intensity}{Inensity of associated feature}
 #'   \item{leftWidth}{Left width of the peak, in sec}
 #'   \item{rightWidth}{Right width of the peak, in sec}
 #'   \item{peak_group_rank}{Ranking of associated feature}
 #'   \item{m_score}{qvalue of associated feature}
-#'   \item{chromatogramIndex}{Indices of XICs of the feature in corresponding mzML}
-#'   \item{transition_ids}{Transition IDs (chromatogram IDs) of the feature}
 #' }
 #' @source Raw files are downloaded from \href{http://www.peptideatlas.org/PASS/PASS01508}{Peptide Atlas}.
 #' File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}
 #' to generate the example data.
 "oswFiles_DIAlignR"
+
+
+#' Analytes information from multipeptide.
+#'
+#' @description
+#'  analytes info from three SWATH runs:
+#'
+#' run0 : hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML\cr
+#' run1 : hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML\cr
+#' run2 : hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML
+#'
+#' @format A list of 199 elements where each element represents a precursor and consists of a dataframe:
+#' \describe{
+#'   \item{transition_group_id}{ID of each precursor. Same as the name of the list}
+#'   \item{RT}{Retention time, in sec}
+#'   \item{intensity}{Inensity of associated feature}
+#'   \item{leftWidth}{Left width of the peak, in sec}
+#'   \item{rightWidth}{Right width of the peak, in sec}
+#'   \item{peak_group_rank}{Ranking of associated feature}
+#'   \item{m_score}{qvalue of associated feature}
+#'   \item{run}{Name of the run, feature is from}
+#'   \item{alignment_rank}{Rank of the feature after alignment}
+#' }
+#' @source Raw files are downloaded from \href{http://www.peptideatlas.org/PASS/PASS01508}{Peptide Atlas}.
+#' File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}
+#' to generate the example data.
+"multipeptide_DIAlignR"
