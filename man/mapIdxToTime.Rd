@@ -21,7 +21,7 @@ new time vector given indices specified in \code{idx}.
 \examples{
 timeVec <- c(1.3,5.6,7.8)
 idx <- c(NA, NA, 1L, 2L, NA, NA, 3L, NA)
-mapIdxToTime(timeVec, idx) # c(NA, NA, 1.3, 5.6, 6.333, 7.066, 7.8, NA)
+mapIdxToTime(timeVec, idx) # c(NA, NA, 1.3, 5.6, 6.333, 7.067, 7.8, NA)
 
 }
 \author{

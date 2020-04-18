@@ -10,9 +10,9 @@ pickNearestFeature(eXpRT, analyte, oswFiles, runname, adaptiveRT,
 \arguments{
 \item{eXpRT}{(numeric) retention time in experiment run.}
 
-\item{analyte}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+\item{analyte}{(integer) vector of precursor IDs.}
 
-\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
+\item{oswFiles}{(list of data-frames) it is output from getFeatures function.}
 
 \item{runname}{(string) must be a combination of "run" and an iteger e.g. "run2".}
 
@@ -30,17 +30,18 @@ pickNearestFeature(eXpRT, analyte, oswFiles, runname, adaptiveRT,
 \item{m_score}{(numeric) q-value of each feature associated with transition_group_id.}
 }
 \description{
-It picks a feature that is within adaptiveRT window across eXpRT and has lowest m-score. Feature's m-score also has to be smaller than featureFDR.
+It picks a feature that is within adaptiveRT window across eXpRT and has lowest m-score.
+Feature's m-score also has to be smaller than featureFDR.
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
 \dontrun{
-pickNearestFeature(eXpRT = 5237.8, analyte = "14299_QFNNTDIVLLEDFQK/3",
- oswFiles = oswFiles_DIAlignR, runname = "run2", adaptiveRT = 77.82315, featureFDR = 0.05)
+pickNearestFeature(eXpRT = 5237.8, analyte = 4618L, oswFiles = oswFiles_DIAlignR,
+ runname = "run2", adaptiveRT = 77.82315, featureFDR = 0.05)
 }
 }
 \seealso{
-\code{\link{getOswFiles}, \link{getOswAnalytes}}
+\code{\link{getFeatures}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
