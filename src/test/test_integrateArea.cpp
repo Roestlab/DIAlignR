@@ -50,37 +50,36 @@ void test_peakGroupArea(){
   std::vector< std::vector< double > > intensity_arr;
   intensity_arr.push_back(intensity);
 
-  double area;
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "base_to_base", false);
-  ASSERT(std::abs(area - 123446.661339019) < 1e-03);
+  std::vector< std::vector< double > > output;
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "base_to_base", false);
+  ASSERT(std::abs(output[0][0] - 6768778 + 123446.661339019) < 1e-03);
+  ASSERT(std::abs(output[1][0] - 966489.0 + 1908.59690598823) < 1e-03);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "base_to_base", false);
-  ASSERT(std::abs(area - 1140.392865964) < 1e-03);
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "base_to_base", false);
+  ASSERT(std::abs(output[0][0] - 71540.2 + 1140.392865964) < 0.01);
+  ASSERT(std::abs(double(output[1][0]) - 966489.0 + 1908.59690598823) < 1e-03);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "base_to_base", false);
-  //ASSERT(std::abs(area - 123446.661339019) < 1e-03);
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "base_to_base", false);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_min", false);
-  ASSERT(std::abs(area - 50217) < 1e-03);
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_min", false);
+  ASSERT(std::abs(output[0][0] - 6768778 + 50217) < 1e-03);
+  ASSERT(std::abs(output[1][0] - 966489.0 + 881) < 1e-03);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_min", false);
-  ASSERT(std::abs(area - 476.606316373) < 1e-03);
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_min", false);
+  ASSERT(std::abs(output[0][0] - 71540.2 + 476.606316373) < 0.01);
+  ASSERT(std::abs(output[1][0] - 966489.0 + 881) < 1e-03);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_min", false);
-  //ASSERT(std::abs(area - 123446.661339019) < 1e-03);
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_min", false);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_max", false);
-  ASSERT(std::abs(area - 190095) < 1e-03);
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "intensity_sum", "vertical_division_max", false);
+  ASSERT(std::abs(output[0][0] - 6768778.0 + 190095.0) < 1e-03);
+  ASSERT(std::abs(output[1][0] - 966489.0 + 3335) < 1e-03);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_max", false);
-  ASSERT(std::abs(area - 1804.179415555) < 1e-03);
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "trapezoid", "vertical_division_max", false);
+  ASSERT(std::abs(output[0][0] - 71540.2 + 1804.179415555) < 1e-02);
+  ASSERT(std::abs(output[1][0] - 966489.0 + 3335) < 1e-03);
 
-  area = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_max", false);
-  //ASSERT(std::abs(area - 123446.661339019) < 1e-03);
-
-  //........................  CASE 2 ........................................
-
-  //........................  CASE 3 ........................................
+  output = peakGroupArea(position_arr, intensity_arr, left, right, "simpson", "vertical_division_max", false);
 
 }
 

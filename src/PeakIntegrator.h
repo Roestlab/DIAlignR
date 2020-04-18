@@ -437,8 +437,8 @@ protected:
         {
           if (n_points == 2)
           {
-            std::cout << std::endl << "PeakIntegrator::integratePeak:"
-            "number of points is 2, falling back to `trapezoid`." << std::endl;
+            // std::cout << std::endl << "PeakIntegrator::integratePeak:"
+            // "number of points is 2, falling back to `trapezoid`." << std::endl;
             pa.area = compute_peak_area_trapezoid(left, right);
           }
           else if (n_points > 2)
