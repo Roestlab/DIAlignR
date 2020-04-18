@@ -10,7 +10,11 @@ test_that("test_filenamesFromOSW", {
                         stringsAsFactors=FALSE)
   expOutput$featureFile <- as.factor(expOutput$featureFile)
   # expect_identical(filenamesFromOSW(dataPath = dataPath, "*.osw"), expOutput)
-  expect_identical(filenamesFromOSW(dataPath = dataPath, "*merged.osw"), expOutput)
+  outData <- filenamesFromOSW(dataPath = dataPath, "*merged.osw")
+  print(class(outData[["spectraFile"]]))
+  print(class(outData[["spectraFileID"]]))
+  print(class(outData[["featureFile"]]))
+  expect_identical(outData, expOutput)
   expect_message(filenamesFromOSW(dataPath = dataPath, "*.mzML"), "Only .osw and merged.osw files can be read.")
 })
 
