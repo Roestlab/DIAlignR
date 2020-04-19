@@ -8,6 +8,7 @@ src/doc
 src/test
 src/build
 ^python$
+^build$
 ^\.travis\.yml$
 ^CMakeLists\.txt$
 ^TODO$

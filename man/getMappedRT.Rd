@@ -4,10 +4,25 @@
 \alias{getMappedRT}
 \title{Get mapping of reference RT on experiment run.}
 \usage{
-getMappedRT(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
-  samplingTime, normalization, simMeasure, goFactor, geFactor,
-  cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
-  hardConstrain, samples4gradient, objType = "light")
+getMappedRT(
+  refRT,
+  XICs.ref,
+  XICs.eXp,
+  globalFit,
+  alignType,
+  adaptiveRT,
+  normalization,
+  simMeasure,
+  goFactor,
+  geFactor,
+  cosAngleThresh,
+  OverlapAlignment,
+  dotProdThresh,
+  gapQuantile,
+  hardConstrain,
+  samples4gradient,
+  objType = "light"
+)
 }
 \arguments{
 \item{refRT}{Peak's retention-time in reference run.}
@@ -16,13 +31,11 @@ getMappedRT(refRT, XICs.ref, XICs.eXp, Loess.fit, alignType, adaptiveRT,
 
 \item{XICs.eXp}{List of extracted ion chromatograms from experiment run.}
 
-\item{Loess.fit}{LOESS fit object between reference and experiment run.}
+\item{globalFit}{Linear or loess fit object between reference and experiment run.}
 
 \item{alignType}{Available alignment methods are "global", "local" and "hybrid".}
 
 \item{adaptiveRT}{(numeric) Similarity matrix is not penalized within adaptive RT.}
-
-\item{samplingTime}{(numeric) Time difference between two data-points in each chromatogram. For hybrid and local alignment, samples are assumed to be equally time-spaced.}
 
 \item{normalization}{(character) Must be selected from "mean", "l2".}
 
@@ -58,14 +71,16 @@ data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 data(oswFiles_DIAlignR, package="DIAlignR")
 XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-Loess.fit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
+globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
  maxFdrGlobal = 0.05, spanvalue = 0.1)
-adaptiveRT <- 77.82315 #3.5*Loess.fit$s
-getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
- adaptiveRT = adaptiveRT, samplingTime = 3.414, normalization = "mean",
+adaptiveRT <- 77.82315 #3.5*globalFit$s
+\dontrun{
+getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
+ adaptiveRT = adaptiveRT, normalization = "mean",
   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
   samples4gradient = 100)
+}
 }
 \seealso{
 \code{\link{alignChromatogramsCpp}}
@@ -78,3 +93,4 @@ ORCID: 0000-0003-3500-8152
 License: (c) Author (2019) + GPL-3
 Date: 2019-12-13
 }
+\keyword{internal}

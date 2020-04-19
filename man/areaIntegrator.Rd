@@ -4,14 +4,24 @@
 \alias{areaIntegrator}
 \title{Calculates area between signal-boundaries.}
 \usage{
-areaIntegrator(l1, leftIdx, rightIdx)
+areaIntegrator(l1, l2, left, right, integrationType, baselineType, fitEMG)
 }
 \arguments{
-\item{l1}{(list) A list of vectors. All vectors must be of same length.}
+\item{l1}{(list) A list of time vectors.}
 
-\item{leftIdx}{(numeric) Left index (0-based) of the boundary.}
+\item{l2}{(list) A list of intensity vectors.}
 
-\item{rightIdx}{(numeric) Right index (0-based) of the boundary.}
+\item{left}{(numeric) left boundary of the peak.}
+
+\item{right}{(numeric) right boundary of the peak.}
+
+\item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
+from "intensity_sum", "trapezoid", "simpson".}
+
+\item{baselineType}{(string) method to estimate the background of a peak contained in XICs. Must be
+from "base_to_base", "vertical_division_min", "vertical_division_max".}
+
+\item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
 }
 \value{
 area (numeric).
@@ -20,8 +30,12 @@ area (numeric).
 This function sums all the intensities between left-index and right-index.
 }
 \examples{
-l1 <- list(1:10, 1:10, 1:10)
-areaIntegrator(l1, leftIdx = 4, rightIdx = 6) # 54
+data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
+XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+l1 <- lapply(XICs, `[[`, 1)
+l2 <- lapply(XICs, `[[`, 2)
+areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE)
+# 224.9373
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

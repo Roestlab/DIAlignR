@@ -4,8 +4,13 @@
 \alias{getAlignedFigs}
 \title{Plot aligned XICs group for a specific peptide.}
 \usage{
-getAlignedFigs(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
-  annotatePeak = FALSE)
+getAlignedFigs(
+  AlignObj,
+  XICs.ref,
+  XICs.eXp,
+  refPeakLabel,
+  annotatePeak = FALSE
+)
 }
 \arguments{
 \item{AlignObj}{(S4 object)}
@@ -30,11 +35,14 @@ AlignObj is the output from getAlignObjs fucntion. This function prepares ggplot
 dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
  "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
-AlignObjOutput <- getAlignObjs(analytes = "QFNNTDIVLLEDFQK_3", runs, dataPath = dataPath)
-AlignObj <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[1]]
-XICs.ref <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[2]]
-XICs.eXp <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[3]]
-refPeakLabel <- AlignObjOutput[["QFNNTDIVLLEDFQK_3"]][[4]]
+AlignObjOutput <- getAlignObjs(analytes = 4618L, runs, dataPath = dataPath)
+AlignObj <- AlignObjOutput[[2]][["4618"]][[1]][["AlignObj"]]
+XICs.ref <- AlignObjOutput[[2]][["4618"]][[1]][["ref"]]
+XICs.eXp <- AlignObjOutput[[2]][["4618"]][[1]][["eXp"]]
+refPeakLabel <- AlignObjOutput[[2]][["4618"]][[1]][["peak"]]
+\dontrun{
+getAlignedFigs(AlignObj, XICs.ref, XICs.eXp, refPeakLabel)
+}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

@@ -4,15 +4,20 @@
 \alias{getOswFiles}
 \title{Get list of peptides and their chromatogram indices.}
 \usage{
-getOswFiles(dataPath, filenames, maxFdrQuery = 0.05, analyteFDR = 0.01,
-  oswMerged = TRUE, analytes = NULL, runType = "DIA_proteomics",
-  analyteInGroupLabel = FALSE, mzPntrs = NULL)
+getOswFiles(
+  fileInfo,
+  mzPntrs,
+  maxFdrQuery = 0.05,
+  analyteFDR = 0.01,
+  oswMerged = TRUE,
+  analytes = NULL,
+  runType = "DIA_proteomics",
+  analyteInGroupLabel = FALSE
+)
 }
 \arguments{
-\item{dataPath}{(char) path to mzml and osw directory.}
-
-\item{filenames}{(data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
-To get filenames use DIAlignR::getRunNames function.}
+\item{mzPntrs}{A list of mzRpwiz.
+FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
@@ -26,13 +31,14 @@ To get filenames use DIAlignR::getRunNames function.}
 
 \item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
 
-\item{mzPntrs}{A list of mzRpwiz.
-FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+\item{dataPath}{(char) path to mzml and osw directory.}
+
+\item{filenames}{(data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
+To get filenames use DIAlignR::getRunNames function.}
 }
 \value{
 (data-frames) Data-frame has following columns:
 \item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
-\item{filename}{(string) as mentioned in RUN table of osw files.}
 \item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
 \item{delta_rt}{(numeric) as in FEATURE.DELTA_RT of osw files.}
 \item{assay_RT}{(numeric) library retention time as in PRECURSOR.LIBRARY_RT of osw files.}
@@ -50,8 +56,12 @@ For these analytes it fetches chromatogram indices by matching transition_id(osw
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-filenames <- DIAlignR::getRunNames(dataPath = dataPath)
-oswFiles <- getOswFiles(dataPath = dataPath, filenames =filenames, analyteInGroupLabel = TRUE)
+filenames <- getRunNames(dataPath = dataPath)
+\dontrun{
+mzPntrs <- getMZMLpointers(filenames)
+oswFiles <- getOswFiles(filenames, mzPntrs, analyteInGroupLabel = TRUE)
+rm(mzPntrs)
+}
 }
 \seealso{
 \code{\link{getRunNames}}
@@ -64,3 +74,4 @@ ORCID: 0000-0003-3500-8152
 License: (c) Author (2019) + GPL-3
 Date: 2019-12-13
 }
+\keyword{internal}

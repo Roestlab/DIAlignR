@@ -46,15 +46,8 @@ test_that("test_fetchAnalytesInfo",{
 
 test_that("test_getOswAnalytes",{
   dataPath <- system.file("extdata", package = "DIAlignR")
-  filenames <- data.frame("filename" = c("data/raw/hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.mzML.gz",
-                                         "data/raw/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.mzML.gz",
-                                         "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
-                          "runs" = c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
-                                     "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-                                     "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
-                          row.names = c("run0", "run1", "run2"),
-                          stringsAsFactors=FALSE)
-  outData <- getOswAnalytes(dataPath = dataPath, filenames, oswMerged = TRUE,
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  outData <- getOswAnalytes(fileInfo, oswMerged = TRUE,
                             maxFdrQuery = 0.01, runType  = "DIA_proteomics")
   expData <- data.frame("transition_group_id" = rep("AAMIGGADATSNVR_2", 2),
                         "filename" = rep("data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 2),
@@ -66,4 +59,100 @@ test_that("test_getOswAnalytes",{
   expect_identical(dim(outData[["run1"]]), c(1152L, 5L))
   expect_identical(dim(outData[["run2"]]), c(1086L, 5L))
   expect_equal(outData[["run2"]][1:2,], expData, tolerance=1e-6)
+})
+
+test_that("test_fetchPrecursorsInfo",{
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  filename <- paste0(dataPath,"/osw/merged.osw")
+  outData <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = 32L,
+             "peptide_id" = 7040L,
+             "sequence" = "GNNSVYMNNFLNLILQNER",
+             "charge" = 3L,
+             "group_label" = "10030_GNNSVYMNNFLNLILQNER/3",
+             stringsAsFactors = FALSE)
+  expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
+  expect_identical(outData[1,], expData)
+  expect_identical(dim(outData), c(322L, 6L))
+})
+
+test_that("test_getPrecursors",{
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- data.frame("featureFile" = rep(file.path(dataPath, "osw", "merged.osw"),3),
+                         row.names = c("run0", "run1", "run2"),
+                         stringsAsFactors=FALSE)
+  fileInfo$featureFile <- as.factor(fileInfo$featureFile)
+  outData <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = 32L,
+                        "peptide_id" = 7040L,
+                        "sequence" = "GNNSVYMNNFLNLILQNER",
+                        "charge" = 3L,
+                        "group_label" = "10030_GNNSVYMNNFLNLILQNER/3",
+                        stringsAsFactors = FALSE)
+  expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
+  expect_identical(outData[1,], expData)
+  expect_identical(dim(outData), c(322L, 6L))
+})
+
+test_that("test_getPrecursorByID",{
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- data.frame("featureFile" = rep(file.path(dataPath, "osw", "merged.osw"),3),
+                         row.names = c("run0", "run1", "run2"),
+                         stringsAsFactors=FALSE)
+  outData <- getPrecursorByID(c(32L, 2474L), fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = c(32L, 2474L),
+                        "peptide_id" = c(7040L, 8496L),
+                        "sequence" = c("GNNSVYMNNFLNLILQNER", "IHFLSPVRPFTLTPGDEEESFIQLITPVR"),
+                        "charge" = c(3L, 3L),
+                        "group_label" = c("10030_GNNSVYMNNFLNLILQNER/3", "12300_IHFLSPVRPFTLTPGDEEESFIQLITPVR/3"),
+                        stringsAsFactors = FALSE)
+  expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
+  expData[2, "transition_ids"][[1]] <- list(c(14843L, 14844L, 14845L, 14846L, 14847L, 14848L))
+  expect_identical(outData, expData)
+})
+
+test_that("test_fetchFeaturesFromRun",{
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- data.frame("featureFile" = rep(file.path(dataPath, "osw", "merged.osw"),3),
+                         "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
+                         row.names = c("run0", "run1", "run2"),
+                         stringsAsFactors=FALSE)
+  fileInfo$featureFile <- as.factor(fileInfo$featureFile)
+  outData <- fetchFeaturesFromRun(fileInfo$featureFile[1], runID = "125704171604355508", maxFdrQuery = 0.05, runType = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = 32L, "RT" = 6528.23, "intensity" = 26.7603,
+                        "leftWidth" = 6518.602, "rightWidth" = 6535.67,
+                        "peak_group_rank" = 1L, "m_score" = 0.0264475,
+                        stringsAsFactors = FALSE)
+  expect_equal(outData[1,], expData, tolerance = 1e-04)
+  expect_identical(dim(outData), c(211L, 7L))
+
+  outData <- fetchFeaturesFromRun(fileInfo$featureFile[2], runID = "6752973645981403097", maxFdrQuery = 0.01, runType = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = 19954L, "RT" = 5226.47, "intensity" = 104.944,
+                        "leftWidth" = 5215.051, "rightWidth" = 5228.706,
+                        "peak_group_rank" = 3L, "m_score" = 0.0009634075,
+                        row.names = 192L,
+                        stringsAsFactors = FALSE)
+  expect_equal(outData[192,], expData, tolerance = 1e-04)
+  expect_identical(dim(outData), c(192L, 7L))
+
+  outData <- fetchFeaturesFromRun(fileInfo$featureFile[3], runID = "2234664662238281994", maxFdrQuery = 1.00, runType = "DIA_proteomics")
+  expData <- data.frame("transition_group_id" = 10918L, "RT" = 6019.18, "intensity" = 78.4294,
+                        "leftWidth" = 6006.667, "rightWidth" = 6044.217,
+                        "peak_group_rank" = 3L, "m_score" = 0.3225775,
+                        row.names = 500L,
+                        stringsAsFactors = FALSE)
+  expect_equal(outData[500,], expData, tolerance = 1e-04)
+  expect_identical(dim(outData), c(949L, 7L))
+})
+
+test_that("test_getFeatures",{
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- data.frame("featureFile" = rep(file.path(dataPath, "osw", "merged.osw"),3),
+                         "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
+                         row.names = c("run0", "run1", "run2"),
+                         stringsAsFactors=FALSE)
+  fileInfo$featureFile <- as.factor(fileInfo$featureFile)
+  outData <- getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics")
+  expect_identical(length(outData), 3L)
+  expect_identical(dim(outData[["run1"]]), c(227L, 7L))
 })

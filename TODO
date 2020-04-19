@@ -1,22 +1,42 @@
 Item 1 : Kernel based similarity
 Item 2 : Gap penalty zero case
-Item 3 : Understand unit of expRSE
-Item 4 : Multiple parameterised query SQL. Reimplement OswFiles
+Item 4 : Multiple parameterised query SQL.
 Item 5 : BigMemory package and parallel processing package
-Item 6 : ChromHead by environment, rebind v/s assign
-Item 7 : Increase and shorten the length of chromatogram: mean and sd
+Item 6 : ChromHead by environment, rebind v/s assign. Done
 Item 8 : Divide by 64 nodes
 Item 9 : Read about FDR stuff.
 Item 10 : Manual annotation: Fully supervised.
 Item 11 : Multi-threading for each alignment.
 Item 12 : Information content after alignment, Feature mapping.
-Item 13 : MSnExp from MSnbase for fast-access.
+Item 13 : MSnExp from MSnbase for fast-access. Accessing using C++, however MSDataFile function (https://github.com/sneumann/mzR/blob/master/src/pwiz/data/msdata/MSDataFile.hpp) is slow for some reason.
 Item 14 : Look into rOpenSci, software peer-review. https://ropensci.org/software-review/ . https://devguide.ropensci.org/
 Item 15 : Remove pipes, they are slow. Fix x-axis in plot of aligned chromatogram
-Item 16 : Don't crash if mz not found
-Item 17 : Implenment alignment on a part of XICs.
+Item 16 : Don't crash if mz not found. Will never happen.
 Item 18 : Plot retention time distribution. Score disctibution of alignment.
 Item 19: Number of points in area integration
 Item 20: Use MS1 in alignment.
 Item 21: Remove index from example data.
 Item 22: Change Traceback to lower-case.
+Item 23: Add similarity matrices of same multipeptide.
+Item 24: Add table with intensity, left width, right width etc. DONE
+Item 25: Reimplement OswFiles. DONE
+Item 26: Add osw file path, mzml path, SWATH filename and regular name in filenames. Done
+Item 27: Fix filenamesFromOSW for separate osw files. DONE
+Item 28: https://github.com/OpenMS/OpenMS/blob/develop/src/openms/include/OpenMS/ANALYSIS/OPENSWATH/PeakIntegrator.h#L550-L570
+pyOpenMS/pxds/PeakIntegrator.pxd
+Item 29: Travis for all three.  https://github.com/tidyverse/dplyr/blob/master/.github/workflows/R-CMD-check.yaml
+
+# Change all times to reference time. We can not output Retention times then.
+# Store XICs for the precursor
+# Store aligned times.
+# Get alignment rank for each feature. Add new feature if not present.
+# Map retention time of all features from eXp to ref.
+# Map reference peak boundaries from ref to eXp.
+
+Fix sampling time in Smoothing.
+Make sure ID matches in multipeptide and prec2ChromIndices.
+Remove global variable
+smooth chromatogram and area calculation in vignette.
+Param sanity check.
+param silent in DPosition and chromatogramPeak
+documentation of DIAlignPy

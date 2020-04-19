@@ -4,34 +4,38 @@
 \alias{plotAnalyteXICs}
 \title{Plot extracted-ion chromatogram.}
 \usage{
-plotAnalyteXICs(analyte, run, dataPath = ".", maxFdrQuery = 1,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  runType = "DIA_proteomics", oswMerged = TRUE,
-  nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE,
-  peakAnnot = NULL, Title = NULL)
+plotAnalyteXICs(
+  analyte,
+  run,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  XICfilter = "sgolay",
+  polyOrd = 4,
+  kernelLen = 9,
+  runType = "DIA_proteomics",
+  oswMerged = TRUE,
+  peakAnnot = NULL,
+  Title = NULL
+)
 }
 \arguments{
-\item{analyte}{(string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+\item{analyte}{(integer) an analyte is a PRECURSOR.ID from the osw file.}
 
 \item{run}{(string) Name of a mzml file without extension.}
 
-\item{dataPath}{(char) Path to mzml and osw directory.}
+\item{dataPath}{(string) path to mzml and osw directory.}
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
-\item{XICfilter}{(string) This must be one of the strings "sgolay", "none".}
+\item{XICfilter}{(string) must be either sgolay, boxcar, gaussian, loess or none.}
 
-\item{SgolayFiltOrd}{(integer) It defines the polynomial order of filer.}
+\item{polyOrd}{(integer) order of the polynomial to be fit in the kernel.}
 
-\item{SgolayFiltLen}{(integer) Must be an odd number. It defines the length of filter.}
+\item{kernelLen}{(integer) number of data-points to consider in the kernel.}
 
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
-
-\item{nameCutPattern}{(string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.}
-
-\item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
 
 \item{peakAnnot}{(numeric) Peak-apex time.}
 
@@ -46,9 +50,8 @@ Plot extracted-ion chromatogram.
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 run <- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"
-plotAnalyteXICs(analyte = "QFNNTDIVLLEDFQK_3", run, dataPath = dataPath, XICfilter = "none")
-plotAnalyteXICs(analyte = "14299_QFNNTDIVLLEDFQK/3", run, dataPath = dataPath,
-XICfilter = "sgolay", analyteInGroupLabel = TRUE)
+plotAnalyteXICs(analyte = 2474L, run, dataPath = dataPath, oswMerged = TRUE, XICfilter = "none")
+plotAnalyteXICs(analyte = 2474L, run, dataPath = dataPath, oswMerged = TRUE, XICfilter = "sgolay")
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

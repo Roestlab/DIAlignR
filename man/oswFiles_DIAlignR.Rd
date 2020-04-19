@@ -4,21 +4,18 @@
 \name{oswFiles_DIAlignR}
 \alias{oswFiles_DIAlignR}
 \title{Analytes information from osw files}
-\format{A list of three elements where each element consists of a dataframe:
+\format{
+A list of three elements where each element consists of a dataframe:
 \describe{
   \item{transition_group_id}{ID of each peptide}
-  \item{filename}{Name of corresponding mzML file}
   \item{RT}{Retention time, in sec}
-  \item{delta_rt}{Retention time difference to library, in sec}
-  \item{assay_RT}{Library retention time, in sec}
-  \item{Intensity}{Inensity of associated feature}
+  \item{intensity}{Inensity of associated feature}
   \item{leftWidth}{Left width of the peak, in sec}
   \item{rightWidth}{Right width of the peak, in sec}
   \item{peak_group_rank}{Ranking of associated feature}
   \item{m_score}{qvalue of associated feature}
-  \item{chromatogramIndex}{Indices of XICs of the feature in corresponding mzML}
-  \item{transition_ids}{Transition IDs (chromatogram IDs) of the feature}
-}}
+}
+}
 \source{
 Raw files are downloaded from \href{http://www.peptideatlas.org/PASS/PASS01508}{Peptide Atlas}.
 File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}

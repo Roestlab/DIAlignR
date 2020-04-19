@@ -4,16 +4,15 @@
 \alias{getOswAnalytes}
 \title{Fetch analytes from OSW file}
 \usage{
-getOswAnalytes(dataPath, filenames, oswMerged = TRUE,
-  analyteInGroupLabel = FALSE, maxFdrQuery = 0.05,
-  runType = "DIA_proteomics")
+getOswAnalytes(
+  fileInfo,
+  oswMerged = TRUE,
+  analyteInGroupLabel = FALSE,
+  maxFdrQuery = 0.05,
+  runType = "DIA_proteomics"
+)
 }
 \arguments{
-\item{dataPath}{(char) path to mzml and osw directory.}
-
-\item{filenames}{(data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
-To get filenames use DIAlignR::getRunNames function.}
-
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
 \item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
@@ -22,6 +21,11 @@ FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE fr
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+
+\item{dataPath}{(char) path to mzml and osw directory.}
+
+\item{filenames}{(data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
+To get filenames use DIAlignR::getRunNames function.}
 }
 \value{
 (A list of data-frames) Each data-frame has following columns:
@@ -36,13 +40,15 @@ Get a data-frame of analytes, their chromatogram indices and associated FDR-scor
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-filenames <- DIAlignR::getRunNames(dataPath = dataPath)
+filenames <- getRunNames(dataPath = dataPath)
+\dontrun{
 oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames,
  analyteInGroupLabel = TRUE)
 oswFiles[["run0"]][1,]
 oswFiles <- getOswAnalytes(dataPath = dataPath, filenames = filenames,
  analyteInGroupLabel = FALSE)
 oswFiles[["run0"]][1,]
+}
 }
 \seealso{
 \code{\link{getRunNames}}
@@ -55,3 +61,4 @@ ORCID: 0000-0003-3500-8152
 License: (c) Author (2019) + GPL-3
 Date: 2019-12-13
 }
+\keyword{internal}

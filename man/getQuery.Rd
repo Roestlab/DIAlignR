@@ -4,9 +4,14 @@
 \alias{getQuery}
 \title{Generate SQL query to fetch information from osw files.}
 \usage{
-getQuery(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
-  filename = NULL, runType = "DIA_Proteomics",
-  analyteInGroupLabel = FALSE)
+getQuery(
+  maxFdrQuery,
+  oswMerged = TRUE,
+  analytes = NULL,
+  filename = NULL,
+  runType = "DIA_Proteomics",
+  analyteInGroupLabel = FALSE
+)
 }
 \arguments{
 \item{maxFdrQuery}{(numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
@@ -15,7 +20,7 @@ getQuery(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
 
 \item{analytes}{(vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.}
 
-\item{filename}{(string) as mentioned in RUN table of osw files..}
+\item{filename}{(string) as mentioned in RUN table of osw files.}
 
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 

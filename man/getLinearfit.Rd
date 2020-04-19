@@ -7,7 +7,7 @@
 getLinearfit(oswFiles, ref, eXp, maxFdrGlobal)
 }
 \arguments{
-\item{oswFiles}{(list of data-frames) it is output from getOswFiles function.}
+\item{oswFiles}{(list of data-frames) it is output from getFeatures function.}
 
 \item{ref}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
 
@@ -19,7 +19,7 @@ getLinearfit(oswFiles, ref, eXp, maxFdrGlobal)
 An object of class "lm".
 }
 \description{
-This function selects features from oswFiles which has m-score < maxFdrLoess. It then fit Linear model on these feature.
+This function selects features from oswFiles which has m-score < maxFdrLoess. It fits Linear model on these feature.
 Loess mapping is established from reference to experiment run.
 }
 \examples{
@@ -30,7 +30,7 @@ lm.fit <- getLinearfit(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 }
 }
 \seealso{
-\code{\link{getLOESSfit}, \link{getOswFiles}}
+\code{\link{getLOESSfit}, \link{getFeatures}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

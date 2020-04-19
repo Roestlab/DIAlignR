@@ -4,12 +4,14 @@
 \name{XIC_QFNNTDIVLLEDFQK_3_DIAlignR}
 \alias{XIC_QFNNTDIVLLEDFQK_3_DIAlignR}
 \title{Extracted-ion chromatograms (XICs) of a peptide}
-\format{A list of three elements where each element consists of a list of six data frames. Each
+\format{
+A list of three elements where each element consists of a list of six data frames. Each
  data frame has two columns:
 \describe{
   \item{time}{Retention time of ananlyte in the run, in sec}
   \item{intensity}{Intensity of signal for the transition}
-}}
+}
+}
 \source{
 Raw files are downloaded from \href{http://www.peptideatlas.org/PASS/PASS01508}{Peptide Atlas}.
 File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}

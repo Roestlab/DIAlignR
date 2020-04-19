@@ -3,7 +3,6 @@
 \docType{package}
 \name{DIAlignR}
 \alias{DIAlignR}
-\alias{DIAlignR-package}
 \title{DIAlignR}
 \description{
 This package implements dynamic programming with affine gap penalty to find a highest-scoring scoring path. A hybrid approach of global alignment through MS2 features and local alignment with MS2 chromatograms is implemented in this tool.

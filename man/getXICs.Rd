@@ -4,33 +4,27 @@
 \alias{getXICs}
 \title{Get XICs of all analytes}
 \usage{
-getXICs(analytes, runs, dataPath = ".", maxFdrQuery = 1,
-  XICfilter = "sgolay", SgolayFiltOrd = 4, SgolayFiltLen = 9,
-  runType = "DIA_proteomics", oswMerged = TRUE,
-  nameCutPattern = "(.*)(/)(.*)", analyteInGroupLabel = FALSE)
+getXICs(
+  analytes,
+  runs,
+  dataPath = ".",
+  maxFdrQuery = 1,
+  runType = "DIA_proteomics",
+  oswMerged = TRUE
+)
 }
 \arguments{
-\item{analytes}{(string) An analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
+\item{analytes}{(integer) a vector of precursor IDs.}
 
-\item{runs}{(A vector of string) Names of mzml file without extension. Vector must have names as shown in the example.}
+\item{runs}{(vector of string) names of mzML files without extension.}
 
-\item{dataPath}{(char) Path to mzml and osw directory.}
+\item{dataPath}{(string) Path to mzml and osw directory.}
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
-
-\item{XICfilter}{(string) This must be one of the strings "sgolay", "none".}
-
-\item{SgolayFiltOrd}{(integer) It defines the polynomial order of filer.}
-
-\item{SgolayFiltLen}{(integer) Must be an odd number. It defines the length of filter.}
 
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
-
-\item{nameCutPattern}{(string) regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.}
-
-\item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
 }
 \value{
 A list of list. Each list contains XIC-group for that run. XIC-group is a list of dataframe that has elution time and intensity of fragment-ion XIC.
@@ -43,10 +37,11 @@ extract chromatograms from mzML files.
 dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt",
  "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")
-XICs <- getXICs(analytes = c("QFNNTDIVLLEDFQK_3"), runs = runs, dataPath = dataPath)
+analytes <- c(32L, 898L, 2474L)
+XICs <- getXICs(analytes, runs = runs, dataPath = dataPath)
 }
 \seealso{
-\code{\link{getOswFiles}, \link{getRunNames}}
+\code{\link{getXICs4AlignObj}, \link{getRunNames}, \link{analytesFromFeatures}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
