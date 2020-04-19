@@ -114,11 +114,12 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 
   ############## Get reference run for each precursor ########
   message("Calculating reference run for each precursor.")
-  refRun <- getRefRun(multipeptide)
+  refRuns <- getRefRun(multipeptide)
 
   ######### Container to save Global alignments.  #######
-  globalFits <- list()
-  RSE <- list()
+  globalFits <- getGlobalFits(refRuns, features, fileInfo, globalAlignment,
+                              globalAlignmentFdr, globalAlignmentSpan)
+  RSE <- lapply(globalFits, getRSE)
 
   ######## Perform pairwise alignment ###########
   message("Performing reference-based alignment.")
@@ -126,7 +127,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   start_time <- Sys.time()
   for(i in seq_along(multipeptide)){
     analyte <- precursors[["transition_group_id"]][i]
-    ref <- refRun[["run"]][i]
+    ref <- refRuns[["run"]][i]
     exps <- setdiff(rownames(fileInfo), ref)
     chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][[i]]
 
@@ -155,18 +156,9 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
                                  kernelLen = kernelLen, polyOrd = polyOrd)
       }
 
-      # Get the loess fit for hybrid alignment
       pair <- paste(ref, eXp, sep = "_")
-      if(any(pair %in% names(globalFits))){
-        globalFit <- globalFits[[pair]]
-      } else{
-        globalFit <- getGlobalAlignment(features, ref, eXp,
-                                        globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
-        globalFits[[pair]] <- globalFit
-        RSE[[pair]] <- getRSE(globalFit)
-      }
+      globalFit <- globalFits[[pair]]
       adaptiveRT <- RSEdistFactor*RSE[[pair]]
-
       # Get the aligned Indices
       tAligned <- getAlignedIndices( XICs.ref.s, XICs.eXp.s, globalFit, alignType, adaptiveRT,
                                     normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
@@ -183,7 +175,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 
     }
 
-    if(i < 10){
+    if(i < 5){
       message(i, " precursors have been aligned.")
     } else if(i < 1000){
       if(i %% 100 == 0) message(i, " precursors have been aligned.")
