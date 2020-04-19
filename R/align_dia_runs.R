@@ -1,6 +1,3 @@
-## quiets concerns of R CMD check re: the .'s that appear in pipelines
-if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "transition_id", "chromatogramIndex"))
-
 #' Outputs intensities for each analyte from aligned Targeted-MS runs
 #'
 #' This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.

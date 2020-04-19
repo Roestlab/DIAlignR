@@ -167,7 +167,7 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
                              DBI::dbDisconnect(con)})
   # Each precursor has only one row. tidyr::nest creates a tibble object that is twice as heavy to regular list.
   precursorsInfo <- dplyr::group_by(precursorsInfo, .data$transition_group_id, .data$peptide_id, .data$sequence, .data$charge, .data$group_label) %>%
-    dplyr::summarise(transition_ids = dplyr::lst(transition_id)) %>% dplyr::ungroup() %>% as.data.frame()
+    dplyr::summarise(transition_ids = base::list(.data$transition_id)) %>% dplyr::ungroup() %>% as.data.frame()
   precursorsInfo
 }
 

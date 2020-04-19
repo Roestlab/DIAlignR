@@ -146,7 +146,7 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
   prec2ChromIndices <- dplyr::select(dplyr::left_join(prec2transition, chromHead,
                                                       by = c("transition_ids" = "chromatogramId")), -.data$transition_ids)
   prec2ChromIndices <- dplyr::group_by(prec2ChromIndices, .data$transition_group_id) %>%
-    dplyr::summarise(chromatogramIndex = dplyr::lst(chromatogramIndex)) %>%
+    dplyr::summarise(chromatogramIndex = base::list(.data$chromatogramIndex)) %>%
     as.data.frame()
   #TODO: If mzR reads index as integer64, use bit64::as.integer64(chromatogramIndex)
   prec2ChromIndices

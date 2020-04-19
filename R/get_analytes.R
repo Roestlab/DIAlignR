@@ -8,7 +8,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-14
-#' @importFrom dplyr %>%
+#' @importFrom dplyr %>% pull
 #' @importFrom rlang .data
 #' @param features (list of data-frames) contains features and their properties identified in each run.
 #' @param analyteFDR (numeric) only analytes that have m-score less than this, will be included in the output.
@@ -31,13 +31,13 @@ analytesFromFeatures <- function(features, analyteFDR = 1.00, commonAnalytes = T
     # Get intersect
     for(df in features){
       analytes <- dplyr::filter(df, .data$m_score < analyteFDR) %>%
-        .$transition_group_id %>% dplyr::intersect(analytes)
+        pull(.data$transition_group_id) %>% dplyr::intersect(analytes)
     }
   } else {
     # Get union
     for(df in features){
         analytes <- dplyr::filter(df, .data$m_score < analyteFDR) %>%
-        .$transition_group_id %>% dplyr::union(analytes)
+          pull(.data$transition_group_id) %>% dplyr::union(analytes)
     }
   }
   if(length(analytes) == 0){
