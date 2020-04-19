@@ -107,12 +107,16 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   message("Metadata is collected from mzML files.")
 
   ############# Get chromatogram Indices of precursors across all runs. ############
+  message("Collecting chromatogram indices for all precursors.")
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
 
   ############ Convert features into multi-precursor #####
+  message("Building multipeptide.")
   multipeptide <- getMultipeptide(precursors, features)
+  message(length(multipeptide), " precursors are in the multipeptide")
 
   ############## Get reference run for each precursor ########
+  message("Calculating reference run for each precursor.")
   refRun <- getRefRun(multipeptide)
 
   ######### Container to save Global alignments.  #######
@@ -121,6 +125,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 
   ######## Perform pairwise alignment ###########
   message("Performing reference-based alignment.")
+  num_of_prec <- length(multipeptide)
   start_time <- Sys.time()
   for(i in seq_along(multipeptide)){
     analyte <- precursors[["transition_group_id"]][i]
@@ -142,7 +147,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
     # Align all runs to reference run
     for(eXp in exps){
       # Get XIC_group from experiment run. if missing, go to next run.
-      chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][[i]]
+      chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][[i]]
       if(any(is.na(chromIndices))){
         warning("Chromatogram indices for ", analyte, " are missing in ", fileInfo[eXp, "runName"])
         message("Skipping ", analyte)
@@ -180,12 +185,21 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
       }
 
     }
+
+    if(i < 10){
+      message(i, " precursors have been aligned.")
+    } else if(i < 1000){
+      if(i %% 100 == 0) message(i, " precursors have been aligned.")
+    } else {
+      if(i %% 1000 == 0) message(i, " precursors have been aligned.")
+    }
   }
 
   ######### Cleanup.  #######
   rm(mzPntrs)
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
-  message("Execution time for alignment = ", end_time - start_time)
+  message("The execution time for alignment:")
+  print(end_time - start_time)
 
   ######### Write tables to the disk  #######
   finalTbl <- writeTables(outFile, fileInfo, multipeptide, precursors)
