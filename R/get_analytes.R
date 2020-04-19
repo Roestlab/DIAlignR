@@ -26,7 +26,7 @@
 analytesFromFeatures <- function(features, analyteFDR = 1.00, commonAnalytes = TRUE){
   analytes <- c()
   analytes <- dplyr::filter(features[[1]], .data$m_score < analyteFDR) %>%
-    .$transition_group_id %>% union(analytes)
+    pull(.data$transition_group_id) %>% union(analytes)
   if(commonAnalytes){
     # Get intersect
     for(df in features){

@@ -15,7 +15,8 @@
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' \dontrun{
-#' getRefRun(multipeptide)
+#' data("multipeptide_DIAlignR", package = "DIAlignR")
+#' getRefRun(multipeptide_DIAlignR)
 #' }
 #' @seealso \code{\link{getMultipeptide}}
 #' @keywords internal

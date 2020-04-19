@@ -20,7 +20,8 @@ Provides the reference run based on lowest m-score.
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 \dontrun{
-getRefRun(multipeptide)
+data("multipeptide_DIAlignR", package = "DIAlignR")
+getRefRun(multipeptide_DIAlignR)
 }
 }
 \seealso{
