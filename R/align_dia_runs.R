@@ -192,9 +192,33 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 
   ######### Write tables to the disk  #######
   finalTbl <- writeTables(outFile, fileInfo, multipeptide, precursors)
-  # Add some stats on alignment.
+
   message("Retention time alignment across runs is done.")
   message(paste0(outFile, " file has been written."))
+
+  # Without alignment at unaligned FDR:
+  woA <- sum(finalTbl$m_score <= unalignedFDR & finalTbl$alignment_rank == 1L, na.rm = TRUE)
+  message("The number of quantified precursors at ", unalignedFDR, " FDR: ", woA)
+
+  # Without alignment at aligned FDR (Gain):
+  woAG1 <- sum(finalTbl$m_score > unalignedFDR & finalTbl$alignment_rank == 1L, na.rm = TRUE)
+  message("The increment in the number of quantified precursors at ", alignedFDR,
+          " FDR: ", woAG1)
+
+  # Corrected peptides by Alignmet
+  idx <- finalTbl$peak_group_rank != 1L & finalTbl$m_score > unalignedFDR & finalTbl$alignment_rank ==1L
+  woAG2 <- sum(idx, na.rm = TRUE)
+  message("Out of ", woAG1, " DIAlignR corrects the peaks for ", woAG2, " precursors.")
+  message("Hence, it has corrected quantification of ", round(woAG2*100/(woAG1 + woA), 3), "% precursors.")
+  if(woAG2 < 100){
+    message("These precursors are:")
+    df <- finalTbl[which(idx), c("precursor", "run")]
+    print(df)
+  }
+  # Gain by calculating area of missing features:
+  missV <- sum(is.na(finalTbl$peak_group_rank) & is.na(finalTbl$m_score) & finalTbl$alignment_rank == 1L, na.rm = TRUE)
+  message("DIAlignR has calculated quantification for ", missV, " precursors, for which peaks were not identified.")
+  message("Thus, it provides a gain of ", round(missV*100/(woAG1 + woA + missV), 3), "%.")
 }
 
 #' AlignObj for analytes between a pair of runs
@@ -297,6 +321,9 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
   }
   analytes <- analytesFound
   precursors <- precursors[precursors[["transition_group_id"]] %in% analytes, ]
+  if(nrow(precursors) == 0){
+    stop("No precursors are found below ", analyteFDR)
+  }
 
   ############# Get chromatogram Indices of precursors across all runs. ############
   prec2chromIndex <- getChromatogramIndices(filenames, precursors, mzPntrs)

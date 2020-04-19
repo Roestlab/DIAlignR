@@ -111,12 +111,16 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
     mutateInt <- na.locf(na.locf(na.approx(mutateInt, na.rm = FALSE), na.rm = FALSE), fromLast = TRUE)
     intensity[[k]] <- mutateInt
   }
-  mutateT <- mapIdxToTime(XIC_group[[1]][, "time"], idx)
-  df <- data.frame(x = which(!is.na(mutateT)), y = mutateT[!is.na(mutateT)] )
-  fit <- lm(y ~ x, df)
-  df <- data.frame(x = which(is.na(mutateT)), y = NA)
-  df$y <- predict(fit, newdata = df)
-  for(i in nrow(df)) mutateT[df$x[i]]  <- df$y[i]
+  mutateT <- mapIdxToTime(XIC_group[[1]][["time"]], idx)
+
+  # Extrapolate time
+  if(sum(is.na(mutateT)) > 0){
+    df <- data.frame(x = which(!is.na(mutateT)), y = mutateT[!is.na(mutateT)] )
+    fit <- lm(y ~ x, df)
+    df <- data.frame(x = which(is.na(mutateT)), y = NA)
+    df$y <- predict(fit, newdata = df)
+    for(i in nrow(df)) mutateT[df$x[i]]  <- df$y[i]
+  }
 
   df <- do.call("cbind", intensity)
   df <- cbind(mutateT, as.data.frame(df))
@@ -197,12 +201,9 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
     scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp aligned index")
   if(annotatePeak){
     peXpA <- peXpA +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$RT[1])),
-                 lty="dotted", size = 0.3) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$leftWidth[1])),
-                 lty="dashed", size = 0.1) +
-      geom_vline(xintercept=which.min(abs(t.ref - refPeakLabel$rightWidth[1])),
-                 lty="dashed", size = 0.1)
+      geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
+      geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$leftWidth[1]))], lty="dashed", size = 0.1) +
+      geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$rightWidth[1]))], lty="dashed", size = 0.1)
   }
 
   ###################### return ggplot objects ######################################
