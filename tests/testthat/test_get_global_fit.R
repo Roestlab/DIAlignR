@@ -43,7 +43,7 @@ test_that("test_getGlobalAlignment", {
 })
 
 
-test_that("test_getGlobalAlignment", {
+test_that("test_getRSE", {
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
   globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1, fitType = "loess")
@@ -51,4 +51,20 @@ test_that("test_getGlobalAlignment", {
 
   globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, fitType = "linear")
   expect_equal(getRSE(globalFit), 30.12705, tolerance = 1e-05)
+})
+
+
+test_that("test_getGlobalFits", {
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
+  refRun <- data.frame("transition_group_id" = c(32L, 18342L),
+                       "run" = c("run0", "run1"),stringsAsFactors = FALSE)
+  globalFits <- getGlobalFits(refRun, features, fileInfo, "loess", 0.05, 0.1)
+  globalFit <- globalFits[["run1_run2"]]
+  expect_equal(globalFit$s, 22.23519, tolerance = 1e-05)
+
+  globalFits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
+  globalFit <- globalFits[["run1_run2"]]
+  expect_equal(summary(globalFit)[["sigma"]], 30.12705, tolerance = 1e-05)
 })

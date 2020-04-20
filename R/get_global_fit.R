@@ -138,3 +138,45 @@ getRSE <- function(fit){
   }
   RSE
 }
+
+#' Calculates all global alignment needed in refRun
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-04-19
+#' @param refRun (data-frame) Output of getRefRun function. Must have two columsn : transition_group_id and run.
+#' @param features (list of data-frames) it is output from getFeatures function.
+#' @param fileInfo (data-frame) Output of getRunNames function.
+#' @param globalAlignment (string) Must be from "loess" or "linear".
+#' @param globalAlignmentFdr (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in global fit.
+#' @param globalAlignmentSpan (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
+#' @return (list) Each element is either of class lm or loess.
+#' @seealso \code{\link{getRefRun}, \link{getFeatures}, \link{getGlobalAlignment}}
+#' @keywords internal
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+#' features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
+#' data("multipeptide_DIAlignR", package = "DIAlignR")
+#' \dontrun{
+#' refRun <- getRefRun(multipeptide_DIAlignR)
+#' fits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
+#' }
+getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
+                          globalAlignmentFdr, globalAlignmentSpan){
+  globalFits <- list()
+  refs <- unique(refRun[["run"]])
+  for(ref in refs){
+    exps <- setdiff(rownames(fileInfo), ref)
+    for(eXp in exps){
+      pair <- paste(ref, eXp, sep = "_")
+      globalFit <- getGlobalAlignment(features, ref, eXp,
+                                      globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
+      globalFits[[pair]] <- globalFit
+    }
+  }
+  globalFits
+}

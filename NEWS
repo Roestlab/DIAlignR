@@ -1,3 +1,15 @@
+CHANGES IN VERSION 0.99.25 (April 20, 2020)
+------------------------
++ Fixed visualization function.
+
+CHANGES IN VERSION 0.99.25 (April 19, 2020)
+------------------------
++ Added filePath, Spectra file name, and RunID in one data frame. No need to pass datapath to each function.
++ Separate functions to get precursor IDs, OpenSWATH features and chromatogram indices for each precursor across runs.
++ Using multi-peptide and updating it in the parent frame.
++ Added Alignment rank column.
++ Copied C++ code for peak integration from OpenMS.
+
 CHANGES IN VERSION 0.99.13 (March 31, 2020)
 ------------------------
 + Added as.list for S4 objects

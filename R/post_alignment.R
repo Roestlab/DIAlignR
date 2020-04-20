@@ -181,6 +181,7 @@ setAlignmentRank <- function(multipeptide, ref, eXp, analyte_chr, unalignedFDR, 
   eXpRT <- tAligned[[2]][which.min(abs(tAligned[[1]] - refRT))]
   left <- tAligned[[2]][which.min(abs(tAligned[[1]] - leftRef))]
   right <- tAligned[[2]][which.min(abs(tAligned[[1]] - rightRef))]
+  # TODO. Save for the edge cases. or use wider chromatogram.
 
   featurePresent <- FALSE
   if(any(df[["m_score"]][idx] < unalignedFDR, na.rm = TRUE)){
@@ -203,6 +204,7 @@ setAlignmentRank <- function(multipeptide, ref, eXp, analyte_chr, unalignedFDR, 
       df[["intensity"]][idx] <-calculateIntensity(XICs.eXp, left, right,
                                                      integrationType, baselineType, fitEMG)}
   } else if(fillMissing){
+    if(any(is.na(c(left, right))))  return(NULL)
     # Otherwise create new feature and alignment rank = 1.
     intensity <- calculateIntensity(XICs.eXp, left, right, integrationType, baselineType, fitEMG)
     row <- data.frame("transition_group_id" = df[["transition_group_id"]][1], "RT" = eXpRT, "intensity"= intensity,
@@ -243,8 +245,7 @@ setAlignmentRank <- function(multipeptide, ref, eXp, analyte_chr, unalignedFDR, 
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' \dontrun{
-#' AlignObj <- testAlignObj()
-#' mappedRTfromAlignObj(XICs, 5220, 5261, integrationType = "intensity_sum",
+#' calculateIntensity(XICs, 5220, 5261, integrationType = "intensity_sum",
 #'  baselineType = "base_to_base", fitEMG = FALSE)
 #' }
 calculateIntensity <- function(XICs, left, right, integrationType, baselineType,

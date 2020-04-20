@@ -163,7 +163,7 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-07
 #' @importFrom rlang .data
-#' @param fileInfo (data-frame) Output of getRunNames function
+#' @param fileInfo (data-frame) Output of getRunNames function.
 #' @param precursors (data-frame) Atleast two columns transition_group_id and transition_ids are required.
 #' @param mzPntrs A list of mzRpwiz.
 #' @return (list) A list of dataframes having following columns:

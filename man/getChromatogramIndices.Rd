@@ -7,7 +7,7 @@
 getChromatogramIndices(fileInfo, precursors, mzPntrs)
 }
 \arguments{
-\item{fileInfo}{(data-frame) Output of getRunNames function}
+\item{fileInfo}{(data-frame) Output of getRunNames function.}
 
 \item{precursors}{(data-frame) Atleast two columns transition_group_id and transition_ids are required.}
 
