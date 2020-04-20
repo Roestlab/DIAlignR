@@ -186,11 +186,13 @@ getAlignedIndices <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptive
                           AlignObj@indexB_aligned,
                           AlignObj@score)
   colnames(AlignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
-  AlignedIndices <- AlignedIndices[(AlignedIndices[,"indexAligned.ref"] != 0L), ]
+  skip <- (AlignedIndices[,"indexAligned.ref"] != 0L)
   AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA_integer_
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
   tAligned.ref <- mapIdxToTime(tVec.ref, AlignedIndices[,"indexAligned.ref"])
   tAligned.eXp <- mapIdxToTime(tVec.eXp, AlignedIndices[,"indexAligned.eXp"])
+  tAligned.ref <- tAligned.ref[skip]
+  tAligned.eXp <- tAligned.eXp[skip]
   list(tAligned.ref, tAligned.eXp)
 }
