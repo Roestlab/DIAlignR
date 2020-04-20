@@ -31,8 +31,7 @@ Retention time from reference run is mapped to experiment run using AlignObj.
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 \dontrun{
-AlignObj <- testAlignObj()
-mappedRTfromAlignObj(XICs, 5220, 5261, integrationType = "intensity_sum",
+calculateIntensity(XICs, 5220, 5261, integrationType = "intensity_sum",
  baselineType = "base_to_base", fitEMG = FALSE)
 }
 }
