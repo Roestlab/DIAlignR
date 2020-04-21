@@ -192,6 +192,7 @@ setAlignmentRank <- function(multipeptide, ref, eXp, analyte_chr, unalignedFDR, 
     idx <- idx[abs(df[["rightWidth"]][idx] - eXpRT) < adaptiveRT |
                      abs(df[["leftWidth"]][idx] - eXpRT) < adaptiveRT |
                      abs(df[["RT"]][idx] - eXpRT) < adaptiveRT]
+    idx <- idx[!is.na(idx)]
     if(length(idx!=0)){
       featurePresent <- TRUE
     }
@@ -201,14 +202,15 @@ setAlignmentRank <- function(multipeptide, ref, eXp, analyte_chr, unalignedFDR, 
     idx <- idx[which.min(df[["m_score"]][idx])]
     df[["alignment_rank"]][idx] <- 1L
     if(recalIntensity){
-      df[["intensity"]][idx] <-calculateIntensity(XICs.eXp, left, right,
+      df[["intensity"]][idx] <- calculateIntensity(XICs.eXp, left, right,
                                                      integrationType, baselineType, fitEMG)}
   } else if(fillMissing){
-    if(any(is.na(c(left, right))))  return(NULL)
     # Otherwise create new feature and alignment rank = 1.
     intensity <- calculateIntensity(XICs.eXp, left, right, integrationType, baselineType, fitEMG)
-    row <- data.frame("transition_group_id" = df[["transition_group_id"]][1], "RT" = eXpRT, "intensity"= intensity,
-                      "leftWidth" = left, "rightWidth" = right, "m_score" = NA_integer_, "peak_group_rank" = NA_real_, "run" = eXp, "alignment_rank" = 1L)
+    row <- data.frame("transition_group_id" = df[["transition_group_id"]][1], "RT" = eXpRT,
+                      "intensity"= intensity, "leftWidth" = left, "rightWidth" = right,
+                      "m_score" = NA_integer_, "peak_group_rank" = NA_real_, "run" = eXp,
+                      "alignment_rank" = 1L)
     df <- rbind(df, row)
     }
 

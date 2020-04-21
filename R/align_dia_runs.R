@@ -197,28 +197,34 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   message(paste0(outFile, " file has been written."))
 
   # Without alignment at unaligned FDR:
-  woA <- sum(finalTbl$m_score <= unalignedFDR & finalTbl$alignment_rank == 1L, na.rm = TRUE)
-  message("The number of quantified precursors at ", unalignedFDR, " FDR: ", woA)
+  num1 <- sum(finalTbl$m_score <= unalignedFDR & finalTbl$alignment_rank == 1L &
+               !is.na(finalTbl$intensity), na.rm = TRUE)
+  message("The number of quantified precursors at ", unalignedFDR, " FDR: ", num1)
 
   # Without alignment at aligned FDR (Gain):
-  woAG1 <- sum(finalTbl$m_score > unalignedFDR & finalTbl$alignment_rank == 1L, na.rm = TRUE)
+  num2 <- sum(finalTbl$m_score > unalignedFDR & finalTbl$alignment_rank == 1L &
+                 !is.na(finalTbl$intensity), na.rm = TRUE)
   message("The increment in the number of quantified precursors at ", alignedFDR,
-          " FDR: ", woAG1)
+          " FDR: ", num2)
 
   # Corrected peptides by Alignmet
-  idx <- finalTbl$peak_group_rank != 1L & finalTbl$m_score > unalignedFDR & finalTbl$alignment_rank ==1L
-  woAG2 <- sum(idx, na.rm = TRUE)
-  message("Out of ", woAG1, " DIAlignR corrects the peaks for ", woAG2, " precursors.")
-  message("Hence, it has corrected quantification of ", round(woAG2*100/(woAG1 + woA), 3), "% precursors.")
-  if(woAG2 < 100){
+  idx <- finalTbl$peak_group_rank != 1L & finalTbl$m_score > unalignedFDR &
+    finalTbl$alignment_rank == 1L & !is.na(finalTbl$intensity)
+  num3 <- sum(idx, na.rm = TRUE)
+  message("Out of ", num2, " DIAlignR corrects the peaks for ", num3, " precursors.")
+  message("Hence, it has corrected quantification of ", round(num3*100/(num2 + num1), 3), "% precursors.")
+  if(num3 < 100){
     message("These precursors are:")
     df <- finalTbl[which(idx), c("precursor", "run")]
     print(df)
   }
   # Gain by calculating area of missing features:
-  missV <- sum(is.na(finalTbl$peak_group_rank) & is.na(finalTbl$m_score) & finalTbl$alignment_rank == 1L, na.rm = TRUE)
-  message("DIAlignR has calculated quantification for ", missV, " precursors, for which peaks were not identified.")
-  message("Thus, it provides a gain of ", round(missV*100/(woAG1 + woA + missV), 3), "%.")
+  num4 <- sum(is.na(finalTbl$intensity) & is.na(finalTbl$m_score) & finalTbl$alignment_rank == 1L, na.rm = TRUE)
+  message("DIAlignR has calculated quantification for ", num4, " precursors, for which peaks were not identified.")
+  message("Thus, it provides a gain of ", round(num4*100/(num2 + num1 + num4), 3), "%.")
+
+  if(fillMissing) message(sum(is.na(finalTbl$intensity)),
+  " precursors had part of the aligned peak out of the chromatograms, hence could not be quantified.")
 }
 
 #' AlignObj for analytes between a pair of runs
