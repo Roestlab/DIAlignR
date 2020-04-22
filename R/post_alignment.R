@@ -182,6 +182,9 @@ setAlignmentRank <- function(multipeptide, ref, eXp, analyte_chr, unalignedFDR, 
   left <- tAligned[[2]][which.min(abs(tAligned[[1]] - leftRef))]
   right <- tAligned[[2]][which.min(abs(tAligned[[1]] - rightRef))]
   # TODO. Save for the edge cases. or use wider chromatogram.
+  if(any(length(left)==0, length(right)==0, length(eXpRT)==0 )){
+    return(NULL) # Can happen if XICs have all zero intensities.
+  }
 
   featurePresent <- FALSE
   if(any(df[["m_score"]][idx] < unalignedFDR, na.rm = TRUE)){
