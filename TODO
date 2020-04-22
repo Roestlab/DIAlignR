@@ -42,17 +42,8 @@ param silent in DPosition and chromatogramPeak
 documentation of DIAlignPy
 
 Align only those where FDr is > 0.05, true false in refRun
-
 Alignment rank = 1 and fdr < 0.01
 Alignment rank = 1 and fdr > 0.01 and < 0.05 (precursor and run)
-
-Summary of the alignment
-Without alignment:
-With alignment:
-Following peptides in runid:
-
-Precursor 259, run hroest_K120808_Strep0%PlasmaBiolRepl1_R01_SW: Alignment rank = NA
-Precursor 1095, run hroest_K120808_Strep10%PlasmaBiolRepl2_R03_SW: Alignment rank = NA
-Why? Look at the writeTables.
-
 Add test for visualization.
+Update reference only once. Look for wider chromatogram if aligned peak is outside.
+

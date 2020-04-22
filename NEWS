@@ -1,4 +1,4 @@
-CHANGES IN VERSION 0.99.25 (April 20, 2020)
+CHANGES IN VERSION 0.99.26 (April 21, 2020)
 ------------------------
 + Fixed visualization function.
 + Calculating global alignment before iterating over multipeptides.
