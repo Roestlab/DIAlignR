@@ -56,7 +56,7 @@ test_that("test_getFeaturesQuery",{
   INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
   LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
   LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR
+  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
   ORDER BY transition_group_id, peak_group_rank;"
   expect_identical(outData, expOutput)
 })

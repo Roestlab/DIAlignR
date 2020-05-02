@@ -142,7 +142,7 @@ test_that("test_fetchFeaturesFromRun",{
                         row.names = 500L,
                         stringsAsFactors = FALSE)
   expect_equal(outData[500,], expData, tolerance = 1e-04)
-  expect_identical(dim(outData), c(949L, 7L))
+  expect_identical(dim(outData), c(926L, 7L))
 })
 
 test_that("test_getFeatures",{

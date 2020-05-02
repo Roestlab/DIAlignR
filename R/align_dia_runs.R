@@ -134,7 +134,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
     # Get XIC_group from reference run. if missing, go to next analyte.
     if(any(is.na(chromIndices))){
       warning("Chromatogram indices for ", analyte, " are missing in ", fileInfo[ref, "runName"])
-      message("Skipping ", analyte)
+      message("Skipping ", analyte, " across all runs.")
       next
     } else {
       XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices)
@@ -148,7 +148,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
       chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][[i]]
       if(any(is.na(chromIndices))){
         warning("Chromatogram indices for ", analyte, " are missing in ", fileInfo[eXp, "runName"])
-        message("Skipping ", analyte)
+        message("Skipping ", analyte, " in ", fileInfo[eXp, "runName"], ".")
         next
       } else {
         XICs.eXp <- extractXIC_group(mzPntrs[[eXp]], chromIndices)
@@ -213,18 +213,14 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   num3 <- sum(idx, na.rm = TRUE)
   message("Out of ", num2, " DIAlignR corrects the peaks for ", num3, " precursors.")
   message("Hence, it has corrected quantification of ", round(num3*100/(num2 + num1), 3), "% precursors.")
-  if(num3 < 100){
-    message("These precursors are:")
-    df <- finalTbl[which(idx), c("precursor", "run")]
-    print(df)
-  }
+
   # Gain by calculating area of missing features:
-  num4 <- sum(is.na(finalTbl$intensity) & is.na(finalTbl$m_score) & finalTbl$alignment_rank == 1L, na.rm = TRUE)
+  num4 <- sum(!is.na(finalTbl$intensity) & is.na(finalTbl$m_score) & finalTbl$alignment_rank == 1L, na.rm = TRUE)
   message("DIAlignR has calculated quantification for ", num4, " precursors, for which peaks were not identified.")
   message("Thus, it provides a gain of ", round(num4*100/(num2 + num1 + num4), 3), "%.")
 
   if(fillMissing) message(sum(is.na(finalTbl$intensity)),
-  " precursors had part of the aligned peak out of the chromatograms, hence could not be quantified.")
+  " precursors had part of the aligned peak out of the chromatograms or missing chromatograms, hence could not be quantified.")
 }
 
 #' AlignObj for analytes between a pair of runs
