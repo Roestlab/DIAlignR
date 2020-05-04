@@ -34,7 +34,7 @@
 #' @param gapQuantile (numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
 #' @param hardConstrain (logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) modulates penalization of masked indices.
-#' @param analyteFDR (numeric) Not implemented.
+#' @param analyteFDR (numeric) defines the upper limit of FDR on a precursor to be considered for multipeptide.
 #' @param unalignedFDR (numeric) must be between 0 and maxFdrQuery. Features below unalignedFDR are
 #'  considered for quantification even without the RT alignment.
 #' @param alignedFDR (numeric) must be between unalignedFDR and 1. Features below alignedFDR are
@@ -94,7 +94,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   features <- getFeatures(fileInfo, maxFdrQuery, runType)
 
   #### Precursors for which features are identified. ##############
-  allIDs <- unique(unlist(lapply(features, `[[`, "transition_group_id"),
+  allIDs <- unique(unlist(lapply(features, function(df) df[df[["m_score"]] <= analyteFDR,
+                                                           "transition_group_id"]),
                           recursive = FALSE, use.names = FALSE))
   precursors <- precursors[precursors[["transition_group_id"]] %in% allIDs, ]
 

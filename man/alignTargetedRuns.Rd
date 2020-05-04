@@ -90,7 +90,7 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 
 \item{samples4gradient}{(numeric) modulates penalization of masked indices.}
 
-\item{analyteFDR}{(numeric) Not implemented.}
+\item{analyteFDR}{(numeric) defines the upper limit of FDR on a precursor to be considered for multipeptide.}
 
 \item{unalignedFDR}{(numeric) must be between 0 and maxFdrQuery. Features below unalignedFDR are
 considered for quantification even without the RT alignment.}

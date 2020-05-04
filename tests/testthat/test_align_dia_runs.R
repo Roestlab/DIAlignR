@@ -12,7 +12,7 @@ test_that("test_alignTargetedRuns",{
                     cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                     dotProdThresh = 0.96, gapQuantile = 0.5,
                     hardConstrain = FALSE, samples4gradient = 100,
-                    analyteFDR = 0.01,
+                    analyteFDR = 1.0,
                     unalignedFDR = 0.01, alignedFDR = 0.05,
                     baselineType = "base_to_base", integrationType = "intensity_sum",
                     fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE)
@@ -40,7 +40,7 @@ test_that("test_alignTargetedRuns",{
                                cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                                dotProdThresh = 0.96, gapQuantile = 0.5,
                                hardConstrain = FALSE, samples4gradient = 100,
-                               analyteFDR = 0.01,
+                               analyteFDR = 1.00,
                                unalignedFDR = 0.01, alignedFDR = 0.05,
                                baselineType = "base_to_base", integrationType = "intensity_sum",
                                fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE)
