@@ -46,6 +46,22 @@ generateDIAlignRchrom <- function(){
   write.table(NativeIDS, file = "NativeIDs.csv", sep = ",", row.names= FALSE)
   }
 
+
+generateAlignObj <- function(){
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
+                                  maxFdrGlobal = 0.05, spanvalue = 0.1)
+  alignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
+                          normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
+                          geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
+                          gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100, objType = "heavy")
+  alignObj_DIAlignR <- alignObj
+  save(alignObj_DIAlignR, file = "alignObj_DIAlignR.rda", version = 2)
+}
+
 generateMergedOsw <- function(){
   transition_group_id <- c("19051_KLIVTSEGC[160]FK/2", "19052_KLIVTSEGC[160]FK/3",
                            "1182_GLPIVNLLK/2", "997_SGEISLSSWEN/2", "13597_VVAGGELFKESVVVNDK/3", "4080_VITMPAGVELTNNNNVITVK/3",
