@@ -167,9 +167,9 @@ imputeChromatogram <- function(chromatogram, method = "spline", polyOrd = 4,
     chrom <- sgolayFill(chromatogram, polyOrd, kernelLen)
     chrom <- splineFill(chrom, splineMethod)
   } else if(method == "spline"){
-    chrom <- splineFill(chrom, splineMethod)
+    chrom <- splineFill(chromatogram, splineMethod)
   } else {
-    chrom <- approxFill(chrom)
+    chrom <- approxFill(chromatogram)
   }
   chrom
 }
