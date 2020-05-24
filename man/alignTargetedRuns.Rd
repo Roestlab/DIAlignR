@@ -10,6 +10,8 @@ alignTargetedRuns(
   oswMerged = TRUE,
   runs = NULL,
   runType = "DIA_Proteomics",
+  context = "global",
+  maxPeptideFdr = 0.05,
   maxFdrQuery = 0.05,
   XICfilter = "sgolay",
   polyOrd = 4,
@@ -50,6 +52,10 @@ alignTargetedRuns(
 \item{runs}{(A vector of string) names of mzml file without extension.}
 
 \item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+
+\item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
+
+\item{maxPeptideFdr}{(numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
 
 \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
@@ -122,7 +128,8 @@ It then align XICs of its reference XICs. Best peak, which has lowest m-score, a
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-alignTargetedRuns(dataPath, outFile = "testDIAlignR.csv", oswMerged = TRUE)
+alignTargetedRuns(dataPath, outFile = "testDIAlignR.csv", oswMerged = TRUE,
+ context = "experiment-wide", maxPeptideFdr = 0.05)
 }
 \references{
 Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.

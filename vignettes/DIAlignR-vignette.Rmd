@@ -77,9 +77,9 @@ pyprophet peptide --in=merged.osw --context=experiment-wide
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
           "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 # For specific runs provide their names.
-alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = runs, oswMerged = TRUE)
+alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = runs, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 0.05)
 # For all the analytes in all runs, keep them as NULL.
-alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = NULL, oswMerged = TRUE)
+alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = NULL, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 0.05)
 ```
 
 ## Investigating alignment of analytes

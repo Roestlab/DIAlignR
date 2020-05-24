@@ -1,29 +1,29 @@
-## ----setup, include = FALSE------------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----installDIAlignR, eval=FALSE-------------------------------------------
+## ----installDIAlignR, eval=FALSE----------------------------------------------
 #  if(!requireNamespace("BiocManager", quietly = TRUE))
 #      install.packages("BiocManager")
 #  BiocManager::install("DIAlignR")
 
-## ----loadDIAlignR----------------------------------------------------------
+## ----loadDIAlignR-------------------------------------------------------------
 library(DIAlignR)
 
-## ----getDataPath-----------------------------------------------------------
+## ----getDataPath--------------------------------------------------------------
 dataPath <- system.file("extdata", package = "DIAlignR")
 
-## ---- results=FALSE, message=FALSE, warning=FALSE--------------------------
+## ---- results=FALSE, message=FALSE, warning=FALSE-----------------------------
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
           "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 # For specific runs provide their names.
-alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = runs, oswMerged = TRUE)
+alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = runs, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 0.05)
 # For all the analytes in all runs, keep them as NULL.
-alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = NULL, oswMerged = TRUE)
+alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = NULL, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 0.05)
 
-## ---- message=FALSE--------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
           "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 AlignObjLight <- getAlignObjs(analytes = 4618L, runs = runs, dataPath = dataPath, objType	= "light")
@@ -36,13 +36,13 @@ AlignObjMedium <- getAlignObjs(analytes = 4618L, runs = runs, dataPath = dataPat
 obj <- AlignObjMedium[[2]][["4618"]][[1]][["AlignObj"]]
 slotNames(obj)
 
-## ---- fig.width=6, fig.align='center', fig.height=6, message=FALSE---------
+## ---- fig.width=6, fig.align='center', fig.height=6, message=FALSE------------
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
 AlignObj <- getAlignObjs(analytes = 4618L, runs = runs, dataPath = dataPath)
 plotAlignedAnalytes(AlignObj, annotatePeak = TRUE)
 
-## ---- fig.width=5, fig.align='center', fig.height=5, message=FALSE---------
+## ---- fig.width=5, fig.align='center', fig.height=5, message=FALSE------------
 library(lattice)
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
@@ -50,6 +50,6 @@ AlignObjOutput <- getAlignObjs(analytes = 4618L, runs = runs,
                                dataPath = dataPath, objType = "medium")
 plotAlignmentPath(AlignObjOutput)
 
-## --------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sessionInfo()
 
