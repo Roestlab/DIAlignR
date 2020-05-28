@@ -109,7 +109,7 @@ NumericMatrix getChromSimMatCpp(Rcpp::List l1, Rcpp::List l2, std::string normal
   // C++ code is compatible with vector of vector input, therefore, converting list to vector of vectors.
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
-  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
+  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, 9);
   // printVecOfVec(l1);
   // printMatrix(s.data, s.n_row, s.n_col);
   // Proceessing in R is done with matrix-format, therefore, converting STL vector into NumericMatrix.
@@ -321,7 +321,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             std::string objType = "heavy"){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
-  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh);
+  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, 9);
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
   if (alignType == "hybrid"){
     SimMatrix MASK;

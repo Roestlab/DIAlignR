@@ -226,6 +226,31 @@ void test_divideVecOfVec(){
   }
 }
 
+void test_ElemWiseSumXcorr(){
+  std::vector< double > d1 = {1.0, 2.0, 3.0, 4.0};
+  std::vector< double > d2 = {0.0, 3.0, 5.0, 0.0};
+  SimMatrix s;
+  s.n_row = 4;
+  s.n_col = 4;
+
+  //........................  CASE 1 ........................................
+  s.data.resize(4*4, 0.0);
+  ElemWiseSumXcorr(d1, d2, s, 1);
+
+  std::vector< std::vector< double > > cmp_arr;
+  std::vector< double > tmp;
+  tmp = {3.0, 6.5, 2.5, 0.0}; cmp_arr.push_back(tmp);
+  tmp = {4.5, 7.0, 4.333333, 2.5}; cmp_arr.push_back(tmp);
+  tmp = {6.0, 9.6666667, 7.0, 5.0}; cmp_arr.push_back(tmp);
+  tmp = {0, 6.0, 14.5, 7.5}; cmp_arr.push_back(tmp);
+
+  for (int i = 0; i < s.n_row; i++){
+    for (int j = 0; j < s.n_col; j++){
+      ASSERT(std::abs(s.data[i*s.n_col+j] - cmp_arr[i][j]) < 1e-06);
+    }
+  }
+}
+
 void test_ElemWiseSumOuterProd(){
   std::vector< double > d1 = {1.0, 0.0, 0.5, -0.2};
   std::vector< double > d2 = {11.0, -6.0, 0.0};
@@ -390,6 +415,38 @@ void test_ElemWiseOuterCosine(){
   }
 }
 
+void test_SumXcorr(){
+  std::vector< std::vector< double > > d1;
+  std::vector< double > tmp;
+  tmp = {1.0, 2.0, 3.0, 4.0}; d1.push_back(tmp);
+  tmp = {1.0, 2.0, 3.0, 4.0}; d1.push_back(tmp);
+
+  std::vector< std::vector< double > > d2;
+  tmp = {0.0, 3.0, 5.0, 0.0}; d2.push_back(tmp);
+  tmp = {0.0, 3.0, 5.0, 0.0}; d2.push_back(tmp);
+
+  SimMatrix s;
+  s.n_row = 4;
+  s.n_col = 4;
+  s.data.resize(4*4, 0.0);
+
+  //........................  CASE 1 ........................................
+  s.data.resize(4*4, 0.0);
+  SumXcorr(d1, d2, "none", s, 3);
+
+  std::vector< std::vector< double > > cmp_arr;
+  tmp = {3.0, 6.5, 2.5, 0.0}; cmp_arr.push_back(tmp);
+  tmp = {4.5, 7.0, 4.333333, 2.5}; cmp_arr.push_back(tmp);
+  tmp = {6.0, 9.6666667, 7.0, 5.0}; cmp_arr.push_back(tmp);
+  tmp = {0, 6.0, 14.5, 7.5}; cmp_arr.push_back(tmp);
+
+  for (int i = 0; i < s.n_row; i++){
+    for (int j = 0; j < s.n_col; j++){
+      ASSERT(std::abs(s.data[i*s.n_col+j] - 2.0*cmp_arr[i][j]) < 1e-06);
+    }
+  }
+}
+
 void test_SumOuterProd(){
   std::vector< std::vector< double > > d1;
   std::vector< double > tmp;
@@ -471,7 +528,7 @@ void test_SumOuterProd(){
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
-  SumOuterProd(d1, d2, "mean", s_z);
+  SumOuterProd(z1, z2, "mean", s_z);
 
   std::vector< std::vector< double > > cmp_arr4;
   tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
@@ -481,8 +538,7 @@ void test_SumOuterProd(){
 
   for (int i = 0; i < s_z.n_row; i++){
     for (int j = 0; j < s_z.n_col; j++){
-      //std::cout <<  s_z.data[i*s_z.n_col+j] << " ";
-      //ASSERT(std::abs(s_z.data[i*s_z.n_col+j] - cmp_arr4[i][j]) < 1e-06);
+      ASSERT(std::abs(s_z.data[i*s_z.n_col+j] - cmp_arr4[i][j]) < 1e-06);
     }
   }
 }
@@ -568,7 +624,7 @@ void test_SumOuterCov(){
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   s_z.data.resize(4*4, 0.0);
-  SumOuterCov(d1, d2, "mean", s_z);
+  SumOuterCov(z1, z2, "mean", s_z);
 
   std::vector< std::vector< double > > cmp_arr4;
   tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
@@ -578,8 +634,7 @@ void test_SumOuterCov(){
 
   for (int i = 0; i < s_z.n_row; i++){
     for (int j = 0; j < s_z.n_col; j++){
-      //std::cout << s_z.data[i*s_z.n_col+j] << " ";
-      //ASSERT(std::abs(s_z.data[i*s_z.n_col+j] - cmp_arr4[i][j]) < 1e-06);
+      ASSERT(std::abs(s_z.data[i*s_z.n_col+j] - cmp_arr4[i][j]) < 1e-06);
     }
   }
 }
@@ -659,13 +714,16 @@ void test_SumOuterCorr(){
   tmp = {0.0, 0.0, 0.0, 0.0}; z1.push_back(tmp);
   tmp = {0, 0, 0, 0.0}; z1.push_back(tmp);
   tmp = {0, 0, 0, 0.0}; z1.push_back(tmp);
+  tmp = {0, 0, 0, 0.0}; z1.push_back(tmp);
 
   std::vector< std::vector< double > > z2;
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
+  tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
+
   s_z.data.resize(4*4, 0.0);
-  SumOuterCorr(d1, d2, "mean", s_z);
+  SumOuterCorr(z1, z2, "mean", s_z);
 
   std::vector< std::vector< double > > cmp_arr4;
   tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
@@ -753,19 +811,21 @@ void test_SumOuterEucl(){
   tmp = {0.0, 0.0, 0.0, 0.0}; z1.push_back(tmp);
   tmp = {0, 0, 0, 0.0}; z1.push_back(tmp);
   tmp = {0, 0, 0, 0.0}; z1.push_back(tmp);
+  tmp = {0, 0, 0, 0.0}; z1.push_back(tmp);
 
   std::vector< std::vector< double > > z2;
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
+  tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   s_z.data.resize(4*4, 0.0);
-  SumOuterEucl(d1, d2, "mean", s_z);
+  SumOuterEucl(z1, z2, "none", s_z);
 
   std::vector< std::vector< double > > cmp_arr4;
-  tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
-  tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
-  tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
-  tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
+  tmp = {1.0, 1.0, 1.0, 1.0}; cmp_arr4.push_back(tmp);
+  tmp = {1.0, 1.0, 1.0, 1.0}; cmp_arr4.push_back(tmp);
+  tmp = {1.0, 1.0, 1.0, 1.0}; cmp_arr4.push_back(tmp);
+  tmp = {1.0, 1.0, 1.0, 1.0}; cmp_arr4.push_back(tmp);
 
   for (int i = 0; i < s_z.n_row; i++){
     for (int j = 0; j < s_z.n_col; j++){
@@ -853,7 +913,7 @@ void test_SumOuterCosine(){
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   tmp = {0.0, 0.0, 0.0, 0.0}; z2.push_back(tmp);
   s_z.data.resize(4*4, 0.0);
-  SumOuterCosine(d1, d2, "mean", s_z);
+  SumOuterCosine(z1, z2, "none", s_z);
 
   std::vector< std::vector< double > > cmp_arr4;
   tmp = {0.0, 0.0, 0.0, 0.0}; cmp_arr4.push_back(tmp);
@@ -881,9 +941,10 @@ void test_getSimilarityMatrix(){
   tmp = {2.0, 3.0, 4.0, 0.9}; d2.push_back(tmp);
 
   double cosAngleThresh = 0.3, dotProdThresh = 0.96;
+  int kerLen = 9;
 
   //........................  CASE 1 ........................................
-  SimMatrix s = getSimilarityMatrix(d1, d2, "L2", "dotProductMasked", cosAngleThresh, dotProdThresh);
+  SimMatrix s = getSimilarityMatrix(d1, d2, "L2", "dotProductMasked", cosAngleThresh, dotProdThresh, kerLen);
 
   std::vector< std::vector< double > > cmp_arr;
   tmp = {0.1251213, 0.1863509, 0.2329386, 0.1011619}; cmp_arr.push_back(tmp);
@@ -898,7 +959,7 @@ void test_getSimilarityMatrix(){
   }
 
   //........................  CASE 2 ........................................
-  s = getSimilarityMatrix(d1, d2, "L2", "dotProductMasked", 0.4, 0.86);
+  s = getSimilarityMatrix(d1, d2, "L2", "dotProductMasked", 0.4, 0.86, 9);
 
   std::vector< std::vector< double > > cmp_arr2;
   tmp = {0.1251213, 0.1863509, 0.2329386, 0.1011619}; cmp_arr2.push_back(tmp);
@@ -913,7 +974,7 @@ void test_getSimilarityMatrix(){
   }
 
   //........................  CASE 3 ........................................
-  s = getSimilarityMatrix(d1, d2, "mean", "dotProduct", 0.4, 0.86);
+  s = getSimilarityMatrix(d1, d2, "mean", "dotProduct", 0.4, 0.86, 9);
 
   std::vector< std::vector< double > > cmp_arr3;
   tmp = {2.504811, 3.730570, 4.663212, 2.025167}; cmp_arr3.push_back(tmp);
@@ -928,7 +989,7 @@ void test_getSimilarityMatrix(){
   }
 
   //........................  CASE 4 ........................................
-  s = getSimilarityMatrix(d1, d2, "None", "cosineAngle", 0.4, 0.86);
+  s = getSimilarityMatrix(d1, d2, "None", "cosineAngle", 0.4, 0.86, 9);
 
   std::vector< std::vector< double > > cmp_arr4;
   tmp = {0.9338556, 0.9328143, 0.9935317, 0.4495778}; cmp_arr4.push_back(tmp);
@@ -943,7 +1004,7 @@ void test_getSimilarityMatrix(){
   }
 
   //........................  CASE 5 ........................................
-  s = getSimilarityMatrix(d1, d2, "None", "cosine2Angle", 0.4, 0.86);
+  s = getSimilarityMatrix(d1, d2, "None", "cosine2Angle", 0.4, 0.86, 9);
 
   std::vector< std::vector< double > > cmp_arr5;
   tmp = {0.7441746, 0.7402868, 0.9742125, -0.5957592}; cmp_arr5.push_back(tmp);
@@ -958,7 +1019,7 @@ void test_getSimilarityMatrix(){
   }
 
   //........................  CASE 6 ........................................
-  s = getSimilarityMatrix(d1, d2, "mean", "euclideanDist", 0.4, 0.86);
+  s = getSimilarityMatrix(d1, d2, "mean", "euclideanDist", 0.4, 0.86, 9);
 
   std::vector< std::vector< double > > cmp_arr6;
   tmp = {0.6076553, 0.5304450, 0.5201205, 0.2975992}; cmp_arr6.push_back(tmp);
@@ -973,7 +1034,7 @@ void test_getSimilarityMatrix(){
   }
 
   //........................  CASE 7 ........................................
-  s = getSimilarityMatrix(d1, d2, "L2", "covariance", 0.4, 0.86);
+  s = getSimilarityMatrix(d1, d2, "L2", "covariance", 0.4, 0.86, 9);
 
   std::vector< std::vector< double > > cmp_arr7;
   tmp = {0.02484678, 0.03216771, 0.05546157, -0.003771387}; cmp_arr7.push_back(tmp);
@@ -988,7 +1049,7 @@ void test_getSimilarityMatrix(){
   }
 
   //........................  CASE 8 ........................................
-  s = getSimilarityMatrix(d1, d2, "None", "correlation", 0.4, 0.86);
+  s = getSimilarityMatrix(d1, d2, "none", "correlation", 0.4, 0.86, 9);
 
   std::vector< std::vector< double > > cmp_arr8;
   tmp = {0.8737211, 0.9226129, 0.9905361, -0.06486282}; cmp_arr8.push_back(tmp);
@@ -999,6 +1060,21 @@ void test_getSimilarityMatrix(){
   for (int i = 0; i < s.n_row; i++){
     for (int j = 0; j < s.n_col; j++){
       ASSERT(std::abs(s.data[i*s.n_col+j] - cmp_arr8[i][j]) < 1e-06);
+    }
+  }
+
+  //........................  CASE 9 ........................................
+  s = getSimilarityMatrix(d1, d2, "none", "crossCorrelation", 0.4, 0.86, 9);
+
+  std::vector< std::vector< double > > cmp_arr9;
+  tmp = {16.725, 15.3667, 16.55, 7.6}; cmp_arr9.push_back(tmp);
+  tmp = {18.0667, 16.725, 15.3667, 16.55}; cmp_arr9.push_back(tmp);
+  tmp = {17.15, 18.0667, 16.725, 15.3667}; cmp_arr9.push_back(tmp);
+  tmp = {15.6, 17.15, 18.0667, 16.725}; cmp_arr9.push_back(tmp);
+
+  for (int i = 0; i < s.n_row; i++){
+    for (int j = 0; j < s.n_col; j++){
+      ASSERT(std::abs(s.data[i*s.n_col+j] - cmp_arr9[i][j]) < 1e-04);
     }
   }
 }
@@ -1019,16 +1095,17 @@ int main(){
   test_meanNormalizeVecOfVec();
   test_L2NormalizeVecOfVec();
   test_divideVecOfVec();
+  test_ElemWiseSumXcorr();
   test_ElemWiseSumOuterProd();
   test_ElemWiseSumOuterProdMeanSub();
   test_ElemWiseSumOuterEucl();
   test_ElemWiseOuterCosine();
-  // For following functions, it outputs random numbers for case 4!
-  //test_SumOuterProd();
-  //test_SumOuterCov();
-  //test_SumOuterCorr();
-  //test_SumOuterEucl();
-  //test_SumOuterCosine();
+  test_SumXcorr();
+  test_SumOuterProd();
+  test_SumOuterCov();
+  test_SumOuterCorr();
+  test_SumOuterEucl();
+  test_SumOuterCosine();
   test_getSimilarityMatrix();
   std::cout << "test chromSimMatrix successful" << std::endl;
   return 0;
