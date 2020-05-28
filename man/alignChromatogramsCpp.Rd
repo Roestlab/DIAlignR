@@ -21,6 +21,7 @@ alignChromatogramsCpp(
   OverlapAlignment = TRUE,
   dotProdThresh = 0.96,
   gapQuantile = 0.5,
+  kerLen = 9L,
   hardConstrain = FALSE,
   samples4gradient = 100,
   objType = "heavy"
@@ -39,7 +40,7 @@ alignChromatogramsCpp(
 
 \item{normalization}{(char) A character string. Normalization must be selected from (L2, mean or none).}
 
-\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
 Mask = s > quantile(s, dotProdThresh)\cr
 AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 s_new= s × AllowDotProd}
@@ -62,6 +63,8 @@ The window length = 2*noBeef.}
 \item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
 
 \item{gapQuantile}{(numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
+
+\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
 
 \item{hardConstrain}{(logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.}
 

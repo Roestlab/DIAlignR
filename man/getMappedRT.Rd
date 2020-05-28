@@ -19,6 +19,7 @@ getMappedRT(
   OverlapAlignment,
   dotProdThresh,
   gapQuantile,
+  kerLen,
   hardConstrain,
   samples4gradient,
   objType = "light"
@@ -39,7 +40,7 @@ getMappedRT(
 
 \item{normalization}{(character) Must be selected from "mean", "l2".}
 
-\item{simMeasure}{(string) Must be selected from dotProduct, cosineAngle,
+\item{simMeasure}{(string) Must be selected from dotProduct, cosineAngle, crossCorrelation,
 cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 
 \item{goFactor}{(numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
@@ -53,6 +54,8 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 \item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
 
 \item{gapQuantile}{(numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
+
+\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
 
 \item{hardConstrain}{(logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
 
@@ -78,7 +81,7 @@ adaptiveRT <- 77.82315 #3.5*globalFit$s
 getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
  adaptiveRT = adaptiveRT, normalization = "mean",
   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE,
   samples4gradient = 100)
 }
 }

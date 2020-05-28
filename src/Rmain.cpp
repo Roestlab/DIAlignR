@@ -60,12 +60,13 @@ NumericMatrix getSeqSimMatCpp(std::string seq1, std::string seq2, double match, 
 //' @param l1 (list) A list of vectors. Length should be same as of l2.
 //' @param l2 (list) A list of vectors. Length should be same as of l1.
 //' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
 //' Mask = s > quantile(s, dotProdThresh)\cr
 //' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 //' s_new= s × AllowDotProd
 //' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
 //' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+//' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 //' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively.
 //' @examples
 //' # Get similarity matrix of dummy chromatograms
@@ -105,11 +106,11 @@ NumericMatrix getSeqSimMatCpp(std::string seq1, std::string seq2, double match, 
 //' 0.214, 0.477), 4, 4, byrow = FALSE)
 //' @export
 // [[Rcpp::export]]
-NumericMatrix getChromSimMatCpp(Rcpp::List l1, Rcpp::List l2, std::string normalization, std::string simType, double cosAngleThresh = 0.3, double dotProdThresh = 0.96){
+NumericMatrix getChromSimMatCpp(Rcpp::List l1, Rcpp::List l2, std::string normalization, std::string simType, double cosAngleThresh = 0.3, double dotProdThresh = 0.96, int kerLen = 9){
   // C++ code is compatible with vector of vector input, therefore, converting list to vector of vectors.
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
-  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, 9);
+  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
   // printVecOfVec(l1);
   // printMatrix(s.data, s.n_row, s.n_col);
   // Proceessing in R is done with matrix-format, therefore, converting STL vector into NumericMatrix.
@@ -206,7 +207,7 @@ NumericMatrix constrainSimCpp(const NumericMatrix& sim, const NumericMatrix& MAS
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
 //' @param sim (matrix) A numeric matrix. Input similarity matrix.
-//' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
+//' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).
 //' @param gapQuantile (numeric) Must be between 0 and 1.
 //' @return baseGapPenalty (numeric).
 //' @examples
@@ -271,7 +272,7 @@ double areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right,
 //' @param tA (numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.
 //' @param tB (numeric) A numeric vector. This vector has equally spaced timepoints of XIC B.
 //' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
 //' Mask = s > quantile(s, dotProdThresh)\cr
 //' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 //' s_new= s × AllowDotProd
@@ -285,6 +286,7 @@ double areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right,
 //' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
 //' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 //' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+//' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 //' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
 //' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
 //' @param objType (char) A character string. Must be either light, medium or heavy.
@@ -316,12 +318,12 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             double B1p = 0.0, double B2p =0.0, int noBeef = 0,
                             double goFactor = 0.125, double geFactor = 40,
                             double cosAngleThresh = 0.3, bool OverlapAlignment = true,
-                            double dotProdThresh = 0.96, double gapQuantile = 0.5,
+                            double dotProdThresh = 0.96, double gapQuantile = 0.5, int kerLen = 9,
                             bool hardConstrain = false, double samples4gradient = 100.0,
                             std::string objType = "heavy"){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
-  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, 9);
+  SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
   if (alignType == "hybrid"){
     SimMatrix MASK;
