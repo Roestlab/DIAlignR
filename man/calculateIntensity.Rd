@@ -4,7 +4,15 @@
 \alias{calculateIntensity}
 \title{Calculates area of a peak in XIC group}
 \usage{
-calculateIntensity(XICs, left, right, integrationType, baselineType, fitEMG)
+calculateIntensity(
+  XICs,
+  left,
+  right,
+  integrationType,
+  baselineType,
+  fitEMG,
+  baseSubtraction = TRUE
+)
 }
 \arguments{
 \item{XICs}{(list) list of extracted ion chromatograms of a precursor.}
@@ -20,6 +28,8 @@ from "intensity_sum", "trapezoid", "simpson".}
 from "base_to_base", "vertical_division_min", "vertical_division_max".}
 
 \item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
+
+\item{baseSubtraction}{(logical) TRUE: remove background from peak signal using estimated noise levels.}
 }
 \value{
 (numeric)

@@ -239,22 +239,23 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
 //' @param baselineType (string) method to estimate the background of a peak contained in XICs. Must be
 //'  from "base_to_base", "vertical_division_min", "vertical_division_max".
 //' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
+//' @param baseSubtraction (logical) TRUE: remove background from peak signal using estimated noise levels.
 //' @return area (numeric).
 //' @examples
 //' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
 //' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 //' l1 <- lapply(XICs, `[[`, 1)
 //' l2 <- lapply(XICs, `[[`, 2)
-//' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE)
+//' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE, TRUE)
 //' # 224.9373
 //' @export
 // [[Rcpp::export]]
 double areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right,
-                      std::string integrationType, std::string baselineType, bool fitEMG){
+                      std::string integrationType, std::string baselineType, bool fitEMG, bool baseSubtraction){
   std::vector<std::vector<double> > vov1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > vov2 = list2VecOfVec(l2);
   if(std::isnan(left) or std::isnan(right)) return NumericVector::get_na();
-  std::vector<std::vector<double> > set = peakGroupArea(vov1, vov2, left, right, integrationType, baselineType, fitEMG= false);
+  std::vector<std::vector<double> > set = peakGroupArea(vov1, vov2, left, right, integrationType, baselineType, fitEMG= false, baseSubtraction);
   double area = 0.0;
   for(auto const& i : set[0]) area+= i;
   return area;

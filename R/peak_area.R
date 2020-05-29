@@ -16,6 +16,7 @@
 #' @param baselineType (string) method to estimate the background of a peak contained in XICs. Must be
 #'  from "base_to_base", "vertical_division_min", "vertical_division_max".
 #' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
+#' @param baseSubtraction (logical) TRUE: remove background from peak signal using estimated noise levels.
 #' @return (numeric)
 #' @keywords internal
 #' @seealso \code{\link{getMultipeptide}, \link{setAlignmentRank}}
@@ -27,11 +28,11 @@
 #'  baselineType = "base_to_base", fitEMG = FALSE)
 #' }
 calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
-                               fitEMG){
+                               fitEMG, baseSubtraction = TRUE){
   time <- lapply(XICs, `[[`, 1)
   intensityList <- lapply(XICs, `[[`, 2)
   intensity <- areaIntegrator(time, intensityList, left, right, integrationType, baselineType,
-                              fitEMG)
+                              fitEMG, baseSubtraction)
   intensity
 }
 
@@ -113,7 +114,7 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
         XICs <- smoothXICs(XICs, type = XICfilter, kernelLen = kernelLen, polyOrd = polyOrd)
       }
       area <- calculateIntensity(XICs, df[1, "leftWidth"], df[1, "rightWidth"],  integrationType = integrationType,
-                                 baselineType = baselineType, fitEMG = fitEMG)
+                                 baselineType = baselineType, fitEMG = fitEMG, baseSubtraction = baseSubtraction)
       newArea[[run]][i] <- area
     }
   }
