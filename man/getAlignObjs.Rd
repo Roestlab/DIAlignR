@@ -29,6 +29,7 @@ getAlignObjs(
   OverlapAlignment = TRUE,
   dotProdThresh = 0.96,
   gapQuantile = 0.5,
+  kerLen = 9,
   hardConstrain = FALSE,
   samples4gradient = 100,
   objType = "light"
@@ -67,7 +68,7 @@ getAlignObjs(
 
 \item{normalization}{(character) must be selected from "mean", "l2".}
 
-\item{simMeasure}{(string) must be selected from dotProduct, cosineAngle,
+\item{simMeasure}{(string) must be selected from dotProduct, cosineAngle, crossCorrelation,
 cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 
 \item{alignType}{available alignment methods are "global", "local" and "hybrid".}
@@ -83,6 +84,8 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 \item{dotProdThresh}{(numeric) in simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
 
 \item{gapQuantile}{(numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
+
+\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
 
 \item{hardConstrain}{(logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
 

@@ -13,7 +13,7 @@
 #' @param alignType Available alignment methods are "global", "local" and "hybrid".
 #' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
 #' @param normalization (character) Must be selected from "mean", "l2".
-#' @param simType (string) Must be selected from dotProduct, cosineAngle,
+#' @param simType (string) Must be selected from dotProduct, cosineAngle, crossCorrelation,
 #' cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
 #' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
 #' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
@@ -21,6 +21,7 @@
 #' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
 #' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 #' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 #' @param hardConstrain (logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
 #' @param objType (char) Must be selected from light, medium and heavy.
@@ -40,12 +41,12 @@
 #' AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
 #'  normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
 #'   geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
-#'   gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100, objType = "light")
+#'   gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE, samples4gradient = 100, objType = "light")
 #' @export
 getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                         normalization, simType, goFactor, geFactor,
                         cosAngleThresh, OverlapAlignment,
-                        dotProdThresh, gapQuantile, hardConstrain,
+                        dotProdThresh, gapQuantile, kerLen, hardConstrain,
                         samples4gradient, objType = "light"){
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
@@ -66,7 +67,7 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                                     B1p = B1p, B2p = B2p, noBeef = noBeef,
                                     goFactor = goFactor, geFactor = geFactor,
                                     cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
-                                    dotProdThresh = dotProdThresh, gapQuantile = gapQuantile,
+                                    dotProdThresh = dotProdThresh, gapQuantile = gapQuantile, kerLen = kerLen,
                                     hardConstrain = hardConstrain, samples4gradient = samples4gradient,
                                     objType = objType)
   AlignObj
@@ -88,7 +89,7 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
 #' @param alignType Available alignment methods are "global", "local" and "hybrid".
 #' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
 #' @param normalization (character) Must be selected from "mean", "l2".
-#' @param simMeasure (string) Must be selected from dotProduct, cosineAngle,
+#' @param simMeasure (string) Must be selected from dotProduct, cosineAngle, crossCorrelation,
 #' cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
 #' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
 #' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
@@ -96,6 +97,7 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
 #' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
 #' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 #' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 #' @param hardConstrain (logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
 #' @param objType (char) Must be selected from light, medium and heavy.
@@ -114,17 +116,17 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
 #' getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
 #'  adaptiveRT = adaptiveRT, normalization = "mean",
 #'   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-#'   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+#'   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE,
 #'   samples4gradient = 100)
 #' }
 getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                         normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
-                        OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
+                        OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain,
                         samples4gradient, objType = "light"){
   AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                           normalization, simType = simMeasure, goFactor, geFactor,
-                          cosAngleThresh, OverlapAlignment,
-                          dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
+                          cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
+                          kerLen, hardConstrain, samples4gradient, objType)
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
   eXpRT <- mappedRTfromAlignObj(refRT, tVec.ref, tVec.eXp, AlignObj)
@@ -147,7 +149,7 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #' @param alignType Available alignment methods are "global", "local" and "hybrid".
 #' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
 #' @param normalization (character) Must be selected from "mean", "l2".
-#' @param simMeasure (string) Must be selected from dotProduct, cosineAngle,
+#' @param simMeasure (string) Must be selected from dotProduct, cosineAngle, crossCorrelation,
 #' cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
 #' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
 #' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
@@ -155,6 +157,7 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
 #' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 #' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 #' @param hardConstrain (logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
 #' @param objType (char) Must be selected from light, medium and heavy.
@@ -171,17 +174,17 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #' getAlignedIndices(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
 #'  adaptiveRT = adaptiveRT, normalization = "mean",
 #'   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-#'   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+#'   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE,
 #'   samples4gradient = 100)
 #' @export
 getAlignedIndices <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                         normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
-                        OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
+                        OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain,
                         samples4gradient, objType = "light"){
   AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                           normalization, simType = simMeasure, goFactor, geFactor,
-                          cosAngleThresh, OverlapAlignment,
-                          dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
+                          cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
+                          kerLen, hardConstrain, samples4gradient, objType)
   AlignedIndices <- cbind(AlignObj@indexA_aligned,
                           AlignObj@indexB_aligned,
                           AlignObj@score)

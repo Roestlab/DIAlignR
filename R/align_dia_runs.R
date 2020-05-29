@@ -25,7 +25,7 @@
 #' @param globalAlignmentSpan (numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
 #' @param RSEdistFactor (numeric) defines how much distance in the unit of rse remains a noBeef zone.
 #' @param normalization (character) must be selected from "mean", "l2".
-#' @param simMeasure (string) must be selected from dotProduct, cosineAngle,
+#' @param simMeasure (string) must be selected from dotProduct, cosineAngle, crossCorrelation,
 #'   cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
 #' @param alignType available alignment methods are "global", "local" and "hybrid".
 #' @param goFactor (numeric) penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
@@ -34,6 +34,7 @@
 #' @param OverlapAlignment (logical) an input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
 #' @param dotProdThresh (numeric) in simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 #' @param gapQuantile (numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 #' @param hardConstrain (logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) modulates penalization of masked indices.
 #' @param analyteFDR (numeric) defines the upper limit of FDR on a precursor to be considered for multipeptide.
@@ -67,7 +68,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
                               RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                               alignType = "hybrid", goFactor = 0.125, geFactor = 40,
                               cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-                              dotProdThresh = 0.96, gapQuantile = 0.5,
+                              dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                               hardConstrain = FALSE, samples4gradient = 100,
                               analyteFDR = 0.01,
                               unalignedFDR = 0.01, alignedFDR = 0.05,
@@ -166,7 +167,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
       # Get the aligned Indices
       tAligned <- getAlignedIndices( XICs.ref.s, XICs.eXp.s, globalFit, alignType, adaptiveRT,
                                     normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
-                                    OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain,
+                                    OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain,
                                     samples4gradient, objType = "light")
       analyte_chr <- as.character(analyte)
       if(smoothPeakArea){
@@ -254,7 +255,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 #' @param globalAlignmentSpan (numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
 #' @param RSEdistFactor (numeric) defines how much distance in the unit of rse remains a noBeef zone.
 #' @param normalization (character) must be selected from "mean", "l2".
-#' @param simMeasure (string) must be selected from dotProduct, cosineAngle,
+#' @param simMeasure (string) must be selected from dotProduct, cosineAngle, crossCorrelation,
 #'   cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
 #' @param alignType available alignment methods are "global", "local" and "hybrid".
 #' @param goFactor (numeric) penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
@@ -263,6 +264,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 #' @param OverlapAlignment (logical) an input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
 #' @param dotProdThresh (numeric) in simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 #' @param gapQuantile (numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 #' @param hardConstrain (logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) modulates penalization of masked indices.
 #' @param objType (char) Must be selected from light, medium and heavy.
@@ -290,7 +292,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
                          RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                          alignType = "hybrid", goFactor = 0.125, geFactor = 40,
                          cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-                         dotProdThresh = 0.96, gapQuantile = 0.5,
+                         dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                          hardConstrain = FALSE, samples4gradient = 100,
                          objType = "light"){
   if( (kernelLen %% 2) != 1){
@@ -403,8 +405,8 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
       # Fetch alignment object between XICs.ref and XICs.eXp
       AlignObj <- getAlignObj(XICs.ref.s, XICs.eXp.s, globalFit, alignType, adaptiveRT,
                               normalization, simType = simMeasure, goFactor, geFactor,
-                              cosAngleThresh, OverlapAlignment,
-                              dotProdThresh, gapQuantile, hardConstrain, samples4gradient,
+                              cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
+                              kerLen, hardConstrain, samples4gradient,
                               objType)
       # Attach AlignObj for the analyte.
       AlignObjs[[analyteIdx]][[pair]][["AlignObj"]] <- AlignObj
