@@ -19,7 +19,7 @@ Imports:
     zoo (>= 1.8-3),
     magrittr, dplyr, tidyr, rlang,
     mzR (>= 2.18),
-    signal,
+    signal, pracma,
     ggplot2, scales, gridExtra,
     RSQLite, DBI,
     Rcpp
