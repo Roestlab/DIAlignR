@@ -14,6 +14,8 @@
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param runs (A vector of string) names of mzml file without extension.
 #' @param runType (string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param context (string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".
+#' @param maxPeptideFdr (numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.
 #' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
 #' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
@@ -54,13 +56,14 @@
 #' @seealso \code{\link{getRunNames}, \link{getFeatures}, \link{setAlignmentRank}, \link{getMultipeptide}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' alignTargetedRuns(dataPath, outFile = "testDIAlignR.csv", oswMerged = TRUE)
+#' alignTargetedRuns(dataPath, outFile = "testDIAlignR.csv", oswMerged = TRUE,
+#'  context = "experiment-wide", maxPeptideFdr = 0.05)
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
 alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TRUE, runs = NULL,
-                              runType = "DIA_Proteomics", maxFdrQuery = 0.05,
-                              XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
+                              runType = "DIA_Proteomics", context = "global", maxPeptideFdr = 0.05,
+                              maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
                               globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                               RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                               alignType = "hybrid", goFactor = 0.125, geFactor = 40,
@@ -89,7 +92,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
-  precursors <- getPrecursors(fileInfo, oswMerged, runType)
+  precursors <- getPrecursors(fileInfo, oswMerged, runType, context, maxPeptideFdr)
 
   ################ Get OpenSWATH peak-groups and their retention times. ##########
   features <- getFeatures(fileInfo, maxFdrQuery, runType)

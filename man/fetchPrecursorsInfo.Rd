@@ -4,12 +4,24 @@
 \alias{fetchPrecursorsInfo}
 \title{Get precursors from a feature file}
 \usage{
-fetchPrecursorsInfo(filename, runType, selectIDs = NULL)
+fetchPrecursorsInfo(
+  filename,
+  runType,
+  selectIDs = NULL,
+  context = "global",
+  maxPeptideFdr = 0.05
+)
 }
 \arguments{
 \item{filename}{(string) Should be from the RUN.FILENAME column from osw files.}
 
 \item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+
+\item{selectIDs}{(integer) a vector of integers.}
+
+\item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
+
+\item{maxPeptideFdr}{(numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
 }
 \value{
 (data-frames) Data-frame has following columns:

@@ -4,8 +4,8 @@ test_that("test_alignTargetedRuns",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   expect_warning(
     alignTargetedRuns(dataPath = dataPath,  outFile = "temp.csv", oswMerged = TRUE,
-                               runs = NULL, runType = "DIA_Proteomics",
-                               maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
+                               runs = NULL, runType = "DIA_Proteomics", context = "experiment-wide",
+                      maxPeptideFdr = 1.00, maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
                     globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                     RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                     alignType = "hybrid", goFactor = 0.125, geFactor = 40,
@@ -32,8 +32,8 @@ test_that("test_alignTargetedRuns",{
             "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
   expect_warning(
     outData <- alignTargetedRuns(dataPath = dataPath,  outFile = "temp.csv", oswMerged = TRUE,
-                               runs = runs, runType = "DIA_Proteomics",
-                               maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
+                               runs = runs, runType = "DIA_Proteomics", context = "experiment-wide",
+                               maxPeptideFdr = 1.00, maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
                                globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                                RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                                alignType = "hybrid", goFactor = 0.125, geFactor = 40,

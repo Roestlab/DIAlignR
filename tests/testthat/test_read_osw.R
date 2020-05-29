@@ -64,7 +64,8 @@ test_that("test_getOswAnalytes",{
 test_that("test_fetchPrecursorsInfo",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   filename <- paste0(dataPath,"/osw/merged.osw")
-  outData <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics")
+  outData <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics", NULL,
+                                 context = "experiment-wide", maxPeptideFdr = 1.0)
   expData <- data.frame("transition_group_id" = 32L,
              "peptide_id" = 7040L,
              "sequence" = "GNNSVYMNNFLNLILQNER",
@@ -73,7 +74,7 @@ test_that("test_fetchPrecursorsInfo",{
              stringsAsFactors = FALSE)
   expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
   expect_identical(outData[1,], expData)
-  expect_identical(dim(outData), c(322L, 6L))
+  expect_identical(dim(outData), c(312L, 6L))
 })
 
 test_that("test_getPrecursors",{
@@ -82,7 +83,8 @@ test_that("test_getPrecursors",{
                          row.names = c("run0", "run1", "run2"),
                          stringsAsFactors=FALSE)
   fileInfo$featureFile <- as.factor(fileInfo$featureFile)
-  outData <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+  outData <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+                           context = "experiment-wide", maxPeptideFdr = 0.05)
   expData <- data.frame("transition_group_id" = 32L,
                         "peptide_id" = 7040L,
                         "sequence" = "GNNSVYMNNFLNLILQNER",
@@ -91,7 +93,7 @@ test_that("test_getPrecursors",{
                         stringsAsFactors = FALSE)
   expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
   expect_identical(outData[1,], expData)
-  expect_identical(dim(outData), c(322L, 6L))
+  expect_identical(dim(outData), c(234L, 6L))
 })
 
 test_that("test_getPrecursorByID",{

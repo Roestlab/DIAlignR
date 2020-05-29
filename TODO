@@ -1,4 +1,4 @@
-Item 1 : Kernel based similarity
+Item 1 : Kernel based similarity https://abibuilder.informatik.uni-tuebingen.de/archive/openms/Documentation/nightly/html/classOpenSwath_1_1MRMScoring.html
 Item 2 : Gap penalty zero case
 Item 4 : Multiple parameterised query SQL.
 Item 5 : BigMemory package and parallel processing package
@@ -15,7 +15,7 @@ Item 19: Number of points in area integration
 Item 20: Use MS1 in alignment.
 Item 21: Remove index from example data.
 Item 22: Change Traceback to lower-case.
-Item 23: Add similarity matrices of same multipeptide.
+Item 23: Add similarity matrices of same multipeptide
 Item 29: Travis for all three.  https://github.com/tidyverse/dplyr/blob/master/.github/workflows/R-CMD-check.yaml
 
 # Change all times to reference time. We can not output Retention times then.

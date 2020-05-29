@@ -27,9 +27,9 @@ test_that("test_getAnalytesQuery",{
 
 test_that("test_getPrecursorsQuery",{
   outData <- getPrecursorsQuery(runType = "DIA_Proteomics")
-  expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
+  expOutput <- "SELECT DISTINCT PRECURSOR.ID AS transition_group_id,
       TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
-      PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
+      PEPTIDE.ID AS peptide_id,
       PEPTIDE.MODIFIED_SEQUENCE AS sequence,
       PRECURSOR.CHARGE AS charge,
       PRECURSOR.GROUP_LABEL AS group_label
@@ -37,6 +37,8 @@ test_that("test_getPrecursorsQuery",{
       INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      INNER JOIN SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
+      WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR
       ORDER BY transition_group_id, transition_id;"
   expect_identical(outData, expOutput)
 })

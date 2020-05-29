@@ -3,7 +3,7 @@ context("Utility functions")
 test_that("test_getRefRun", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-  precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 1.00)
   features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
   allIDs <- unique(unlist(lapply(features, `[[`, "transition_group_id"),
                           recursive = FALSE, use.names = FALSE))
@@ -21,7 +21,7 @@ test_that("test_getRefRun", {
 test_that("test_getMultipeptide", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-  precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 1.00)
   features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
   outData <- getMultipeptide(precursors, features)
 
@@ -35,8 +35,8 @@ test_that("test_getMultipeptide", {
                         "m_score" = c(NA_real_, 0.03737512, NA_real_),
                         "alignment_rank" = c(rep(NA_integer_,3)),
                         stringsAsFactors = FALSE)
-  expect_identical(length(outData), 322L)
-  expect_equal(outData[[150]], expData, tolerance = 1e-04)
+  expect_identical(length(outData), 312L)
+  expect_equal(outData[[145]], expData, tolerance = 1e-04)
   expect_equal(outData[["9723"]], expData, tolerance = 1e-04)
 })
 
@@ -57,7 +57,7 @@ test_that("test_writeTables", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
   data(multipeptide_DIAlignR, package="DIAlignR")
-  precursors_DIAlignR <- getPrecursors(fileInfo, oswMerged = TRUE)
+  precursors_DIAlignR <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 1.00)
   outData <- writeTables("temp.csv", fileInfo, multipeptide_DIAlignR, precursors_DIAlignR)
 
   outData <- read.table("temp.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
