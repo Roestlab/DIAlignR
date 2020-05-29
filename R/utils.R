@@ -90,7 +90,6 @@ getMultipeptide <- function(precursors, features){
 #' Writes the output table post-alignment
 #'
 #' Selects all features from multipeptide with alignment rank = 1, and write them onto the disk.
-#' @importFrom tidyr pivot_longer
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -98,6 +97,7 @@ getMultipeptide <- function(precursors, features){
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-14
 #' @importFrom rlang .data
+#' @importFrom tidyr pivot_longer
 #' @param filename (string) Name of the output file.
 #' @param fileInfo (data-frame) Output of getRunNames function.
 #' @param multipeptide (list of data-frames) Each element of the list is collection of features associated with a precursor.

@@ -17,7 +17,7 @@ biocViews: MassSpectrometry, Metabolomics, Proteomics, Alignment, Software
 Depends: methods, stats
 Imports:
     zoo (>= 1.8-3),
-    dplyr, tidyr, rlang,
+    magrittr, dplyr, tidyr, rlang,
     mzR (>= 2.18),
     signal,
     ggplot2, scales, gridExtra,

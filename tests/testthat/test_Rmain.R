@@ -107,11 +107,11 @@ test_that("test_areaIntegrator",{
   left <- 2.472833334
   right <- 3.022891666
   outData <- areaIntegrator(list(time), list(intensity), left, right, integrationType = "intensity_sum",
-                                baselineType = "base_to_base", fitEMG = FALSE)
+                                baselineType = "base_to_base", fitEMG = FALSE, baseSubtraction = TRUE)
   expect_equal(outData, 6645331.33866)
 
   outData <- areaIntegrator(list(time, time), list(intensity, intensity), left, right, integrationType = "trapezoid",
-                                baselineType = "vertical_division_min", fitEMG = FALSE)
+                                baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
   expect_equal(outData, 2*71063.59368, tolerance = 0.01)
 })
 

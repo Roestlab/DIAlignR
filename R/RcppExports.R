@@ -33,12 +33,13 @@ getSeqSimMatCpp <- function(seq1, seq2, match, misMatch) {
 #' @param l1 (list) A list of vectors. Length should be same as of l2.
 #' @param l2 (list) A list of vectors. Length should be same as of l1.
 #' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-#' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+#' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
 #' Mask = s > quantile(s, dotProdThresh)\cr
 #' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 #' s_new= s × AllowDotProd
 #' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
 #' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 #' @return s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively.
 #' @examples
 #' # Get similarity matrix of dummy chromatograms
@@ -77,8 +78,8 @@ getSeqSimMatCpp <- function(seq1, seq2, match, misMatch) {
 #' 0.986, 0.991, 0.911, 0.990, 0.911, -0.065, 0.477,
 #' 0.214, 0.477), 4, 4, byrow = FALSE)
 #' @export
-getChromSimMatCpp <- function(l1, l2, normalization, simType, cosAngleThresh = 0.3, dotProdThresh = 0.96) {
-    .Call(`_DIAlignR_getChromSimMatCpp`, l1, l2, normalization, simType, cosAngleThresh, dotProdThresh)
+getChromSimMatCpp <- function(l1, l2, normalization, simType, cosAngleThresh = 0.3, dotProdThresh = 0.96, kerLen = 9L) {
+    .Call(`_DIAlignR_getChromSimMatCpp`, l1, l2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen)
 }
 
 #' Outputs a mask for constraining similarity matrix
@@ -147,7 +148,7 @@ constrainSimCpp <- function(sim, MASK, samples4gradient = 100.0) {
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-03-08
 #' @param sim (matrix) A numeric matrix. Input similarity matrix.
-#' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).
+#' @param SimType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).
 #' @param gapQuantile (numeric) Must be between 0 and 1.
 #' @return baseGapPenalty (numeric).
 #' @examples
@@ -176,17 +177,18 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' @param baselineType (string) method to estimate the background of a peak contained in XICs. Must be
 #'  from "base_to_base", "vertical_division_min", "vertical_division_max".
 #' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
+#' @param baseSubtraction (logical) TRUE: remove background from peak signal using estimated noise levels.
 #' @return area (numeric).
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
 #' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' l1 <- lapply(XICs, `[[`, 1)
 #' l2 <- lapply(XICs, `[[`, 2)
-#' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE)
+#' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE, TRUE)
 #' # 224.9373
 #' @export
-areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, fitEMG) {
-    .Call(`_DIAlignR_areaIntegrator`, l1, l2, left, right, integrationType, baselineType, fitEMG)
+areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, fitEMG, baseSubtraction) {
+    .Call(`_DIAlignR_areaIntegrator`, l1, l2, left, right, integrationType, baselineType, fitEMG, baseSubtraction)
 }
 
 #' Aligns MS2 extracted-ion chromatograms(XICs) pair.
@@ -201,7 +203,7 @@ areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, f
 #' @param tA (numeric) A numeric vector. This vector has equally spaced timepoints of XIC A.
 #' @param tB (numeric) A numeric vector. This vector has equally spaced timepoints of XIC B.
 #' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
-#' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+#' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
 #' Mask = s > quantile(s, dotProdThresh)\cr
 #' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 #' s_new= s × AllowDotProd
@@ -215,6 +217,7 @@ areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, f
 #' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
 #' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
 #' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
 #' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
 #' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
 #' @param objType (char) A character string. Must be either light, medium or heavy.
@@ -239,8 +242,8 @@ areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, f
 #'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
 #'  objType = "light")
 #' @export
-alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100.0, objType = "heavy") {
-    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, hardConstrain, samples4gradient, objType)
+alignChromatogramsCpp <- function(l1, l2, alignType, tA, tB, normalization, simType, B1p = 0.0, B2p = 0.0, noBeef = 0L, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE, samples4gradient = 100.0, objType = "heavy") {
+    .Call(`_DIAlignR_alignChromatogramsCpp`, l1, l2, alignType, tA, tB, normalization, simType, B1p, B2p, noBeef, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain, samples4gradient, objType)
 }
 
 #' Perform non-affine global and overlap alignment on a similarity matrix
