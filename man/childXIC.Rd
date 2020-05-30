@@ -11,7 +11,9 @@ childXIC(
   method = "spline",
   polyOrd = 4,
   kernelLen = 9,
-  splineMethod = "fmm"
+  splineMethod = "fmm",
+  mergeStrategy = "avg",
+  keepFlanks = TRUE
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ childXIC(
 
 \item{splineMethod}{(string) must be either "fmm" or "natural".}
 
+\item{mergeStrategy}{(string) must be either ref, avg, refStart or refEnd.}
+
+\item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
+
 \item{XICs.ref}{(data-frame) extracted ion chromatograms from reference run.}
 
 \item{XICs.eXp}{(data-frame) extracted ion chromatograms from experiment run.}
@@ -33,7 +39,10 @@ childXIC(
 (data-frame) a chromatogram.
 }
 \description{
-Get child chromatogram from parents
+Three startegy to pick time to keep sampling rate equal to parents:
+ - Use reference time
+ - Start with the average then fixed sampling rate
+ - Average time (Non-gap region will have parent's sampling rate)
 }
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")

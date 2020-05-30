@@ -4,9 +4,11 @@
 \alias{mergeXIC}
 \title{Merge two XICs into one}
 \usage{
-mergeXIC(XIC.ref, XIC.eXp)
+mergeXIC(XIC.ref, XIC.eXp, mergeStrategy)
 }
 \arguments{
+\item{mergeStrategy}{(string) must be either ref, avg, refStart or refEnd.}
+
 \item{XICs.ref}{(data-frame) extracted ion chromatograms from reference run.}
 
 \item{XICs.eXp}{(data-frame) extracted ion chromatograms from experiment run.}
@@ -22,7 +24,7 @@ data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
 \dontrun{
-mergeXIC(XICs.ref[[1]], XICs.eXp[[1]])
+mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], mergeStrategy="ref")
 }
 }
 \seealso{

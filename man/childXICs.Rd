@@ -11,7 +11,9 @@ childXICs(
   method = "spline",
   polyOrd = 4,
   kernelLen = 9,
-  splineMethod = "fmm"
+  splineMethod = "fmm",
+  mergeStrategy = "avg",
+  keepFlanks = FALSE
 )
 }
 \arguments{
@@ -28,6 +30,10 @@ childXICs(
 \item{kernelLen}{(integer) must be an odd integer.}
 
 \item{splineMethod}{(string) must be either "fmm" or "natural".}
+
+\item{mergeStrategy}{(string) must be either ref, avg, refStart or refEnd.}
+
+\item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
 }
 \value{
 (list) a list of chromatograms.
