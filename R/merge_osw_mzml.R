@@ -174,7 +174,7 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 #' mzPntrs <- getMZMLpointers(fileInfo)
 #' prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
 #' rm(mzPntrs)

@@ -74,7 +74,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
                               unalignedFDR = 0.01, alignedFDR = 0.05,
                               baselineType = "base_to_base", integrationType = "intensity_sum",
                               fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE){
-  ########## Check if filter length is odd for Savitzky-Golay filter.  #########
+  #### Check if filter length is odd for Savitzky-Golay filter.  #########
   if( (kernelLen %% 2) != 1){
     # Check smoothing parameters
     # Check FDR values
@@ -83,18 +83,18 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
     return(stop("SgolayFiltLen can only be odd number"))
   }
 
-  ######## Get filenames from .osw file and check consistency between osw and mzML files. #################
+  #### Get filenames from .osw file and check consistency between osw and mzML files. #################
   fileInfo <- getRunNames(dataPath, oswMerged)
   fileInfo <- updateFileInfo(fileInfo, runs)
   runs <- rownames(fileInfo)
   message("Following runs will be aligned:")
   print(fileInfo[, "runName"], sep = "\n")
 
-  ######### Get Precursors from the query and respectve chromatogram indices. ######
+  #### Get Precursors from the query and respectve chromatogram indices. ######
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   precursors <- getPrecursors(fileInfo, oswMerged, runType, context, maxPeptideFdr)
 
-  ################ Get OpenSWATH peak-groups and their retention times. ##########
+  #### Get OpenSWATH peak-groups and their retention times. ##########
   features <- getFeatures(fileInfo, maxFdrQuery, runType)
 
   #### Precursors for which features are identified. ##############
@@ -103,30 +103,30 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
                           recursive = FALSE, use.names = FALSE))
   precursors <- precursors[precursors[["transition_group_id"]] %in% allIDs, ]
 
-  ########### Collect pointers for each mzML file. #######
+  #### Collect pointers for each mzML file. #######
   message("Collecting metadata from mzML files.")
   mzPntrs <- getMZMLpointers(fileInfo)
   message("Metadata is collected from mzML files.")
 
-  ############# Get chromatogram Indices of precursors across all runs. ############
+  #### Get chromatogram Indices of precursors across all runs. ############
   message("Collecting chromatogram indices for all precursors.")
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
 
-  ############ Convert features into multi-precursor #####
+  #### Convert features into multi-precursor #####
   message("Building multipeptide.")
   multipeptide <- getMultipeptide(precursors, features)
   message(length(multipeptide), " precursors are in the multipeptide")
 
-  ############## Get reference run for each precursor ########
+  #### Get reference run for each precursor ########
   message("Calculating reference run for each precursor.")
   refRuns <- getRefRun(multipeptide)
 
-  ######### Container to save Global alignments.  #######
+  #### Container to save Global alignments.  #######
   globalFits <- getGlobalFits(refRuns, features, fileInfo, globalAlignment,
                               globalAlignmentFdr, globalAlignmentSpan)
   RSE <- lapply(globalFits, getRSE)
 
-  ######## Perform pairwise alignment ###########
+  #### Perform pairwise alignment ###########
   message("Performing reference-based alignment.")
   num_of_prec <- length(multipeptide)
   start_time <- Sys.time()
@@ -189,13 +189,13 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
     }
   }
 
-  ######### Cleanup.  #######
+  #### Cleanup.  #######
   rm(mzPntrs)
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
   message("The execution time for alignment:")
   print(end_time - start_time)
 
-  ######### Write tables to the disk  #######
+  #### Write tables to the disk  #######
   finalTbl <- writeTables(outFile, fileInfo, multipeptide, precursors)
 
   message("Retention time alignment across runs is done.")
