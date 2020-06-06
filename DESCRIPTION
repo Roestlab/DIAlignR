@@ -22,6 +22,7 @@ Imports:
     signal, pracma,
     ggplot2, scales, gridExtra,
     RSQLite, DBI,
+    ape, phangorn, reticulate,
     Rcpp
 Suggests:
     knitr,

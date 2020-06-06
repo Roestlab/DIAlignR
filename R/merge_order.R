@@ -30,7 +30,7 @@ nr_desc <- function(tree) {
 #' m <- matrix(c(0,1,2,3, 1,0,1.5,1.5, 2,1.5,0,1, 3,1.5,1,0), byrow = TRUE,
 #'             ncol = 4, dimnames = list(c("run1", "run2", "run3", "run4"),
 #'                                       c("run1", "run2", "run3", "run4")))
-#' distMat <- as.dist(m, diag = F, upper = F)
+#' distMat <- as.dist(m, diag = FALSE, upper = FALSE)
 #' labels(distMat); length(distMat)
 #' \dontrun{
 #' getTree(distMat)
@@ -40,7 +40,7 @@ getTree <- function(distMat){
   tree <- ape::reorder.phylo(tree, "postorder")
   tree <- ape::makeNodeLabel(tree, method = "number", prefix = "master")
   message("alignment order of runs is as:")
-  plot(tree, show.node.label = T)
+  plot(tree, show.node.label = TRUE)
   tree
 }
 
@@ -60,7 +60,7 @@ getTree <- function(distMat){
 #' m <- matrix(c(0,1,2,3, 1,0,1.5,1.5, 2,1.5,0,1, 3,1.5,1,0), byrow = TRUE,
 #'             ncol = 4, dimnames = list(c("run1", "run2", "run3", "run4"),
 #'                                       c("run1", "run2", "run3", "run4")))
-#' distMat <- as.dist(m, diag = F, upper = F)
+#' distMat <- as.dist(m, diag = FALSE, upper = FALSE)
 #' \dontrun{
 #' tree <- getTree(distMat)
 #' getNodeIDs(tree)
