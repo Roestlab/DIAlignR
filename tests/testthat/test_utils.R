@@ -26,6 +26,7 @@ test_that("test_getMultipeptide", {
   outData <- getMultipeptide(precursors, features)
 
   expData <- data.frame("transition_group_id" = 9723L,
+                        "feature_id" = c(bit64::NA_integer64_, bit64::as.integer64(5930589188108275441), bit64::NA_integer64_),
                         "run" = c("run0", "run1", "run2"),
                         "RT" = c(NA_real_, 4057.14, NA_real_),
                         "intensity" = c(NA_real_, 36.1802, NA_real_),

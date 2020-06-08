@@ -30,7 +30,7 @@ Get a list of data-frame of OpenSwath features that contains retention time, int
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
 features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
-dim(features[[2]]) # 227  7
+dim(features[[2]]) # 227  8
 }
 \seealso{
 \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}

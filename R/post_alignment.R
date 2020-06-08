@@ -123,7 +123,7 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-13
-#'
+#' @importFrom bit64 NA_integer64_
 #' @param multipeptide (list of data-frames) each element of the list is collection of features associated with a precursor.
 #' @param ref (numeric) name of the refernce run.
 #' @param eXp (numeric) name of the experiment run.
@@ -155,7 +155,7 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' \dontrun{
-#' # Use getAlignedIndices() to get tAligned.
+#' # Use getAlignedTimes() to get tAligned.
 #' setAlignmentRank(multipeptide_DIAlignR, ref = "run1", eXp = "run2", analyte_chr = "4618",
 #'  unalignedFDR = 0.01, alignedFDR = 0.05, adaptiveRT = 30, tAligned, XICs.ref, XICs.eXp,
 #'  integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
@@ -210,7 +210,8 @@ setAlignmentRank <- function(multipeptide, ref, eXp, analyte_chr, unalignedFDR, 
   } else if(fillMissing){
     # Otherwise create new feature and alignment rank = 1.
     intensity <- calculateIntensity(XICs.eXp, left, right, integrationType, baselineType, fitEMG)
-    row <- data.frame("transition_group_id" = df[["transition_group_id"]][1], "RT" = eXpRT,
+    row <- data.frame("transition_group_id" = df[["transition_group_id"]][1], "feature_id" = NA_integer64_,
+                      "RT" = eXpRT,
                       "intensity"= intensity, "leftWidth" = left, "rightWidth" = right,
                       "m_score" = NA_integer_, "peak_group_rank" = NA_real_, "run" = eXp,
                       "alignment_rank" = 1L)

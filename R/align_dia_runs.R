@@ -165,7 +165,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
       globalFit <- globalFits[[pair]]
       adaptiveRT <- RSEdistFactor*RSE[[pair]]
       # Get the aligned Indices
-      tAligned <- getAlignedIndices( XICs.ref.s, XICs.eXp.s, globalFit, alignType, adaptiveRT,
+      tAligned <- getAlignedTimes( XICs.ref.s, XICs.eXp.s, globalFit, alignType, adaptiveRT,
                                     normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                                     OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain,
                                     samples4gradient, objType = "light")

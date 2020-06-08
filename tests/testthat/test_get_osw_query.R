@@ -47,6 +47,7 @@ test_that("test_getPrecursorsQuery",{
 test_that("test_getFeaturesQuery",{
   outData <- getFeaturesQuery(runType = "DIA_Proteomics")
   expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
+  FEATURE.ID AS feature_id,
   FEATURE.EXP_RT AS RT,
   FEATURE_MS2.AREA_INTENSITY AS intensity,
   FEATURE.LEFT_WIDTH AS leftWidth,

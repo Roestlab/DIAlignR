@@ -311,7 +311,7 @@ getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DI
 #' \dontrun{
 #' featuresInfo <- fetchFeaturesFromRun(fileInfo$featureFile[1], fileInfo$spectraFileID[1],
 #'  maxFdrQuery = 0.05)
-#' dim(featuresInfo) # 211  7
+#' dim(featuresInfo) # 211  8
 #' }
 fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = "DIA_proteomics"){
   # Establish a connection of SQLite file.
@@ -356,7 +356,8 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
 #' features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
-#' dim(features[[2]]) # 227  7
+#' dim(features[[2]]) # 227  8
+#' }
 #' @export
 getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"){
   features <- vector(mode = "list", length = nrow(fileInfo))

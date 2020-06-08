@@ -73,7 +73,7 @@ data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
 \dontrun{
-# Use getAlignedIndices() to get tAligned.
+# Use getAlignedTimes() to get tAligned.
 setAlignmentRank(multipeptide_DIAlignR, ref = "run1", eXp = "run2", analyte_chr = "4618",
  unalignedFDR = 0.01, alignedFDR = 0.05, adaptiveRT = 30, tAligned, XICs.ref, XICs.eXp,
  integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,

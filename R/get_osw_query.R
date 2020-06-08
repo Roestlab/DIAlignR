@@ -233,6 +233,7 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
 #' @keywords internal
 getFeaturesQuery <- function(runType = "DIA_Proteomics"){
   query <- "SELECT PRECURSOR.ID AS transition_group_id,
+  FEATURE.ID AS feature_id,
   FEATURE.EXP_RT AS RT,
   FEATURE_MS2.AREA_INTENSITY AS intensity,
   FEATURE.LEFT_WIDTH AS leftWidth,
