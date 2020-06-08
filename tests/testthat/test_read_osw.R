@@ -121,30 +121,33 @@ test_that("test_fetchFeaturesFromRun",{
                          stringsAsFactors=FALSE)
   fileInfo$featureFile <- as.factor(fileInfo$featureFile)
   outData <- fetchFeaturesFromRun(fileInfo$featureFile[1], runID = "125704171604355508", maxFdrQuery = 0.05, runType = "DIA_proteomics")
-  expData <- data.frame("transition_group_id" = 32L, "RT" = 6528.23, "intensity" = 26.7603,
+  expData <- data.frame("transition_group_id" = 32L, "feature_id" = bit64::as.integer64(484069199212214166),
+                        "RT" = 6528.23, "intensity" = 26.7603,
                         "leftWidth" = 6518.602, "rightWidth" = 6535.67,
                         "peak_group_rank" = 1L, "m_score" = 0.0264475,
                         stringsAsFactors = FALSE)
   expect_equal(outData[1,], expData, tolerance = 1e-04)
-  expect_identical(dim(outData), c(211L, 7L))
+  expect_identical(dim(outData), c(211L, 8L))
 
   outData <- fetchFeaturesFromRun(fileInfo$featureFile[2], runID = "6752973645981403097", maxFdrQuery = 0.01, runType = "DIA_proteomics")
-  expData <- data.frame("transition_group_id" = 19954L, "RT" = 5226.47, "intensity" = 104.944,
+  expData <- data.frame("transition_group_id" = 19954L, "feature_id" = bit64::as.integer64(3189052421957813097),
+                        "RT" = 5226.47, "intensity" = 104.944,
                         "leftWidth" = 5215.051, "rightWidth" = 5228.706,
                         "peak_group_rank" = 3L, "m_score" = 0.0009634075,
                         row.names = 192L,
                         stringsAsFactors = FALSE)
   expect_equal(outData[192,], expData, tolerance = 1e-04)
-  expect_identical(dim(outData), c(192L, 7L))
+  expect_identical(dim(outData), c(192L, 8L))
 
   outData <- fetchFeaturesFromRun(fileInfo$featureFile[3], runID = "2234664662238281994", maxFdrQuery = 1.00, runType = "DIA_proteomics")
-  expData <- data.frame("transition_group_id" = 10918L, "RT" = 6019.18, "intensity" = 78.4294,
+  expData <- data.frame("transition_group_id" = 10918L, "feature_id" = bit64::as.integer64(4248772434739795103),
+                        "RT" = 6019.18, "intensity" = 78.4294,
                         "leftWidth" = 6006.667, "rightWidth" = 6044.217,
                         "peak_group_rank" = 3L, "m_score" = 0.3225775,
                         row.names = 500L,
                         stringsAsFactors = FALSE)
   expect_equal(outData[500,], expData, tolerance = 1e-04)
-  expect_identical(dim(outData), c(926L, 7L))
+  expect_identical(dim(outData), c(926L, 8L))
 })
 
 test_that("test_getFeatures",{
@@ -156,5 +159,5 @@ test_that("test_getFeatures",{
   fileInfo$featureFile <- as.factor(fileInfo$featureFile)
   outData <- getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   expect_identical(length(outData), 3L)
-  expect_identical(dim(outData[["run1"]]), c(227L, 7L))
+  expect_identical(dim(outData[["run1"]]), c(227L, 8L))
 })

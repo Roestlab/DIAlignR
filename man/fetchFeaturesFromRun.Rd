@@ -39,7 +39,7 @@ fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
 \dontrun{
 featuresInfo <- fetchFeaturesFromRun(fileInfo$featureFile[1], fileInfo$spectraFileID[1],
  maxFdrQuery = 0.05)
-dim(featuresInfo) # 211  7
+dim(featuresInfo) # 211  8
 }
 }
 \seealso{

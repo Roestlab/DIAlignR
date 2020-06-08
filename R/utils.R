@@ -38,6 +38,7 @@ getRefRun <- function(multipeptide){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
+#' @importFrom bit64 NA_integer64_
 #' @param precursors (data-frames) Contains precursors and associated transition IDs.
 #' @param features (list of data-frames) Contains features and their properties identified in each run.
 #' @return (list) of dataframes having following columns:
@@ -71,7 +72,7 @@ getMultipeptide <- function(precursors, features){
         df <- features[[run]][index, ]
         df["run"] <- run
       } else {
-        df <- data.frame("transition_group_id" = analyte, "run" = run,
+        df <- data.frame("transition_group_id" = analyte, "feature_id" = NA_integer64_, "run" = run,
                          "RT" = NA_real_, "intensity" = NA_real_,
                          "leftWidth" = NA_real_, "rightWidth" = NA_real_,
                          "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
