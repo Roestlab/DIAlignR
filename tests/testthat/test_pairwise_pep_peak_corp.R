@@ -36,7 +36,7 @@ test_that("test_getMappedRT", {
   expect_equal(outData, 5237.8, tolerance = 1e-03)
 })
 
-test_that("test_getAlignedIndices", {
+test_that("test_getAlignedTimes", {
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
   data(oswFiles_DIAlignR, package="DIAlignR")
@@ -45,7 +45,7 @@ test_that("test_getAlignedIndices", {
   XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
   adaptiveRT <- 77.82315 #3.5*Loess.fit$s
   Loess.fit <- getLOESSfit(oswFiles, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
-  outData <- getAlignedIndices(XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
+  outData <- getAlignedTimes(XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
                          adaptiveRT = adaptiveRT, normalization = "mean", simMeasure = "dotProductMasked",
                          goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
                          OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,

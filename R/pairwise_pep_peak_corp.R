@@ -171,13 +171,13 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
-#' getAlignedIndices(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
+#' getAlignedTimes(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
 #'  adaptiveRT = adaptiveRT, normalization = "mean",
 #'   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
 #'   OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE,
 #'   samples4gradient = 100)
 #' @export
-getAlignedIndices <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
+getAlignedTimes <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                         normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                         OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain,
                         samples4gradient, objType = "light"){
