@@ -58,3 +58,26 @@ test_that("test_getAlignedTimes", {
   expect_equal(outData[[2]][174:176], expData2[[2]], tolerance = 1e-03)
   expect_identical(sapply(outData, length), c(176L, 176L))
 })
+
+
+test_that("test_getAlignedIndices", {
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  oswFiles <- oswFiles_DIAlignR
+  XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  adaptiveRT <- 77.82315 #3.5*Loess.fit$s
+  Loess.fit <- getLOESSfit(oswFiles, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
+  outData <- getAlignedIndices(XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
+                             adaptiveRT = adaptiveRT, normalization = "mean", simMeasure = "dotProductMasked",
+                             goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
+                             OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
+                             kerLen = 9, hardConstrain = FALSE, samples4gradient = 100, objType = "light")
+  expect_equal(outData[1:3, "indexAligned.ref"], c(1L, 2L, 3L))
+  expect_equal(outData[1:3, "indexAligned.eXp"], rep(NA_integer_, 3))
+  expect_equal(outData[203:205, "indexAligned.ref"], c(NA_integer_, 176L, NA_integer_))
+  expect_equal(outData[203:205, "indexAligned.eXp"], c(174L, 175L, 176L))
+  expect_equal(outData[203:205, "score"], c(4167.9972, 4169.8598, 4169.8598), tolerance = 1e-03)
+  expect_identical(dim(outData), c(205L, 3L))
+})
