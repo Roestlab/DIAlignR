@@ -2,12 +2,12 @@
 % Please edit documentation in R/fill_missing_intensity.R
 \name{sgolayFill}
 \alias{sgolayFill}
-\title{Fill missing values using spline}
+\title{Fill missing values using Savitzky–Golay}
 \usage{
 sgolayFill(chrom, polyOrd, kernelLen)
 }
 \arguments{
-\item{chrom}{(data-frames) first column is time (must be equidistant), second column is intensity.}
+\item{chrom}{(data-frame) first column is time (must be equidistant), second column is intensity.}
 
 \item{polyOrd}{(integer) must be less than kernelLen.}
 
@@ -19,7 +19,7 @@ sgolayFill(chrom, polyOrd, kernelLen)
 \item{intensity}{(numeric)}
 }
 \description{
-Fill missing values using spline
+Fill missing values using Savitzky–Golay
 }
 \examples{
 time <- seq(from = 3003.4, to = 3048, by = 3.4)

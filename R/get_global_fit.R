@@ -9,12 +9,12 @@
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom rlang .data
+#' @importFrom dplyr %>%
 #' @param oswFiles (list of data-frames) it is output from getFeatures function.
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
 #' @param spanvalue (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
-#' @importFrom dplyr %>%
 #' @return An object of class "loess".
 #' @seealso \code{\link{getLinearfit}, \link{getFeatures}}
 #' @keywords internal
@@ -34,6 +34,7 @@ getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
 
   Loess.fit
 }
+
 
 #' Modified loess for condition handling
 #'
@@ -70,6 +71,7 @@ dialignrLoess <- function(RUNS_RT, spanvalue){
   )
   fit
 }
+
 
 #' Calculates linear fit between RT of two runs
 #'

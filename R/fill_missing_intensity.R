@@ -1,4 +1,4 @@
-#' Fill missing values using spline
+#' Fill missing values using Savitzky–Golay
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -7,9 +7,9 @@
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-21
 #' @importFrom pracma polyfit
-#' @param chrom (data-frames) first column is time (must be equidistant), second column is intensity.
-#' @param kernelLen (integer) must be an odd integer.
+#' @param chrom (data-frame) first column is time (must be equidistant), second column is intensity.
 #' @param polyOrd (integer) must be less than kernelLen.
+#' @param kernelLen (integer) must be an odd integer.
 #' @return (dataframe) has two columns:
 #' \item{time}{(numeric)}
 #' \item{intensity}{(numeric)}
