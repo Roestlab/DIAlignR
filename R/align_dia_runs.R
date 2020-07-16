@@ -75,13 +75,18 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
                               baselineType = "base_to_base", integrationType = "intensity_sum",
                               fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE){
   #### Check if filter length is odd for Savitzky-Golay filter.  #########
-  if( (kernelLen %% 2) != 1){
-    # Check smoothing parameters
-    # Check FDR values
-    # Remove namecutpattern
-    # check with python output
-    return(stop("SgolayFiltLen can only be odd number"))
-  }
+  params <- list(runType = runType, context = context, maxPeptideFdr = maxPeptideFdr,
+                 maxFdrQuery = maxFdrQuery, XICfilter = XICfilter, polyOrd = polyOrd, kernelLen = kernelLen,
+                 globalAlignment = globalAlignment, globalAlignmentFdr = globalAlignmentFdr, globalAlignmentSpan = globalAlignmentSpan,
+                 RSEdistFactor = RSEdistFactor, normalization = normalization, simMeasure = simMeasure,
+                 alignType = alignType, goFactor = goFactor, geFactor = geFactor,
+                 cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
+                 dotProdThresh = dotProdThresh, gapQuantile = gapQuantile, kerLen = kerLen,
+                 hardConstrain = hardConstrain, samples4gradient = samples4gradient,
+                 analyteFDR = analyteFDR, unalignedFDR = unalignedFDR, alignedFDR = alignedFDR,
+                 baselineType = baselineType, integrationType = integrationType,
+                 fitEMG = fitEMG, recalIntensity = recalIntensity, fillMissing = fillMissing, smoothPeakArea = smoothPeakArea)
+  checkParams(params)
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
   fileInfo <- getRunNames(dataPath, oswMerged)
@@ -196,36 +201,13 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   print(end_time - start_time)
 
   #### Write tables to the disk  #######
-  finalTbl <- writeTables(outFile, fileInfo, multipeptide, precursors)
-
+  finalTbl <- writeTables(fileInfo, multipeptide, precursors)
+  utils::write.table(finalTbl, file = outFile, sep = ",", row.names = FALSE)
   message("Retention time alignment across runs is done.")
   message(paste0(outFile, " file has been written."))
 
-  # Without alignment at unaligned FDR:
-  num1 <- sum(finalTbl$m_score <= unalignedFDR & finalTbl$alignment_rank == 1L &
-               !is.na(finalTbl$intensity), na.rm = TRUE)
-  message("The number of quantified precursors at ", unalignedFDR, " FDR: ", num1)
-
-  # Without alignment at aligned FDR (Gain):
-  num2 <- sum(finalTbl$m_score > unalignedFDR & finalTbl$alignment_rank == 1L &
-                 !is.na(finalTbl$intensity), na.rm = TRUE)
-  message("The increment in the number of quantified precursors at ", alignedFDR,
-          " FDR: ", num2)
-
-  # Corrected peptides by Alignmet
-  idx <- finalTbl$peak_group_rank != 1L & finalTbl$m_score > unalignedFDR &
-    finalTbl$alignment_rank == 1L & !is.na(finalTbl$intensity)
-  num3 <- sum(idx, na.rm = TRUE)
-  message("Out of ", num2, " DIAlignR corrects the peaks for ", num3, " precursors.")
-  message("Hence, it has corrected quantification of ", round(num3*100/(num2 + num1), 3), "% precursors.")
-
-  # Gain by calculating area of missing features:
-  num4 <- sum(!is.na(finalTbl$intensity) & is.na(finalTbl$m_score) & finalTbl$alignment_rank == 1L, na.rm = TRUE)
-  message("DIAlignR has calculated quantification for ", num4, " precursors, for which peaks were not identified.")
-  message("Thus, it provides a gain of ", round(num4*100/(num2 + num1 + num4), 3), "%.")
-
-  if(fillMissing) message(sum(is.na(finalTbl$intensity)),
-  " precursors had part of the aligned peak out of the chromatograms or missing chromatograms, hence could not be quantified.")
+  #### Write alignment summary  #######
+  alignmentStats(finalTbl, params)
 }
 
 #' AlignObj for analytes between a pair of runs
