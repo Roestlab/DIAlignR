@@ -61,11 +61,11 @@ dialignrLoess <- function(RUNS_RT, spanvalue){
   fit <- tryCatch(expr = loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = spanvalue,
                                control=loess.control(surface="direct")),
                   error = function(c) {
-                    message(c)
+                    print(c)
                     message("\nError in loess. Using linear fit instead.")
                     lm(RT.eXp ~ RT.ref, data = RUNS_RT)},
                   warning = function(c) {
-                    message(c)
+                    print(c)
                     message(paste0("\nWarning in loess, spanvalue is doubled to ", 2*spanvalue))
                     dialignrLoess(RUNS_RT, 2*spanvalue)}
   )
