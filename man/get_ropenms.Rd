@@ -2,12 +2,12 @@
 % Please edit documentation in R/pyopenms.R
 \name{get_ropenms}
 \alias{get_ropenms}
-\title{Get ropenms}
+\title{Get ropenms handle}
 \usage{
 get_ropenms(pythonPath = NULL, condaEnv = NULL, useConda = TRUE)
 }
 \arguments{
-\item{pythonPath}{(string) path of python. Must have pyopenms module.}
+\item{pythonPath}{(string) path of the python program that has pyopenms module.}
 
 \item{condaEnv}{(string) name of the conda environment that has pyopenms module.}
 
@@ -18,9 +18,12 @@ get_ropenms(pythonPath = NULL, condaEnv = NULL, useConda = TRUE)
 }
 \description{
 Python path can also be set using Sys.setenv(RETICULATE_PYTHON = pythonPath).
+Also, remove .Rhistory file to avoid conflict with previously used python version.
 }
 \examples{
-ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+\dontrun{
+  ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

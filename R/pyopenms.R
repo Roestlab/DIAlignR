@@ -16,13 +16,13 @@
 #'
 #' @keywords internal
 #' @examples
-#' ropenms = get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
-#' expriment = ropenms$MSExperiment()
+#' ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+#' expriment <- ropenms$MSExperiment()
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
 #' xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
 #' \dontrun{
-#' DIAlignR:::addXIC(ropenms, expriment, xic, 34L)
-#' chroms = expriment$getChromatograms()
+#' addXIC(ropenms, expriment, xic, 34L)
+#' chroms <- expriment$getChromatograms()
 #' reticulate::py_to_r(chroms[[0]]$getNativeID())
 #' reticulate::py_to_r(chroms[[0]]$get_peaks())
 #' }
@@ -33,7 +33,7 @@ addXIC <- function(ropenms, expriment, xic, nativeId){
   chromatogram$sortByPosition()
   chromatogram$setNativeID(as.character(nativeId))
   expriment$addChromatogram(chromatogram)
-  return(NULL)
+  invisible(NULL)
 }
 
 
@@ -48,34 +48,43 @@ addXIC <- function(ropenms, expriment, xic, nativeId){
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-06-06
 #' @param ropenms (pyopenms module) get this python module through get_ropenms().
-#' @param filename (string) Name of the mzML file to be written.
-#' @param XICs (list of data-frames) extracted ion chromatograms.
-#' @param transitionIDs (integer) length must be the same as of XICs.
+#' @param filename (string) name of the mzML file to be written. Extension should be .chrom.mzML.
+#' @param XICs (list of list of data-frames) list of extracted ion chromatograms of all precursors.
+#' @param transitionIDs (list of integer) length must be the same as of XICs.
 #' @return (None)
 #' @seealso \code{\link{get_ropenms}, \link{addXIC}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
-#' mz <- mzR::openMSfile(filename, backend = "pwiz")
-#' chromHead <- mzR::chromatogramHeader(mz)
-#' XICs <- mzR::chromatograms(mz, chromHead$chromatogramIndex[1:10])
-#' nativeIds <- chromHead$chromatogramId[1:10]
+#' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]]
+#' nativeIds <- list(27706:27711)
 #' ropenms <- get_ropenms(condaEnv = "TricEnvr")
-#' createMZML(ropenms, "testfile.mzML", XICs, nativeIds)
-#' XICs <- mzR::chromatograms(mzR::openMSfile("testfile.mzML", backend = "pwiz"))
+#' createMZML(ropenms, "testfile.chrom.mzML", XICs, nativeIds)
+#' mzR::chromatogramHeader(mzR::openMSfile("testfile.chrom.mzML", backend = "pwiz"))
+#' file.remove("testfile.chrom.mzML")
 #' @export
 createMZML <- function(ropenms, filename, XICs, transitionIDs){
   expriment = ropenms$MSExperiment()
-  for(i in seq_along(XICs)){
-    addXIC(ropenms, expriment, XICs[[i]], transitionIDs[i])
+  # Iterate over each precursor.
+  for(prec in seq_along(XICs)){
+    if(is.null(XICs[[prec]])) next # Skip empty XICs
+    # Iterate over each fragment-ion.
+    for(i in seq_along(XICs[[prec]])){
+      # Add a fragment-ion chromatogram to the experiment.
+      addXIC(ropenms, expriment, XICs[[prec]][[i]], transitionIDs[[prec]][i])
+    }
   }
+
   # Store as mzML
   ropenms$MzMLFile()$store(filename, expriment)
+  invisible(NULL)
 }
 
-#' Get ropenms
+#' Get ropenms handle
 #'
 #' Python path can also be set using Sys.setenv(RETICULATE_PYTHON = pythonPath).
+#' Also, remove .Rhistory file to avoid conflict with previously used python version.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -83,13 +92,15 @@ createMZML <- function(ropenms, filename, XICs, transitionIDs){
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-06-06
 #' @import reticulate
-#' @param pythonPath (string) path of python. Must have pyopenms module.
+#' @param pythonPath (string) path of the python program that has pyopenms module.
 #' @param condaEnv (string) name of the conda environment that has pyopenms module.
 #' @param useConda (logical) TRUE: Use conda environment. FALSE: Use python through pythonPath.
 #' @return (pyopenms module)
 #'
 #' @examples
-#' ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+#' \dontrun{
+#'   ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+#' }
 #' @export
 get_ropenms <- function(pythonPath = NULL, condaEnv = NULL, useConda=TRUE){
   if(useConda){
