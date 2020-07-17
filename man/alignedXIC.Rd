@@ -27,10 +27,13 @@ alignedXIC(
 \item{splineMethod}{(string) must be either "fmm" or "natural".}
 }
 \value{
-(data-frame) a chromatogram.
+(dataframe) has two columns:
+\item{time}{(numeric)}
+\item{intensity}{(numeric)}
 }
 \description{
 Modifies chromatogram to have the same length as indices. Imputes missing values with appropriate method.
+Time and intensity for the flanking missing indices are set as NA.
 }
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
@@ -40,11 +43,11 @@ alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@inde
 colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
 alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
 \dontrun{
-alignedXIC(XICs.ref[[1]], alignedIndices[,"indexAligned.ref"])
+plot(alignedXIC(XICs.ref[[1]], alignedIndices[,"indexAligned.ref"]), type = "l")
 }
 }
 \seealso{
-\code{\link{childXICs}, \link{imputeChromatogram}}
+\code{\link{childXIC}, \link{imputeChromatogram}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

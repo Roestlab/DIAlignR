@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge_chromatogram.R
 \name{childXIC}
 \alias{childXIC}
-\title{Get child chromatogram from parents}
+\title{Get a child chromatogram from parents}
 \usage{
 childXIC(
   XIC.ref,
@@ -17,6 +17,10 @@ childXIC(
 )
 }
 \arguments{
+\item{XIC.ref}{(data-frame) extracted ion chromatogram from reference run. Must not contain missing values.}
+
+\item{XIC.eXp}{(data-frame) extracted ion chromatogram from experiment run. Must not contain missing values.}
+
 \item{alignedIndices}{(data-frame) must have two columns "indexAligned.ref" and "indexAligned.eXp".}
 
 \item{method}{(string) must be either "spline", "sgolay" or "linear".}
@@ -30,20 +34,22 @@ childXIC(
 \item{mergeStrategy}{(string) must be either ref, avg, refStart or refEnd.}
 
 \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
-
-\item{XICs.ref}{(data-frame) extracted ion chromatograms from reference run.}
-
-\item{XICs.eXp}{(data-frame) extracted ion chromatograms from experiment run.}
 }
 \value{
-(data-frame) a chromatogram.
+(list) the first element is chromatogram. The second element is aligned parent time-vectors.
 }
 \description{
-Three startegy to pick time to keep sampling rate equal to parents:
- - Use reference time
- - Start with the average then fixed sampling rate
- - Average time (Non-gap region will have parent's sampling rate)
+Internal gaps in reference chromatogram and corresponding indices in experiment chromatogram
+are discarded while merging both chromatogram to obtain a child chromatogram.
 }
+\section{time-merging}{
+
+There are three startegies for calculating time to keep sampling rate equal to parents:\cr
+ - Use reference time. \cr
+ - Average time (Non-gap region will have parent's sampling rate). \cr
+ - Start/end with the average then fixed sampling rate.
+}
+
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 data(alignObj_DIAlignR, package="DIAlignR")
@@ -53,11 +59,11 @@ alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@inde
 colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
 alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
 \dontrun{
-childXIC(XICs.ref[[1]], XICs.eXp[[1]], alignedIndices)
+plot(childXIC(XICs.ref[[1]], XICs.eXp[[1]], alignedIndices)[[1]], type = 'l')
 }
 }
 \seealso{
-\code{\link{mergeXIC}, \link{alignedXIC}}
+\code{\link{mergeXIC}, \link{alignedXIC}, \link{childXICs}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

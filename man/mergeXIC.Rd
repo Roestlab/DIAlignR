@@ -7,28 +7,39 @@
 mergeXIC(XIC.ref, XIC.eXp, mergeStrategy)
 }
 \arguments{
+\item{XIC.ref}{(data-frame) extracted ion chromatogram from reference run. Must not contain missing values.}
+
+\item{XIC.eXp}{(data-frame) extracted ion chromatogram from experiment run. Must not contain missing values.}
+
 \item{mergeStrategy}{(string) must be either ref, avg, refStart or refEnd.}
-
-\item{XICs.ref}{(data-frame) extracted ion chromatograms from reference run.}
-
-\item{XICs.eXp}{(data-frame) extracted ion chromatograms from experiment run.}
 }
 \value{
-(data-frame) a chromatogram.
+(dataframe) has two columns:
+\item{time}{(numeric)}
+\item{intensity}{(numeric)}
 }
 \description{
-Both extracted-ion chromatograms must have same number of rows.
+Both extracted-ion chromatograms must have same number of rows. Missing values are not allowed.
+Intensities are weighted-averaged.
 }
+\section{time-merging}{
+
+There are three startegies for calculating time to keep sampling rate equal to parents:\cr
+ - Use reference time. \cr
+ - Average time (Non-gap region will have parent's sampling rate). \cr
+ - Start/end with the average then fixed sampling rate.
+}
+
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
 \dontrun{
-mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], mergeStrategy="ref")
+plot(mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], mergeStrategy="ref"), type = "l")
 }
 }
 \seealso{
-\code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
+\code{\link{childXIC}, \link{alignedXIC}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

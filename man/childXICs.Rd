@@ -13,13 +13,13 @@ childXICs(
   kernelLen = 9,
   splineMethod = "fmm",
   mergeStrategy = "avg",
-  keepFlanks = FALSE
+  keepFlanks = TRUE
 )
 }
 \arguments{
-\item{XICs.ref}{(data-frame) extracted ion chromatograms from reference run.}
+\item{XICs.ref}{(list of data-frames) extracted ion chromatograms from reference run.}
 
-\item{XICs.eXp}{(data-frame) extracted ion chromatograms from experiment run.}
+\item{XICs.eXp}{(list of data-frames) extracted ion chromatograms from experiment run.}
 
 \item{alignedIndices}{(data-frame) must have two columns "indexAligned.ref" and "indexAligned.eXp".}
 
@@ -49,12 +49,12 @@ XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]
 alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
 colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
 alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
-newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices)
+newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices)[[1]]
 plotXICgroup(XICs.ref)
 plotXICgroup(newXICs)
 }
 \seealso{
-\code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
+\code{\link{childXIC}, \link{mergeStrategy}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

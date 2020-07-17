@@ -1,22 +1,17 @@
 #' Get child chromatograms from parents
 #'
+#' @inheritParams childXIC
+#'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-23
-#' @param XICs.ref (data-frame) extracted ion chromatograms from reference run.
-#' @param XICs.eXp (data-frame) extracted ion chromatograms from experiment run.
-#' @param alignedIndices (data-frame) must have two columns "indexAligned.ref" and "indexAligned.eXp".
-#' @param method (string) must be either "spline", "sgolay" or "linear".
-#' @param polyOrd (integer) must be less than kernelLen.
-#' @param kernelLen (integer) must be an odd integer.
-#' @param splineMethod (string) must be either "fmm" or "natural".
-#' @param keepFlanks (logical) TRUE: Flanking chromatogram is not removed.
-#' @param mergeStrategy (string) must be either ref, avg, refStart or refEnd.
+#' @param XICs.ref (list of data-frames) extracted ion chromatograms from reference run.
+#' @param XICs.eXp (list of data-frames) extracted ion chromatograms from experiment run.
 #' @return (list) a list of chromatograms.
-#' @seealso \code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
+#' @seealso \code{\link{childXIC}, \link{mergeStrategy}}
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(alignObj_DIAlignR, package="DIAlignR")
@@ -25,45 +20,45 @@
 #' alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
 #' colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
 #' alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
-#' newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices)
+#' newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices)[[1]]
 #' plotXICgroup(XICs.ref)
 #' plotXICgroup(newXICs)
 #' @export
 childXICs <- function(XICs.ref, XICs.eXp, alignedIndices, method = "spline", polyOrd = 4,
-                     kernelLen = 9, splineMethod = "fmm", mergeStrategy = "avg", keepFlanks = FALSE){
-  child_xics <- lapply(seq_along(XICs.ref), function(i){
-    childXIC(XICs.ref[[i]], XICs.eXp[[i]], alignedIndices, method, polyOrd, kernelLen,
-             splineMethod, mergeStrategy, keepFlanks)
-  })
+                     kernelLen = 9, splineMethod = "fmm", mergeStrategy = "avg", keepFlanks = TRUE){
+  child_xics <- vector(mode = "list", length = length(XICs.ref))
+  alignedVec <- c()
   for(i in seq_along(child_xics)){
-    colnames(child_xics[[i]]) <- c("time", paste0("intensity", i))
+    output <- childXIC(XICs.ref[[i]], XICs.eXp[[i]], alignedIndices, method, polyOrd, kernelLen,
+             splineMethod, mergeStrategy, keepFlanks)
+    xic <- output[[1]]
+    alignedVec <- output[[2]]
+    colnames(xic) <- c("time", paste0("intensity", i))
+    child_xics[[i]] <- xic
   }
-  child_xics
+  list(child_xics, alignedVec)
   }
 
-#' Get child chromatogram from parents
+
+#' Get a child chromatogram from parents
 #'
-#' Three startegy to pick time to keep sampling rate equal to parents:
-#'  - Use reference time
-#'  - Start with the average then fixed sampling rate
-#'  - Average time (Non-gap region will have parent's sampling rate)
+#' Internal gaps in reference chromatogram and corresponding indices in experiment chromatogram
+#' are discarded while merging both chromatogram to obtain a child chromatogram.
+#'
+#' @inheritSection mergeXIC time-merging
+#' @inherit alignedXIC return
+#' @inheritParams alignedXIC
+#' @inheritParams mergeXIC
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-23
-#' @param XICs.ref (data-frame) extracted ion chromatograms from reference run.
-#' @param XICs.eXp (data-frame) extracted ion chromatograms from experiment run.
 #' @param alignedIndices (data-frame) must have two columns "indexAligned.ref" and "indexAligned.eXp".
-#' @param method (string) must be either "spline", "sgolay" or "linear".
-#' @param polyOrd (integer) must be less than kernelLen.
-#' @param kernelLen (integer) must be an odd integer.
-#' @param splineMethod (string) must be either "fmm" or "natural".
 #' @param keepFlanks (logical) TRUE: Flanking chromatogram is not removed.
-#' @param mergeStrategy (string) must be either ref, avg, refStart or refEnd.
-#' @return (data-frame) a chromatogram.
-#' @seealso \code{\link{mergeXIC}, \link{alignedXIC}}
+#' @return (list) the first element is chromatogram. The second element is aligned parent time-vectors.
+#' @seealso \code{\link{mergeXIC}, \link{alignedXIC}, \link{childXICs}}
 #' @keywords internal
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
@@ -74,20 +69,26 @@ childXICs <- function(XICs.ref, XICs.eXp, alignedIndices, method = "spline", pol
 #' colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
 #' alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
 #' \dontrun{
-#' childXIC(XICs.ref[[1]], XICs.eXp[[1]], alignedIndices)
+#' plot(childXIC(XICs.ref[[1]], XICs.eXp[[1]], alignedIndices)[[1]], type = 'l')
 #' }
 childXIC <- function(XIC.ref, XIC.eXp, alignedIndices, method = "spline", polyOrd = 4,
                       kernelLen = 9, splineMethod = "fmm", mergeStrategy = "avg", keepFlanks = TRUE){
+  # Impute missing intensities in chromatogram
   XIC.ref.imp <- alignedXIC(XIC.ref, alignedIndices[,"indexAligned.ref"], method, polyOrd, kernelLen, splineMethod)
   XIC.eXp.imp <- alignedXIC(XIC.eXp, alignedIndices[,"indexAligned.eXp"], method, polyOrd, kernelLen, splineMethod)
+
   flank <- is.na(XIC.ref.imp[["time"]]) | is.na(XIC.eXp.imp[["time"]])
   skip <- flank | is.na(alignedIndices[,"indexAligned.ref"]) # Remove gaps from the reference
 
   newXIC <- mergeXIC(XIC.ref.imp[!skip,], XIC.eXp.imp[!skip,], mergeStrategy)
+  alignedChildTime <- rep(NA, nrow(alignedIndices))
+  alignedChildTime[!skip] <- newXIC[["time"]]
 
   if(keepFlanks){
-    refFlank <- flank & !is.na(alignedIndices[,"indexAligned.ref"])
-    eXpFlank <- flank & !is.na(alignedIndices[,"indexAligned.eXp"])
+    startTime <- newXIC[["time"]][1]
+    endTime <- newXIC[["time"]][nrow(newXIC)]
+    refFlank <- flank & !is.na(alignedIndices[,"indexAligned.ref"]) # Flanking signal in reference
+    eXpFlank <- flank & !is.na(alignedIndices[,"indexAligned.eXp"]) # Flanking signal in experiment
 
     # Add flanking sequence to the left of a chromatogram
     if(refFlank[1]){
@@ -103,37 +104,113 @@ childXIC <- function(XIC.ref, XIC.eXp, alignedIndices, method = "spline", polyOr
     } else if(eXpFlank[np]){
       newXIC <- addFlankToRight(eXpFlank, XIC.eXp.imp, newXIC)
     }
+
+    # Copy the flanking signal to alignedChildTime
+    flankStop <- match(startTime, newXIC[["time"]])
+    if(flankStop != 1) alignedChildTime[1:flankStop] <- newXIC[["time"]][1:flankStop]
+
+    flankStart <- match(endTime, newXIC[["time"]])
+    len <- nrow(newXIC)
+    if(flankStart != len) alignedChildTime[(flankStart+1):len] <- newXIC[["time"]][(flankStart+1):len]
   }
+
+  # Group indices, time and aligned time. This will be used to map features on child XIC.
+  tAligned.ref <- XIC.ref[alignedIndices[, "indexAligned.ref"],"time"]
+  tAligned.eXp <- XIC.eXp[alignedIndices[, "indexAligned.eXp"],"time"]
+  alignedVec <- cbind(alignedIndices, tAligned.ref, tAligned.eXp, alignedChildTime)
   # check if this is a good child either by alignment or some other methods
-  newXIC
+  list(newXIC, alignedVec)
 }
 
-addFlankToLeft <- function(flankSeq, XIC.imp, newXIC){
+
+#' Add signal to the left of XIC
+#'
+#' This function copies flanking chromatogram from XIC and paste it to the left of newXIC.
+#' @inherit addFlankToRight
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-16
+#' @param flankSeq (logical) must be TRUE at the front of the vector.
+#' @seealso \code{\link{childXIC}, \link{addFlankToRight}}
+#' @keywords internal
+#' @examples
+#' time <- seq(from = 3003.4, to = 3048, by = 3.4)
+#' y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,
+#'        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
+#' chrom <- data.frame(time, y)
+#' chrom2 <- data.frame(time = c(3013.4, 3016, 3020), intensity = c(1.2, 3.4, 5.6))
+#' flankSeq <- c(T,T,F,F,F,F,F,F,F,F,F,T,T,T)
+#' \dontrun{
+#' addFlankToLeft(flankSeq, chrom, chrom2)
+#' }
+addFlankToLeft <- function(flankSeq, XIC, newXIC){
   flankStop <- min(which(!flankSeq))-1
-  idx <- 1:flankStop
-  flankXIC <- XIC.imp[idx,]
-  t1 <- XIC.imp[flankStop+1, "time"]
+  idx <- seq(from =1, to=flankStop, by = 1L)
+  flankXIC <- XIC[idx,]
+  t1 <- XIC[flankStop+1, "time"]
   t1_new <- newXIC[1,"time"]
   flankXIC[,"time"] <- flankXIC[,"time"] - t1 + t1_new
   names(flankXIC) <- c("time", "intensity")
   rbind(flankXIC, newXIC) # Add flanking sequence to the left of a chromatogram
 }
 
-addFlankToRight <- function(flankSeq, XIC.imp, newXIC){
+
+#' Add signal to the right of XIC
+#'
+#' This function copies flanking chromatogram from XIC and paste it to the right of newXIC.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-16
+#' @param flankSeq (logical) must be TRUE at the tail of the vector.
+#' @param XIC (data-frame) first column is time, second column is intensity.
+#' @param newXIC (data-frame) first column is time, second column is intensity.
+#' @return (dataframe) has two columns:
+#' \item{time}{(numeric)}
+#' \item{intensity}{(numeric)}
+#' @seealso \code{\link{childXIC}, \link{addFlankToLeft}}
+#' @keywords internal
+#' @examples
+#' time <- seq(from = 3003.4, to = 3048, by = 3.4)
+#' y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,
+#'        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
+#' chrom <- data.frame(time, y)
+#' chrom2 <- data.frame(time = c(3013.4, 3016, 3020), intensity = c(1.2, 3.4, 5.6))
+#' flankSeq <- c(T,T,F,F,F,F,F,F,F,F,F,T,T,T)
+#' \dontrun{
+#' addFlankToRight(flankSeq, chrom, chrom2)
+#' }
+addFlankToRight <- function(flankSeq, XIC, newXIC){
   np <- length(flankSeq)
   flankStart <- max(which(!flankSeq))+1
-  idx <- flankStart:np
-  flankXIC <- XIC.imp[idx,]
-  tn <- XIC.imp[flankStart-1, "time"]
+  idx <- seq(from = flankStart, to = np, by = 1L)
+  flankXIC <- XIC[idx,]
+  rownames(flankXIC) <- NULL
+  tn <- XIC[flankStart-1, "time"]
   tn_new <- newXIC[nrow(newXIC),"time"]
   flankXIC[,"time"] <- flankXIC[,"time"] - tn + tn_new
   names(flankXIC) <- c("time", "intensity")
   rbind(newXIC, flankXIC) # Add flanking sequence to the right of a chromatogram
 }
 
+
 #' Merge two XICs into one
 #'
-#' Both extracted-ion chromatograms must have same number of rows.
+#' Both extracted-ion chromatograms must have same number of rows. Missing values are not allowed.
+#' Intensities are weighted-averaged.
+#' @section time-merging:
+#' There are three startegies for calculating time to keep sampling rate equal to parents:\cr
+#'  - Use reference time. \cr
+#'  - Average time (Non-gap region will have parent's sampling rate). \cr
+#'  - Start/end with the average then fixed sampling rate.
+#' @inherit alignedXIC return
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -141,18 +218,17 @@ addFlankToRight <- function(flankSeq, XIC.imp, newXIC){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-23
-#' @param XICs.ref (data-frame) extracted ion chromatograms from reference run.
-#' @param XICs.eXp (data-frame) extracted ion chromatograms from experiment run.
+#' @param XIC.ref (data-frame) extracted ion chromatogram from reference run. Must not contain missing values.
+#' @param XIC.eXp (data-frame) extracted ion chromatogram from experiment run. Must not contain missing values.
 #' @param mergeStrategy (string) must be either ref, avg, refStart or refEnd.
-#' @return (data-frame) a chromatogram.
-#' @seealso \code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
+#' @seealso \code{\link{childXIC}, \link{alignedXIC}}
 #' @keywords internal
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' \dontrun{
-#' mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], mergeStrategy="ref")
+#' plot(mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], mergeStrategy="ref"), type = "l")
 #' }
 mergeXIC <- function(XIC.ref, XIC.eXp, mergeStrategy){
   # Recalculate time and intensity for merged chromatogram
@@ -170,7 +246,7 @@ mergeXIC <- function(XIC.ref, XIC.eXp, mergeStrategy){
     delta <- (XIC.ref[["time"]][np] - XIC.ref[["time"]][1])/(np -1)
     time <- seq(from = tn-delta*(np-1), to = tn, by = delta)
   } else {
-    stop("mergeStrategy is not correct.")
+    stop("mergeStrategy is not correct. Must be selected from 'ref', 'avg', 'refStart' and 'refEnd'.")
   }
   # Caveat: If chromatograms are not perfectly aligned, we may widen the peak.
   # TODO: Put weights on the intensity. Align child chromatogram to parent ones and see the fit.
@@ -179,9 +255,11 @@ mergeXIC <- function(XIC.ref, XIC.eXp, mergeStrategy){
   data.frame(time, intensity)
 }
 
+
 #' Create an aligned chromatogram
 #'
 #' Modifies chromatogram to have the same length as indices. Imputes missing values with appropriate method.
+#' Time and intensity for the flanking missing indices are set as NA.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -189,14 +267,10 @@ mergeXIC <- function(XIC.ref, XIC.eXp, mergeStrategy){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-23
+#' @inherit imputeChromatogram
 #' @param XIC (data-frame) first column is time, second column is intensity.
 #' @param indices (integer) vector of monotonically increasing integers.
-#' @param method (string) must be either "spline", "sgolay" or "linear".
-#' @param polyOrd (integer) must be less than kernelLen.
-#' @param kernelLen (integer) must be an odd integer.
-#' @param splineMethod (string) must be either "fmm" or "natural".
-#' @return (data-frame) a chromatogram.
-#' @seealso \code{\link{childXICs}, \link{imputeChromatogram}}
+#' @seealso \code{\link{childXIC}, \link{imputeChromatogram}}
 #' @keywords internal
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
@@ -206,7 +280,7 @@ mergeXIC <- function(XIC.ref, XIC.eXp, mergeStrategy){
 #' colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
 #' alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
 #' \dontrun{
-#' alignedXIC(XICs.ref[[1]], alignedIndices[,"indexAligned.ref"])
+#' plot(alignedXIC(XICs.ref[[1]], alignedIndices[,"indexAligned.ref"]), type = "l")
 #' }
 alignedXIC <- function(XIC, indices, method = "spline", polyOrd = 4, kernelLen = 9, splineMethod = "fmm"){
   XIC.imp <- XIC[indices, ] # Create XIC of the same length as of indices
