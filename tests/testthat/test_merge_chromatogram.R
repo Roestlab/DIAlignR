@@ -12,16 +12,10 @@ test_that("test_childXICs",{
 
   expect_identical(length(outData), 2L)
   expect_identical(dim(outData[[1]][[6]]), c(177L, 2L))
-  expData <- as.matrix(data.frame(indexAligned.ref = c(NA_integer_, 176L, NA_integer_),
-                                  indexAligned.eXp = c(174L, 175L, 176L),
-                                  tAligned.ref = c(5574.1, 5575.8, NA_real_),
-                                  tAligned.eXp = c(5579.2, 5582.6, 5586.1),
-                                  alignedChildTime = c(5576.65, 5579.2, 5582.70)))
-  expect_equal(outData[[2]][202:204,], expData)
 
-  expData <- data.frame(time = seq(4963.05, length.out = 3, by = 3.4),
-                        intensity6 = c(0.18686478, 0.35504976, 0.67275190))
-  expect_equal(outData[[1]][[6]][1:3,], expData)
+  data(masterXICs_DIAlignR, package="DIAlignR")
+  expData <- masterXICs_DIAlignR
+  expect_equal(outData, expData)
 })
 
 test_that("test_childXIC",{

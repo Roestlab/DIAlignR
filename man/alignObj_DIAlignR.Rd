@@ -34,7 +34,7 @@ to generate the example data.
 alignObj_DIAlignR
 }
 \description{
-Aligned XICs of peptide 14299_QFNNTDIVLLEDFQK/3 across two SWATH runs:
+Aligned XICs of peptide (ID = 4618) 14299_QFNNTDIVLLEDFQK/3 across two SWATH runs:
 
 run1 : hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML\cr
 run2 : hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML

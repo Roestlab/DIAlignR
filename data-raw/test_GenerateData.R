@@ -63,6 +63,20 @@ generateAlignObj <- function(){
   save(alignObj_DIAlignR, file = "alignObj_DIAlignR.rda", version = 2)
 }
 
+generateMasterXICs <- function(){
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  data(alignObj_DIAlignR, package="DIAlignR")
+  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
+  colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
+  alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
+  newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices)
+
+  masterXICs_DIAlignR <- newXICs
+  save(masterXICs_DIAlignR, file = "masterXICs_DIAlignR.rda", version = 2)
+}
+
 generateMergedOsw <- function(){
   transition_group_id <- c("19051_KLIVTSEGC[160]FK/2", "19052_KLIVTSEGC[160]FK/3",
                            "1182_GLPIVNLLK/2", "997_SGEISLSSWEN/2", "13597_VVAGGELFKESVVVNDK/3", "4080_VITMPAGVELTNNNNVITVK/3",
