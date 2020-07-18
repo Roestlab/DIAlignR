@@ -36,7 +36,7 @@ childXICs(
 \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
 }
 \value{
-(list) a list of chromatograms.
+(list) the first element is a list of chromatograms. The second element is aligned parent time-vectors.
 }
 \description{
 Get child chromatograms from parents

@@ -10,7 +10,7 @@
 #' Date: 2020-05-23
 #' @param XICs.ref (list of data-frames) extracted ion chromatograms from reference run.
 #' @param XICs.eXp (list of data-frames) extracted ion chromatograms from experiment run.
-#' @return (list) a list of chromatograms.
+#' @return  (list) the first element is a list of chromatograms. The second element is aligned parent time-vectors.
 #' @seealso \code{\link{childXIC}, \link{mergeStrategy}}
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
@@ -36,6 +36,12 @@ childXICs <- function(XICs.ref, XICs.eXp, alignedIndices, method = "spline", pol
     colnames(xic) <- c("time", paste0("intensity", i))
     child_xics[[i]] <- xic
   }
+  x <- alignedVec[, "alignedChildTime"]
+  if(!all(x == cummax(v = cummax(ifelse(is.na(x), -Inf, x))), na.rm = TRUE)){
+    warning("Child run does not have monotonically increasing time.")
+  }
+  # Interpolate middle values.
+  alignedVec[,3:5] <- sapply(3:5, function(i) zoo::na.approx(alignedVec[,i], na.rm = FALSE))
   list(child_xics, alignedVec)
   }
 
@@ -111,7 +117,9 @@ childXIC <- function(XIC.ref, XIC.eXp, alignedIndices, method = "spline", polyOr
 
     flankStart <- match(endTime, newXIC[["time"]])
     len <- nrow(newXIC)
-    if(flankStart != len) alignedChildTime[(flankStart+1):len] <- newXIC[["time"]][(flankStart+1):len]
+    stp <- length(alignedChildTime)
+    strt <- stp-(len-flankStart)+1
+    if(flankStart != len) alignedChildTime[strt:stp] <- newXIC[["time"]][(flankStart+1):len]
   }
 
   # Group indices, time and aligned time. This will be used to map features on child XIC.
@@ -143,7 +151,7 @@ childXIC <- function(XIC.ref, XIC.eXp, alignedIndices, method = "spline", polyOr
 #'        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
 #' chrom <- data.frame(time, y)
 #' chrom2 <- data.frame(time = c(3013.4, 3016, 3020), intensity = c(1.2, 3.4, 5.6))
-#' flankSeq <- c(T,T,F,F,F,F,F,F,F,F,F,T,T,T)
+#' flankSeq <- as.logical(c(1,1,0,0,0,0,0,0,0,0,0,0,1,1))
 #' \dontrun{
 #' addFlankToLeft(flankSeq, chrom, chrom2)
 #' }
@@ -183,7 +191,7 @@ addFlankToLeft <- function(flankSeq, XIC, newXIC){
 #'        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
 #' chrom <- data.frame(time, y)
 #' chrom2 <- data.frame(time = c(3013.4, 3016, 3020), intensity = c(1.2, 3.4, 5.6))
-#' flankSeq <- c(T,T,F,F,F,F,F,F,F,F,F,T,T,T)
+#' flankSeq <- as.logical(c(1,1,0,0,0,0,0,0,0,0,0,0,1,1))
 #' \dontrun{
 #' addFlankToRight(flankSeq, chrom, chrom2)
 #' }

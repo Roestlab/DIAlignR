@@ -1,5 +1,7 @@
 context("Generate test data")
 
+# save(ascii = TRUE) : File will be a text file instead of binary.
+# saved data is compressed, thats why size is different than pryr::object_size
 generateDIAlignRdata <- function(){
   dataPath <- system.file("extdata", package = "DIAlignR")
   oswMerged <- TRUE
@@ -46,18 +48,17 @@ generateDIAlignRchrom <- function(){
   write.table(NativeIDS, file = "NativeIDs.csv", sep = ",", row.names= FALSE)
   }
 
-
 generateAlignObj <- function(){
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   data(oswFiles_DIAlignR, package="DIAlignR")
   XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
   XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
+  globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
                                   maxFdrGlobal = 0.05, spanvalue = 0.1)
   alignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
                           normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
                           geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
-                          gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100, objType = "heavy")
+                          gapQuantile = 0.5, hardConstrain = FALSE, kerLen = 9, samples4gradient = 100, objType = "heavy")
   alignObj_DIAlignR <- alignObj
   save(alignObj_DIAlignR, file = "alignObj_DIAlignR.rda", version = 2)
 }

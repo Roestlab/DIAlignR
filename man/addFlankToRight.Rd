@@ -27,7 +27,7 @@ y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.54468
        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
 chrom <- data.frame(time, y)
 chrom2 <- data.frame(time = c(3013.4, 3016, 3020), intensity = c(1.2, 3.4, 5.6))
-flankSeq <- c(T,T,F,F,F,F,F,F,F,F,F,T,T,T)
+flankSeq <- as.logical(c(1,1,0,0,0,0,0,0,0,0,0,0,1,1))
 \dontrun{
 addFlankToRight(flankSeq, chrom, chrom2)
 }

@@ -14,12 +14,12 @@ test_that("test_childXICs",{
   expect_identical(dim(outData[[1]][[6]]), c(177L, 2L))
   expData <- as.matrix(data.frame(indexAligned.ref = c(NA_integer_, 176L, NA_integer_),
                                   indexAligned.eXp = c(174L, 175L, 176L),
-                                  tAligned.ref = c(NA, 5575.8, NA),
+                                  tAligned.ref = c(5574.1, 5575.8, NA_real_),
                                   tAligned.eXp = c(5579.2, 5582.6, 5586.1),
-                                  alignedChildTime = c(NA, 5579.2, NA)))
-  expect_equal(outData[[2]][203:205,], expData)
+                                  alignedChildTime = c(5576.65, 5579.2, 5582.70)))
+  expect_equal(outData[[2]][202:204,], expData)
 
-  expData <- data.frame(time = seq(4952.8, length.out = 3, by = 3.4),
+  expData <- data.frame(time = seq(4963.05, length.out = 3, by = 3.4),
                         intensity6 = c(0.18686478, 0.35504976, 0.67275190))
   expect_equal(outData[[1]][[6]][1:3,], expData)
 })
@@ -38,23 +38,23 @@ test_that("test_childXIC",{
   # 177 = 176 + 1. 176 indices from Reference chromatogram.
   # +1 from the flanking signal at the tail of experiment chromatogram.
   expect_identical(dim(outData[[1]]), c(177L, 2L))
-  expect_identical(dim(outData[[2]]), c(205L, 5L))
+  expect_identical(dim(outData[[2]]), c(204L, 5L))
   expData <- as.matrix(data.frame(indexAligned.ref = c(NA_integer_, 176L, NA_integer_),
              indexAligned.eXp = c(174L, 175L, 176L),
-             tAligned.ref = c(NA, 5575.8, NA),
+             tAligned.ref = c(NA_real_, 5575.8, NA_real_),
              tAligned.eXp = c(5579.2, 5582.6, 5586.1),
-             alignedChildTime = c(NA, 5579.2, NA)))
-  expect_equal(outData[[2]][203:205,], expData)
+             alignedChildTime = c(NA_real_, 5579.2, 5582.70)))
+  expect_equal(outData[[2]][202:204,], expData)
 
   outData2 <- childXIC(XIC.ref, XIC.eXp, alignedIndices, keepFlanks = FALSE)
   # 158 = 176 -19 +1. 176 indices from Reference chromatogram. 1:18 indices are flanking in the reference chromatogram.
-  expect_identical(dim(outData2[[1]]), c(158L, 2L))
+  expect_identical(dim(outData2[[1]]), c(164L, 2L))
   expData <- as.matrix(data.frame(indexAligned.ref = c(NA_integer_, 176L, NA_integer_),
                                   indexAligned.eXp = c(174L, 175L, 176L),
                                   tAligned.ref = c(NA, 5575.8, NA),
                                   tAligned.eXp = c(5579.2, 5582.6, 5586.1),
                                   alignedChildTime = c(NA, 5579.2, NA)))
-  expect_equal(outData2[[2]][203:205,], expData)
+  expect_equal(outData2[[2]][202:204,], expData)
 })
 
 test_that("test_addFlankToLeft",{
@@ -63,13 +63,13 @@ test_that("test_addFlankToLeft",{
          4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
   chrom <- data.frame(time, y)
   chrom2 <- data.frame(time = c(3013.4, 3016, 3020), intensity = c(1.2, 3.4, 5.6))
-  flankSeq <- c(T,T,F,F,F,F,F,F,F,F,F,F,T,T)
+  flankSeq <- as.logical(c(1,1,0,0,0,0,0,0,0,0,0,0,1,1))
   outData <- addFlankToLeft(flankSeq, chrom, chrom2)
   expData <-  data.frame(time = c(3006.6, 3010, 3013.4, 3016, 3020),
                          intensity = c(0.2050595, 0.885007, 1.2, 3.4, 5.6))
   expect_equal(outData, expData, tolerance = 1e-03)
 
-  flankSeq <- c(F,F,F,F,F,F,F,F,F,F,F,F,T,T)
+  flankSeq <- as.logical(c(0,0,0,0,0,0,0,0,0,0,0,0,1,1))
   expect_error(addFlankToLeft(flankSeq, chrom, chrom2))
 })
 
@@ -79,13 +79,13 @@ test_that("test_addFlankToRight",{
          4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
   chrom <- data.frame(time, y)
   chrom2 <- data.frame(time = c(3013.4, 3016, 3020), intensity = c(1.2, 3.4, 5.6))
-  flankSeq <- c(T,T,F,F,F,F,F,F,F,F,F,F,T,T)
+  flankSeq <- as.logical(c(1,1,0,0,0,0,0,0,0,0,0,0,1,1))
   outData <- addFlankToRight(flankSeq, chrom, chrom2)
   expData <-  data.frame(time = c(3013.4, 3016, 3020, 3023.4, 3026.8),
                          intensity = c(1.2, 3.4, 5.6, 0.2009581, 0.1420923))
   expect_equal(outData, expData, tolerance = 1e-03)
 
-  flankSeq <- c(T,T,F,F,F,F,F,F,T,F,F,F,F,F)
+  flankSeq <- as.logical(c(1,1,0,0,0,0,0,0,0,0,0,0,0,0))
   expect_error(addFlankToRight(flankSeq, chrom, chrom2))
 })
 
