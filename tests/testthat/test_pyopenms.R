@@ -9,7 +9,7 @@ test_that("test_addXIC",{
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
   expriment <- ropenms$MSExperiment()
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
-  xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
+  xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]][[1]]
   addXIC(ropenms, expriment, xic, 34L)
   chroms <- expriment$getChromatograms()
 
@@ -27,7 +27,7 @@ test_that("test_createMZML",{
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
   expriment <- ropenms$MSExperiment()
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
-  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]]
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]]
   transitionIDs <- list(c(35L, 36L, 37L, 38L, 39L, 410L))
   filename <- "temp.chrom.mzML"
   DIAlignR:::createMZML(ropenms, filename, XICs, transitionIDs)

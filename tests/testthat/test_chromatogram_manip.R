@@ -114,7 +114,7 @@ test_that("test_smoothXICs", {
 
 test_that("test_smoothSingleXIC", {
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
-  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]]
   outData <- trimXICs(XICs, 0.04)[[2]]
   time <- c(5248.1, 5251.5, 5254.9, 5258.3, 5261.7, 5265.1, 5268.5, 5272.0, 5275.4)
   X27707 <- c(0.5315190, 0.3346700, 1.4568230, 0.5905989, 0.5905989, 0.5905989, 0.7086883,

@@ -29,8 +29,8 @@ test_that("test_mappedRTfromAlignObj", {
   AlignObj <- testAlignObj()
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
-  tVec.ref <-  XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
-  tVec.eXp <-  XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]][, "time"]
+  tVec.ref <-  XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]][[1]][, "time"]
+  tVec.eXp <-  XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]][[1]][, "time"]
   expect_equal(mappedRTfromAlignObj(refRT= 5238.35, tVec.ref, tVec.eXp, AlignObj), 5241.3)
 })
 

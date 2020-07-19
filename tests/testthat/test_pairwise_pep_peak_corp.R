@@ -5,9 +5,9 @@ test_that("test_getAlignObj", {
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
-  XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   XICs.ref <- smoothXICs(XICs.ref, type = "sgolay", kernelLen = 13, polyOrd = 4)
-  XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   XICs.eXp <- smoothXICs(XICs.eXp, type = "sgolay", kernelLen = 13, polyOrd = 4)
   globalFit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
   outData <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 38.6594179136227,
@@ -24,8 +24,8 @@ test_that("test_getMappedRT", {
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
-  XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+  XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   adaptiveRT <- 77.82315 #3.5*Loess.fit$s
   Loess.fit <- getLOESSfit(oswFiles, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
   outData <- getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
@@ -41,8 +41,8 @@ test_that("test_getAlignedTimes", {
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
-  XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+  XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   adaptiveRT <- 77.82315 #3.5*Loess.fit$s
   Loess.fit <- getLOESSfit(oswFiles, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
   outData <- getAlignedTimes(XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",
@@ -65,8 +65,8 @@ test_that("test_getAlignedIndices", {
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
-  XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+  XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   adaptiveRT <- 77.82315 #3.5*Loess.fit$s
   Loess.fit <- getLOESSfit(oswFiles, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
   outData <- getAlignedIndices(XICs.ref, XICs.eXp, Loess.fit, alignType = "hybrid",

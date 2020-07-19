@@ -3,8 +3,8 @@ context("Merge two chromatograms")
 test_that("test_childXICs",{
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   data(alignObj_DIAlignR, package="DIAlignR")
-  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
   colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
   alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
@@ -21,8 +21,8 @@ test_that("test_childXICs",{
 test_that("test_childXIC",{
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   data(alignObj_DIAlignR, package="DIAlignR")
-  XIC.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
-  XIC.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
+  XIC.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]][[1]]
+  XIC.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]][[1]]
   alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
   colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
   alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
