@@ -1,13 +1,4 @@
 context("Merge two chromatograms")
-envName <- "TricEnvr"
-
-# helper function to skip tests if we don't have the 'foo' module
-skip_if_no_pyopenms <- function() {
-  ropenms <- try(get_ropenms(condaEnv = envName, useConda=TRUE))
-  no_ropenms <- is(ropenms, "try-error")
-  if(no_ropenms)
-    skip("ropenms not available for testing.")
-}
 
 test_that("test_get_ropenms",{
   skip_if_no_pyopenms()
@@ -15,8 +6,8 @@ test_that("test_get_ropenms",{
 
 test_that("test_addXIC",{
   skip_if_no_pyopenms()
-  ropenms = get_ropenms(condaEnv = envName, useConda=TRUE)
-  expriment = ropenms$MSExperiment()
+  ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
+  expriment <- ropenms$MSExperiment()
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
   xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
   addXIC(ropenms, expriment, xic, 34L)

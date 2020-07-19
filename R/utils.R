@@ -220,7 +220,7 @@ testAlignObj <- function(){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-01
-#' @param params (list) parameters are entered as list.
+#' @param params (list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.
 #' @examples
 #' params <- paramsDIAlignR()
 #' \dontrun{
@@ -291,7 +291,7 @@ checkParams <- function(params){
     stop("integrationType must be either intensity_sum, trapezoid or simpson.")
   }
 
-  if(!any(params[["baselineType"]] %in% c("base_to_base", "vertical_division_min", "vertical_division_max"))){
+  if(!any(params[["baselineType"]] %in% c("none","base_to_base", "vertical_division_min", "vertical_division_max"))){
     stop("baselineType must be either base_to_base, vertical_division_min or vertical_division_max.")
   }
 
@@ -331,8 +331,9 @@ checkParams <- function(params){
 #'  considered for quantification after the alignment.}
 #' \item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
 #'  from "intensity_sum", "trapezoid", "simpson".}
+#' \item{baseSubtraction}{{logical} TRUE: remove background from peak signal using estimated noise levels.}
 #' \item{baselineType}{(string) method to estimate the background of a peak contained in XICs. Must be
-#'  from "base_to_base", "vertical_division_min", "vertical_division_max".}
+#'  from "none", "base_to_base", "vertical_division_min", "vertical_division_max".}
 #' \item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
 #' \item{recalIntensity}{(logical) recalculate intensity for all analytes.}
 #' \item{fillMissing}{(logical) calculate intensity for ananlytes for which features are not found.}
@@ -368,7 +369,7 @@ paramsDIAlignR <- function(){
   params <- list( runType = "DIA_proteomics", maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
                   context = "experiment-wide", unalignedFDR = 0.01, alignedFDR = 0.05,
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
-                  recalIntensity = FALSE, fillMissing = TRUE,
+                  recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,
                   XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
                   globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                   RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
@@ -418,4 +419,14 @@ alignmentStats <- function(finalTbl, params){
 
   if(params[["fillMissing"]]) message(sum(is.na(finalTbl$intensity)),
                           " precursors had part of the aligned peak out of the chromatograms or missing chromatograms, hence could not be quantified.")
+}
+
+
+envName <- "TricEnvr"
+# helper function to skip tests if we don't have the 'foo' module
+skip_if_no_pyopenms <- function() {
+  ropenms <- try(get_ropenms(condaEnv = envName, useConda=TRUE))
+  no_ropenms <- is(ropenms, "try-error")
+  if(no_ropenms)
+    skip("ropenms not available for testing.")
 }
