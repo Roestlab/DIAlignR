@@ -9,17 +9,20 @@ generateDIAlignRdata <- function(){
   oswFiles_DIAlignR <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2)
 
-  analytes <- "14299_QFNNTDIVLLEDFQK/3"
+  analytes <- 4618L
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
             "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-  outData <- getXICs4AlignObj(dataPath, runs, oswFiles_DIAlignR, analytes, XICfilter = "none")
+  mzPntrs <- getMZMLpointers(filenames)
+  precursors <- getPrecursorByID(analytes,filenames)
+  prec2chromIndex <- getChromatogramIndices(filenames, precursors, mzPntrs)
+  outData <- getXICs4AlignObj(mzPntrs, filenames, runs, prec2chromIndex, analytes)
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
   save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
 
-  precursors <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics")
-  precursors_DIAlignR <- precursors
-  save(precursors_DIAlignR, file = "precursors_DIAlignR.rda", version = 2)
+  # precursors <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics")
+  # precursors_DIAlignR <- precursors
+  # save(precursors_DIAlignR, file = "precursors_DIAlignR.rda", version = 2)
 
   multipeptide <- getMultipeptide(precursors, oswFiles_DIAlignR)
   multipeptide_DIAlignR <- multipeptide
@@ -53,7 +56,7 @@ generateAlignObj <- function(){
   data(oswFiles_DIAlignR, package="DIAlignR")
   XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
   XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+  globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2", fitType = "loess",
                                   maxFdrGlobal = 0.05, spanvalue = 0.1)
   alignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
                           normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,

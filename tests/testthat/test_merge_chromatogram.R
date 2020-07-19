@@ -32,23 +32,23 @@ test_that("test_childXIC",{
   # 177 = 176 + 1. 176 indices from Reference chromatogram.
   # +1 from the flanking signal at the tail of experiment chromatogram.
   expect_identical(dim(outData[[1]]), c(177L, 2L))
-  expect_identical(dim(outData[[2]]), c(204L, 5L))
+  expect_identical(dim(outData[[2]]), c(205L, 5L))
   expData <- as.matrix(data.frame(indexAligned.ref = c(NA_integer_, 176L, NA_integer_),
              indexAligned.eXp = c(174L, 175L, 176L),
              tAligned.ref = c(NA_real_, 5575.8, NA_real_),
              tAligned.eXp = c(5579.2, 5582.6, 5586.1),
              alignedChildTime = c(NA_real_, 5579.2, 5582.70)))
-  expect_equal(outData[[2]][202:204,], expData)
+  expect_equal(outData[[2]][203:205,], expData)
 
   outData2 <- childXIC(XIC.ref, XIC.eXp, alignedIndices, keepFlanks = FALSE)
   # 158 = 176 -19 +1. 176 indices from Reference chromatogram. 1:18 indices are flanking in the reference chromatogram.
-  expect_identical(dim(outData2[[1]]), c(164L, 2L))
+  expect_identical(dim(outData2[[1]]), c(158L, 2L))
   expData <- as.matrix(data.frame(indexAligned.ref = c(NA_integer_, 176L, NA_integer_),
                                   indexAligned.eXp = c(174L, 175L, 176L),
                                   tAligned.ref = c(NA, 5575.8, NA),
                                   tAligned.eXp = c(5579.2, 5582.6, 5586.1),
                                   alignedChildTime = c(NA, 5579.2, NA)))
-  expect_equal(outData2[[2]][202:204,], expData)
+  expect_equal(outData2[[2]][203:205,], expData)
 })
 
 test_that("test_addFlankToLeft",{
