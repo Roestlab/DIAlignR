@@ -34,8 +34,10 @@
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+#' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
 #' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
@@ -107,8 +109,10 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+#' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
 #' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
@@ -166,8 +170,10 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+#' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
 #' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
@@ -231,10 +237,12 @@ getAlignedTimes <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
-#'  maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+#' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
+#' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+#'   fitType = "loess", maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
 #' \dontrun{
 #' getAlignedIndices(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
@@ -247,13 +255,13 @@ getAlignedIndices <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptive
                             normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
                             OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain,
                             samples4gradient, objType = "light"){
-  AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
+  alignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                           normalization, simType = simMeasure, goFactor, geFactor,
                           cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
                           kerLen, hardConstrain, samples4gradient, objType)
-  alignedIndices <- cbind(AlignObj@indexA_aligned,
-                          AlignObj@indexB_aligned,
-                          AlignObj@score)
+  alignedIndices <- cbind(alignObj@indexA_aligned,
+                          alignObj@indexB_aligned,
+                          alignObj@score)
   colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp", "score")
   alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
   alignedIndices

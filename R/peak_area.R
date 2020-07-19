@@ -22,13 +22,13 @@
 #' @seealso \code{\link{getMultipeptide}, \link{setAlignmentRank}}
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
-#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 #' \dontrun{
 #' calculateIntensity(XICs, 5220, 5261, integrationType = "intensity_sum",
 #'  baselineType = "base_to_base", fitEMG = FALSE)
 #' }
 calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
-                               fitEMG, baseSubtraction = TRUE){
+                               fitEMG = FALSE, baseSubtraction = TRUE){
   time <- lapply(XICs, `[[`, 1)
   intensityList <- lapply(XICs, `[[`, 2)
   intensity <- areaIntegrator(time, intensityList, left, right, integrationType, baselineType,

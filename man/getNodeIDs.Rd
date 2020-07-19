@@ -19,7 +19,7 @@ Get node IDs from tree
 m <- matrix(c(0,1,2,3, 1,0,1.5,1.5, 2,1.5,0,1, 3,1.5,1,0), byrow = TRUE,
             ncol = 4, dimnames = list(c("run1", "run2", "run3", "run4"),
                                       c("run1", "run2", "run3", "run4")))
-distMat <- as.dist(m, diag = FALSE, upper = FALSE)
+distMat <- as.dist(m)
 \dontrun{
 tree <- getTree(distMat)
 getNodeIDs(tree)

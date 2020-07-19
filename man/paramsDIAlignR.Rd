@@ -19,8 +19,9 @@ A list of parameters:
  considered for quantification after the alignment.}
 \item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
  from "intensity_sum", "trapezoid", "simpson".}
+\item{baseSubtraction}{{logical} TRUE: remove background from peak signal using estimated noise levels.}
 \item{baselineType}{(string) method to estimate the background of a peak contained in XICs. Must be
- from "base_to_base", "vertical_division_min", "vertical_division_max".}
+ from "none", "base_to_base", "vertical_division_min", "vertical_division_max".}
 \item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
 \item{recalIntensity}{(logical) recalculate intensity for all analytes.}
 \item{fillMissing}{(logical) calculate intensity for ananlytes for which features are not found.}

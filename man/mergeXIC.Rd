@@ -32,8 +32,8 @@ There are three startegies for calculating time to keep sampling rate equal to p
 
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
-XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"]][["14299_QFNNTDIVLLEDFQK/3"]]
 \dontrun{
 plot(mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], mergeStrategy="ref"), type = "l")
 }

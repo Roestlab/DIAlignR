@@ -19,7 +19,7 @@
 #' ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
 #' expriment <- ropenms$MSExperiment()
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
-#' xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
+#' xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]][[1]]
 #' \dontrun{
 #' addXIC(ropenms, expriment, xic, 34L)
 #' chroms <- expriment$getChromatograms()
@@ -57,7 +57,7 @@ addXIC <- function(ropenms, expriment, xic, nativeId){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
-#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]]
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]]
 #' nativeIds <- list(27706:27711)
 #' ropenms <- get_ropenms(condaEnv = "TricEnvr")
 #' createMZML(ropenms, "testfile.chrom.mzML", XICs, nativeIds)

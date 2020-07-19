@@ -24,6 +24,8 @@ labels(distMat); length(distMat)
 \dontrun{
 getTree(distMat)
 }
+tree <- ape::read.tree(text = "(run1:9,(run2:7,run0:2)master2:5)master1;")
+plot(tree, show.node.label = TRUE)
 }
 \seealso{
 \code{\link[phangorn]{upgma}, \link{getNodeIDs}}

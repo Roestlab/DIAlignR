@@ -181,7 +181,7 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' @return area (numeric).
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
-#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 #' l1 <- lapply(XICs, `[[`, 1)
 #' l2 <- lapply(XICs, `[[`, 2)
 #' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE, TRUE)
@@ -227,8 +227,8 @@ areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, f
 #' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
 #' data(oswFiles_DIAlignR, package="DIAlignR")
 #' oswFiles <- oswFiles_DIAlignR
-#' XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' XICs.ref <- XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+#' XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 #' tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
 #' tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
 #' B1p <- 4964.752

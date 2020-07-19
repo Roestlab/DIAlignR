@@ -15,8 +15,8 @@ getChromatogramIndices(fileInfo, precursors, mzPntrs)
 }
 \value{
 (list) A list of dataframes having following columns:
-\item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
-\item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
+\item{transition_group_id}{(string) it is PRECURSOR.ID from osw file.}
+\item{chromatogramIndex}{(integer) index of chromatogram in mzML file.}
 }
 \description{
 This function reads the header of chromatogram files. It then fetches chromatogram indices by matching transition_id(osw) with chromatogramID(mzml).

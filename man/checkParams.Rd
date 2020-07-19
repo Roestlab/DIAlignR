@@ -7,7 +7,7 @@
 checkParams(params)
 }
 \arguments{
-\item{params}{(list) parameters are entered as list.}
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 }
 \description{
 Parameters are defined in the \code{\link{paramsDIAlignR}} function. If parameters are found

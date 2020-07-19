@@ -72,8 +72,10 @@ Outputs AlignObj from an alignment of two XIC-groups
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 data(oswFiles_DIAlignR, package="DIAlignR")
-XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+run1 <- "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"
+run2 <- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"
+XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
 globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
  maxFdrGlobal = 0.05, spanvalue = 0.1)
 AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,

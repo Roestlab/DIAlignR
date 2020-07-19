@@ -167,8 +167,8 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 #' @param precursors (data-frame) Atleast two columns transition_group_id and transition_ids are required.
 #' @param mzPntrs A list of mzRpwiz.
 #' @return (list) A list of dataframes having following columns:
-#' \item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
-#' \item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
+#' \item{transition_group_id}{(string) it is PRECURSOR.ID from osw file.}
+#' \item{chromatogramIndex}{(integer) index of chromatogram in mzML file.}
 #'
 #' @seealso \code{\link{chromatogramIdAsInteger}, \link{mapPrecursorToChromIndices}}
 #' @examples

@@ -205,11 +205,9 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL,
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-#' \dontrun{
 #' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
 #' context = "experiment-wide", maxPeptideFdr = 0.05)
 #' dim(precursorsInfo) # 322  6
-#' }
 #' @export
 getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
                           context = "global", maxPeptideFdr = 0.05){

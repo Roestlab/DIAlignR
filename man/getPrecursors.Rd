@@ -38,11 +38,9 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-\dontrun{
 precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
 context = "experiment-wide", maxPeptideFdr = 0.05)
 dim(precursorsInfo) # 322  6
-}
 }
 \seealso{
 \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}

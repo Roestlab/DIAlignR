@@ -4,7 +4,12 @@
 \alias{msplit_masterLib}
 \title{Get master library from MSPLIT}
 \usage{
-msplit_masterLib(msplitFilteredPattern, msplitAssayPattern, spanvalue = 0.1)
+msplit_masterLib(
+  msplitFilteredPattern,
+  msplitAssayPattern,
+  alignType = "loess",
+  spanvalue = 0.1
+)
 }
 \arguments{
 \item{msplitFilteredPattern}{(string) pattern of MSPLITfiltered.txt files. Pattern must start with '*'.}
@@ -20,6 +25,12 @@ msplit_masterLib(msplitFilteredPattern, msplitAssayPattern, spanvalue = 0.1)
 MSPLIT returns an OpenSWATH assay libraries which can be combined to obtain a comprehensive library
 This library allows to perform false-discovery rate extimation on all samples together and further use
 alignment algorithm of DIAlignR.
+}
+\details{
+In star alignment, a base library is picked among n runs. Other n-1 runs are aligned to it either by linear
+or loess alignment. Using qvalue IDs are picked from a run. These IDs include mz, library intensities and
+aligned retention time. IDs are added to the base library that is , finally, written as masterLib.tsv in the working
+directory.
 }
 \examples{
 msplitFilteredPattern <- "*_MSPLITfiltered.txt"
