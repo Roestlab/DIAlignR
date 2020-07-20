@@ -20,10 +20,6 @@ generateDIAlignRdata <- function(){
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
   save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
 
-  # precursors <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics")
-  # precursors_DIAlignR <- precursors
-  # save(precursors_DIAlignR, file = "precursors_DIAlignR.rda", version = 2)
-
   multipeptide <- getMultipeptide(precursors, oswFiles_DIAlignR)
   multipeptide_DIAlignR <- multipeptide
   save(multipeptide_DIAlignR, file = "multipeptide_DIAlignR.rda", version = 2)
@@ -54,8 +50,10 @@ generateDIAlignRchrom <- function(){
 generateAlignObj <- function(){
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   data(oswFiles_DIAlignR, package="DIAlignR")
-  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+  run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
   globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2", fitType = "loess",
                                   maxFdrGlobal = 0.05, spanvalue = 0.1)
   alignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
@@ -69,12 +67,15 @@ generateAlignObj <- function(){
 generateMasterXICs <- function(){
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   data(alignObj_DIAlignR, package="DIAlignR")
-  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+  run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
   alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
   colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
   alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
-  newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices)
+  newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices, method = "spline", splineMethod = "fmm",
+                       mergeStrategy = "avg", keepFlanks = TRUE)
 
   masterXICs_DIAlignR <- newXICs
   save(masterXICs_DIAlignR, file = "masterXICs_DIAlignR.rda", version = 2)
