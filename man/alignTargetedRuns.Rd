@@ -6,7 +6,7 @@
 \usage{
 alignTargetedRuns(
   dataPath,
-  outFile = "DIAlignR.csv",
+  outFile = "DIAlignR.tsv",
   oswMerged = TRUE,
   runs = NULL,
   runType = "DIA_Proteomics",
@@ -131,7 +131,7 @@ It then align XICs of its reference XICs. Best peak, which has lowest m-score, a
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-alignTargetedRuns(dataPath, outFile = "testDIAlignR.csv", oswMerged = TRUE,
+alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", oswMerged = TRUE,
  context = "experiment-wide", maxPeptideFdr = 0.05)
 }
 \references{

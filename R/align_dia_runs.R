@@ -56,12 +56,12 @@
 #' @seealso \code{\link{getRunNames}, \link{getFeatures}, \link{setAlignmentRank}, \link{getMultipeptide}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' alignTargetedRuns(dataPath, outFile = "testDIAlignR.csv", oswMerged = TRUE,
+#' alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", oswMerged = TRUE,
 #'  context = "experiment-wide", maxPeptideFdr = 0.05)
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
-alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TRUE, runs = NULL,
+alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TRUE, runs = NULL,
                               runType = "DIA_Proteomics", context = "global", maxPeptideFdr = 0.05,
                               maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
                               globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
@@ -202,7 +202,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 
   #### Write tables to the disk  #######
   finalTbl <- writeTables(fileInfo, multipeptide, precursors)
-  utils::write.table(finalTbl, file = outFile, sep = ",", row.names = FALSE)
+  utils::write.table(finalTbl, file = outFile, sep = "\t", row.names = FALSE)
   message("Retention time alignment across runs is done.")
   message(paste0(outFile, " file has been written."))
 

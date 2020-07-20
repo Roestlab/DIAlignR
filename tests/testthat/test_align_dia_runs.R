@@ -3,7 +3,7 @@ context("Align DIA runs")
 test_that("test_alignTargetedRuns",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   expect_warning(
-    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.csv", oswMerged = TRUE,
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", oswMerged = TRUE,
                                runs = NULL, runType = "DIA_Proteomics", context = "experiment-wide",
                       maxPeptideFdr = 1.00, maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
                     globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
@@ -17,8 +17,8 @@ test_that("test_alignTargetedRuns",{
                     baselineType = "base_to_base", integrationType = "intensity_sum",
                     fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE)
   )
-  outData <- read.table("temp.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
-  expData <- read.table("test.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
+  expData <- read.table("test.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
   expect_identical(dim(outData), dim(expData))
   expect_identical(colnames(outData), colnames(expData))
   expect_identical(outData[["peptide"]], expData[["peptide"]])
@@ -26,12 +26,12 @@ test_that("test_alignTargetedRuns",{
   for(i in 3:13){
     expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
   }
-  file.remove("temp.csv")
+  file.remove("temp.tsv")
 
   runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
   expect_warning(
-    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.csv", oswMerged = TRUE,
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", oswMerged = TRUE,
                                runs = runs, runType = "DIA_Proteomics", context = "experiment-wide",
                                maxPeptideFdr = 1.00, maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
                                globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
@@ -45,8 +45,8 @@ test_that("test_alignTargetedRuns",{
                                baselineType = "base_to_base", integrationType = "intensity_sum",
                                fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE)
   )
-  outData <- read.table("temp.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
-  expData <- read.table("test2.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
+  expData <- read.table("test2.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
   expect_identical(dim(outData), dim(expData))
   expect_identical(colnames(outData), colnames(expData))
   expect_identical(outData[["peptide"]], expData[["peptide"]])
@@ -54,7 +54,7 @@ test_that("test_alignTargetedRuns",{
   for(i in 3:13){
     expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
   }
-  file.remove("temp.csv")
+  file.remove("temp.tsv")
 })
 
 test_that("test_getAlignObjs",{
