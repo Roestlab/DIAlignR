@@ -42,7 +42,7 @@ test_that("test_getNodeRun",{
   expect_identical(ls(mzPntrs), c("run0", "run1", "run2", "temp"))
   expect_is(mzPntrs[["temp"]], "mzRpwiz")
   expect_equal(features$temp, childFeatures()[1,], tolerance = 1e-04)
-  expect_identical(fileInfo["temp", "chromatogramFile"], "./mzml/temp.chrom.mzML")
+  expect_identical(fileInfo["temp", "chromatogramFile"], file.path(".", "mzml", "temp.chrom.mzML"))
   expect_identical(fileInfo["temp", "runName"], "temp")
   expect_identical(prec2chromIndex$temp[,"transition_group_id"], 4618L)
   expect_identical(prec2chromIndex$temp[,"chromatogramIndex"][[1]], 1:6)
@@ -51,7 +51,7 @@ test_that("test_getNodeRun",{
   expect_identical(refRuns[["temp"]], 1L)
 
   data(masterXICs_DIAlignR, package="DIAlignR")
-  outData <- mzR::chromatograms(mzR::openMSfile("./mzml/temp.chrom.mzML", backend = "pwiz"))
+  outData <- mzR::chromatograms(mzR::openMSfile(file.path(".", "mzml", "temp.chrom.mzML"), backend = "pwiz"))
   for(i in seq_along(outData)){
     expect_equal(outData[[i]][[1]], masterXICs_DIAlignR[[1]][[i]][[1]], tolerance = 1e-04)
     expect_equal(outData[[i]][[2]], masterXICs_DIAlignR[[1]][[i]][[2]], tolerance = 1e-04)

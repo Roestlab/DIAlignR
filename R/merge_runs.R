@@ -11,27 +11,28 @@
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-06-06
 #' @inherit getChildXICs params
+#' @inheritParams traverseUp
 #' @param mergeName (string) name of the node that is generated with merging of runA and runB.
 #' @param adaptiveRTs (environment) an empty environment used to store data for downstream analysis.
 #' @param refRuns (environment) an empty environment used to store data for downstream analysis.
-#' @param ropenms (pyopenms module) get this python module through get_ropenms().
 #' @return (None)
 #' @seealso \code{\link{childXICs}, \link{getChildXICs}, \link{traverseUp}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' params <- paramsDIAlignR()
-#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+#' fileInfo <- getRunNames(dataPath = dataPath)
 #' mzPntrs <- list2env(getMZMLpointers(fileInfo))
 #' features <- list2env(getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics"))
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
 #'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
 #' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
-#' mergeName <- "master2"
+#' mergeName <- "master"
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
 #' \dontrun{
+#' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
-#'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs)
+#'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, ropenms)
 #' file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.mzML")))
 #' }
 getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,

@@ -29,7 +29,7 @@ getChildXICs(
 
 \item{precursors}{(data-frame) atleast two columns transition_group_id and transition_ids are required.}
 
-\item{prec2chromIndex}{(list) A list of dataframes having following columns: \cr
+\item{prec2chromIndex}{(list) a list of dataframes having following columns: \cr
 transition_group_id: it is PRECURSOR.ID from osw file. \cr
 chromatogramIndex: index of chromatogram in mzML file.}
 

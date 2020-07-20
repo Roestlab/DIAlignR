@@ -27,13 +27,15 @@ getNodeRun(
 
 \item{mergeName}{(string) name of the node that is generated with merging of runA and runB.}
 
+\item{dataPath}{(string) path to mzml and osw directory.}
+
 \item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
 
 \item{features}{(list of data-frames) contains features and their properties identified in each run.}
 
 \item{mzPntrs}{(list) a list of mzRpwiz.}
 
-\item{prec2chromIndex}{(list) A list of dataframes having following columns: \cr
+\item{prec2chromIndex}{(list) a list of dataframes having following columns: \cr
 transition_group_id: it is PRECURSOR.ID from osw file. \cr
 chromatogramIndex: index of chromatogram in mzML file.}
 
@@ -58,18 +60,19 @@ are also calculated and written as *_av.rda at dataPath.
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 params <- paramsDIAlignR()
-fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+fileInfo <- getRunNames(dataPath = dataPath)
 mzPntrs <- list2env(getMZMLpointers(fileInfo))
 features <- list2env(getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics"))
 precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
-mergeName <- "master2"
+mergeName <- "master"
 adaptiveRTs <- new.env()
 refRuns <- new.env()
 \dontrun{
+ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
- mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs)
+ mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, ropenms)
 file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.mzML")))
 }
 }
