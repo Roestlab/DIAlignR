@@ -57,7 +57,7 @@ test_that("test_writeTables", {
   multipeptide <- getMultipeptide(precursors, features)
   outData <- writeTables(fileInfo, multipeptide, precursors)
 
-  expData <- read.table("test.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  expData <- read.table("test.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
   expect_identical(dim(outData), dim(expData))
   expect_identical(colnames(outData), colnames(expData))
   expect_identical(outData[["peptide"]], expData[["peptide"]])
