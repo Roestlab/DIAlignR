@@ -79,7 +79,6 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
       df.eXp <- df.A
     }
     if((nrow(df.ref) + nrow(df.eXp)) == 0) next
-    alignedVec[, "alignedChildTime"] <- zoo::na.approx(alignedVec[, "alignedChildTime"], na.rm = FALSE)
     rows <- getChildFeature(XICs, alignedVec, df.ref, df.eXp, params)
     childFeature <- dplyr::bind_rows(childFeature, rows)
   }
