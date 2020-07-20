@@ -428,5 +428,5 @@ skip_if_no_pyopenms <- function() {
   ropenms <- try(get_ropenms(condaEnv = envName, useConda=TRUE))
   no_ropenms <- is(ropenms, "try-error")
   if(no_ropenms)
-    skip("ropenms not available for testing.")
+    skip("ropenms not available for testing. A conda environment with name TricEnvr is MUST for testing.")
 }

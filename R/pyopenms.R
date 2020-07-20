@@ -108,6 +108,7 @@ get_ropenms <- function(pythonPath = NULL, condaEnv = NULL, useConda=TRUE){
   } else{
     reticulate::use_python(pythonPath)
   }
-  ropenms = reticulate::import("pyopenms", convert = FALSE)
+  ropenms <- reticulate::import("pyopenms", convert = FALSE)
+  message("Using pyopenms version ", ropenms$version$version)
   ropenms
 }

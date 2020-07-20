@@ -117,6 +117,7 @@ test_that("test_traverseDown", {
 })
 
 test_that("test_alignToMaster", {
+  skip_if_no_pyopenms()
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
   params[["keepFlanks"]] <- TRUE
