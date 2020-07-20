@@ -104,8 +104,10 @@ test_that("test_traverseDown", {
   multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
   df <- multipeptide[["4618"]]
   analytes <- precursors$transition_group_id
-  traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
-               adaptiveRTs, refRuns, params)
+  expect_message(traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
+               adaptiveRTs, refRuns, params),
+               ("Mapping peaks from master1 to run1 and run2.\n|run1 has been aligned to master1.\n|run2 has been aligned to master1.\n|master1 run has been propagated to all parents."),
+               all = TRUE)
   # Mapping peaks from master1 to run1 and run2.
   # run1 has been aligned to master1.
   # run2 has been aligned to master1.
