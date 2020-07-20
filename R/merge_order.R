@@ -110,9 +110,8 @@ getNodeIDs <- function(tree){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-01
-#' @inheritParams checkParams
+#' @inheritParams progAlignRuns
 #' @param tree (phylo) a phylogenetic tree.
-#' @param dataPath (string) path to mzml and osw directory.
 #' @param fileInfo (data-frame) output of \code{\link{getRunNames}}.
 #' @param features (list of data-frames) contains features and their properties identified in each run.
 #' @param mzPntrs (list) a list of mzRpwiz.
@@ -123,7 +122,6 @@ getNodeIDs <- function(tree){
 #' @param adaptiveRTs (environment) For each descendant-pair, it contains the window around the aligned
 #'  retention time, within which features with m-score below aligned FDR are considered for quantification.
 #' @param refRuns (environment) For each descendant-pair, the reference run is indicated by 1 or 2 for all the peptides.
-#' @param ropenms (pyopenms module) get this python module through get_ropenms().
 #' @return (None)
 #' @seealso \code{\link{getTree}, \link{getNodeRun}}
 #' @keywords internal
