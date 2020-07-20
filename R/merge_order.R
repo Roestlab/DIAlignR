@@ -1,5 +1,23 @@
-## get the number of descendants for each tip or node:
-nr_desc <- function(tree) {
+#' Number of descendants
+#'
+#' Get the number of descendants for each node in the tree.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' @importFrom ape Ntip
+#' @param tree (phylo) a phylogenetic tree.
+#' @return (numeric)
+#' @seealso \code{\link[ape]{Ntip}, \link{getNodeIDs}}
+#' @keywords internal
+#' @examples
+#' m <- matrix(c(0,1,2,3, 1,0,1.5,1.5, 2,1.5,0,1, 3,1.5,1,0), byrow = TRUE,
+#'             ncol = 4, dimnames = list(c("run1", "run2", "run3", "run4"),
+#'                                       c("run1", "run2", "run3", "run4")))
+#' distMat <- as.dist(m, diag = FALSE, upper = FALSE)
+#' \dontrun{
+#' tree <- getTree(distMat)
+#' getNodeIDs(tree)
+#' nrDesc(tree)
+#' }
+nrDesc <- function(tree) {
   res <- numeric(max(tree$edge))
   res[1:Ntip(tree)] <- 1L
   for (i in postorder(tree)) {
@@ -15,6 +33,7 @@ nr_desc <- function(tree) {
 
 #' Create a phylogenetic tree
 #'
+#' Builds a phylogenetic tree from the distance matrix using UPGMA algorithm.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -22,7 +41,7 @@ nr_desc <- function(tree) {
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-31
 #' @import phangorn ape
-#' @param distMat (dist) pairwise distance matrix.
+#' @param distMat (dist) a pairwise distance matrix.
 #' @return (phylo) a tree.
 #' @seealso \code{\link[phangorn]{upgma}, \link{getNodeIDs}}
 #' @keywords internal
@@ -35,12 +54,14 @@ nr_desc <- function(tree) {
 #' \dontrun{
 #' getTree(distMat)
 #' }
+#' tree <- ape::read.tree(text = "(run1:9,(run2:7,run0:2)master2:5)master1;")
+#' plot(tree, show.node.label = TRUE)
 getTree <- function(distMat){
   tree <- phangorn::upgma(distMat)
   tree <- ape::reorder.phylo(tree, "postorder")
   tree <- ape::makeNodeLabel(tree, method = "number", prefix = "master")
-  message("alignment order of runs is as:")
-  plot(tree, show.node.label = TRUE)
+  message("alignment order of runs in Newick format:")
+  message(ape::write.tree(tree))
   tree
 }
 
@@ -60,7 +81,7 @@ getTree <- function(distMat){
 #' m <- matrix(c(0,1,2,3, 1,0,1.5,1.5, 2,1.5,0,1, 3,1.5,1,0), byrow = TRUE,
 #'             ncol = 4, dimnames = list(c("run1", "run2", "run3", "run4"),
 #'                                       c("run1", "run2", "run3", "run4")))
-#' distMat <- as.dist(m, diag = FALSE, upper = FALSE)
+#' distMat <- as.dist(m)
 #' \dontrun{
 #' tree <- getTree(distMat)
 #' getNodeIDs(tree)
@@ -71,16 +92,256 @@ getNodeIDs <- function(tree){
   nodeIDs
 }
 
-traverseTree <- function(){
-  traversalOrder <- tree$edge[,2]
-  num_merge <- length(traversalOrder)/2
-  merge_start <- 2*(1:num_merge)-1
-  for(i in merge_start){
-    # Create new list in Feature
 
-    # Get XIC from i XICs.ref
-    # Get XIC from i+1 XICs.eXp
-    # Get alignedIndices
-    # Align to multipeptide
+#' Traverses up from leaves to the root
+#'
+#' @description {
+#' While traversing from leaf to root node, at each node a master run is created.
+#' Merged features and merged chromatograms from parent runs are estimated. Chromatograms are written on the disk
+#' at dataPath/mzml. For each precursor aligned parent time-vectors and corresponding child time-vector
+#' are also calculated and written as *_av.rda at dataPath.
+#'
+#'     Accesors to the new files are added to fileInfo, mzPntrs and prec2chromIndex. Features, reference
+#' used for the alignment and adaptiveRTs of global alignments are also added to corresponding environment.
+#' }
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-01
+#' @inheritParams checkParams
+#' @param tree (phylo) a phylogenetic tree.
+#' @param dataPath (string) path to mzml and osw directory.
+#' @param fileInfo (data-frame) output of \code{\link{getRunNames}}.
+#' @param features (list of data-frames) contains features and their properties identified in each run.
+#' @param mzPntrs (list) a list of mzRpwiz.
+#' @param prec2chromIndex (list) a list of dataframes having following columns: \cr
+#' transition_group_id: it is PRECURSOR.ID from osw file. \cr
+#' chromatogramIndex: index of chromatogram in mzML file.
+#' @param precursors (data-frame) atleast two columns transition_group_id and transition_ids are required.
+#' @param adaptiveRTs (environment) For each descendant-pair, it contains the window around the aligned
+#'  retention time, within which features with m-score below aligned FDR are considered for quantification.
+#' @param refRuns (environment) For each descendant-pair, the reference run is indicated by 1 or 2 for all the peptides.
+#' @param ropenms (pyopenms module) get this python module through get_ropenms().
+#' @return (None)
+#' @seealso \code{\link{getTree}, \link{getNodeRun}}
+#' @keywords internal
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' params <- paramsDIAlignR()
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' mzPntrs <- list2env(getMZMLpointers(fileInfo))
+#' features <- list2env(getFeatures(fileInfo, maxFdrQuery = params[["maxFdrQuery"]], runType = params[["runType"]]))
+#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
+#'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+#' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+#' adaptiveRTs <- new.env()
+#' refRuns <- new.env()
+#' tree <- ape::read.tree(text = "(run1:9,(run2:7,run0:2)master2:5)master1;")
+#' tree <- ape::reorder.phylo(tree, "postorder")
+#' \dontrun{
+#' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
+#' traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
+#'  adaptiveRTs, refRuns, ropenms)
+#' # Cleanup
+#' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
+#' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
+#' }
+traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
+                       params, adaptiveRTs, refRuns, ropenms){
+  vertices <- getNodeIDs(tree)
+  ord <- tree$edge[,2] # Traversal order
+  num_merge <- length(ord)/2
+  merge_start <- 2*(1:num_merge)-1
+
+  # Traverse to the root of all runs.
+  for(i in merge_start){
+    runA <- names(vertices)[vertices == ord[i]]
+    runB <- names(vertices)[vertices == ord[i+1]]
+    mergeName <- names(vertices)[vertices == ape::getMRCA(tree, c(ord[i], ord[i+1]))]
+    message(runA, " + ", runB, " = ", mergeName)
+    getNodeRun(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
+               precursors, params, adaptiveRTs, refRuns, ropenms)
   }
+
+  assign("temp", fileInfo, envir = parent.frame(n = 1))
+  with(parent.frame(n = 1), fileInfo <- temp)
+  message("Created all master runs.")
 }
+
+
+#' Traverses down from the root to leaves
+#'
+#' Features of the root node are propagated to all leaves node. Aligned features are set/added in the
+#' multipeptide environment.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-01
+#' @inheritParams traverseUp
+#' @param multipeptide (environment) contains multiple data-frames that are collection of features
+#'  associated with analytes. This is an output of \code{\link{getMultipeptide}}.
+#' @param analytes (integer) this vector contains transition_group_id from precursors. It must be of
+#' the same length as of multipeptide.
+#' @return (None)
+#' @seealso \code{\link{traverseUp}, \link{alignToMaster}}
+#' @keywords internal
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' params <- paramsDIAlignR()
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' mzPntrs <- list2env(getMZMLpointers(fileInfo))
+#' features <- list2env(getFeatures(fileInfo, maxFdrQuery = params[["maxFdrQuery"]], runType = params[["runType"]]))
+#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
+#'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+#' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+#' adaptiveRTs <- new.env()
+#' refRuns <- new.env()
+#' tree <- ape::read.tree(text = "(run1:9,(run2:7,run0:2)master2:5)master1;")
+#' tree <- ape::reorder.phylo(tree, "postorder")
+#' \dontrun{
+#' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
+#' traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
+#'  adaptiveRTs, refRuns, ropenms)
+#' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+#' analytes <- precursors$transition_group_id
+#' traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
+#'  adaptiveRTs, refRuns, params)
+#' # Cleanup
+#' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
+#' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
+#' }
+traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
+                         adaptiveRTs, refRuns, params){
+  vertices <- getNodeIDs(tree)
+  ord <- rev(tree$edge[,1])
+  num_merge <- length(ord)/2
+  junctions <- 2*(1:num_merge)-1
+
+  # set alignment rank for the master1 run.
+  master1 <- names(vertices)[vertices == ord[1]]
+  for(analyte in analytes){
+    analyte_chr <- as.character(analyte)
+    df <- multipeptide[[analyte_chr]]
+    refIdx <- which(df[["run"]] == master1 & df[["peak_group_rank"]] == 1)
+    df[["alignment_rank"]][refIdx] <- 1L
+    multipeptide[[analyte_chr]] <- df
+  }
+
+  # Traverse from root to leaf node.
+  for(i in junctions){
+    pair <- phangorn::Descendants(tree, node = ord[i], type = "children")
+    runA <- names(vertices)[vertices == pair[1]]
+    runB <- names(vertices)[vertices == pair[2]]
+    master <- names(vertices)[vertices == ord[i]]
+    message("Mapping peaks from ", master, " to ",  runA, " and ", runB, ".")
+
+    # Get parents to master aligned time vectors.
+    filename <- file.path(dataPath, paste0(master, "_av.rds"))
+    alignedVecs <- readRDS(file = filename)
+
+    adaptiveRT <- max(adaptiveRTs[[paste(runA, runB, sep = "_")]],
+                       adaptiveRTs[[paste(runB, runA, sep = "_")]])
+
+    # Map master to runA
+    refA <- refRuns[[master]]
+    alignToMaster(master, runA, alignedVecs, refA, adaptiveRT, multipeptide,
+                  prec2chromIndex, mzPntrs, fileInfo, analytes, params)
+
+    # Map master to runB
+    refB <- as.integer(!(refA-1))+1L
+    alignToMaster(master, runB, alignedVecs, refB, adaptiveRT, multipeptide,
+                  prec2chromIndex, mzPntrs, fileInfo, analytes, params)
+  }
+
+  # Done
+  message("master1 run has been propagated to all parents.")
+}
+
+
+#' Align descendants to master
+#'
+#' During traverse-down, parent runs are aligned to the master/child run. This function performs the
+#' alignment by already saved aligned parent-child time vectors. For the aligned peaks, alignment_rank is
+#' set to 1 in multipeptide environment.
+#'
+#' refRun is flipped if eXp is runB instead of runA.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-19
+#' @inherit alignToMaster params
+#' @inheritParams traverseDown
+#' @inheritParams getChildXICs
+#' @param ref (string) name of the descendant run. Must be in the rownames of fileInfo.
+#' @param eXp (string) name of one of the parent run. Must be in the rownames of fileInfo.
+#' @param alignedVecs (list of dataframes) Each dataframe contains aligned parents time-vectors and
+#'  resulting child/master time vector for a precursor. This is the second element of
+#'   \code{\link{getChildXICs}} output.
+#' @return (None)
+#' @seealso \code{\link{traverseUp}, \link{traverseDown}, \link{setAlignmentRank2}}
+#' @keywords internal
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' params <- paramsDIAlignR()
+#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+#' mzPntrs <- list2env(getMZMLpointers(fileInfo))
+#' features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
+#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
+#'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+#' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+#' adaptiveRTs <- new.env()
+#' refRuns <- new.env()
+#' tree <- ape::reorder.phylo(ape::read.tree(text = "(run1:7,run2:2)master1;"), "postorder")
+#' \dontrun{
+#' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
+#' traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
+#'  adaptiveRTs, refRuns, ropenms)
+#' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+#' analytes <- precursors$transition_group_id
+#' alignedVecs <- readRDS(file = file.path(dataPath, "master1_av.rds"))
+#' adaptiveRT <- (adaptiveRTs[["run1_run2"]] + adaptiveRTs[["run2_run1"]])/2
+#' multipeptide[["4618"]]$alignment_rank[multipeptide[["4618"]]$run == "master1"] <- 1L
+#' alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRuns[["master1"]], adaptiveRT,
+#'  multipeptide, prec2chromIndex, mzPntrs, fileInfo, analytes, params)
+#' # Cleanup
+#' file.remove(file.path(dataPath, "master1_av.rds"))
+#' file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
+#' }
+alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptide, prec2chromIndex,
+                          mzPntrs, fileInfo, analytes, params){
+  # Align each peptide in multipeptide to its parent
+  for(i in seq_along(analytes)){
+    alignedVec <- alignedVecs[[i]]
+    if(is.null(alignedVec)){
+      # Try to  set alignment rank without chromatogram
+      next
+    } else {
+      tAligned <- alignedVec[, c(5L, 2+refRun[i])]
+      colnames(tAligned) <- c("tAligned.ref", "tAligned.eXp")
+      tAligned <- zoo::na.approx(tAligned, na.rm = FALSE)
+    }
+    analyte_chr <- as.character(analytes[i])
+    # Get XIC_group from experiment run. if missing, go to next analyte.
+    chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][[i]]
+    if(any(is.na(chromIndices))){
+      warning("Chromatogram indices for ", analyte_chr, " are missing in ", fileInfo[eXp, "runName"])
+      message("Skipping ", analyte_chr, " in this run.")
+      next
+    } else {
+      XICs.eXp <- extractXIC_group(mz = mzPntrs[[eXp]], chromIndices = chromIndices)
+      XICs.eXp.s <- smoothXICs(XICs.eXp, type = params[["XICfilter"]],
+                               kernelLen = params[["kernelLen"]], polyOrd = params[["polyOrd"]])
+    }
+    # Update alignment rank for the eXp.
+    df <- multipeptide[[analyte_chr]]
+    multipeptide[[analyte_chr]] <- setAlignmentRank2(df, ref, eXp, adaptiveRT, tAligned, XICs.eXp, params)
+  }
+  message(eXp, " has been aligned to ", ref, ".")
+}
+
