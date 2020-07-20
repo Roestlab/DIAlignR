@@ -13,7 +13,7 @@
 #' @importFrom magrittr %>%
 #' @param filename (string) Path to the MSPLIT output library. The file extension must be .txt.
 #' @return (None) writes a .tsv file.
-#' @export
+#' @keywords internal
 msplit_to_openms <- function(filename){
   lib <- read.table(filename, header = TRUE, sep = "\t", numerals = "no.loss",
                     comment.char = "", stringsAsFactors = FALSE)
@@ -41,7 +41,7 @@ msplit_to_openms <- function(filename){
   lib2$UniprotId <- NA_character_
   lib2$GeneName <- "NA"
   lib2$FragmentType <- substr(lib2$Annotation, 1, 1)
-  lib2$FragmentSeriesNumber <- -1L
+  lib2$FragmentSeriesNumber <- substr(lib2$Annotation, 2, 3)
   lib2$PrecursorIonMobility <- -1L
   lib2$TransitionId <- seq(0, nrow(lib2)-1)
   lib2$DetectingTransition <- 1L
@@ -63,15 +63,19 @@ msplit_to_openms <- function(filename){
 
 
 # Library alignment function
-libraryAlignment <- function(assayLibs, ref, eXp, spanvalue = 0.1){
-  df.ref <-  assayLibs[[ref]] %>%  dplyr::select(.data$tempID, .data$NormalizedRetentionTime)
-  df.eXp <-  assayLibs[[eXp]] %>% dplyr::select(.data$tempID, .data$NormalizedRetentionTime)
-  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "tempID", suffix = c(".ref", ".eXp"))
-  Loess.fit <- loess(NormalizedRetentionTime.eXp ~ NormalizedRetentionTime.ref,
-                     data = RUNS_RT, span = spanvalue,
-                     control=loess.control(surface="direct"))
+libraryAlignment <- function(assayLibs, x, y, alignType = "loess", spanvalue = 0.1){
+  df.x <-  assayLibs[[x]] %>%  dplyr::select(.data$tempID, .data$NormalizedRetentionTime)
+  df.y <-  assayLibs[[y]] %>% dplyr::select(.data$tempID, .data$NormalizedRetentionTime)
+  RUNS_RT <- dplyr::inner_join(df.x, df.y, by = "tempID", suffix = c(".x", ".y"))
+  # TODO: Update spanvalue or alignment method if number of points are less.
+  if(alignType == "linear"){
+    fit <- lm(NormalizedRetentionTime.y ~ NormalizedRetentionTime.x, data = RUNS_RT)
+  } else {
+    fit <- loess(NormalizedRetentionTime.y ~ NormalizedRetentionTime.x,
+                 data = RUNS_RT, span = spanvalue, control=loess.control(surface="direct"))
+  }
   # direct surface allows to extrapolate outside of training data boundary while using predict.
-  Loess.fit
+  fit
 }
 
 
@@ -80,6 +84,11 @@ libraryAlignment <- function(assayLibs, ref, eXp, spanvalue = 0.1){
 #' MSPLIT returns an OpenSWATH assay libraries which can be combined to obtain a comprehensive library
 #' This library allows to perform false-discovery rate extimation on all samples together and further use
 #' alignment algorithm of DIAlignR.
+#'
+#' In star alignment, a base library is picked among n runs. Other n-1 runs are aligned to it either by linear
+#' or loess alignment. Using qvalue IDs are picked from a run. These IDs include mz, library intensities and
+#' aligned retention time. IDs are added to the base library that is , finally, written as masterLib.tsv in the working
+#' directory.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -99,9 +108,9 @@ libraryAlignment <- function(assayLibs, ref, eXp, spanvalue = 0.1){
 #' \dontrun{
 #' msplit_masterLib(msplitFilteredPattern, msplitAssayPattern)
 #' }
-#' @export
-msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalue = 0.1){
-  # Read MSPLITfiltered.txt file. This contains the spectra that are used to build Openswath_assaylib.
+#' @keywords internal
+msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, alignType = "loess", spanvalue = 0.1){
+  # Read MSPLITfiltered.txt file. This contains the spectra that were used to build Openswath_assaylib.
   temp <- list.files(pattern = msplitFilteredPattern)
   message("Found ", length(temp), " files with ", msplitFilteredPattern, " pattern.")
   MSPLITfiltered <- list()
@@ -116,7 +125,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
   temp <-substr(temp, 1, nchar(temp)-nchar(msplitFilteredPattern)+1)
   names(MSPLITfiltered) <- temp
 
-  # Read Openswath_assaylib.tsv
+  ###### Read Openswath_assaylib.tsv  #########
   temp <- list.files(pattern = msplitAssayPattern)
   message("Found ", length(temp), " files with ", msplitAssayPattern, " pattern.")
   OpenswathAssaylib <- list()
@@ -130,7 +139,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
   temp <-substr(temp, 1, nchar(temp)-nchar(msplitAssayPattern)+1)
   names(OpenswathAssaylib) <- temp
 
-  # Merge MSPLIT outputs. We get q-value for each entry in Openswath_assaylib.tsv
+  ###### Merge MSPLIT outputs. We get q-value for each entry in Openswath_assaylib.tsv  ######
   runs <- intersect(names(OpenswathAssaylib), names(MSPLITfiltered))
   names(runs) <- paste("run", 1:length(OpenswathAssaylib), sep = "")
   # TODO: right_join on ModifiedPeptideSequence
@@ -142,7 +151,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
       dplyr::distinct()
   }
 
-  # Get peptide sequence and charge combination that acts as temporary ID for each precursor.
+  ###### Get peptide sequence and charge combination that acts as temporary ID for each precursor  ######
   AllPrecursors <- c()
   for(run in runs){
     newIDs <-OpenswathAssaylib[[run]] %>% select(ModifiedPeptideSequence, PrecursorCharge) %>%
@@ -156,7 +165,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
   message("There are total ", length(AllPrecursors), " precursors.")
 
 
-  # Find precursors that are missing in one or more libraries.
+  ###### Find precursors that are missing in one or more libraries.  ######
   commonPeps <- AllPrecursors
   for(run in runs){
     commonPeps <- intersect(OpenswathAssaylib[[run]]$tempID, commonPeps)
@@ -164,14 +173,15 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
   message(length(commonPeps), " are in all libraries.")
   rm(MSPLITfiltered)
 
-  # Star alignment
+
   # Find the base library based on number of precursors it has
   num_of_pep <- sapply(OpenswathAssaylib, function(x) nrow(x))
   refRunIdx <- unname(which.max(num_of_pep))
 
+  # Create base library from the library with most entries.
   # Append empty rows in the base library which it is missing currently.
   starLib <- OpenswathAssaylib[[refRunIdx]]
-  starLib$refRunIdx <- refRunIdx
+  starLib$refRunIdx <- NA_integer_
   starLib <- starLib %>% select(PrecursorMz, NormalizedRetentionTime, PeptideSequence,
                                 ModifiedPeptideSequence, PrecursorCharge, tempID,
                                 qvalue, refRunIdx)
@@ -210,19 +220,23 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
   rownames(rtTbl) <- rtTbl[,"tempID"]
   rtTbl <- rtTbl[,-c(1)]
 
-  # Get pairwise alignments of all libraries to the base library
-  loessFits <- list()
+  # Star alignment
+  ######## Get pairwise alignments of all libraries to the base library. #######
+  fits <- list()
   for(i in 1:length(runs)){
     run <- names(runs)[i]
-    loessFits[[paste0("ref_", run)]] <- libraryAlignment(OpenswathAssaylib, runs[[refRunIdx]],
-                                                         runs[[i]], spanvalue)
+    fits[[paste0("ref_", run)]] <- libraryAlignment(OpenswathAssaylib, x = runs[[i]],
+                                                         y = runs[[refRunIdx]], alignType, spanvalue)
   }
 
-  # Get the reference library for each analyte and map it to the base library.
+  ###### Get base library retention time.  ######
+  # Get the reference library for each analyte based on qvalue
+  # Map its retention time to the base library.
   for (i in 1:nrow(starLib)){
     run <- names(which.max(qvalTbl[i,]))
     starLib$refRunIdx[i] <- unname(which.max(qvalTbl[i,]))
-    starLib$NormalizedRetentionTime[i] <- predict(loessFits[[paste0("ref_", run)]], rtTbl[i, run])
+    # map retention time to the base library.
+    starLib$NormalizedRetentionTime[i] <- predict(fits[[paste0("ref_", run)]], newdata = data.frame(NormalizedRetentionTime.x = rtTbl[i, run]))
     starLib$qvalue[i] <- qvalTbl[i,run]
   }
   if(any(is.na(starLib$NormalizedRetentionTime))){
@@ -232,6 +246,10 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
   # Create new transition_group_id
   starLib$TransitionGroupId <- seq(0, nrow(starLib)-1)
 
+  ###### Add dignostic plots and table ######
+  masterAlignSummary(fits, runs)
+
+  ####### Add tempID in all Openswath assay libraries ########
   # Read assay library and update transition_group_id and transition_name.
   temp <- list.files(pattern = msplitAssayPattern)
   OpenswathAssaylib <- list()
@@ -246,7 +264,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
     stop("Names of OpenswathAssaylib are not matching with runs.")
   }
 
-  # Update Openswath assay library
+  # Add tempIDs
   for(run in runs){
     # Check if the transition_group_ids are duplicated in the run.
     newIDs <- OpenswathAssaylib[[run]] %>%
@@ -264,6 +282,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
     OpenswathAssaylib[[run]]$tempID <- newIDs
   }
 
+  ######## Start filling the base library ###############
   # Get the master library template
   masterLib <- data.frame("PrecursorMz"=double(), "ProductMz"=double(), "PrecursorCharge"=integer(), "ProductCharge"=integer(),
                           "LibraryIntensity"=double(), "NormalizedRetentionTime" = double(), "PeptideSequence"=character(),  "ModifiedPeptideSequence"=character(),
@@ -275,6 +294,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
                           "tempID"=character(), stringsAsFactors=FALSE)
 
   # For all analytes get the row from assay library and add to master library.
+  # Thus keep all transition mz and intensities from best qvalue.
   # Add the retention time and trantion group ID from the base library.
   for(i in 1:nrow(starLib)){
     run <- runs[[starLib$refRunIdx[i]]]
@@ -284,15 +304,41 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
     masterLib <- rbind(masterLib, df)
   }
   masterLib$TransitionId <- seq(0, nrow(masterLib) -1)
+  masterLib <- dplyr::select(masterLib, -.data$tempID)
   # Now master library has same format as assay library. It has RT and Transition Group ID from the base library.
-  write.table(masterLib, file = "masterLib.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
-
+  write.table(masterLib, file = "masterLib.tsv", sep = "\t", row.names = FALSE, quote = FALSE, na = "")
 
   message("Number of precursors from each run")
   k <- table(starLib$refRunIdx)
   names(k) <- runs
   print(k)
 }
+
+
+masterAlignSummary <- function(fits, runs){
+  df <- data.frame(runs)
+  df$rse <- round(sapply(fits, getRSE), 2)
+  df$n <- sapply(fits, function(fit) ifelse(is(fit, "loess"), fit$n, nobs(fit)))
+  print(df)
+  pdf("run_aligned_master_library.pdf")
+  for(i in seq_along(fits)){
+    fit <- fits[[i]]
+    # Plot the fit. Separate code for loess and linear fit.
+    if(is(fit, "loess")){
+      plot(fit$x, fit$y, pch=19, cex=0.1, xlab = runs[i], ylab = "master library",
+           main = paste0("RSE = ", df$rse[i], ", N = ", df$n[i]))
+      j <- order(fit$x)
+      lines(fit$x[j], fit$fitted[j],col="green",lwd=2)
+    } else{
+      plot(fit$model$x, fit$model$y, pch=19, cex=0.1, xlab = runs[i], ylab = "master library",
+           main = paste0("RSE = ", df$rse[i], ", N = ", df$n[i]))
+      j <- order(fit$model$x)
+      lines(fit$model$x[j], fit$fitted.values[j],col="green",lwd=2)
+    }
+  }
+  dev.off()
+}
+
 
 #' Get psuedo iRT spectra
 #'
@@ -319,7 +365,7 @@ msplit_masterLib <- function(msplitFilteredPattern, msplitAssayPattern, spanvalu
 #' \dontrun{
 #' psuedo_iRTspectra(msplitFilteredPattern)
 #' }
-#' @export
+#' @keywords internal
 psuedo_iRTspectra <- function(msplitFilteredPattern, maxQval = 1e-04, zoneWidth =300,
                      minPep = 5L, maxPep = 10L, minIntensity = 1e06){
   temp <- list.files(pattern = "*MSPLITfiltered.txt")
@@ -356,6 +402,7 @@ psuedo_iRTspectra <- function(msplitFilteredPattern, maxQval = 1e-04, zoneWidth 
   }
 }
 
+
 #' Builds assay library and pseudo iRT library
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -379,7 +426,7 @@ psuedo_iRTspectra <- function(msplitFilteredPattern, maxQval = 1e-04, zoneWidth 
 #' \dontrun{
 #' psuedo_iRTlibrary(psuedoSpectraPattern, msplitAssaySuffix, masterLibPath)
 #' }
-#' @export
+#' @keywords internal
 psuedo_iRTlibrary <- function(psuedoSpectraPattern, msplitAssaySuffix, masterLibPath,
                          startTime = 0, stopTime = 7200){
   # Read master library
@@ -387,7 +434,6 @@ psuedo_iRTlibrary <- function(psuedoSpectraPattern, msplitAssaySuffix, masterLib
                           comment.char = "", stringsAsFactors = FALSE)
   masterDF <- masterLib %>% dplyr::select(PeptideSequence, ModifiedPeptideSequence,
                                           PrecursorCharge, NormalizedRetentionTime)
-
 
   temp <- list.files(pattern = psuedoSpectraPattern)
   message("Found ", length(temp), " files containing pseudo iRT spectra.")
@@ -419,7 +465,7 @@ psuedo_iRTlibrary <- function(psuedoSpectraPattern, msplitAssaySuffix, masterLib
 
     # Normalize each iRT. Generate respective master library
 
-    # Normalize iRT time to 0-100 scale.
+    # Normalize assay library iRT time to 0-100 scale.
     iRT_assay[["NormalizedRetentionTime"]] = round(100*(iRT_assay[["NormalizedRetentionTime"]] - startTime)/stopTime, 3)
 
     # Select common rows between master library and iRT assay library
@@ -427,12 +473,12 @@ psuedo_iRTlibrary <- function(psuedoSpectraPattern, msplitAssaySuffix, masterLib
     DF <- dplyr::inner_join(masterDF, iRT_assayDF,
                             by = c("PeptideSequence", "ModifiedPeptideSequence", "PrecursorCharge")) %>% dplyr::distinct()
 
-    # Get a linear transformation
+    # Get a linear transformation (assayRT ~ masterRT)
     fit <- lm(NormalizedRetentionTime.y ~ NormalizedRetentionTime.x, data = DF)
     message(run)
     message("rsq between experimental retention time and indexed retention time is ", summary(fit)$adj.r.squared)
 
-    # Apply the linear transformation on master library. Create a copy of master library.
+    # Map master library to assay library linearly. Create a copy of master library.
     newVal <- predict(fit, newdata = data.frame(NormalizedRetentionTime.x = masterDF[["NormalizedRetentionTime"]]))
     masterLib2 <- masterLib
     masterLib2[["NormalizedRetentionTime"]] <- round(newVal, 3)
@@ -447,5 +493,113 @@ psuedo_iRTlibrary <- function(psuedoSpectraPattern, msplitAssaySuffix, masterLib
     masterFile <- paste0(run, "_norm_masterLib.tsv")
     write.table(masterLib2, file = masterFile, sep = "\t", row.names = FALSE, quote = FALSE)
     message(masterFile, " assay library is written.")
+  }
+}
+
+
+#' Builds assay library and pseudo iRT library
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-06-25
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @param masterLibPath (numeric) path of the master library to be converted to sample-specific assay library.
+#' @param iRTLibPath (string) pattern of pseudo iRT spectra files. Pattern must start with '*'.
+#' @param msplitAssaySuffix (numeric) suffix of MSPLIT assay library.
+#' @param lib_lib_align (integer) start time of the run in second. Usually it is 0.
+#' @param spanvalue (integer) stop time of the run in seconds. Usually it is 7200 sec (2 hour run).
+#' @return (None) writes _norm_iRT_assaylib.tsv and _norm_masterLib.tsv files.
+#' @examples
+#' masterLibPath <- "masterLib.tsv"
+#' iRTLibPath <- "iRTassays.tsv"
+#' msplitAssaySuffix <- "_Openswath_assaylib.tsv"
+#' \dontrun{
+#' iRTAlignment(masterLibPath, iRTLibPath, msplitAssaySuffix, lib_lib_align = "loess")
+#' }
+#' @keywords internal
+iRTAlignment <- function(masterLibPath, iRTLibPath, msplitAssaySuffix, lib_lib_align = "linear", spanvalue = 0.1){
+  # Read master library
+  masterLib <- read.table(masterLibPath, header = TRUE, sep = "\t", numerals = "no.loss",
+                          comment.char = "", stringsAsFactors = FALSE)
+  masterDF <- masterLib %>% dplyr::select(ModifiedPeptideSequence, PrecursorCharge,
+                                          NormalizedRetentionTime) %>% dplyr::distinct()
+
+  # Read iRT library
+  irtLib <- read.table(iRTLibPath, header = TRUE, sep = "\t", numerals = "no.loss",
+                          comment.char = "", stringsAsFactors = FALSE)
+  irtDF <- irtLib %>% dplyr::select(ModifiedPeptideSequence, PrecursorCharge,
+                                       NormalizedRetentionTime)  %>% dplyr::distinct()
+
+  # Align assay library to iRT (linearly) to normalize retention time
+  masterNormDF <- masterDF
+  temp <- dplyr::inner_join(masterNormDF, irtDF, by = c("ModifiedPeptideSequence", "PrecursorCharge"))
+  fit <- lm(NormalizedRetentionTime.y ~ NormalizedRetentionTime.x, data = temp)
+  message("RT of the master library is normalized with ", nobs(fit), " iRT peptides.")
+  message("Linear fit has adjusted R-squared of ", summary(fit)$adj.r.squared)
+  newVal <- predict(fit, newdata = data.frame(NormalizedRetentionTime.x = masterNormDF[["NormalizedRetentionTime"]]))
+  masterNormDF[["NormalizedRetentionTime"]] <- round(newVal, 3)
+  masterNormDF <-  dplyr::left_join(masterLib, masterNormDF,
+                               by = c("ModifiedPeptideSequence", "PrecursorCharge"))
+  masterNormDF <- masterNormDF %>% dplyr::select(-NormalizedRetentionTime.x) %>%
+    dplyr::rename(NormalizedRetentionTime = NormalizedRetentionTime.y) %>%
+    dplyr::relocate(NormalizedRetentionTime, .before = PeptideSequence)
+
+  write.table(masterNormDF, file = "masterLib_norm.tsv", sep = "\t", row.names = FALSE, quote = FALSE, na = "")
+
+  temp <- list.files(pattern = msplitAssaySuffix)
+  message("Found ", length(temp), " assay libraries.")
+  for (filename in temp){
+    # Get MSPLIT OpenSWATH assay library
+    run <- substr(filename, 1, nchar(filename)-nchar(msplitAssaySuffix))
+    message("Reading ", filename)
+    assayLib <- read.table(filename, header = TRUE, sep = "\t", numerals = "no.loss",
+                           comment.char = "", stringsAsFactors = FALSE)
+
+    # Join assay library and master library
+    assayDF <- assayLib %>% dplyr::select(ModifiedPeptideSequence, PrecursorCharge,
+                                          NormalizedRetentionTime) %>% dplyr::distinct()
+    assayDF <- dplyr::left_join(masterDF, assayDF,
+                            by = c("ModifiedPeptideSequence", "PrecursorCharge"))
+
+    # We need to convert master libray to assay libray. Everything remain same but the retention time.
+    # Precursors already present in assay library, have retention time copied over.
+    # Other precursors will have (linear/non-lineasrly) modified retention time.
+    if(lib_lib_align == "linear"){
+      fit <- lm(NormalizedRetentionTime.y ~ NormalizedRetentionTime.x, data = assayDF, na.action = na.omit)
+    } else {
+      fit <- loess(NormalizedRetentionTime.y ~ NormalizedRetentionTime.x, data = assayDF,
+                         span = spanvalue, na.action = na.omit, control=loess.control(surface="direct"))
+    }
+    idx <- which(is.na(assayDF[["NormalizedRetentionTime.y"]]))
+    newVal <- predict(fit, newdata = data.frame(NormalizedRetentionTime.x = assayDF[idx,"NormalizedRetentionTime.x"]))
+    assayDF[["NormalizedRetentionTime.y"]][idx] <- round(newVal, 3)
+    assayDF <- assayDF %>% select(ModifiedPeptideSequence, PrecursorCharge, NormalizedRetentionTime.y) %>%
+      rename(NormalizedRetentionTime = NormalizedRetentionTime.y)
+    message("Added ", length(idx), " precursors in ", run, " library.")
+    message("Retention times are mapped with a ", lib_lib_align, " method using ", nrow(assayDF) - length(idx), " points.")
+    message("Residual Standard error = ", round(getRSE(fit), 3))
+
+    # Align assay library to iRT to normalize retention time
+    temp <- dplyr::inner_join(assayDF, irtDF, by = c("ModifiedPeptideSequence", "PrecursorCharge"))
+    # Get a linear transformation of assay library to iRT
+    fit <- lm(NormalizedRetentionTime.y ~ NormalizedRetentionTime.x, data = temp)
+    message("RT of the library is normalized with ", nobs(fit), " iRT peptides.")
+    message("Linear fit has adjusted R-squared of ", summary(fit)$adj.r.squared)
+    newVal <- predict(fit, newdata = data.frame(NormalizedRetentionTime.x = assayDF[["NormalizedRetentionTime"]]))
+    assayDF[["NormalizedRetentionTime"]] <- round(newVal, 3)
+
+    # Copy other columns from master to assay library
+    assayDF <-  dplyr::left_join(masterLib, assayDF,
+                                    by = c("ModifiedPeptideSequence", "PrecursorCharge"))
+    assayDF <- assayDF %>% dplyr::select(-NormalizedRetentionTime.x) %>%
+      dplyr::rename(NormalizedRetentionTime = NormalizedRetentionTime.y) %>%
+      dplyr::relocate(NormalizedRetentionTime, .before = PeptideSequence)
+
+    filename <- paste0(run,  "_master_norm.tsv")
+    write.table(assayDF, file = filename, sep = "\t", row.names = FALSE, quote = FALSE, na = "")
   }
 }

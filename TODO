@@ -44,3 +44,12 @@ Make decoy == 0 in getFeaturesQuery
 Convert from csv to tsv.
 Add featureID as well.
 Implement a function to requantify across all runs.
+
+
+setMethod("show") for S4 objects.
+foreach, BiocParallel
+
+Normalization of runs within mastermap
+Put weights on the intensity while merging
+
+rename properly: rooted tree/ unrooted tree
