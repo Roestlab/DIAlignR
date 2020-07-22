@@ -255,6 +255,7 @@ double areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right,
   std::vector<std::vector<double> > vov1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > vov2 = list2VecOfVec(l2);
   if(std::isnan(left) or std::isnan(right)) return NumericVector::get_na();
+  if(not (right > left)) return NumericVector::get_na();
   std::vector<std::vector<double> > set = peakGroupArea(vov1, vov2, left, right, integrationType, baselineType, fitEMG= false, baseSubtraction);
   double area = 0.0;
   for(auto const& i : set[0]) area+= i;

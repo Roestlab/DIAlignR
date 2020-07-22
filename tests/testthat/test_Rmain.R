@@ -73,7 +73,7 @@ test_that("test_constrainSimCpp",{
 test_that("test_getBaseGapPenaltyCpp",{
   sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80,
                   2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = FALSE)
-  expect_equal(getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5), -0.25)
+  expect_equal(getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5), 0.01)
 })
 
 test_that("test_areaIntegrator",{
