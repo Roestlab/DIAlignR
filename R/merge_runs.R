@@ -55,6 +55,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   }
 
   ##### Get childXICs #####
+  message("Getting merged chromatograms for run ", mergeName)
   mergedXICs_alignedVec <- getChildXICs(runA, runB, fileInfo, features, mzPntrs, precursors, prec2chromIndex,
                                         refRun, params)
   mergedXICs <- mergedXICs_alignedVec[[1]]
@@ -63,6 +64,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
 
   ##### Get merged features, calculate intensities, left width, right width, m-score. #####
   # we can also run pyopenms feature finder on new chromatogram.
+  message("Getting merged features for run ", mergeName)
   childFeature <- data.frame()
   for(i in seq_along(analytes)){
     if(is.null(mergedXICs[[i]])) next
@@ -78,7 +80,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
       df.ref <- df.B
       df.eXp <- df.A
     }
-    if((nrow(df.ref) + nrow(df.eXp)) == 0) next
+    if((nrow(df.ref) + nrow(df.eXp)) == 0) {next}
     rows <- getChildFeature(XICs, alignedVec, df.ref, df.eXp, params)
     childFeature <- dplyr::bind_rows(childFeature, rows)
   }
@@ -174,6 +176,7 @@ getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
 
   # Convert Ref features to childXIC
   df <- dplyr::bind_rows(df.ref, df.eXp)
+  if(nrow(df) == 0) return(NULL)
   df$child_pg_rank <- NA_integer_
   df$child_m_score <- df$m_score
 

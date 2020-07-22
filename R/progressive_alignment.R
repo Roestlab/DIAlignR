@@ -71,11 +71,6 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   message("Collecting chromatogram indices for all precursors.")
   prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs), hash = FALSE)
 
-  #### Convert features into multi-peptide. #####
-  message("Building multipeptide.")
-  multipeptide <-  list2env(getMultipeptide(precursors, features))
-  message(length(multipeptide), " precursors are in the multipeptide")
-
   #### Get the guidance tree. ####
   start_time <- Sys.time()
   if(is.null(newickTree)){
@@ -92,18 +87,26 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
              params, adaptiveRTs, refRuns, ropenms)
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
-  message("The execution time for alignment:")
+  message("The execution time for creating a master run by alignment:")
   print(end_time - start_time)
 
   #### Convert features into multi-peptide #####
+  start_time <- Sys.time()
   message("Building multipeptide.")
   multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
   message(length(multipeptide), " precursors are in the multipeptide")
+  end_time <- Sys.time()
+  message("The execution time for building multipeptide:")
+  print(end_time - start_time)
 
   #### Map Ids from the master1 run to all parents. ####
+  start_time <- Sys.time()
   analytes <- precursors$transition_group_id
   traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
                adaptiveRTs, refRuns, params)
+  end_time <- Sys.time()
+  message("The execution time for transfering peaks from root to runs:")
+  print(end_time - start_time)
 
   #### Cleanup.  #######
   rm(mzPntrs)

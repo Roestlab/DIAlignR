@@ -49,6 +49,8 @@ test_that("test_traverseUp", {
   m <- capture_messages(traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
                                         params, adaptiveRTs, refRuns, ropenms))
   expect_equal(m, c("run1 + run2 = master1\n",
+                    "Getting merged chromatograms for run master1\n",
+                    "Getting merged features for run master1\n",
                     "Created a child run: master1\n",
                     "Created all master runs.\n"))
 
