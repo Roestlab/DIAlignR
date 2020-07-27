@@ -40,7 +40,8 @@ alignTargetedRuns(
   fitEMG = FALSE,
   recalIntensity = FALSE,
   fillMissing = TRUE,
-  smoothPeakArea = FALSE
+  smoothPeakArea = FALSE,
+  applyFun = lapply
 )
 }
 \arguments{
@@ -120,6 +121,8 @@ from "intensity_sum", "trapezoid", "simpson".}
 \item{fillMissing}{(logical) calculate intensity for ananlytes for which features are not found.}
 
 \item{smoothPeakArea}{(logical) FALSE: raw chromatograms will be used for quantification. TRUE: smoothed chromatograms will be used for quantification.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,

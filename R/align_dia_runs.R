@@ -50,6 +50,7 @@
 #' @param recalIntensity (logical) recalculate intensity for all analytes.
 #' @param fillMissing (logical) calculate intensity for ananlytes for which features are not found.
 #' @param smoothPeakArea (logical) FALSE: raw chromatograms will be used for quantification. TRUE: smoothed chromatograms will be used for quantification.
+#' @param applyFun (function) value must be either lapply or BiocParallel::bplapply.
 #' @return An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
 #'  peak_group_rank, m_score, alignment_rank, peptide_id, sequence, charge, group_label.
 #'
@@ -73,7 +74,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
                               analyteFDR = 0.01,
                               unalignedFDR = 0.01, alignedFDR = 0.05,
                               baselineType = "base_to_base", integrationType = "intensity_sum",
-                              fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE){
+                              fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE,
+                              applyFun = lapply){
   #### Check if filter length is odd for Savitzky-Golay filter.  #########
   params <- list(runType = runType, context = context, maxPeptideFdr = maxPeptideFdr,
                  maxFdrQuery = maxFdrQuery, XICfilter = XICfilter, polyOrd = polyOrd, kernelLen = kernelLen,
@@ -135,64 +137,9 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
   message("Performing reference-based alignment.")
   num_of_prec <- length(multipeptide)
   start_time <- Sys.time()
-  for(i in seq_along(multipeptide)){
-    analyte <- precursors[["transition_group_id"]][i]
-    ref <- refRuns[["run"]][i]
-    exps <- setdiff(rownames(fileInfo), ref)
-    chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][[i]]
-
-    # Get XIC_group from reference run. if missing, go to next analyte.
-    if(any(is.na(chromIndices))){
-      warning("Chromatogram indices for ", analyte, " are missing in ", fileInfo[ref, "runName"])
-      message("Skipping ", analyte, " across all runs.")
-      next
-    } else {
-      XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices)
-      XICs.ref.s <- smoothXICs(XICs.ref, type = XICfilter,
-                               kernelLen = kernelLen, polyOrd = polyOrd)
-    }
-
-    # Align all runs to reference run
-    for(eXp in exps){
-      # Get XIC_group from experiment run. if missing, go to next run.
-      chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][[i]]
-      if(any(is.na(chromIndices))){
-        warning("Chromatogram indices for ", analyte, " are missing in ", fileInfo[eXp, "runName"])
-        message("Skipping ", analyte, " in ", fileInfo[eXp, "runName"], ".")
-        next
-      } else {
-        XICs.eXp <- extractXIC_group(mzPntrs[[eXp]], chromIndices)
-        XICs.eXp.s <- smoothXICs(XICs.eXp, type = XICfilter,
-                                 kernelLen = kernelLen, polyOrd = polyOrd)
-      }
-
-      pair <- paste(ref, eXp, sep = "_")
-      globalFit <- globalFits[[pair]]
-      adaptiveRT <- RSEdistFactor*RSE[[pair]]
-      # Get the aligned Indices
-      tAligned <- getAlignedTimes( XICs.ref.s, XICs.eXp.s, globalFit, alignType, adaptiveRT,
-                                    normalization, simMeasure, goFactor, geFactor, cosAngleThresh,
-                                    OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain,
-                                    samples4gradient, objType = "light")
-      analyte_chr <- as.character(analyte)
-      if(smoothPeakArea){
-        setAlignmentRank(multipeptide, ref, eXp, analyte_chr, unalignedFDR, alignedFDR, adaptiveRT,
-                         tAligned, XICs.ref.s, XICs.eXp.s, integrationType, baselineType, fitEMG, recalIntensity, fillMissing)
-      } else{
-        setAlignmentRank(multipeptide, ref, eXp, analyte_chr, unalignedFDR, alignedFDR, adaptiveRT,
-                         tAligned, XICs.ref, XICs.eXp, integrationType, baselineType, fitEMG, recalIntensity, fillMissing)
-      }
-
-    }
-
-    if(i < 5){
-      message(i, " precursors have been aligned.")
-    } else if(i < 1000){
-      if(i %% 100 == 0) message(i, " precursors have been aligned.")
-    } else {
-      if(i %% 1000 == 0) message(i, " precursors have been aligned.")
-    }
-  }
+  multipeptide <- lapply(seq_along(multipeptide), alignIthAnalyte, precursors, refRuns, fileInfo, prec2chromIndex,
+               multipeptide, params, mzPntrs, globalFits, RSE, applyFun)
+  names(multipeptide) <- as.character(precursors[["transition_group_id"]])
 
   #### Cleanup.  #######
   rm(mzPntrs)
@@ -408,4 +355,125 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
   ####################### Return AlignedObjs ##########################################
   message("Alignment done. Returning AlignObjs")
   list(filenames, AlignObjs)
+}
+
+
+#' Aligns an analyte from an experiment to the reference run
+#'
+#' df contains unaligned features for an analyte across multiple runs. This function aligns eXp run to
+#' ref run and updates corresponding features.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-26
+#' @keywords internal
+#' @inheritParams alignIthAnalyte
+#' @param eXp (string) name of the run to be aligned to reference run. Must be in the rownames of fileInfo.
+#' @param ref (string) name of the reference run. Must be in the rownames of fileInfo.
+#' @param analyte_chr (string) Precursor ID of the requested analyte.
+#' @param XICs.ref.s (list of dataframes) Smoothed fragment-ion chromatograms of the analyte_chr from the reference run.
+#' @param df (dataframe) a collection of features related to analyte_chr.
+#' @return (dataframe) aligned features of analyte_chr in eXp run.
+#' @seealso \code{\link{alignTargetedRuns}, \link{alignIthAnalyte}, \link{setAlignmentRank}, \link{getMultipeptide}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+alignToRef <- function(eXp, ref, analyte_chr, rownum, fileInfo, XICs.ref.s, params, prec2chromIndex, mzPntrs, df, globalFits, RSE){
+  # Get XIC_group from experiment run. if missing, go to next run.
+  chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][[rownum]]
+  if(any(is.na(chromIndices))){
+    warning("Chromatogram indices for ", analyte_chr, " are missing in ", fileInfo[eXp, "runName"])
+    message("Skipping ", analyte_chr, " in ", fileInfo[eXp, "runName"], ".")
+    df <- df[df[["run"]] == eXp, ]
+    return(df)
+  } else {
+    XICs.eXp <- extractXIC_group(mzPntrs[[eXp]], chromIndices)
+    XICs.eXp.s <- smoothXICs(XICs.eXp, type = params[["XICfilter"]],
+                                     kernelLen = params[["kernelLen"]], polyOrd = params[["polyOrd"]])
+  }
+
+  pair <- paste(ref, eXp, sep = "_")
+  globalFit <- globalFits[[pair]]
+  adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
+  # Get the aligned Indices
+  tAligned <- getAlignedTimes(XICs.ref.s, XICs.eXp.s, globalFit, params[["alignType"]], adaptiveRT,
+                               params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
+                               params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
+                               params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
+                               params[["hardConstrain"]], params[["samples4gradient"]], objType = "light")
+
+  if(params[["smoothPeakArea"]]){
+    newdf <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp.s, params, adaptiveRT)
+  } else {
+    newdf <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+  }
+  newdf <- newdf[newdf[["run"]] == eXp, ]
+  newdf
+}
+
+
+#' Aligns an analyte across runs
+#'
+#' For the ith analyte in multipeptide, this function aligns all runs to the reference run. The result is
+#' a dataframe that contains aligned features corresponding to the analyte across all runs.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-26
+#' @keywords internal
+#' @import dplyr
+#' @inheritParams traverseUp
+#' @param rownum (integer) represnts the index of the multipepetide to be aligned.
+#' @param refRuns (data-frame) output of \code{\link{getRefRun}}. Must have two columsn : transition_group_id and run.
+#' @param multipeptide (list) contains multiple data-frames that are collection of features
+#'  associated with analytes. This is an output of \code{\link{getMultipeptide}}.
+#' @param globalFits (list) each element is either of class lm or loess. This is an output of \code{\link{getGlobalFits}}.
+#' @param RSE (list) Each element represents Residual Standard Error of corresponding fit in globalFits.
+#' @param applyFun (function) value must be either lapply or BiocParallel::bplapply.
+#' @return (dataframe) a collection of aligned features related to analyte_chr.
+#' @seealso \code{\link{alignTargetedRuns}, \link{alignToRef}, \link{getAlignedTimes}, \link{getMultipeptide}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+alignIthAnalyte <- function(rownum, precursors, refRuns, fileInfo, prec2chromIndex, multipeptide, params,
+                    mzPntrs, globalFits, RSE, applyFun){
+  analyte <- precursors[["transition_group_id"]][rownum]
+  analyte_chr <- as.character(analyte)
+  ref <- refRuns[["run"]][rownum]
+  exps <- setdiff(rownames(fileInfo), ref)
+  chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][[rownum]]
+
+  # Get XIC_group from reference run. if missing, return unaligned features.
+  if(any(is.na(chromIndices))){
+    warning("Chromatogram indices for ", analyte, " are missing in ", fileInfo[ref, "runName"])
+    message("Skipping ", analyte, " across all runs.")
+    return(multipeptide[[analyte_chr]])
+  } else {
+    XICs.ref <- extractXIC_group(mz = mzPntrs[[ref]], chromIndices = chromIndices)
+    XICs.ref.s <- smoothXICs(XICs.ref, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                             polyOrd = params[["polyOrd"]])
+  }
+
+  df <- multipeptide[[analyte_chr]]
+  refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
+  df[["alignment_rank"]][refIdx] <- 1L
+
+  df.ref <- df[df[["run"]] == ref,]
+  refIdx <- which(df.ref[["alignment_rank"]] == 1)
+  # Update multipeptide reference intensity if recal is true
+  if(recalIntensity){
+    if(params[["smoothPeakArea"]]) XICs.ref <- XICs.ref.s
+    area <- calculateIntensity(XICs.ref, df.ref[refIdx, "leftWidth"], df.ref[refIdx, "rightWidth"],
+                               params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
+    df.ref$intensity[refIdx] <- area
+  }
+
+  # Align all runs to reference run
+  df.exps <- applyFun(exps, alignToRef, ref, analyte_chr, rownum, fileInfo, XICs.ref.s, params, prec2chromIndex, mzPntrs,
+                    df, globalFits, RSE)
+  updateOnalignTargetedRuns(rownum)
+  dplyr::bind_rows(df.ref, df.exps)
 }

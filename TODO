@@ -53,3 +53,6 @@ Normalization of runs within mastermap
 Put weights on the intensity while merging
 
 rename properly: rooted tree/ unrooted tree
+
+MulticoreParam uses ’forked’ processes with ’copy-on-change’ semantics
+C++: Check if the length of XICs is not same

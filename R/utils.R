@@ -421,6 +421,23 @@ alignmentStats <- function(finalTbl, params){
                           " precursors had part of the aligned peak out of the chromatograms or missing chromatograms, hence could not be quantified.")
 }
 
+#' Prints messages if a certain number of analytes are aligned
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-26
+#' @keywords internal
+updateOnalignTargetedRuns <-  function(i){
+  if(i < 5){
+    message(i, " precursors have been aligned.")
+  } else if(i < 1000){
+    if(i %% 100 == 0) message(i, " precursors have been aligned.")
+  } else {
+    if(i %% 1000 == 0) message(i, " precursors have been aligned.")
+  }
+}
 
 envName <- "TricEnvr"
 # helper function to skip tests if we don't have the 'foo' module
