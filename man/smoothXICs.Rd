@@ -8,7 +8,7 @@ smoothXICs(
   XICs,
   type = "none",
   samplingTime = NULL,
-  kernelLen = NULL,
+  kernelLen = 9,
   polyOrd = NULL
 )
 }

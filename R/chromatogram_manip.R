@@ -91,7 +91,11 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
 #'  \url{https://rafalab.github.io/dsbook/smoothing.html}
 #' @export
 smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = NULL, polyOrd = NULL){
-  newXICs <- lapply(XICs, smoothSingleXIC, type, samplingTime, kernelLen, polyOrd)
+  if(kernelLen > nrow(XICs[[1]])) {
+    newXICs <- XICs
+  } else {
+    newXICs <- lapply(XICs, smoothSingleXIC, type, samplingTime, kernelLen, polyOrd)
+  }
   for(i in seq_along(newXICs)){
     colnames(newXICs[[i]]) <- c("time", paste0("intensity", i))
   }
