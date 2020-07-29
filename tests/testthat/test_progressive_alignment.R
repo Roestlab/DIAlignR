@@ -16,6 +16,8 @@ test_that("test_progAlignRuns", {
     expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
   }
   file.remove("temp.tsv")
+  file.remove(file.path(dataPath, "features.rds"))
+  file.remove(file.path(dataPath, "osw", "master.merged.osw"))
   file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
   file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
 })

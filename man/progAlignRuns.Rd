@@ -50,6 +50,8 @@ progAlignRuns(dataPath, params = params, outFile = "test3.tsv", ropenms = ropenm
 file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 # Removing temporarily created master chromatograms
 file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
+file.remove(file.path(dataPath, "features.rds"))
+file.remove(file.path(dataPath, "osw", "master.merged.osw"))
 }
 }
 \seealso{

@@ -32,6 +32,8 @@
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 #' # Removing temporarily created master chromatograms
 #' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
+#' file.remove(file.path(dataPath, "features.rds"))
+#' file.remove(file.path(dataPath, "osw", "master.merged.osw"))
 #' }
 #' @export
 progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, oswMerged = TRUE,
@@ -98,6 +100,11 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   end_time <- Sys.time()
   message("The execution time for building multipeptide:")
   print(end_time - start_time)
+
+  #### Save features and add master runs to osw #####
+  addMasterToOSW(dataPath, tree$node.label, oswMerged)
+  filename <- file.path(dataPath, "features.rds")
+  saveRDS(as.list(features), file = filename)
 
   #### Map Ids from the master1 run to all parents. ####
   start_time <- Sys.time()
