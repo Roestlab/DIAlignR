@@ -90,7 +90,7 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
 #' @seealso \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},
 #'  \url{https://rafalab.github.io/dsbook/smoothing.html}
 #' @export
-smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = NULL, polyOrd = NULL){
+smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = 9L, polyOrd = NULL){
   if(kernelLen > nrow(XICs[[1]])) {
     newXICs <- XICs
   } else {
