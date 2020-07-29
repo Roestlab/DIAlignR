@@ -87,7 +87,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
                  hardConstrain = hardConstrain, samples4gradient = samples4gradient,
                  analyteFDR = analyteFDR, unalignedFDR = unalignedFDR, alignedFDR = alignedFDR,
                  baselineType = baselineType, integrationType = integrationType,
-                 fitEMG = fitEMG, recalIntensity = recalIntensity, fillMissing = fillMissing, smoothPeakArea = smoothPeakArea)
+                 fitEMG = fitEMG, recalIntensity = recalIntensity, fillMissing = fillMissing,
+                 smoothPeakArea = smoothPeakArea)
   checkParams(params)
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################

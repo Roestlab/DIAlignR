@@ -377,7 +377,8 @@ paramsDIAlignR <- function(){
                   cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
-                  fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", keepFlanks = FALSE)
+                  fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
+                  keepFlanks = FALSE)
   params
 }
 
