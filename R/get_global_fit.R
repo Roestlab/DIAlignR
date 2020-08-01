@@ -204,6 +204,7 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
                           globalAlignmentFdr, globalAlignmentSpan){
   globalFits <- list()
   refs <- unique(refRun[["run"]])
+  refs <- refs[!is.na(refs)]
   for(ref in refs){
     exps <- setdiff(rownames(fileInfo), ref)
     for(eXp in exps){

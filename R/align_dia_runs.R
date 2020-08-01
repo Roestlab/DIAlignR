@@ -448,7 +448,7 @@ alignIthAnalyte <- function(rownum, precursors, refRuns, fileInfo, prec2chromInd
   chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][[rownum]]
 
   # Get XIC_group from reference run. if missing, return unaligned features.
-  if(any(is.na(chromIndices))){
+  if(any(is.na(chromIndices)) | is.null(chromIndices)){
     warning("Chromatogram indices for ", analyte, " are missing in ", fileInfo[ref, "runName"])
     message("Skipping ", analyte, " across all runs.")
     return(multipeptide[[analyte_chr]])

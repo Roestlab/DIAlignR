@@ -13,9 +13,8 @@
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{run}{(string) run identifier.}
 #' @examples
-#' dataPath <- system.file("extdata", package = "DIAlignR")
-#' \dontrun{
 #' data("multipeptide_DIAlignR", package = "DIAlignR")
+#' \dontrun{
 #' getRefRun(multipeptide_DIAlignR)
 #' }
 #' @seealso \code{\link{getMultipeptide}}
@@ -23,7 +22,13 @@
 getRefRun <- function(multipeptide){
   refRun <- data.frame()
   for(pep in multipeptide){
-    df <- pep[which.min(pep$m_score), c("transition_group_id", "run")]
+    idx <- which.min(pep$m_score)
+    if(length(idx)==0) {
+      df <- pep[1, c("transition_group_id", "run")]
+      df$run <- NA_character_
+    } else{
+      df <- pep[idx, c("transition_group_id", "run")]
+    }
     refRun <- rbind(refRun, df, make.row.names = FALSE)
   }
   refRun
