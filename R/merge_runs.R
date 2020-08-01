@@ -372,7 +372,7 @@ getChildXICs <- function(runA, runB, fileInfo, features, mzPntrs, precursors, pr
     alignedIndices <- alignedIndices[, 1:2]
     #### Merge chromatogramsm ####
     merged_xics <- childXICs(XICs.ref, XICs.eXp, alignedIndices, params[["fillMethod"]], params[["polyOrd"]],
-                             params[["kernelLen"]], params[["splineMethod"]], params[["mergeTime"]], params[["keepFlanks"]])
+                             params[["kernelLen"]], params[["splineMethod"]], params[["w.ref"]], params[["mergeTime"]], params[["keepFlanks"]])
     mergedXICs[[i]] <- merged_xics[[1]]
     alignedVecs[[i]] <- merged_xics[[2]]
   }

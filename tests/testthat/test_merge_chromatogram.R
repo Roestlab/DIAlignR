@@ -97,18 +97,21 @@ test_that("test_mergeXIC",{
   chrom2 <- data.frame(time = t2, y = y2)
 
   intensity <- rowMeans(cbind(y1, y2))
-  outData1 <- mergeXIC(chrom1, chrom2, mergeStrategy = "ref")
+  outData1 <- mergeXIC(chrom1, chrom2, w.ref = 0.5, mergeStrategy = "ref")
   expect_equal(outData1, data.frame(time = t1, intensity))
-  outData2 <- mergeXIC(chrom1, chrom2, mergeStrategy = "avg")
+  outData2 <- mergeXIC(chrom1, chrom2, w.ref = 0.5, mergeStrategy = "avg")
   expect_equal(outData2, data.frame(time = rowMeans(cbind(t1, t2)), intensity))
-  outData3 <- mergeXIC(chrom1, chrom2, mergeStrategy = "refStart")
+  outData3 <- mergeXIC(chrom1, chrom2, w.ref = 0.5, mergeStrategy = "refStart")
   expect_equal(outData3, data.frame(time = seq(from = 3028.4, by = 3.4, length.out = 15),
                                     intensity), tolerance = 1e-03)
-  outData4 <- mergeXIC(chrom1, chrom2, mergeStrategy = "refEnd")
+  outData4 <- mergeXIC(chrom1, chrom2, w.ref = 0.5, mergeStrategy = "refEnd")
   time <- rev(seq(from = 3072.6, by = -3.4, length.out = 15))
   expect_equal(outData4, data.frame(time, intensity), tolerance = 1e-03)
 
-  expect_error(mergeXIC(chrom1, chrom2, mergeStrategy = "none"),
+  outData5 <- mergeXIC(chrom1, chrom2, w.ref = 0, mergeStrategy = "ref")
+  expect_equal(outData5, data.frame(time = t1, intensity = y2))
+
+  expect_error(mergeXIC(chrom1, chrom2, w.ref = 0.5, mergeStrategy = "none"),
                "mergeStrategy is not correct. Must be selected from 'ref', 'avg', 'refStart' and 'refEnd'.")
 })
 
