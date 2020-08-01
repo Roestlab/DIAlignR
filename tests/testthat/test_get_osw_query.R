@@ -39,7 +39,7 @@ test_that("test_getPrecursorsQuery",{
       INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
       INNER JOIN SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
       WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR
-      ORDER BY transition_group_id, transition_id;"
+      ORDER BY peptide_id, transition_group_id, transition_id;"
   expect_identical(outData, expOutput)
 })
 
@@ -78,6 +78,6 @@ test_that("test_getPrecursorsQueryID",{
       INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
       WHERE  transition_group_id IN ('32','43')
-      ORDER BY transition_group_id, transition_id;"
+      ORDER BY peptide_id, transition_group_id, transition_id;"
   expect_identical(outData, expOutput)
 })

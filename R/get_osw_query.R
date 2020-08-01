@@ -213,7 +213,7 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
       INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
       INNER JOIN SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
       WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR
-      ORDER BY transition_group_id, transition_id;"
+      ORDER BY peptide_id, transition_group_id, transition_id;"
   query
 }
 
@@ -279,6 +279,31 @@ getPrecursorsQueryID <- function(analytes, runType = "DIA_Proteomics"){
       INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
       WHERE ", selectAnalytes, "
-      ORDER BY transition_group_id, transition_id;")
+      ORDER BY peptide_id, transition_group_id, transition_id;")
+  query
+}
+
+
+#' Get peptide scores
+#'
+#' For each peptide, its score, pvalue and qvalues are fetched across all runs.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-01
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return SQL query to be searched.
+#' @seealso \code{\link{getPeptideScores}}
+#' @keywords internal
+getPeptideQuery <- function(runType = "DIA_Proteomics"){
+  query <- "SELECT DISTINCT SCORE_PEPTIDE.PEPTIDE_ID AS peptide_id,
+  SCORE_PEPTIDE.RUN_ID AS run,
+  SCORE_PEPTIDE.SCORE AS score,
+  SCORE_PEPTIDE.PVALUE AS pvalue,
+  SCORE_PEPTIDE.QVALUE AS qvalue
+  FROM SCORE_PEPTIDE
+  WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT;"
   query
 }

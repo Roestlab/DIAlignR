@@ -7,7 +7,7 @@
 getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics")
 }
 \arguments{
-\item{fileInfo}{(data-frame) Output of DIAlignR::getRunNames function.}
+\item{fileInfo}{(data-frame) Output of \code{\link{getRunNames}} function.}
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
@@ -28,7 +28,7 @@ Get a list of data-frame of OpenSwath features that contains retention time, int
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+fileInfo <- getRunNames(dataPath = dataPath)
 features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
 dim(features[[2]]) # 227  8
 }

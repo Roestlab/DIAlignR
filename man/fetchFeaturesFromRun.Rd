@@ -35,7 +35,7 @@ Get a data-frame of OpenSwath features that contains retention time, intensities
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+fileInfo <- getRunNames(dataPath = dataPath)
 \dontrun{
 featuresInfo <- fetchFeaturesFromRun(fileInfo$featureFile[1], fileInfo$spectraFileID[1],
  maxFdrQuery = 0.05)

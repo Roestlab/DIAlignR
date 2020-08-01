@@ -25,7 +25,7 @@ FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE fr
 \item{dataPath}{(char) path to mzml and osw directory.}
 
 \item{filenames}{(data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
-To get filenames use DIAlignR::getRunNames function.}
+To get filenames use \code{\link{getRunNames}} function.}
 }
 \value{
 (A list of data-frames) Each data-frame has following columns:

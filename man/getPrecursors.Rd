@@ -13,7 +13,7 @@ getPrecursors(
 )
 }
 \arguments{
-\item{fileInfo}{(data-frame) Output of DIAlignR::getRunNames function.}
+\item{fileInfo}{(data-frame) Output of \code{\link{getRunNames}} function.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
@@ -37,7 +37,7 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+fileInfo <- getRunNames(dataPath = dataPath)
 precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
 context = "experiment-wide", maxPeptideFdr = 0.05)
 dim(precursorsInfo) # 322  6
