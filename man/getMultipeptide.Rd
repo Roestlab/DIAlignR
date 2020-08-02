@@ -29,9 +29,10 @@ Each element of the multipeptide is a collection of features associated with a p
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
 multipeptide <- getMultipeptide(precursors, features)
+multipeptide[["9861"]]
 }
 \seealso{
 \code{\link{getPrecursors}, \link{getFeatures}}

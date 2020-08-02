@@ -4,7 +4,7 @@
 \alias{getRefRun}
 \title{Fetch the reference run for each precursor}
 \usage{
-getRefRun(multipeptide)
+getRefRun(peptideScores)
 }
 \arguments{
 \item{multipeptide}{(list of data-frames) Each element of the list is collection of features associated with a precursor.}
@@ -18,13 +18,19 @@ getRefRun(multipeptide)
 Provides the reference run based on lowest m-score.
 }
 \examples{
-data("multipeptide_DIAlignR", package = "DIAlignR")
+dataPath <- system.file("extdata", package = "DIAlignR")
+fileInfo <- getRunNames(dataPath = dataPath)
+precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+                                context = "experiment-wide", maxPeptideFdr = 0.05)
+peptidesInfo <- getPeptideScores(fileInfo, unique(precursorsInfo$peptide_id))
+peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
+names(peptidesInfo) <- as.character(peptideIDs)
 \dontrun{
-getRefRun(multipeptide_DIAlignR)
+getRefRun(peptidesInfo)
 }
 }
 \seealso{
-\code{\link{getMultipeptide}}
+\code{\link{getPeptideScores}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

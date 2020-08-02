@@ -1,6 +1,6 @@
-#' Fetch the reference run for each precursor
+#' Fetch the reference run for each peptide
 #'
-#' Provides the reference run based on lowest m-score.
+#' Provides the reference run based on lowest qvalue.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -8,30 +8,38 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
-#' @param multipeptide (list of data-frames) Each element of the list is collection of features associated with a precursor.
+#' @param peptideScores (list of data-frames) each dataframe has scores of a peptide across all runs.
 #' @return (dataframe) has two columns:
-#' \item{transition_group_id}{(integer) a unique id for each precursor.}
+#' \item{peptide_id}{(integer) a unique id for each peptide.}
 #' \item{run}{(string) run identifier.}
 #' @examples
-#' data("multipeptide_DIAlignR", package = "DIAlignR")
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+#'                                 context = "experiment-wide", maxPeptideFdr = 0.05)
+#' peptideIDs <- unique(precursorsInfo$peptide_id)
+#' peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)
+#' peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
+#' names(peptidesInfo) <- as.character(peptideIDs)
 #' \dontrun{
-#' getRefRun(multipeptide_DIAlignR)
+#' getRefRun(peptidesInfo)
 #' }
-#' @seealso \code{\link{getMultipeptide}}
+#' @seealso \code{\link{getPeptideScores}}
 #' @keywords internal
-getRefRun <- function(multipeptide){
-  refRun <- data.frame()
-  for(pep in multipeptide){
-    idx <- which.min(pep$m_score)
+getRefRun <- function(peptideScores){
+  DFs <- lapply(seq_along(peptideScores), function(i){
+    pep <- peptideScores[[i]]
+    idx <- which.min(pep$qvalue)
     if(length(idx)==0) {
-      df <- pep[1, c("transition_group_id", "run")]
-      df$run <- NA_character_
+      id <- as.integer(names(peptideScores)[i])
+      df <- data.frame("peptide_id" = id, "run" = NA_character_)
     } else{
-      df <- pep[idx, c("transition_group_id", "run")]
+      df <- pep[idx, c("peptide_id", "run")]
     }
-    refRun <- rbind(refRun, df, make.row.names = FALSE)
-  }
-  refRun
+    df
+  })
+  DFs <- dplyr::bind_rows(DFs)
+  DFs
 }
 
 #' Get multipeptides
@@ -60,36 +68,42 @@ getRefRun <- function(multipeptide){
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 #' features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
 #' multipeptide <- getMultipeptide(precursors, features)
+#' multipeptide[["9861"]]
 #' @seealso \code{\link{getPrecursors}, \link{getFeatures}}
 #' @export
 getMultipeptide <- function(precursors, features){
-  multipeptide <- vector(mode = "list", length = length(precursors[["transition_group_id"]]))
+  peptideIDs <- unique(precursors$peptide_id)
+  multipeptide <- vector(mode = "list", length = length(peptideIDs))
   for(i in seq_along(multipeptide)){
-    analyte <- precursors[["transition_group_id"]][i]
-    multipeptide[[i]] <- data.frame()
+    # Get transition_group_id for a peptideID
+    idx <- which(precursors$peptide_id == peptideIDs[i])
+    analytes <- precursors[idx, "transition_group_id"]
+
+    newdf <- data.frame()
     for(run in names(features)){
       # Match precursor in each run, if not found add NA
-      index <- which(features[[run]][["transition_group_id"]] == analyte)
+      index <- which(features[[run]][["transition_group_id"]] %in% analytes)
       if(length(index) != 0){
         df <- features[[run]][index, ]
         df["run"] <- run
       } else {
-        df <- data.frame("transition_group_id" = analyte, "feature_id" = NA_integer64_, "run" = run,
+        df <- data.frame("transition_group_id" = analytes, "feature_id" = NA_integer64_, "run" = run,
                          "RT" = NA_real_, "intensity" = NA_real_,
                          "leftWidth" = NA_real_, "rightWidth" = NA_real_,
                          "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
                          stringsAsFactors = FALSE)
       }
-      multipeptide[[i]] <- rbind(multipeptide[[i]], df, make.row.names = FALSE)
+      newdf <- rbind(newdf, df, make.row.names = FALSE)
     }
-    multipeptide[[i]][["alignment_rank"]] <- NA_integer_
+    newdf[["alignment_rank"]] <- NA_integer_
+    multipeptide[[i]] <- newdf
   }
 
   # Convert precursors as character. Add names to the multipeptide list.
-  names(multipeptide) <- as.character(precursors[["transition_group_id"]])
+  names(multipeptide) <- as.character(peptideIDs)
   multipeptide
 }
 
@@ -308,6 +322,7 @@ checkParams <- function(params){
   if(params[["analyteFDR"]] < 0 | params[["analyteFDR"]] > 1){
     # Find some logic for analyteFDR.
   }
+
   invisible(NULL)
 }
 
@@ -383,7 +398,7 @@ paramsDIAlignR <- function(){
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
                   fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
-                  keepFlanks = FALSE)
+                  keepFlanks = FALSE, w.ref = 0.5)
   params
 }
 
