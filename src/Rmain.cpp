@@ -334,7 +334,7 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
     MASK.data.resize(MASK.n_row*MASK.n_col, 0.0);
     double A1 = tA[0], A2 = tA[MASK.n_row-1];
     double B1 = tB[0], B2 = tB[MASK.n_col-1];
-    calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
+    if(B2p > B1p) calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
     auto maxIt = max_element(std::begin(s.data), std::end(s.data));
     double maxVal = *maxIt;
     constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
