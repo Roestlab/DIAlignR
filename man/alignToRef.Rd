@@ -7,8 +7,8 @@
 alignToRef(
   eXp,
   ref,
-  analyte_chr,
-  rownum,
+  preIdx,
+  analytes,
   fileInfo,
   XICs.ref.s,
   params,
@@ -23,10 +23,6 @@ alignToRef(
 \item{eXp}{(string) name of the run to be aligned to reference run. Must be in the rownames of fileInfo.}
 
 \item{ref}{(string) name of the reference run. Must be in the rownames of fileInfo.}
-
-\item{analyte_chr}{(string) Precursor ID of the requested analyte.}
-
-\item{rownum}{(integer) represnts the index of the multipepetide to be aligned.}
 
 \item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
 
@@ -45,6 +41,8 @@ chromatogramIndex: index of chromatogram in mzML file.}
 \item{globalFits}{(list) each element is either of class lm or loess. This is an output of \code{\link{getGlobalFits}}.}
 
 \item{RSE}{(list) Each element represents Residual Standard Error of corresponding fit in globalFits.}
+
+\item{analyte_chr}{(string) Precursor ID of the requested analyte.}
 }
 \value{
 (dataframe) aligned features of analyte_chr in eXp run.

@@ -6,13 +6,14 @@
 \usage{
 alignIthAnalyte(
   rownum,
-  precursors,
-  refRuns,
-  fileInfo,
-  prec2chromIndex,
+  peptideIDs,
   multipeptide,
-  params,
+  refRuns,
+  precursors,
+  prec2chromIndex,
+  fileInfo,
   mzPntrs,
+  params,
   globalFits,
   RSE,
   applyFun
@@ -21,22 +22,22 @@ alignIthAnalyte(
 \arguments{
 \item{rownum}{(integer) represnts the index of the multipepetide to be aligned.}
 
-\item{precursors}{(data-frame) atleast two columns transition_group_id and transition_ids are required.}
+\item{multipeptide}{(list) contains multiple data-frames that are collection of features
+associated with analytes. This is an output of \code{\link{getMultipeptide}}.}
 
 \item{refRuns}{(data-frame) output of \code{\link{getRefRun}}. Must have two columsn : transition_group_id and run.}
 
-\item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
+\item{precursors}{(data-frame) atleast two columns transition_group_id and transition_ids are required.}
 
 \item{prec2chromIndex}{(list) a list of dataframes having following columns: \cr
 transition_group_id: it is PRECURSOR.ID from osw file. \cr
 chromatogramIndex: index of chromatogram in mzML file.}
 
-\item{multipeptide}{(list) contains multiple data-frames that are collection of features
-associated with analytes. This is an output of \code{\link{getMultipeptide}}.}
-
-\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
+\item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
 
 \item{mzPntrs}{(list) a list of mzRpwiz.}
+
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
 \item{globalFits}{(list) each element is either of class lm or loess. This is an output of \code{\link{getGlobalFits}}.}
 

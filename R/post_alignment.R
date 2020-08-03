@@ -146,56 +146,96 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' multipeptide[["4618"]]
 #' }
 setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
+  ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
+  df.eXp <- df[df$run == eXp,]
+  if(any(df.eXp[["m_score"]] < params[["unalignedFDR"]], na.rm = TRUE)){
+    idx <- which.min(df.eXp[["m_score"]])
+    df.eXp[["alignment_rank"]][idx] <- 1L
+    return(df.eXp)
+  }
+
+  ##### No high quality feature, hence, alignment is needed. Map peak from ref to eXp #####
   # reference run.
   refIdx <- which(df[["run"]] == ref & df[["alignment_rank"]] == 1)
+  analyte <- df[["transition_group_id"]][refIdx]
+  analyte_chr <- as.character(analyte)
   refRT <- df[["RT"]][refIdx]
   leftRef <- df[["leftWidth"]][refIdx]
   rightRef <- df[["rightWidth"]][refIdx]
-
   # Experiment run.
-  idx <- which(df[["run"]] == eXp)
-  eXpRT <- tAligned[[2]][which.min(abs(tAligned[[1]] - refRT))]
   left <- tAligned[[2]][which.min(abs(tAligned[[1]] - leftRef))]
   right <- tAligned[[2]][which.min(abs(tAligned[[1]] - rightRef))]
+  eXpRT <- tAligned[[2]][which.min(abs(tAligned[[1]] - refRT))]
   # TODO. Save for the edge cases. or use wider chromatogram.
-  if(any(length(left)==0, length(right)==0, length(eXpRT)==0 )){
-    return(df) # Can happen if XICs have all zero intensities.
+  if(any(length(left)==0, length(right)==0, length(eXpRT)==0)){
+    return(df.eXp) # Can happen if XICs have all zero intensities.
   }
 
-  featurePresent <- FALSE
-  if(any(df[["m_score"]][idx] < params[["unalignedFDR"]], na.rm = TRUE)){
-    # Check if any feature is below unaligned FDR. If present alignment_rank = 1.
-    featurePresent <- TRUE
-  } else if(any(df[["m_score"]][idx] < params[["alignedFDR"]], na.rm = TRUE)){
-    # Check if any feature is below aligned FDR and within adaptive RT. If present alignment_rank = 1.
-    idx <- idx[abs(df[["rightWidth"]][idx] - eXpRT) < adaptiveRT |
-                 abs(df[["leftWidth"]][idx] - eXpRT) < adaptiveRT |
-                 abs(df[["RT"]][idx] - eXpRT) < adaptiveRT]
-    idx <- idx[!is.na(idx)]
-    if(length(idx!=0)){
-      featurePresent <- TRUE
-    }
+  ##### Find any feature present within adaptiveRT. #####
+  pk <- c(left - adaptiveRT, right + adaptiveRT)
+  idx <- sapply(1:nrow(df.eXp), function(i) checkOverlap(pk, c(df.eXp$leftWidth[i], df.eXp$rightWidth[i])))
+  idx <- which(idx)
+  if(any(df.eXp[["m_score"]][idx] < params[["unalignedFDR"]], na.rm = TRUE)){
+    idx <- idx[which.min(df.eXp[["m_score"]][idx])]
+    df.eXp[["alignment_rank"]][idx] <- 1L
+    return(df.eXp)
   }
 
-  if(featurePresent){
-    idx <- idx[which.min(df[["m_score"]][idx])]
-    df[["alignment_rank"]][idx] <- 1L
-    if(params[["recalIntensity"]]){
-      df[["intensity"]][idx] <- calculateIntensity(XICs.eXp, left, right, params[["integrationType"]],
-                                                   params[["baselineType"]], params[["fitEMG"]])}
-  } else if(params[["fillMissing"]]){
-    # Otherwise create new feature and alignment rank = 1.
-    intensity <- calculateIntensity(XICs.eXp, left, right, params[["integrationType"]],
+  ##### Create a new feature. #####
+  if(params[["fillMissing"]]){
+    intensity <- calculateIntensity(XICs.eXp[[analyte_chr]], left, right, params[["integrationType"]],
                                     params[["baselineType"]], params[["fitEMG"]])
-    row <- data.frame("transition_group_id" = df[["transition_group_id"]][1], "feature_id" = NA_integer64_,
+    row <- data.frame("transition_group_id" = analyte, "feature_id" = NA_integer64_,
                       "RT" = eXpRT, "intensity"= intensity, "leftWidth" = left, "rightWidth" = right,
                       "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = eXp,
                       "alignment_rank" = 1L)
-    df <- rbind(df, row)
+    df.eXp <- rbind(df.eXp, row)
+  }
+  df.eXp
+}
+
+# df should have features from one run only.
+setOtherPrecursors <- function(df, XICs, analytes, params){
+  refIdx <- which(df[["alignment_rank"]] == 1)
+  # TODO: if refIdx is NA then return df
+  run <- df$run[refIdx]
+  precRef <- df$transition_group_id[refIdx]
+  pk <- c(df$leftWidth[refIdx], df$rightWidth[refIdx])
+
+  # If other precursors have overlapping feature then set their alignment rank to 1.
+  for(analyte in setdiff(analytes, precRef)){
+    idx <- which(df[["transition_group_id"]] == analyte)
+    if(length(idx)!=0){
+      idx <- idx[sapply(idx, function(i) checkOverlap(pk, c(df$leftWidth[i], df$rightWidth[i])))]
+    }
+    if(length(idx)==0 & params[["fillMissing"]]){
+      # Create a feature for missing precursor
+      analyte_chr <- as.character(analyte)
+      intensity <- calculateIntensity(XICs[[analyte_chr]], pk[1], pk[2], params[["integrationType"]],
+                                      params[["baselineType"]], params[["fitEMG"]])
+      row <- data.frame("transition_group_id" = analyte, "feature_id" = NA_integer64_,
+                        "RT" = df$RT[refIdx], "intensity"= intensity, "leftWidth" = pk[1], "rightWidth" = pk[2],
+                        "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = run,
+                        "alignment_rank" = 1L)
+      df <- rbind(df, row)
+    } else{
+      df[["alignment_rank"]][idx] <- 1L # set alignment rank for already present feature
+    }
   }
   df
 }
 
+
+reIntensity <- function(df, XICs, params){
+  idx <- which(df[["alignment_rank"]] == 1)
+  for(i in idx){
+    analyte_chr <- as.character(df$transition_group_id[i])
+    area <- calculateIntensity(XICs[[analyte_chr]], df$leftWidth[i], df$rightWidth[i],
+                               params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
+    df$intensity[i] <- area
+  }
+  df
+}
 
 #' Set Alignment rank to the aligned feature
 #'
