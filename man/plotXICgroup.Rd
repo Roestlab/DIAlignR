@@ -30,7 +30,9 @@ XICs <- smoothXICs(XICs[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][
   type = "sgolay", kernelLen = 13, polyOrd = 4)
 plotXICgroup(XICs, Title = "Precursor 4618 \n
  run hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt")
-
+}
+\seealso{
+\code{\link{plotAnalyteXICs}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
