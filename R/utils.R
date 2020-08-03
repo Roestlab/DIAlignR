@@ -133,85 +133,27 @@ getMultipeptide <- function(precursors, features){
 #' writeTables(fileInfo, multipeptide, precursors)
 #' }
 writeTables <- function(fileInfo, multipeptide, precursors){
-  analytes <- precursors$transition_group_id
+  peptides <- as.integer(names(multipeptide))
   runs <- rownames(fileInfo)
   idx <- grep("^master[0-9]+$", runs, invert = TRUE)
   runs <- runs[idx]
   runName <- fileInfo$runName[idx]
 
-  ######### Initilize output tables. #######
-  rtTbl <- lapply(1:length(analytes), function(i) rep(NA, length(runs)))
-  intesityTbl <- lapply(1:length(analytes), function(i) rep(NA, length(runs)))
-  lwTbl <- lapply(1:length(analytes), function(i) rep(NA, length(runs)))
-  rwTbl <- lapply(1:length(analytes), function(i) rep(NA, length(runs)))
-  prTbl <- lapply(1:length(analytes), function(i) rep(NA, length(runs)))
-  mTbl <- lapply(1:length(analytes), function(i) rep(NA, length(runs)))
-  arTbl <- lapply(1:length(analytes), function(i) rep(NA, length(runs))) # alignment rank table
+  #### Get a dataframe of all analytes with alignment rank = 1 ###########
+  finalTbl <- lapply(seq_along(peptides), function(i){
+    df <- multipeptide[[i]]
+    df <- df[df[["alignment_rank"]] == 1L & df[["run"]] %in% runs,]
+    df
+  })
+  finalTbl <- dplyr::bind_rows(finalTbl)
+  finalTbl$run <- runName[match(finalTbl$run, runs)]
 
-  #### Fill tables. ###########
-  for(i in seq_along(analytes)){
-    analyte_chr <- as.character(analytes[i])
-    df <- multipeptide[[analyte_chr]]
-    for(run in seq_along(runs)){
-      idx <- which(df[["run"]] == runs[run] & df[["alignment_rank"]] == 1L)
-      if(length(idx) == 0) next
-      rtTbl[[i]][run] <- df[["RT"]][idx]
-      intesityTbl[[i]][run] <- df[["intensity"]][idx]
-      lwTbl[[i]][run] <- df[["leftWidth"]][idx]
-      rwTbl[[i]][run] <- df[["rightWidth"]][idx]
-      prTbl[[i]][run] <- df[["peak_group_rank"]][idx]
-      mTbl[[i]][run] <- df[["m_score"]][idx]
-      arTbl[[i]][run] <- df[["alignment_rank"]][idx]
-    }
-  }
-
-  ##### Convert lists into tables. ############
-  rtTbl <- as.data.frame(do.call(rbind, rtTbl))
-  intesityTbl <- as.data.frame(do.call(rbind, intesityTbl))
-  lwTbl <- as.data.frame(do.call(rbind, lwTbl))
-  rwTbl <- as.data.frame(do.call(rbind, rwTbl))
-  prTbl <- as.data.frame(do.call(rbind, prTbl))
-  mTbl <- as.data.frame(do.call(rbind, mTbl))
-  arTbl <- as.data.frame(do.call(rbind, arTbl))
-
-  ######## Assign column names. ###############
-  colnames(rtTbl) <- runName
-  colnames(intesityTbl) <- runName
-  colnames(lwTbl) <- runName
-  colnames(rwTbl) <- runName
-  colnames(prTbl) <- runName
-  colnames(mTbl) <- runName
-  colnames(arTbl) <- runName
-
-  ######### Add precursor column. ##############
-  rtTbl[["precursor"]] <- analytes
-  intesityTbl[["precursor"]] <- analytes
-  lwTbl[["precursor"]] <- analytes
-  rwTbl[["precursor"]] <- analytes
-  prTbl[["precursor"]] <- analytes
-  mTbl[["precursor"]] <- analytes
-  arTbl[["precursor"]] <- analytes
-
-  ##### Changing format from wide to long. ############
-  rtTbl <- pivot_longer(rtTbl, -.data$precursor, names_to = "run", values_to = "RT")
-  intesityTbl <- pivot_longer(intesityTbl, -.data$precursor, names_to = "run", values_to = "intensity")
-  lwTbl <- pivot_longer(lwTbl, -.data$precursor, names_to = "run", values_to = "leftWidth")
-  rwTbl <- pivot_longer(rwTbl, -.data$precursor, names_to = "run", values_to = "rightWidth")
-  prTbl <- pivot_longer(prTbl, -.data$precursor, names_to = "run", values_to = "peak_group_rank")
-  mTbl <- pivot_longer(mTbl, -.data$precursor, names_to = "run", values_to = "m_score")
-  arTbl <- pivot_longer(arTbl, -.data$precursor, names_to = "run", values_to = "alignment_rank")
-
-  ##### Merging all into one table. ###################
-  finalTbl <- merge(x = intesityTbl, y = rtTbl, by = c("precursor", "run"), all = TRUE)
-  finalTbl <- merge(x = finalTbl, y = lwTbl, by = c("precursor", "run"), all = TRUE)
-  finalTbl <- merge(x = finalTbl, y = rwTbl, by = c("precursor", "run"), all = TRUE)
-  finalTbl <- merge(x = finalTbl, y = prTbl, by = c("precursor", "run"), all = TRUE)
-  finalTbl <- merge(x = finalTbl, y = mTbl, by = c("precursor", "run"), all = TRUE)
-  finalTbl <- merge(x = finalTbl, y = arTbl, by = c("precursor", "run"), all = TRUE)
-
-  ##### Merging precursor information. ###################
+  ##### Merging precursor information and return the dataframe. ###################
   finalTbl <- merge(x = finalTbl, y = precursors[,-which(names(precursors) %in% c("transition_ids"))],
-                    by.x = "precursor", by.y = "transition_group_id", all.x = TRUE)
+                    by = "transition_group_id", all.x = TRUE)
+  colnames(finalTbl)[1] <- c("precursor")
+  finalTbl$feature_id <- as.character(finalTbl$feature_id)
+  finalTbl <- dplyr::arrange(finalTbl, .data$peptide_id, .data$precursor, .data$run)
   finalTbl
 }
 
