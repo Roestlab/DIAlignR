@@ -175,7 +175,7 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
   pk <- c(left - adaptiveRT, right + adaptiveRT)
   idx <- sapply(1:nrow(df.eXp), function(i) checkOverlap(pk, c(df.eXp$leftWidth[i], df.eXp$rightWidth[i])))
   idx <- which(idx)
-  if(any(df.eXp[["m_score"]][idx] < params[["unalignedFDR"]], na.rm = TRUE)){
+  if(any(df.eXp[["m_score"]][idx] < params[["alignedFDR"]], na.rm = TRUE)){
     idx <- idx[which.min(df.eXp[["m_score"]][idx])]
     df.eXp[["alignment_rank"]][idx] <- 1L
     return(df.eXp)

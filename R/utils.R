@@ -142,7 +142,8 @@ writeTables <- function(fileInfo, multipeptide, precursors){
   #### Get a dataframe of all analytes with alignment rank = 1 ###########
   finalTbl <- lapply(seq_along(peptides), function(i){
     df <- multipeptide[[i]]
-    df <- df[df[["alignment_rank"]] == 1L & df[["run"]] %in% runs,]
+    idx <- which(df[["alignment_rank"]] == 1L & df[["run"]] %in% runs)
+    df <- df[idx,]
     df
   })
   finalTbl <- dplyr::bind_rows(finalTbl)
