@@ -9,39 +9,8 @@ alignTargetedRuns(
   outFile = "DIAlignR.tsv",
   oswMerged = TRUE,
   runs = NULL,
-  runType = "DIA_Proteomics",
-  context = "global",
-  maxPeptideFdr = 0.05,
-  maxFdrQuery = 0.05,
-  XICfilter = "sgolay",
-  polyOrd = 4,
-  kernelLen = 9,
-  globalAlignment = "loess",
-  globalAlignmentFdr = 0.01,
-  globalAlignmentSpan = 0.1,
-  RSEdistFactor = 3.5,
-  normalization = "mean",
-  simMeasure = "dotProductMasked",
-  alignType = "hybrid",
-  goFactor = 0.125,
-  geFactor = 40,
-  cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE,
-  dotProdThresh = 0.96,
-  gapQuantile = 0.5,
-  kerLen = 9,
-  hardConstrain = FALSE,
-  samples4gradient = 100,
-  analyteFDR = 0.01,
-  unalignedFDR = 0.01,
-  alignedFDR = 0.05,
-  baselineType = "base_to_base",
-  integrationType = "intensity_sum",
-  fitEMG = FALSE,
-  recalIntensity = FALSE,
-  fillMissing = TRUE,
-  smoothPeakArea = FALSE,
-  applyFun = lapply
+  applyFun = lapply,
+  params
 )
 }
 \arguments{
@@ -52,6 +21,8 @@ alignTargetedRuns(
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
 \item{runs}{(A vector of string) names of mzml file without extension.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 
 \item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
@@ -121,8 +92,6 @@ from "intensity_sum", "trapezoid", "simpson".}
 \item{fillMissing}{(logical) calculate intensity for ananlytes for which features are not found.}
 
 \item{smoothPeakArea}{(logical) FALSE: raw chromatograms will be used for quantification. TRUE: smoothed chromatograms will be used for quantification.}
-
-\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
@@ -133,9 +102,10 @@ This function expects osw and mzml directories at dataPath. It first reads osw f
 It then align XICs of its reference XICs. Best peak, which has lowest m-score, about the aligned retention time is picked for quantification.
 }
 \examples{
+params <- paramsDIAlignR()
+params[["context"]] <- "experiment-wide"
 dataPath <- system.file("extdata", package = "DIAlignR")
-alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", oswMerged = TRUE,
- context = "experiment-wide", maxPeptideFdr = 0.05)
+alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", params = params)
 }
 \references{
 Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.

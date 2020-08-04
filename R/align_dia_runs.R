@@ -56,39 +56,16 @@
 #'
 #' @seealso \code{\link{getRunNames}, \link{getFeatures}, \link{setAlignmentRank}, \link{getMultipeptide}}
 #' @examples
+#' params <- paramsDIAlignR()
+#' params[["context"]] <- "experiment-wide"
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", oswMerged = TRUE,
-#'  context = "experiment-wide", maxPeptideFdr = 0.05)
+#' alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", params = params)
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
 alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TRUE, runs = NULL,
-                              runType = "DIA_Proteomics", context = "global", maxPeptideFdr = 0.05,
-                              maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
-                              globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
-                              RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
-                              alignType = "hybrid", goFactor = 0.125, geFactor = 40,
-                              cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-                              dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
-                              hardConstrain = FALSE, samples4gradient = 100,
-                              analyteFDR = 0.01,
-                              unalignedFDR = 0.01, alignedFDR = 0.05,
-                              baselineType = "base_to_base", integrationType = "intensity_sum",
-                              fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE,
-                              applyFun = lapply){
-  #### Check if filter length is odd for Savitzky-Golay filter.  #########
-  params <- list(runType = runType, context = context, maxPeptideFdr = maxPeptideFdr,
-                 maxFdrQuery = maxFdrQuery, XICfilter = XICfilter, polyOrd = polyOrd, kernelLen = kernelLen,
-                 globalAlignment = globalAlignment, globalAlignmentFdr = globalAlignmentFdr, globalAlignmentSpan = globalAlignmentSpan,
-                 RSEdistFactor = RSEdistFactor, normalization = normalization, simMeasure = simMeasure,
-                 alignType = alignType, goFactor = goFactor, geFactor = geFactor,
-                 cosAngleThresh = cosAngleThresh, OverlapAlignment = OverlapAlignment,
-                 dotProdThresh = dotProdThresh, gapQuantile = gapQuantile, kerLen = kerLen,
-                 hardConstrain = hardConstrain, samples4gradient = samples4gradient,
-                 analyteFDR = analyteFDR, unalignedFDR = unalignedFDR, alignedFDR = alignedFDR,
-                 baselineType = baselineType, integrationType = integrationType,
-                 fitEMG = fitEMG, recalIntensity = recalIntensity, fillMissing = fillMissing,
-                 smoothPeakArea = smoothPeakArea)
+                              applyFun = lapply, params){
+  #### Check if all parameters make sense.  #########
   checkParams(params)
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
@@ -100,14 +77,14 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
 
   #### Get Precursors from the query and respectve chromatogram indices. ######
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
-  precursors <- getPrecursors(fileInfo, oswMerged, runType, context, maxPeptideFdr)
+  precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
-  features <- getFeatures(fileInfo, maxFdrQuery, runType)
+  features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]])
 
   #### Get Peptide scores, pvalue and qvalues. ######
   peptideIDs <- unique(precursors$peptide_id)
-  peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, runType, context)
+  peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
 
@@ -130,8 +107,9 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
   refRuns <- getRefRun(peptideScores)
 
   #### Container to save Global alignments.  #######
-  globalFits <- getGlobalFits(refRuns, features, fileInfo, globalAlignment,
-                              globalAlignmentFdr, globalAlignmentSpan)
+  message("Calculating global alignments.")
+  globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
+                              params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
   RSE <- lapply(globalFits, getRSE)
 
   #### Perform pairwise alignment ###########
@@ -390,7 +368,7 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
     df.eXp <- df[df[["run"]] == eXp, ]
     return(df.eXp)
   } else {
-    XICs.eXp <- lapply(chromIndices, function(i) extractXIC_group(mz = mzPntrs[[ref]], chromIndices = i))
+    XICs.eXp <- lapply(chromIndices, function(i) extractXIC_group(mz = mzPntrs[[eXp]], chromIndices = i))
     XICs.eXp.s <- lapply(XICs.eXp, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
                          polyOrd = params[["polyOrd"]])
     names(XICs.eXp.s) <- names(XICs.eXp) <- as.character(analytes)
