@@ -78,15 +78,17 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
   #### Get Precursors from the query and respectve chromatogram indices. ######
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
-
-  #### Get OpenSWATH peak-groups and their retention times. ##########
-  features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]])
+  precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 
   #### Get Peptide scores, pvalue and qvalues. ######
   peptideIDs <- unique(precursors$peptide_id)
   peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
+
+
+  #### Get OpenSWATH peak-groups and their retention times. ##########
+  features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]])
 
   #### Collect pointers for each mzML file. #######
   message("Collecting metadata from mzML files.")
@@ -112,6 +114,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
   RSE <- lapply(globalFits, getRSE)
 
+  # TODO: Check dimensions of multipeptide, PeptideIDs, precursors etc makes sense.
   #### Perform pairwise alignment ###########
   message("Performing reference-based alignment.")
   start_time <- Sys.time()
