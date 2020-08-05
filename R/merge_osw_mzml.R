@@ -191,7 +191,9 @@ getChromatogramIndices <- function(fileInfo, precursors, mzPntrs){
     # Get chromatogram indices from the header file.
     chromHead <- mzR::chromatogramHeader(mzPntrs[[runs[i]]]) #TODO: Make sure that chromatogramIndex is read as integer64
     chromatogramIdAsInteger(chromHead) # Select only chromatogramId, chromatogramIndex
-    prec2chromIndex[[i]] <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
+    df <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
+    df <- df[match(precursors$transition_group_id, df$transition_group_id),]
+    prec2chromIndex[[i]] <- df
     message("Fetched chromatogram indices from ", fileInfo$chromatogramFile[i])
   }
   names(prec2chromIndex) <- rownames(fileInfo)
