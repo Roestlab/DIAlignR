@@ -13,6 +13,7 @@ getChildXICs(
   precursors,
   prec2chromIndex,
   refRun,
+  peptideScores,
   params
 )
 }
@@ -55,10 +56,16 @@ mzPntrs <- getMZMLpointers(fileInfo)
 features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
 precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
  context = "experiment-wide", maxPeptideFdr = 0.05)
+precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+peptideIDs <- unique(precursors$peptide_id)
+peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
+peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+names(peptideScores) <- as.character(peptideIDs)
 prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
-refRun <- rep(1L, nrow(precursors))
+var2 <- as.character(sapply(peptideIDs, function(p) precursors$transition_group_id[which(precursors$peptide_id == p)[1]]))
+refRun <- data.frame(rep(1L, length(peptideIDs)), var2)
 mergedXICs <- getChildXICs(runA = "run1", runB = "run2", fileInfo, features, mzPntrs,
-  precursors, prec2chromIndex,refRun, params)
+  precursors, prec2chromIndex, refRun, peptideScores, params)
 rm(mzPntrs)
 }
 \seealso{
