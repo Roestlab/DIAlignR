@@ -31,7 +31,7 @@
 #' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
 #' names(peptideScores) <- as.character(peptideIDs)
 #' peptideScores <- list2env(peptideScores)
-#' multipeptide <- getMultipeptide(precursors, features)
+#' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
 #' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 #' mergeName <- "master"
 #' adaptiveRTs <- new.env()
@@ -40,17 +40,19 @@
 #' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
 #'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
+#' rm(mzPntrs)
 #' file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.mzML")))
+#' file.remove(list.files(".", pattern = "*_av.rds", full.names = TRUE))
 #' }
 getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
                        precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms){
-  peptides_chr <- names(peptideScores)
+  peptides <- unique(precursors$peptide_id)
 
   ##### Select reference for each peptide and update peptideScores. #####
-  var1 <- rep(NA_integer_, length(peptides_chr))
-  var2 <- rep(NA_integer_, length(peptides_chr))
-  for(i in seq_along(peptides_chr)){
-    peptide_chr <- peptides_chr[i]
+  var1 <- rep(NA_integer_, length(peptides))
+  var2 <- rep(NA_integer_, length(peptides))
+  for(i in seq_along(peptides)){
+    peptide_chr <- as.character(peptides[i])
     temp1 <- peptideScores[[peptide_chr]]
     temp <- temp1[temp1$run %in% c(runA, runB),]
     mscoreA <- temp$qvalue[temp$run == runA]
@@ -58,7 +60,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
     if(length(mscoreA)==0) mscoreA <- 1
     if(length(mscoreB)==0) mscoreB <- 1
     var1[i] <- ifelse(mscoreA > mscoreB, 2L, 1L)
-    if(nrow(temp) > 1){
+    if(nrow(temp) > 0){
       newdf <- data.frame(peptide_id = as.integer(peptide_chr), run = mergeName, score = max(temp$score),
                           pvalue = min(temp$pvalue), qvalue = min(temp$qvalue))
       peptideScores[[peptide_chr]] <- rbind(temp1, newdf)
@@ -82,7 +84,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   ##### Get merged features, calculate intensities, left width, right width, m-score. #####
   # we can also run pyopenms feature finder on new chromatogram.
   message("Getting merged features for run ", mergeName)
-  childFeatures <- lapply(seq_along(peptides_chr), function(i){
+  childFeatures <- lapply(seq_along(peptides), function(i){
     analytes <- as.integer(names(mergedXICs[[i]]))
     alignedVec <- alignedVecs[[i]]
     childFeature <- data.frame()
@@ -105,10 +107,20 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
     }
     childFeature
   })
-  childFeatures <- dplyr::bind_rows(childFeatures)
+
+  ##### Add features to multipeptide #####
+  for(i in seq_along(peptides)){
+    peptide_chr <- as.character(peptides[i])
+    df <- childFeatures[[i]]
+    if(nrow(df) == 0) next
+    df$run <- mergeName
+    df$alignment_rank <- NA_integer_
+    multipeptide[[peptide_chr]] <- dplyr::bind_rows(multipeptide[[peptide_chr]], df)
+  }
 
   rm(temp)
   ##### Add node features #####
+  childFeatures <- dplyr::bind_rows(childFeatures)
   assign("temp", childFeatures, envir = parent.frame(n = 1))
   with(parent.frame(n = 1), features[[mergeName]] <- temp)
 
@@ -135,6 +147,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   chromHead <- mzR::chromatogramHeader(mzPntr) #TODO: Make sure that chromatogramIndex is read as integer64
   chromatogramIdAsInteger(chromHead) # Select only chromatogramId, chromatogramIndex
   df <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
+  df <- df[match(precursors$transition_group_id, df$transition_group_id),]
   assign("temp", df, envir = parent.frame(n = 1))
   with(parent.frame(n = 1), prec2chromIndex[[mergeName]] <- temp)
 
@@ -280,6 +293,7 @@ trfrParentFeature <- function(XICs, timeParent, df, params){
   df[!(is.na(df$leftWidth) | is.na(df$rightWidth) | is.na(df$intensity)),]
 }
 
+
 #' Overlap of two time ranges
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -308,6 +322,7 @@ checkOverlap <- function(x, y){
   olap <- (leftOverlap | rightOverlap | overArch)
   olap
 }
+
 
 #' Develop child XICs for precursors
 #'
@@ -350,7 +365,7 @@ checkOverlap <- function(x, y){
 #' @export
 getChildXICs <- function(runA, runB, fileInfo, features, mzPntrs, precursors, prec2chromIndex, refRun,
                          peptideScores, params){
-  peptides <- as.integer(names(peptideScores))
+  peptides <- unique(precursors$peptide_id)
 
   #### Get global alignment between runs ####
   pair <- paste(runA, runB, sep = "_")
