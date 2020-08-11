@@ -74,7 +74,7 @@ test_that("test_fetchPrecursorsInfo",{
              stringsAsFactors = FALSE)
   expData[1, "transition_ids"][[1]] <- list(c(192L, 193L, 194L, 195L, 196L, 197L))
   expect_identical(outData[1,], expData)
-  expect_identical(dim(outData), c(312L, 6L))
+  expect_identical(dim(outData), c(302L, 6L))
 })
 
 test_that("test_getPrecursors",{
@@ -161,3 +161,7 @@ test_that("test_getFeatures",{
   expect_identical(length(outData), 3L)
   expect_identical(dim(outData[["run1"]]), c(227L, 8L))
 })
+
+test_that("test_fetchPeptidesInfo", {})
+
+test_that("test_getPeptideScores", {})
