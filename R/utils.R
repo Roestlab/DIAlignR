@@ -44,7 +44,7 @@ getRefRun <- function(peptideScores){
 
 #' Get multipeptides
 #'
-#' Each element of the multipeptide is a collection of features associated with a precursor.
+#' Each element of the multipeptide is a collection of features associated with a peptide.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -90,11 +90,12 @@ getMultipeptide <- function(precursors, features){
         df <- features[[run]][index, ]
         df["run"] <- run
       } else {
-        df <- data.frame("transition_group_id" = analytes, "feature_id" = NA_integer64_, "run" = run,
+        df <- data.frame("transition_group_id" = analytes, "feature_id" = NA_integer_, "run" = run,
                          "RT" = NA_real_, "intensity" = NA_real_,
                          "leftWidth" = NA_real_, "rightWidth" = NA_real_,
                          "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
                          stringsAsFactors = FALSE)
+        df$feature_id <- bit64::as.integer64(df$feature_id)
       }
       newdf <- rbind(newdf, df, make.row.names = FALSE)
     }
@@ -148,6 +149,8 @@ writeTables <- function(fileInfo, multipeptide, precursors){
   })
   finalTbl <- dplyr::bind_rows(finalTbl)
   finalTbl$run <- runName[match(finalTbl$run, runs)]
+  finalTbl <- dplyr::select(finalTbl, transition_group_id, feature_id, run, RT, intensity,
+                            leftWidth, rightWidth, peak_group_rank, m_score, alignment_rank)
 
   ##### Merging precursor information and return the dataframe. ###################
   finalTbl <- merge(x = finalTbl, y = precursors[,-which(names(precursors) %in% c("transition_ids"))],
@@ -155,6 +158,9 @@ writeTables <- function(fileInfo, multipeptide, precursors){
   colnames(finalTbl)[1] <- c("precursor")
   finalTbl$feature_id <- as.character(finalTbl$feature_id)
   finalTbl <- dplyr::arrange(finalTbl, .data$peptide_id, .data$precursor, .data$run)
+  finalTbl <- dplyr::select(finalTbl, .data$peptide_id, .data$precursor, .data$run, .data$RT, .data$intensity,
+                            .data$leftWidth, .data$rightWidth, .data$peak_group_rank, .data$m_score,
+                            .data$alignment_rank, .data$feature_id, .data$sequence, .data$charge, .data$group_label)
   finalTbl
 }
 
@@ -330,7 +336,7 @@ checkParams <- function(params){
 #' @export
 paramsDIAlignR <- function(){
   params <- list( runType = "DIA_proteomics", maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
-                  context = "experiment-wide", unalignedFDR = 0.01, alignedFDR = 0.05,
+                  context = "global", unalignedFDR = 0.01, alignedFDR = 0.05,
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
                   recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,
                   XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
