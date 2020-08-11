@@ -35,7 +35,7 @@ test_that("test_getMultipeptide", {
                         "run" = c("run0", "run1", "run1", "run2"),
                         "alignment_rank" = c(rep(NA_integer_,4)),
                         stringsAsFactors = FALSE)
-  expect_identical(length(outData), 228L)
+  expect_identical(length(outData), 229L)
   expect_equal(outData[[108]], expData, tolerance = 1e-04)
   expect_equal(outData[["9861"]], expData, tolerance = 1e-04)
 })
