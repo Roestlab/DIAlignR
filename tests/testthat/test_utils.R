@@ -4,9 +4,8 @@ test_that("test_getRefRun", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
   precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 1.00)
-  features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
   peptideIDs <- unique(precursors$peptide_id)
-  peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)
+  peptidesInfo <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, runType = "DIA_proteomics", context = "experiment-wide")
   peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
   names(peptidesInfo) <- as.character(peptideIDs)
   outData <- getRefRun(peptidesInfo)
@@ -14,7 +13,7 @@ test_that("test_getRefRun", {
   expData <- data.frame("peptide_id" = c(7040L, 4170L),
                         "run" = c("run0","run2"),
                         stringsAsFactors = FALSE)
-  expect_identical(dim(outData), c(306L, 2L))
+  expect_identical(dim(outData), c(297L, 2L))
   expect_identical(outData[1:2,], expData)
 })
 
