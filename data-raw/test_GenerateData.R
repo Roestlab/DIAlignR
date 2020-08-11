@@ -20,7 +20,9 @@ generateDIAlignRdata <- function(){
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
   save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
 
-  multipeptide <- getMultipeptide(precursors, oswFiles_DIAlignR)
+  p <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics", context = "experiment-wide", maxPeptideFdr = 0.01)
+  f <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
+  multipeptide <- getMultipeptide(p, f)
   multipeptide_DIAlignR <- multipeptide
   save(multipeptide_DIAlignR, file = "multipeptide_DIAlignR.rda", version = 2)
 }
