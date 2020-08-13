@@ -22,42 +22,56 @@ test_that("test_getNodeRun",{
   params[["keepFlanks"]] <- TRUE
   params[["XICfilter"]] <- "none"
   params[["globalAlignmentFdr"]] <- 0.05
+  params[["context"]] <- "experiment-wide"
   fileInfo <- getRunNames(dataPath = dataPath)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
   features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
-  precursors <- data.frame(transition_group_id = 4618L, peptide_id = 14383L,
-                           sequence = "QFNNTDIVLLEDFQK", charge = 3L,
-                           group_label = "14299_QFNNTDIVLLEDFQK/3",
-                           transition_ids	= I(list(27706:27711)))
+
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
+  precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
+  peptideIDs <-  c(7040L, 14383L, 9861L)
+  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+  peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  names(peptideScores) <- as.character(peptideIDs)
+
+  peptideScores <- list2env(peptideScores)
+  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
   prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
   mergeName <- "temp"
   adaptiveRTs <- new.env()
   refRuns <- new.env()
 
-  expect_message(getNodeRun(runA="run1", runB="run2", mergeName, dataPath = ".",
-                            fileInfo, features, mzPntrs, prec2chromIndex,
-                            precursors, params, adaptiveRTs, refRuns, ropenms),
-                 "Created a child run: temp")
+  expect_warning(getNodeRun(runA="run1", runB="run2", mergeName, dataPath = ".",
+                            fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
+                            adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms),
+                 "Chromatogram indices for 7040 are missing.")
 
   expect_identical(ls(mzPntrs), c("run0", "run1", "run2", "temp"))
   expect_is(mzPntrs[["temp"]], "mzRpwiz")
-  expect_equal(features$temp, childFeatures()[1,], tolerance = 1e-04)
+  expect_equal(features$temp[1,], childFeatures()[1,], tolerance = 1e-04)
+  expect_equal(features$temp[c(2,3), c(1,3,4,8)],
+               data.frame(transition_group_id = c(9719L, 9720L), RT = 2600.75, intensity = c(14.31522, 18.25102),
+                          m_score = c(1.041916e-03, 5.692077e-05), row.names = c(2L, 3L)), tolerance = 1e-04)
   expect_identical(fileInfo["temp", "chromatogramFile"], file.path(".", "mzml", "temp.chrom.mzML"))
   expect_identical(fileInfo["temp", "runName"], "temp")
-  expect_identical(prec2chromIndex$temp[,"transition_group_id"], 4618L)
-  expect_identical(prec2chromIndex$temp[,"chromatogramIndex"][[1]], 1:6)
+  expect_identical(prec2chromIndex$temp[,"transition_group_id"], c(32L, 4618L, 9719L, 9720L))
+  expect_identical(prec2chromIndex$temp[,"chromatogramIndex"], list(rep(NA_integer_, 6), 1:6, 7:12, 13:18))
   expect_equal(adaptiveRTs[["run1_run2"]], 77.82315, tolerance = 1e-04)
   expect_equal(adaptiveRTs[["run2_run1"]], 70.4146, tolerance = 1e-04)
-  expect_identical(refRuns[["temp"]], 1L)
+  expect_identical(refRuns[["temp"]], data.frame("var1" = c(2L,1L,1L), "var2" = c("32","4618","9720")))
+  expect_equal(multipeptide[["9861"]][5:6, "m_score"], c(1.041916e-03, 5.692077e-05), tolerance = 1e-04)
+  expect_equal(peptideScores[["9861"]][4,"pvalue"], 5.603183e-05, tolerance = 1e-04)
+  expect_equal(peptideScores[["14383"]][4,"pvalue"], 5.603183e-05, tolerance = 1e-04)
+
 
   data(masterXICs_DIAlignR, package="DIAlignR")
   outData <- mzR::chromatograms(mzR::openMSfile(file.path(".", "mzml", "temp.chrom.mzML"), backend = "pwiz"))
-  for(i in seq_along(outData)){
+  for(i in 1:6){
     expect_equal(outData[[i]][[1]], masterXICs_DIAlignR[[1]][[i]][[1]], tolerance = 1e-04)
     expect_equal(outData[[i]][[2]], masterXICs_DIAlignR[[1]][[i]][[2]], tolerance = 1e-04)
   }
   outData <- readRDS("temp_av.rds", refhook = NULL)
-  expect_equal(outData[[1]], masterXICs_DIAlignR[[2]], tolerance = 1e-04)
+  expect_equal(outData[[2]], masterXICs_DIAlignR[[2]], tolerance = 1e-04)
   file.remove("temp_av.rds")
   file.remove(file.path("mzml", "temp.chrom.mzML"))
   unlink("mzml", recursive = TRUE)
@@ -120,16 +134,19 @@ test_that("test_getChildXICs",{
                            sequence = "QFNNTDIVLLEDFQK", charge = 3L,
                            group_label = "14299_QFNNTDIVLLEDFQK/3",
                            transition_ids	= I(list(27706:27711)))
+  peptideScores <- getPeptideScores(fileInfo, peptides = 14383L, TRUE, "DIA_proteomics", "experiment-wide")
+
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
-  refRun <- c(2L)
+  refRun <- data.frame(2, "4618")
   params <- paramsDIAlignR()
   params[["kernelLen"]] <- 13L
   params[["polyOrd"]] <- 4L
   outData <- getChildXICs(runA = "run2", runB="run1", fileInfo, features, mzPntrs, precursors,
-               prec2chromIndex, refRun, params)
+               prec2chromIndex, refRun, peptideScores, params)
   rm(mzPntrs)
 
   alignObj <- testAlignObj()
+  expect_identical(names(outData[[1]][[1]]), "4618")
   expect_identical(dim(outData[[2]][[1]]), c(184L, 5L))
   expect_identical(colnames(outData[[2]][[1]]), c("indexAligned.ref", "indexAligned.eXp",
               "tAligned.ref", "tAligned.eXp", "alignedChildTime"))

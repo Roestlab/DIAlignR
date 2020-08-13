@@ -71,7 +71,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
     idx <- ifelse(length(idx)==0, 1, idx)
     var2[i] <- temp[idx, "transition_group_id"]
   }
-  refRun <- data.frame(var1, as.character(var2))
+  refRun <- data.frame("var1" = var1, "var2" = as.character(var2))
 
   ##### Get childXICs #####
   message("Getting merged chromatograms for run ", mergeName)
@@ -111,11 +111,16 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   ##### Add features to multipeptide #####
   for(i in seq_along(peptides)){
     peptide_chr <- as.character(peptides[i])
+    temp <- multipeptide[[peptide_chr]]
     df <- childFeatures[[i]]
-    if(nrow(df) == 0) next
+    if(nrow(df) == 0) df <- data.frame("transition_group_id" = temp$transition_group_id[1],
+                                       "feature_id" = bit64::NA_integer64_,
+                                       "RT" = NA_real_, "intensity" = NA_real_,
+                                       "leftWidth" = NA_real_, "rightWidth" = NA_real_,
+                                       "peak_group_rank" = NA_integer_, "m_score" = NA_real_, stringsAsFactors = FALSE)
     df$run <- mergeName
     df$alignment_rank <- NA_integer_
-    multipeptide[[peptide_chr]] <- dplyr::bind_rows(multipeptide[[peptide_chr]], df)
+    multipeptide[[peptide_chr]] <- dplyr::bind_rows(temp, df)
   }
 
   rm(temp)
