@@ -14,7 +14,7 @@ alignToMaster(
   prec2chromIndex,
   mzPntrs,
   fileInfo,
-  analytes,
+  precursors,
   params
 )
 }
@@ -40,8 +40,7 @@ chromatogramIndex: index of chromatogram in mzML file.}
 
 \item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
 
-\item{analytes}{(integer) this vector contains transition_group_id from precursors. It must be of
-the same length as of multipeptide.}
+\item{precursors}{(data-frame) atleast two columns transition_group_id and transition_ids are required.}
 
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 }
@@ -64,6 +63,13 @@ mzPntrs <- list2env(getMZMLpointers(fileInfo))
 features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
 precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+peptideIDs <- unique(precursors$peptide_id)
+peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
+peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+names(peptideScores) <- as.character(peptideIDs)
+prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 adaptiveRTs <- new.env()
 refRuns <- new.env()
@@ -71,21 +77,21 @@ tree <- ape::reorder.phylo(ape::read.tree(text = "(run1:7,run2:2)master1;"), "po
 \dontrun{
 ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
- adaptiveRTs, refRuns, ropenms)
+ adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
 multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
-analytes <- precursors$transition_group_id
 alignedVecs <- readRDS(file = file.path(dataPath, "master1_av.rds"))
 adaptiveRT <- (adaptiveRTs[["run1_run2"]] + adaptiveRTs[["run2_run1"]])/2
-multipeptide[["4618"]]$alignment_rank[multipeptide[["4618"]]$run == "master1"] <- 1L
-alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRuns[["master1"]], adaptiveRT,
- multipeptide, prec2chromIndex, mzPntrs, fileInfo, analytes, params)
+multipeptide[["14383"]]$alignment_rank[multipeptide[["14383"]]$run == "master1"] <- 1L
+alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRuns[["master1"]][,1], adaptiveRT,
+ multipeptide, prec2chromIndex, mzPntrs, fileInfo, precursors, params)
 # Cleanup
+rm(mzPntrs)
 file.remove(file.path(dataPath, "master1_av.rds"))
 file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
 }
 }
 \seealso{
-\code{\link{traverseUp}, \link{traverseDown}, \link{setAlignmentRank2}}
+\code{\link{traverseUp}, \link{traverseDown}, \link{setAlignmentRank}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

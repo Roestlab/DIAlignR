@@ -27,6 +27,7 @@ nrDesc <- function(tree) {
   res
 }
 
+
 # nr_desc(k)
 # phangorn::Descendants(k, node = "6", type = "children")
 # getMRCA(k, c("1", "4"))
@@ -65,6 +66,7 @@ getTree <- function(distMat){
   tree
 }
 
+
 #' Get node IDs from tree
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -99,7 +101,7 @@ getNodeIDs <- function(tree){
 #' While traversing from leaf to root node, at each node a master run is created.
 #' Merged features and merged chromatograms from parent runs are estimated. Chromatograms are written on the disk
 #' at dataPath/mzml. For each precursor aligned parent time-vectors and corresponding child time-vector
-#' are also calculated and written as *_av.rda at dataPath.
+#' are also calculated and written as *_av.rds at dataPath.
 #'
 #'     Accesors to the new files are added to fileInfo, mzPntrs and prec2chromIndex. Features, reference
 #' used for the alignment and adaptiveRTs of global alignments are also added to corresponding environment.
@@ -133,6 +135,13 @@ getNodeIDs <- function(tree){
 #' features <- list2env(getFeatures(fileInfo, maxFdrQuery = params[["maxFdrQuery"]], runType = params[["runType"]]))
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
 #'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+#' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+#' peptideIDs <- unique(precursors$peptide_id)
+#' peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
+#' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+#' names(peptideScores) <- as.character(peptideIDs)
+#' peptideScores <- list2env(peptideScores)
+#' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
 #' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
@@ -141,13 +150,14 @@ getNodeIDs <- function(tree){
 #' \dontrun{
 #' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
-#'  adaptiveRTs, refRuns, ropenms)
+#'  adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
+#' rm(mzPntrs)
 #' # Cleanup
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 #' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
 #' }
 traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
-                       params, adaptiveRTs, refRuns, ropenms){
+                       params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms){
   vertices <- getNodeIDs(tree)
   ord <- tree$edge[,2] # Traversal order
   num_merge <- length(ord)/2
@@ -160,7 +170,7 @@ traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIn
     mergeName <- names(vertices)[vertices == ape::getMRCA(tree, c(ord[i], ord[i+1]))]
     message(runA, " + ", runB, " = ", mergeName)
     getNodeRun(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
-               precursors, params, adaptiveRTs, refRuns, ropenms)
+               precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
   }
 
   assign("temp", fileInfo, envir = parent.frame(n = 1))
@@ -195,7 +205,13 @@ traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIn
 #' features <- list2env(getFeatures(fileInfo, maxFdrQuery = params[["maxFdrQuery"]], runType = params[["runType"]]))
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
 #'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+#' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+#' peptideIDs <- unique(precursors$peptide_id)
+#' peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
+#' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+#' names(peptideScores) <- as.character(peptideIDs)
 #' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+#' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
 #' tree <- ape::read.tree(text = "(run1:9,(run2:7,run0:2)master2:5)master1;")
@@ -203,16 +219,16 @@ traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIn
 #' \dontrun{
 #' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
-#'  adaptiveRTs, refRuns, ropenms)
+#'  adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
 #' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
-#' analytes <- precursors$transition_group_id
-#' traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
+#' traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
 #'  adaptiveRTs, refRuns, params)
 #' # Cleanup
+#' rm(mzPntrs)
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 #' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
 #' }
-traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
+traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
                          adaptiveRTs, refRuns, params){
   vertices <- getNodeIDs(tree)
   ord <- rev(tree$edge[,1])
@@ -221,12 +237,40 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 
   # set alignment rank for the master1 run.
   master1 <- names(vertices)[vertices == ord[1]]
-  for(analyte in analytes){
-    analyte_chr <- as.character(analyte)
-    df <- multipeptide[[analyte_chr]]
-    refIdx <- which(df[["run"]] == master1 & df[["peak_group_rank"]] == 1)
-    df[["alignment_rank"]][refIdx] <- 1L
-    multipeptide[[analyte_chr]] <- df
+  peptideIDs <- unique(precursors$peptide_id)
+  for(peptide in peptideIDs){
+    ##### Set alignment rank in the master1 #####
+    peptide_chr <- as.character(peptide)
+    df <- multipeptide[[peptide_chr]]
+    df.other <- df[df$run != master1,]
+    df.ref <- df[df$run == master1,]
+    refIdx <- which(df.ref[["peak_group_rank"]] == 1)
+    refIdx <- refIdx[which.min(df.ref$m_score[refIdx])]
+    df.ref[["alignment_rank"]][refIdx] <- 1L
+
+    ##### Set alignment rank for other precursors #####
+    idx <- which(precursors$peptide_id == peptide)
+    analytes <- precursors[idx, "transition_group_id"]
+
+    if(length(analytes)>1){
+      ##### Get XIC_group from reference run. if missing, return unaligned features #####
+      chromIndices <- prec2chromIndex[[master1]][["chromatogramIndex"]][idx]
+      if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
+        warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[master1, "runName"])
+        message("Skipping peptide ", peptide, " across all runs.")
+        next
+      } else {
+        XICs <- lapply(chromIndices, function(iM) extractXIC_group(mz = mzPntrs[[master1]], chromIndices = iM))
+        XICs.s <- lapply(XICs, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                         polyOrd = params[["polyOrd"]])
+        names(XICs.s) <- names(XICs) <- as.character(analytes)
+      }
+      if(params[["smoothPeakArea"]]) XICs <- XICs.s
+      df.ref <- setOtherPrecursors(df.ref, XICs, analytes, params)
+    }
+
+    ##### Add the new dataframe to the multipeptide #####
+    multipeptide[[peptide_chr]] <- dplyr::bind_rows(df.ref, df.other)
   }
 
   # Traverse from root to leaf node.
@@ -245,14 +289,14 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
                        adaptiveRTs[[paste(runB, runA, sep = "_")]])
 
     # Map master to runA
-    refA <- refRuns[[master]]
+    refA <- refRuns[[master]][,1]
     alignToMaster(master, runA, alignedVecs, refA, adaptiveRT, multipeptide,
-                  prec2chromIndex, mzPntrs, fileInfo, analytes, params)
+                  prec2chromIndex, mzPntrs, fileInfo, precursors, params)
 
     # Map master to runB
     refB <- as.integer(!(refA-1))+1L
     alignToMaster(master, runB, alignedVecs, refB, adaptiveRT, multipeptide,
-                  prec2chromIndex, mzPntrs, fileInfo, analytes, params)
+                  prec2chromIndex, mzPntrs, fileInfo, precursors, params)
   }
 
   # Done
@@ -282,7 +326,7 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 #'  resulting child/master time vector for a precursor. This is the second element of
 #'   \code{\link{getChildXICs}} output.
 #' @return (None)
-#' @seealso \code{\link{traverseUp}, \link{traverseDown}, \link{setAlignmentRank2}}
+#' @seealso \code{\link{traverseUp}, \link{traverseDown}, \link{setAlignmentRank}}
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -292,6 +336,13 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 #' features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
 #'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+#' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+#' peptideIDs <- unique(precursors$peptide_id)
+#' peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
+#' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+#' names(peptideScores) <- as.character(peptideIDs)
+#' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+#' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
 #' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
@@ -299,22 +350,25 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 #' \dontrun{
 #' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
-#'  adaptiveRTs, refRuns, ropenms)
+#'  adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
 #' multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
-#' analytes <- precursors$transition_group_id
 #' alignedVecs <- readRDS(file = file.path(dataPath, "master1_av.rds"))
 #' adaptiveRT <- (adaptiveRTs[["run1_run2"]] + adaptiveRTs[["run2_run1"]])/2
-#' multipeptide[["4618"]]$alignment_rank[multipeptide[["4618"]]$run == "master1"] <- 1L
-#' alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRuns[["master1"]], adaptiveRT,
-#'  multipeptide, prec2chromIndex, mzPntrs, fileInfo, analytes, params)
+#' multipeptide[["14383"]]$alignment_rank[multipeptide[["14383"]]$run == "master1"] <- 1L
+#' alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRuns[["master1"]][,1], adaptiveRT,
+#'  multipeptide, prec2chromIndex, mzPntrs, fileInfo, precursors, params)
 #' # Cleanup
+#' rm(mzPntrs)
 #' file.remove(file.path(dataPath, "master1_av.rds"))
 #' file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
 #' }
 alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptide, prec2chromIndex,
-                          mzPntrs, fileInfo, analytes, params){
+                          mzPntrs, fileInfo, precursors, params){
+  peptideIDs <- unique(precursors$peptide_id)
   # Align each peptide in multipeptide to its parent
-  for(i in seq_along(analytes)){
+  for(i in seq_along(peptideIDs)){
+    peptide <- peptideIDs[i]
+    peptide_chr <- as.character(peptide)
     alignedVec <- alignedVecs[[i]]
     if(is.null(alignedVec)){
       # Try to  set alignment rank without chromatogram
@@ -322,23 +376,33 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
     } else {
       tAligned <- alignedVec[, c(5L, 2+refRun[i])]
       colnames(tAligned) <- c("tAligned.ref", "tAligned.eXp")
-      tAligned <- zoo::na.approx(tAligned, na.rm = FALSE)
     }
-    analyte_chr <- as.character(analytes[i])
-    # Get XIC_group from experiment run. if missing, go to next analyte.
-    chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][[i]]
-    if(any(is.na(chromIndices))){
-      warning("Chromatogram indices for ", analyte_chr, " are missing in ", fileInfo[eXp, "runName"])
-      message("Skipping ", analyte_chr, " in this run.")
+
+    ##### Set alignment rank for other precursors #####
+    idx <- which(precursors$peptide_id == peptide)
+    analytes <- precursors[idx, "transition_group_id"]
+
+    ##### Get XIC_group from reference run. if missing, return unaligned features #####
+    chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][idx]
+    if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
+      warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[eXp, "runName"])
+      message("Skipping peptide ", peptide, " across all runs.")
       next
     } else {
-      XICs.eXp <- extractXIC_group(mz = mzPntrs[[eXp]], chromIndices = chromIndices)
-      XICs.eXp.s <- smoothXICs(XICs.eXp, type = params[["XICfilter"]],
-                               kernelLen = params[["kernelLen"]], polyOrd = params[["polyOrd"]])
+      XICs.eXp <- lapply(chromIndices, function(iM) extractXIC_group(mz = mzPntrs[[eXp]], chromIndices = iM))
+      XICs.eXp.s <- lapply(XICs.eXp, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                       polyOrd = params[["polyOrd"]])
+      names(XICs.eXp.s) <- names(XICs.eXp) <- as.character(analytes)
     }
+    if(params[["smoothPeakArea"]]) XICs.eXp <- XICs.eXp.s
+
     # Update alignment rank for the eXp.
-    df <- multipeptide[[analyte_chr]]
-    multipeptide[[analyte_chr]] <- setAlignmentRank2(df, ref, eXp, adaptiveRT, tAligned, XICs.eXp, params)
+    df <- multipeptide[[peptide_chr]]
+    df.other <- df[df$run != eXp,]
+    tAligned <- list(tAligned[,1], tAligned[,2])
+    df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+    df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
+    multipeptide[[peptide_chr]] <- dplyr::bind_rows(df.other, df.eXp)
   }
   message(eXp, " has been aligned to ", ref, ".")
 }

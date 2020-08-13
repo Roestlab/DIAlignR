@@ -15,6 +15,8 @@ traverseUp(
   params,
   adaptiveRTs,
   refRuns,
+  multipeptide,
+  peptideScores,
   ropenms
 )
 }
@@ -52,7 +54,7 @@ retention time, within which features with m-score below aligned FDR are conside
 While traversing from leaf to root node, at each node a master run is created.
 Merged features and merged chromatograms from parent runs are estimated. Chromatograms are written on the disk
 at dataPath/mzml. For each precursor aligned parent time-vectors and corresponding child time-vector
-are also calculated and written as *_av.rda at dataPath.
+are also calculated and written as *_av.rds at dataPath.
 
     Accesors to the new files are added to fileInfo, mzPntrs and prec2chromIndex. Features, reference
 used for the alignment and adaptiveRTs of global alignments are also added to corresponding environment.
@@ -66,6 +68,13 @@ mzPntrs <- list2env(getMZMLpointers(fileInfo))
 features <- list2env(getFeatures(fileInfo, maxFdrQuery = params[["maxFdrQuery"]], runType = params[["runType"]]))
 precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
+precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+peptideIDs <- unique(precursors$peptide_id)
+peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
+peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+names(peptideScores) <- as.character(peptideIDs)
+peptideScores <- list2env(peptideScores)
+multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 adaptiveRTs <- new.env()
 refRuns <- new.env()
@@ -74,7 +83,8 @@ tree <- ape::reorder.phylo(tree, "postorder")
 \dontrun{
 ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
- adaptiveRTs, refRuns, ropenms)
+ adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
+rm(mzPntrs)
 # Cleanup
 file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
