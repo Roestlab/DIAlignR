@@ -43,17 +43,12 @@ test_that("test_getAlignObjs",{
   refRun <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
   dataPath <- system.file("extdata", package = "DIAlignR")
   analytes <- c(32L, 898L, 4618L)
+  params <- paramsDIAlignR()
+  params[["kernelLen"]] <- 13L
+  params[["context"]] <- "experiment-wide"
   expect_warning(
     outData <- getAlignObjs(analytes, runs, dataPath = dataPath, refRun = refRun,
-               oswMerged = TRUE, runType = "DIA_Proteomics", maxFdrQuery = 0.05,
-               analyteFDR = 0.01, XICfilter = "sgolay", polyOrd = 4,
-               kernelLen = 13, globalAlignment = "loess",
-               globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
-               RSEdistFactor = 3.5, normalization = "mean",
-               simMeasure = "dotProductMasked", alignType = "hybrid",
-               goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-               OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5,
-               hardConstrain = FALSE, samples4gradient = 100, objType = "light")
+               oswMerged = TRUE, params = params, objType = "light")
     )
   expData <- testAlignObj()
   expect_equal(outData[[2]][["4618"]][["run1_run2"]][[1]], expData, tolerance = 1e-05)

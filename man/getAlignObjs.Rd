@@ -10,28 +10,7 @@ getAlignObjs(
   dataPath = ".",
   refRun = NULL,
   oswMerged = TRUE,
-  runType = "DIA_Proteomics",
-  maxFdrQuery = 0.05,
-  analyteFDR = 0.01,
-  XICfilter = "sgolay",
-  polyOrd = 4,
-  kernelLen = 9,
-  globalAlignment = "loess",
-  globalAlignmentFdr = 0.01,
-  globalAlignmentSpan = 0.1,
-  RSEdistFactor = 3.5,
-  normalization = "mean",
-  simMeasure = "dotProductMasked",
-  alignType = "hybrid",
-  goFactor = 0.125,
-  geFactor = 40,
-  cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE,
-  dotProdThresh = 0.96,
-  gapQuantile = 0.5,
-  kerLen = 9,
-  hardConstrain = FALSE,
-  samples4gradient = 100,
+  params = paramsDIAlignR(),
   objType = "light"
 )
 }
@@ -43,53 +22,6 @@ getAlignObjs(
 \item{dataPath}{(char) Path to mzml and osw directory.}
 
 \item{refRun}{(string) reference for alignment. If no run is provided, m-score is used to select reference run.}
-
-\item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
-
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
-
-\item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
-
-\item{analyteFDR}{(numeric) only analytes that have m-score less than this, will be included in the output.}
-
-\item{XICfilter}{(string) must be either sgolay, boxcar, gaussian, loess or none.}
-
-\item{polyOrd}{(integer) order of the polynomial to be fit in the kernel.}
-
-\item{kernelLen}{(integer) number of data-points to consider in the kernel.}
-
-\item{globalAlignment}{(string) must be from "loess" or "linear".}
-
-\item{globalAlignmentFdr}{(numeric) a numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.}
-
-\item{globalAlignmentSpan}{(numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.}
-
-\item{RSEdistFactor}{(numeric) defines how much distance in the unit of rse remains a noBeef zone.}
-
-\item{normalization}{(character) must be selected from "mean", "l2".}
-
-\item{simMeasure}{(string) must be selected from dotProduct, cosineAngle, crossCorrelation,
-cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
-
-\item{alignType}{available alignment methods are "global", "local" and "hybrid".}
-
-\item{goFactor}{(numeric) penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
-
-\item{geFactor}{(numeric) penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.}
-
-\item{cosAngleThresh}{(numeric) in simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.}
-
-\item{OverlapAlignment}{(logical) an input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.}
-
-\item{dotProdThresh}{(numeric) in simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
-
-\item{gapQuantile}{(numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
-
-\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
-
-\item{hardConstrain}{(logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
-
-\item{samples4gradient}{(numeric) modulates penalization of masked indices.}
 
 \item{objType}{(char) Must be selected from light, medium and heavy.}
 }
@@ -105,6 +37,8 @@ It then align XICs of each analyte to its reference XICs. AlignObj is returned w
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
+params <- paramsDIAlignR()
+params[["context"]] <- "experiment-wide"
 runs <- c("hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt",
  "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
  "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt")

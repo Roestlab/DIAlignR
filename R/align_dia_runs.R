@@ -153,30 +153,6 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
 #' @param runs (A vector of string) Names of mzml file without extension.
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param refRun (string) reference for alignment. If no run is provided, m-score is used to select reference run.
-#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
-#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
-#' @param analyteFDR (numeric) only analytes that have m-score less than this, will be included in the output.
-#' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
-#' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
-#' @param kernelLen (integer) number of data-points to consider in the kernel.
-#' @param globalAlignment (string) must be from "loess" or "linear".
-#' @param globalAlignmentFdr (numeric) a numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
-#' @param globalAlignmentSpan (numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
-#' @param RSEdistFactor (numeric) defines how much distance in the unit of rse remains a noBeef zone.
-#' @param normalization (character) must be selected from "mean", "l2".
-#' @param simMeasure (string) must be selected from dotProduct, cosineAngle, crossCorrelation,
-#'   cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
-#' @param alignType available alignment methods are "global", "local" and "hybrid".
-#' @param goFactor (numeric) penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
-#' @param geFactor (numeric) penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
-#' @param cosAngleThresh (numeric) in simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
-#' @param OverlapAlignment (logical) an input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
-#' @param dotProdThresh (numeric) in simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
-#' @param gapQuantile (numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
-#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
-#' @param hardConstrain (logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
-#' @param samples4gradient (numeric) modulates penalization of masked indices.
 #' @param objType (char) Must be selected from light, medium and heavy.
 #' @return A list of fileInfo and AlignObjs. Each AlignObj is an S4 object. Three most-important slots are:
 #' \item{indexA_aligned}{(integer) aligned indices of reference run.}
@@ -185,6 +161,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
 #' @seealso \code{\link{plotAlignedAnalytes}, \link{getRunNames}, \link{getFeatures}, \link{getXICs4AlignObj}, \link{getAlignObj}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
+#' params <- paramsDIAlignR()
+#' params[["context"]] <- "experiment-wide"
 #' runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
 #'  "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
 #'  "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
@@ -196,19 +174,10 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
 #'
 #' @export
 getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerged = TRUE,
-                         runType = "DIA_Proteomics", maxFdrQuery = 0.05, analyteFDR = 0.01,
-                         XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
-                         globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
-                         RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
-                         alignType = "hybrid", goFactor = 0.125, geFactor = 40,
-                         cosAngleThresh = 0.3, OverlapAlignment = TRUE,
-                         dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
-                         hardConstrain = FALSE, samples4gradient = 100,
-                         objType = "light"){
-  if( (kernelLen %% 2) != 1){
-    print("kernelLen can only be odd number")
-    return(NULL)
-  }
+                         params = paramsDIAlignR(), objType = "light"){
+  #### Check if all parameters make sense.  #########
+  checkParams(params)
+
   ##### Get filenames from osw files and check if names are consistent between osw and mzML files. ######
   filenames <- getRunNames(dataPath, oswMerged)
   filenames <- updateFileInfo(filenames, runs)
@@ -228,10 +197,10 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
   precursors <- getPrecursorByID(analytes, filenames)
 
   #### Precursors for which features are identified. ##############
-  features <- getFeatures(filenames, maxFdrQuery, runType)
+  features <- getFeatures(filenames, params[["maxFdrQuery"]], params[["runType"]])
 
   ###### Report analytes that are not found ########
-  refAnalytes <- analytesFromFeatures(features, analyteFDR = analyteFDR, commonAnalytes = FALSE)
+  refAnalytes <- analytesFromFeatures(features, analyteFDR = params[["analyteFDR"]], commonAnalytes = FALSE)
   analytesFound <- intersect(analytes, refAnalytes)
   analytesNotFound <- setdiff(analytes, analytesFound)
   if(length(analytesNotFound)>0){
@@ -246,17 +215,23 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
   ############# Get chromatogram Indices of precursors across all runs. ############
   prec2chromIndex <- getChromatogramIndices(filenames, precursors, mzPntrs)
 
-  ############ Convert features into multi-precursor #####
-  multipeptide <- getMultipeptide(precursors, features)
+  #### Get Peptide scores, pvalue and qvalues. ######
+  peptideIDs <- unique(precursors$peptide_id)
+  peptideScores <- getPeptideScores(filenames, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
+  peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  names(peptideScores) <- as.character(peptideIDs)
 
   ############## Get reference run for each precursor ########
   idx <- which(filenames$runName == refRun)
     if(length(idx) == 0){
-      print("Finding reference run using m-score.")
-      refRun <- getRefRun(multipeptide)
+      print("Finding reference run using SCORE_PEPTIDE table")
+      refRun <- data.frame("transition_group_id" = precursors$transition_group_id,
+                           "run" = NA_character_)
+      temp <- getRefRun(peptideScores)
+      refRun$run <- temp$run[match(precursors$peptide_id, temp$peptide_id)]
     } else{
       run <- rownames(filenames)[idx]
-      refRun <- data.frame("transition_group_id" = as.integer(names(multipeptide)),
+      refRun <- data.frame("transition_group_id" = precursors$transition_group_id,
                               "run" = run)
     }
 
@@ -285,7 +260,8 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
       AlignObjs[[analyteIdx]] <- NULL
       next
     }
-    XICs.ref.s <- smoothXICs(XICs.ref, type = XICfilter, kernelLen = kernelLen, polyOrd = polyOrd)
+    XICs.ref.s <- smoothXICs(XICs.ref, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                             polyOrd = params[["polyOrd"]])
     exps <- setdiff(runs, ref)
 
     # Align experiment run to reference run
@@ -300,23 +276,25 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
         AlignObjs[[analyteIdx]][[pair]] <- NULL
         next
       }
-      XICs.eXp.s <- smoothXICs(XICs.eXp, type = XICfilter, kernelLen = kernelLen, polyOrd = polyOrd)
+      XICs.eXp.s <- smoothXICs(XICs.eXp, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                               polyOrd = params[["polyOrd"]])
       # Get the loess fit for hybrid alignment
       if(any(pair %in% names(globalFits))){
         globalFit <- globalFits[[pair]]
       } else{
-        globalFit <- getGlobalAlignment(features, ref, eXp,
-                                        globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
+        globalFit <- getGlobalAlignment(features, ref, eXp, params[["globalAlignment"]],
+                                        params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
         globalFits[[pair]] <- globalFit
         RSE[[pair]] <- getRSE(globalFit)
       }
-      adaptiveRT <- RSEdistFactor*RSE[[pair]]
+      adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
 
       # Fetch alignment object between XICs.ref and XICs.eXp
-      AlignObj <- getAlignObj(XICs.ref.s, XICs.eXp.s, globalFit, alignType, adaptiveRT,
-                              normalization, simType = simMeasure, goFactor, geFactor,
-                              cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile,
-                              kerLen, hardConstrain, samples4gradient,
+      AlignObj <- getAlignObj(XICs.ref.s, XICs.eXp.s, globalFit, params[["alignType"]], adaptiveRT,
+                              params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
+                              params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
+                              params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
+                              params[["hardConstrain"]], params[["samples4gradient"]],
                               objType)
       # Attach AlignObj for the analyte.
       AlignObjs[[analyteIdx]][[pair]][["AlignObj"]] <- AlignObj
