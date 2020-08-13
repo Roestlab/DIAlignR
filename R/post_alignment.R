@@ -137,13 +137,17 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' @examples
 #' data(multipeptide_DIAlignR, package="DIAlignR")
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+#' params <- paramsDIAlignR()
+#' df <- multipeptide_DIAlignR[["14383"]]
+#' df$alignment_rank[2] <- 1L
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 #' \dontrun{
 #' # Use getAlignedTimes() to get tAligned.
-#' setAlignmentRank(multipeptide_DIAlignR[["4618"]], ref = "run1", eXp = "run2", tAligned, XICs.ref,
-#' params, adaptiveRT)
-#' multipeptide[["4618"]]
+#' alignObj <- DIAlignR:::testAlignObj()
+#' tAligned <- DIAlignR:::alignedTimes2(XICs.ref, XICs.eXp)
+#' setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
+#' params, adaptiveRT = 38.66)
 #' }
 setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
   ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
@@ -157,6 +161,11 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
   ##### No high quality feature, hence, alignment is needed. Map peak from ref to eXp #####
   # reference run.
   refIdx <- which(df[["run"]] == ref & df[["alignment_rank"]] == 1)
+  if(all(is.na(df$m_score[refIdx]))){
+    refIdx <- refIdx[1]
+  } else {
+    refIdx <- refIdx[which.min(df$m_score[refIdx])]
+  }
   analyte <- df[["transition_group_id"]][refIdx]
   analyte_chr <- as.character(analyte)
   refRT <- df[["RT"]][refIdx]
@@ -197,7 +206,8 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
 # df should have features from one run only.
 setOtherPrecursors <- function(df, XICs, analytes, params){
   refIdx <- which(df[["alignment_rank"]] == 1)
-  # TODO: if refIdx is NA then return df
+  if(length(refIdx) == 0 | is.null(refIdx)) return(df)
+
   run <- df$run[refIdx]
   precRef <- df$transition_group_id[refIdx]
   pk <- c(df$leftWidth[refIdx], df$rightWidth[refIdx])
