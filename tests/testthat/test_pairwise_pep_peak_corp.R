@@ -59,7 +59,6 @@ test_that("test_getAlignedTimes", {
   expect_identical(sapply(outData, length), c(176L, 176L))
 })
 
-
 test_that("test_getAlignedIndices", {
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
