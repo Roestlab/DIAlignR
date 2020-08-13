@@ -9,7 +9,7 @@ generateDIAlignRdata <- function(){
   oswFiles_DIAlignR <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2)
 
-  analytes <- 4618L
+  analytes <- 4618L # peptide_id = 14383
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
             "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")

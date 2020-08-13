@@ -25,24 +25,17 @@ Item 29: Travis for all three.  https://github.com/tidyverse/dplyr/blob/master/.
 # Map retention time of all features from eXp to ref.
 # Map reference peak boundaries from ref to eXp.
 
-Fix sampling time in Smoothing.
+
 Make sure ID matches in multipeptide and prec2ChromIndices.
 smooth chromatogram and area calculation in vignette.
-Param sanity check.
+
 param silent in DPosition and chromatogramPeak
 documentation of DIAlignPy
-
-  If loess fails, resort to linear alignment.
-Align only those where FDr is > 0.05, true false in refRun
-Alignment rank = 1 and fdr < 0.01
-Alignment rank = 1 and fdr > 0.01 and < 0.05 (precursor and run)
-Add test for visualization.
 parallelize execution (fetching chromatograms) over multiple threads.
 Update reference only once. Look for wider chromatogram if aligned peak is outside.
 Implement for alignType = "local" and "hybrid"
 Make decoy == 0 in getFeaturesQuery
-Convert from csv to tsv.
-Add featureID as well.
+
 Implement a function to requantify across all runs.
 
 
