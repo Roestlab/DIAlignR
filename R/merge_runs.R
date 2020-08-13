@@ -382,83 +382,88 @@ getChildXICs <- function(runA, runB, fileInfo, features, mzPntrs, precursors, pr
   adaptiveRT2 <-  params[["RSEdistFactor"]]*getRSE(globalFit2)
 
   #### Get merged XICs ####
-  mergedXICs <- vector(mode = "list", length = length(peptides))
-  alignedVecs <- vector(mode = "list", length = length(peptides))
-  for(i in seq_along(peptides)){
-    ##### Get transition_group_id for a peptide #####
-    peptide <- peptides[i]
-    idx <- which(precursors$peptide_id == peptide)
-    analytes_chr <- as.character(precursors[idx, "transition_group_id"])
-
-    ##### Get XIC_group from runA and runB. If missing, add NULL and align next peptide #####
-    chromIndices.A <- prec2chromIndex[[runA]][["chromatogramIndex"]][idx]
-    chromIndices.B <- prec2chromIndex[[runB]][["chromatogramIndex"]][idx]
-    nope <- any(is.na(c(unlist(chromIndices.A), unlist(chromIndices.B))))
-    nope <- nope | is.null(unlist(chromIndices.A)) | is.null(unlist(chromIndices.B))
-    if(nope){
-      warning("Chromatogram indices for ", peptide, " are missing.")
-      message("Skipping peptide ", peptide, ".")
-      mergedXICs[[i]] <- vector(mode = "list", length = length(analytes_chr))
-      next
-    } else {
-      XICs.A <- lapply(chromIndices.A, function(iA) extractXIC_group(mz = mzPntrs[[runA]], chromIndices = iA))
-      XICs.A.s <- lapply(XICs.A, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                           polyOrd = params[["polyOrd"]])
-      XICs.B <- lapply(chromIndices.B, function(iB) extractXIC_group(mz = mzPntrs[[runB]], chromIndices = iB))
-      XICs.B.s <- lapply(XICs.B, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                         polyOrd = params[["polyOrd"]])
-      names(XICs.A.s) <- names(XICs.B.s) <- names(XICs.A) <- names(XICs.B) <- analytes_chr
-    }
-
-    ##### Calculate the weights of XICs from runA and runB #####
-    temp <- peptideScores[[as.character(peptide)]]
-    pA <- temp$pvalue[temp$run == runA]
-    pB <- temp$pvalue[temp$run == runB]
-    wA <- ifelse(length(pA)==0, 0.3, -log10(pA))
-    wB <- ifelse(length(pB)==0, 0.3, -log10(pB))
-    wA <- wA/(wA + wB)
-
-    ##### Decide the reference run from runA and runB. #####
-    if(refRun[i, 1] == 1L){
-      XICs.ref <- XICs.A.s
-      XICs.eXp <- XICs.B.s
-      globalFit <- globalFit1
-      adaptiveRT <- adaptiveRT1
-      w.ref <- wA
-    } else{
-      XICs.ref <- XICs.B.s
-      XICs.eXp <- XICs.A.s
-      globalFit <- globalFit2
-      adaptiveRT <- adaptiveRT2
-      w.ref <- (1-wA)
-    }
-
-    ##### Select 1) all precursors OR 2) high quality precursor. #####
-    analyte_chr <- refRun[i, 2]
-    if(FALSE){
-      # Turned off as precursor XICs have different time ranges.
-      XICs.ref.pep <- unlist(XICs.ref, recursive = FALSE, use.names = FALSE)
-      XICs.eXp.pep <- unlist(XICs.eXp, recursive = FALSE, use.names = FALSE)
-    } else {
-      XICs.ref.pep <- XICs.ref[[analyte_chr]]
-      XICs.eXp.pep <- XICs.eXp[[analyte_chr]]
-    }
-
-    #### Align chromatograms  ####
-    alignedIndices <- getAlignedIndices(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]], adaptiveRT,
-                                        params[["normalization"]], params[["simMeasure"]], params[["goFactor"]], params[["geFactor"]],
-                                        params[["cosAngleThresh"]], params[["OverlapAlignment"]], params[["dotProdThresh"]], params[["gapQuantile"]],
-                                        params[["kerLen"]], params[["hardConstrain"]], params[["samples4gradient"]], objType = "light")
-    alignedIndices <- alignedIndices[, 1:2]
-
-    #### Merge chromatogramsm ####
-    merged_xics <- lapply(analytes_chr, function(a){
-      childXICs(XICs.ref[[a]], XICs.eXp[[a]], alignedIndices, params[["fillMethod"]], params[["polyOrd"]],
-                params[["kernelLen"]], params[["splineMethod"]], w.ref, params[["mergeTime"]], params[["keepFlanks"]])
-    })
-    names(merged_xics) <- analytes_chr
-    mergedXICs[[i]] <- lapply(merged_xics, `[[`, 1)
-    alignedVecs[[i]] <- lapply(merged_xics, `[[`, 2)[[1]]
-  }
+  temp <- lapply(seq_along(peptides), parFUN1,  runA, runB, peptides, precursors, prec2chromIndex, mzPntrs, params,
+                 peptideScores, refRun, globalFit1, globalFit2, adaptiveRT1, adaptiveRT2)
+  mergedXICs <- lapply(temp, `[[`, 1)
+  alignedVecs <- lapply(temp, `[[`, 2)
   list(mergedXICs, alignedVecs, adaptiveRT = list(ab= adaptiveRT1, ba = adaptiveRT2))
+}
+
+
+parFUN1 <- function(rownum, runA, runB, peptides, precursors, prec2chromIndex, mzPntrs, params,
+                    peptideScores, refRun, globalFit1, globalFit2, adaptiveRT1, adaptiveRT2){
+  ##### Get transition_group_id for a peptide #####
+  peptide <- peptides[rownum]
+  idx <- which(precursors$peptide_id == peptide)
+  analytes_chr <- as.character(precursors[idx, "transition_group_id"])
+
+  ##### Get XIC_group from runA and runB. If missing, add NULL and align next peptide #####
+  chromIndices.A <- prec2chromIndex[[runA]][["chromatogramIndex"]][idx]
+  chromIndices.B <- prec2chromIndex[[runB]][["chromatogramIndex"]][idx]
+  nope <- any(is.na(c(unlist(chromIndices.A), unlist(chromIndices.B))))
+  nope <- nope | is.null(unlist(chromIndices.A)) | is.null(unlist(chromIndices.B))
+  if(nope){
+    warning("Chromatogram indices for ", peptide, " are missing.")
+    message("Skipping peptide ", peptide, ".")
+    return(list(vector(mode = "list", length = length(analytes_chr)), NULL))
+  } else {
+    XICs.A <- lapply(chromIndices.A, function(iA) extractXIC_group(mz = mzPntrs[[runA]], chromIndices = iA))
+    XICs.A.s <- lapply(XICs.A, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                       polyOrd = params[["polyOrd"]])
+    XICs.B <- lapply(chromIndices.B, function(iB) extractXIC_group(mz = mzPntrs[[runB]], chromIndices = iB))
+    XICs.B.s <- lapply(XICs.B, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                       polyOrd = params[["polyOrd"]])
+    names(XICs.A.s) <- names(XICs.B.s) <- names(XICs.A) <- names(XICs.B) <- analytes_chr
+  }
+
+  ##### Calculate the weights of XICs from runA and runB #####
+  temp <- peptideScores[[as.character(peptide)]]
+  pA <- temp$pvalue[temp$run == runA]
+  pB <- temp$pvalue[temp$run == runB]
+  wA <- ifelse(length(pA)==0, 0.3, -log10(pA))
+  wB <- ifelse(length(pB)==0, 0.3, -log10(pB))
+  wA <- wA/(wA + wB)
+
+  ##### Decide the reference run from runA and runB. #####
+  if(refRun[rownum, 1] == 1L){
+    XICs.ref <- XICs.A.s
+    XICs.eXp <- XICs.B.s
+    globalFit <- globalFit1
+    adaptiveRT <- adaptiveRT1
+    w.ref <- wA
+  } else{
+    XICs.ref <- XICs.B.s
+    XICs.eXp <- XICs.A.s
+    globalFit <- globalFit2
+    adaptiveRT <- adaptiveRT2
+    w.ref <- (1-wA)
+  }
+
+  ##### Select 1) all precursors OR 2) high quality precursor. #####
+  analyte_chr <- refRun[rownum, 2]
+  if(FALSE){
+    # Turned off as precursor XICs have different time ranges.
+    XICs.ref.pep <- unlist(XICs.ref, recursive = FALSE, use.names = FALSE)
+    XICs.eXp.pep <- unlist(XICs.eXp, recursive = FALSE, use.names = FALSE)
+  } else {
+    XICs.ref.pep <- XICs.ref[[analyte_chr]]
+    XICs.eXp.pep <- XICs.eXp[[analyte_chr]]
+  }
+
+  #### Align chromatograms  ####
+  alignedIndices <- getAlignedIndices(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]], adaptiveRT,
+                                      params[["normalization"]], params[["simMeasure"]], params[["goFactor"]], params[["geFactor"]],
+                                      params[["cosAngleThresh"]], params[["OverlapAlignment"]], params[["dotProdThresh"]], params[["gapQuantile"]],
+                                      params[["kerLen"]], params[["hardConstrain"]], params[["samples4gradient"]], objType = "light")
+  alignedIndices <- alignedIndices[, 1:2]
+
+  #### Merge chromatogramsm ####
+  merged_xics <- lapply(analytes_chr, function(a){
+    childXICs(XICs.ref[[a]], XICs.eXp[[a]], alignedIndices, params[["fillMethod"]], params[["polyOrd"]],
+              params[["kernelLen"]], params[["splineMethod"]], w.ref, params[["mergeTime"]], params[["keepFlanks"]])
+  })
+  names(merged_xics) <- analytes_chr
+  mergedXICs <- lapply(merged_xics, `[[`, 1)
+  alignedVecs <- lapply(merged_xics, `[[`, 2)[[1]]
+  list(mergedXICs, alignedVecs)
 }
