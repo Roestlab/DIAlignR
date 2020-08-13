@@ -7,10 +7,10 @@
 alignTargetedRuns(
   dataPath,
   outFile = "DIAlignR.tsv",
+  params,
   oswMerged = TRUE,
   runs = NULL,
-  applyFun = lapply,
-  params
+  applyFun = lapply
 )
 }
 \arguments{

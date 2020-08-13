@@ -15,8 +15,7 @@ alignIthAnalyte(
   mzPntrs,
   params,
   globalFits,
-  RSE,
-  applyFun
+  RSE
 )
 }
 \arguments{

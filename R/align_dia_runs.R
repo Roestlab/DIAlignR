@@ -63,8 +63,8 @@
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
-alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TRUE, runs = NULL,
-                              applyFun = lapply, params){
+alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMerged = TRUE, runs = NULL,
+                                    applyFun = lapply){
   #### Check if all parameters make sense.  #########
   checkParams(params)
 
@@ -118,8 +118,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", oswMerged = TR
   #### Perform pairwise alignment ###########
   message("Performing reference-based alignment.")
   start_time <- Sys.time()
-  multipeptide <- lapply(seq_along(multipeptide), alignIthAnalyte, peptideIDs, multipeptide, refRuns,
-                         precursors, prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, applyFun)
+  multipeptide <- applyFun(seq_along(multipeptide), alignIthAnalyte, peptideIDs, multipeptide, refRuns,
+                         precursors, prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE)
   names(multipeptide) <- as.character(peptideIDs)
 
   #### Cleanup.  #######
@@ -366,8 +366,8 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
   # Get XIC_group from experiment run. if missing, go to next run.
   chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][preIdx]
   if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
-    warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[eXp, "runName"])
-    message("Skipping peptide ", peptide, " in ", fileInfo[eXp, "runName"], ".")
+    warning("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
+    message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
     df.eXp <- df[df[["run"]] == eXp, ]
     return(df.eXp)
   } else {
@@ -430,8 +430,9 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursors, prec2chromIndex,
-                            fileInfo, mzPntrs, params, globalFits, RSE, applyFun){
+                            fileInfo, mzPntrs, params, globalFits, RSE){
   ##### Get peptideID, its reference run and multipeptide #####
+  # print(rownum)
   peptide <- peptideIDs[rownum]
   df <- multipeptide[[rownum]]
   ref <- refRuns[["run"]][rownum]
@@ -457,6 +458,11 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   ##### Set alignment rank for all precrusors of the peptide in the reference run #####
   refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
   refIdx <- refIdx[which.min(df$m_score[refIdx])]
+  if(length(refIdx)==0) {
+    warning("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
+    message("Skipping peptide ", peptide, " across all runs.")
+    return(df)
+  }
   df[["alignment_rank"]][refIdx] <- 1L
   df.ref <- df[df$run == ref,]
   df.ref <- setOtherPrecursors(df.ref, XICs.ref, analytes, params)
@@ -465,10 +471,11 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
 
   ##### Align all runs to reference run and set their alignment rank #####
   exps <- setdiff(rownames(fileInfo), ref)
-  df.exps <- applyFun(exps, alignToRef, ref, idx, analytes, fileInfo, XICs.ref.s, params, prec2chromIndex, mzPntrs,
+  df.exps <- lapply(exps, alignToRef, ref, idx, analytes, fileInfo, XICs.ref.s, params, prec2chromIndex, mzPntrs,
                     df, globalFits, RSE)
 
   ##### Return the dataframe with alignment rank set to TRUE #####
   updateOnalignTargetedRuns(rownum)
-  dplyr::bind_rows(df.ref, df.exps)
+  newDF <- dplyr::bind_rows(df.ref, df.exps)
+  newDF
 }
