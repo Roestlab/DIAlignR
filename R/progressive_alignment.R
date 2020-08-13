@@ -25,6 +25,7 @@
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' params <- paramsDIAlignR()
+#' params[["context"]] <- "experiment-wide"
 #' \dontrun{
 #' ropenms <- get_ropenms(condaEnv = "envName")
 #' progAlignRuns(dataPath, params = params, outFile = "test3.tsv", ropenms = ropenms)
@@ -32,8 +33,8 @@
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 #' # Removing temporarily created master chromatograms
 #' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
-#' file.remove(file.path(dataPath, "features.rds"))
-#' file.remove(file.path(dataPath, "osw", "master.merged.osw"))
+#' file.remove(file.path(dataPath, "multipeptide.rds"))
+#' file.remove(file.path(dataPath, "master.merged.osw"))
 #' }
 #' @export
 progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, oswMerged = TRUE,
@@ -49,18 +50,22 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   precursors <- getPrecursors(fileInfo, oswMerged, runType = params[["runType"]],
                               context = params[["context"]], maxPeptideFdr = params[["maxPeptideFdr"]])
+  precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+
+  #### Get Peptide scores, pvalue and qvalues. ######
+  peptideIDs <- unique(precursors$peptide_id)
+  peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
+  peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  names(peptideScores) <- as.character(peptideIDs)
+  peptideScores <- list2env(peptideScores, hash = FALSE)
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
   features <- list2env(getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]]), hash = FALSE)
 
-  #### Precursors for which features are identified. ##############
+  ##### Get distances among runs based on the number of high-quality features. #####
   tmp <- lapply(features, function(df)
-    df[df[["m_score"]] <= params[["analyteFDR"]] & df[["peak_group_rank"]] == 1, "transition_group_id"])
+       df[df[["m_score"]] <= params[["analyteFDR"]] & df[["peak_group_rank"]] == 1, "transition_group_id"])
   allIDs <- unique(unlist(tmp, recursive = FALSE, use.names = FALSE))
-  precursors <- precursors[precursors[["transition_group_id"]] %in% allIDs, ]
-  message(nrow(precursors), " precursors have features identified in osw files.")
-
-  # Get distances among runs based on number of common IDs.
   distMat <- length(allIDs) - crossprod(table(stack(tmp)))
   distMat <- stats::dist(distMat, method = "manhattan")
 
@@ -82,38 +87,38 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
     tree <- ape::read.tree(text = newickTree)
   }
 
+  #### Convert features into multi-peptide #####
+  start_time <- Sys.time()
+  message("Building multipeptide.")
+  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+  end_time <- Sys.time()
+  message("The execution time for building multipeptide:")
+  print(end_time - start_time)
+
   #### Get all the child runs through hybrid alignment. ####
   adaptiveRTs <- new.env(hash = TRUE)
   refRuns <- new.env(hash = TRUE)
   # Traverse up the tree
   traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
-             params, adaptiveRTs, refRuns, ropenms)
+             params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
   message("The execution time for creating a master run by alignment:")
   print(end_time - start_time)
 
-  #### Convert features into multi-peptide #####
-  start_time <- Sys.time()
-  message("Building multipeptide.")
-  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
-  message(length(multipeptide), " precursors are in the multipeptide")
-  end_time <- Sys.time()
-  message("The execution time for building multipeptide:")
-  print(end_time - start_time)
-
-  #### Save features and add master runs to osw #####
-  addMasterToOSW(dataPath, tree$node.label, oswMerged)
-  filename <- file.path(dataPath, "features.rds")
-  saveRDS(as.list(features), file = filename)
-
   #### Map Ids from the master1 run to all parents. ####
   start_time <- Sys.time()
   analytes <- precursors$transition_group_id
-  traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, analytes,
+  traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
                adaptiveRTs, refRuns, params)
   end_time <- Sys.time()
   message("The execution time for transfering peaks from root to runs:")
   print(end_time - start_time)
+
+  #### Save features and add master runs to osw #####
+  addMasterToOSW(dataPath, tree$node.label, oswMerged)
+  filename <- file.path(dataPath, "multipeptide.rds")
+  multipeptide <- as.list(multipeptide)
+  saveRDS(as.list(multipeptide), file = filename)
 
   #### Cleanup.  #######
   rm(mzPntrs)

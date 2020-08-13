@@ -43,6 +43,7 @@ This function expects osw and mzml directories at dataPath. It first reads osw f
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 params <- paramsDIAlignR()
+params[["context"]] <- "experiment-wide"
 \dontrun{
 ropenms <- get_ropenms(condaEnv = "envName")
 progAlignRuns(dataPath, params = params, outFile = "test3.tsv", ropenms = ropenms)
@@ -50,8 +51,8 @@ progAlignRuns(dataPath, params = params, outFile = "test3.tsv", ropenms = ropenm
 file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 # Removing temporarily created master chromatograms
 file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
-file.remove(file.path(dataPath, "features.rds"))
-file.remove(file.path(dataPath, "osw", "master.merged.osw"))
+file.remove(file.path(dataPath, "multipeptide.rds"))
+file.remove(file.path(dataPath, "master.merged.osw"))
 }
 }
 \seealso{
