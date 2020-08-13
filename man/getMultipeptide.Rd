@@ -24,7 +24,7 @@ getMultipeptide(precursors, features)
 \item{alignment_rank}{(integer) rank of each feature post-alignment.}
 }
 \description{
-Each element of the multipeptide is a collection of features associated with a precursor.
+Each element of the multipeptide is a collection of features associated with a peptide.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")

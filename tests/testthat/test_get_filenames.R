@@ -47,3 +47,12 @@ test_that("test_getRunNames", {
   expect_error(getRunNames(dataPath = ".", oswMerged = TRUE), "No merged.osw file is found.")
   expect_error(getRunNames(dataPath = ".", oswMerged = FALSE), "No .osw files are found.")
 })
+
+test_that("test_updateFileInfo", {
+
+})
+
+
+test_that("test_addMasterToOSW", {
+
+})
