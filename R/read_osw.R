@@ -435,6 +435,7 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
   }
   peptidesInfo <- dplyr::filter(peptidesInfo, .data$peptide_id %in% peptides)
   runs <- bit64::as.integer64(fileInfo$spectraFileID)
+  peptidesInfo <- dplyr::filter(peptidesInfo, .data$run %in% runs)
   peptidesInfo$run <- rownames(fileInfo)[match(peptidesInfo$run, runs)]
   if(length(unique(peptidesInfo$peptide_id)) != length(peptides)) {
     warning("Unable to fine scores for few peptides. Appending NAs.")

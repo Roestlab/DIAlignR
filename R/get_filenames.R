@@ -185,7 +185,7 @@ updateFileInfo <- function(fileInfo, runs = NULL){
 addMasterToOSW <- function(dataPath, runs, oswMerged = TRUE){
   df <- data.frame(ID = 1:length(runs), FILENAME = paste(runs, "mzML.gz", sep="."))
   temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw", full.names = TRUE)
-  newFile <- file.path(dataPath, "osw", "master.merged.osw")
+  newFile <- file.path(dataPath, "master.merged.osw")
   if(file.copy(from = temp, to = newFile)){
     conn <- DBI::dbConnect(RSQLite::SQLite(), newFile)
     DBI::dbExecute(conn,"drop table if exists myTempTable")
