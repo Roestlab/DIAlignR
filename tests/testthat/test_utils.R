@@ -55,20 +55,20 @@ test_that("test_writeTables", {
   precursors <- precursors[precursors[["transition_group_id"]] %in% allIDs, ]
   multipeptide <- getMultipeptide(precursors, features)
   outData <- writeTables(fileInfo, multipeptide, precursors)
-  expect_identical(nrow(outData), 0L)
+  expect_identical(nrow(outData), 500L)
 
   multipeptide[["7040"]]$alignment_rank[1:2] <- 1L
   multipeptide[["3200"]]$alignment_rank <- 1L
   outData <- writeTables(fileInfo, multipeptide, precursors)
 
-  expect_identical(dim(outData), c(5L, 14L))
+  expect_identical(dim(outData), c(501L, 14L))
   expData <- data.frame(peptide_id = c(3200L, 7040L), precursor = c(523L, 32L),
                         run = fileInfo$runName[1:2], RT = c(1529.54, NA_real_),
                         intensity = c(13.5686, NA_real_), leftWidth = c(1512.653,NA_real_), rightWidth= c(1546.791,NA_real_),
                         peak_group_rank = c(1L, NA_integer_), m_score = c(0.01440752, NA_real_), alignment_rank = 1L,
                         feature_id = c("2382660248384924660", NA_character_), sequence = c("DVDQYPR", "GNNSVYMNNFLNLILQNER"),
-                        charge = c(2L, 3L), group_label = c("10483_DVDQYPR/2", "10030_GNNSVYMNNFLNLILQNER/3"), row.names = c(1L, 5L))
-  expect_equal(outData[c(1,5),], expData, tolerance = 1e-05)
+                        charge = c(2L, 3L), group_label = c("10483_DVDQYPR/2", "10030_GNNSVYMNNFLNLILQNER/3"), row.names = c(82L, 167L))
+  expect_equal(outData[c(82,167),], expData, tolerance = 1e-05)
 })
 
 test_that("test_checkParams", {

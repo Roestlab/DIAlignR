@@ -94,6 +94,7 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   end_time <- Sys.time()
   message("The execution time for building multipeptide:")
   print(end_time - start_time)
+  message(length(multipeptide), " peptides are in the multipeptide.")
 
   #### Get all the child runs through hybrid alignment. ####
   adaptiveRTs <- new.env(hash = TRUE)

@@ -144,6 +144,7 @@ writeTables <- function(fileInfo, multipeptide, precursors){
   finalTbl <- lapply(seq_along(peptides), function(i){
     df <- multipeptide[[i]]
     idx <- which(df[["alignment_rank"]] == 1L & df[["run"]] %in% runs)
+    if(length(idx) == 0) idx <- which(df[["peak_group_rank"]] == 1L & df[["run"]] %in% runs)
     df <- df[idx,]
     df
   })

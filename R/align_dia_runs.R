@@ -12,6 +12,7 @@
 #' @param dataPath (string) path to mzml and osw directory.
 #' @param outFile (string) name of the output file.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param refRun (string) reference for alignment. If no run is provided, m-score is used to select reference run.
 #' @param runs (A vector of string) names of mzml file without extension.
 #' @param runType (string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param context (string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".
@@ -64,7 +65,7 @@
 #'
 #' @export
 alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMerged = TRUE, runs = NULL,
-                                    applyFun = lapply){
+                              refRun = NULL, applyFun = lapply){
   #### Check if all parameters make sense.  #########
   checkParams(params)
 
@@ -86,6 +87,15 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
 
+  #### Get reference run for each precursor ########
+  idx <- which(fileInfo$runName == refRun)
+  if(length(idx) == 0){
+    message("Calculating reference run for each peptide.")
+    refRuns <- getRefRun(peptideScores)
+  } else{
+    run <- rownames(fileInfo)[idx]
+    refRuns <- data.frame("peptide_id" = peptideIDs, "run" = run)
+  }
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
   features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]])
@@ -103,10 +113,6 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
   message("Building multipeptide.")
   multipeptide <- getMultipeptide(precursors, features)
   message(length(multipeptide), " peptides are in the multipeptide.")
-
-  #### Get reference run for each precursor ########
-  message("Calculating reference run for each peptide.")
-  refRuns <- getRefRun(peptideScores)
 
   #### Container to save Global alignments.  #######
   message("Calculating global alignments.")
@@ -223,17 +229,17 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
 
   ############## Get reference run for each precursor ########
   idx <- which(filenames$runName == refRun)
-    if(length(idx) == 0){
-      print("Finding reference run using SCORE_PEPTIDE table")
-      refRun <- data.frame("transition_group_id" = precursors$transition_group_id,
-                           "run" = NA_character_)
-      temp <- getRefRun(peptideScores)
-      refRun$run <- temp$run[match(precursors$peptide_id, temp$peptide_id)]
-    } else{
-      run <- rownames(filenames)[idx]
-      refRun <- data.frame("transition_group_id" = precursors$transition_group_id,
-                              "run" = run)
-    }
+  if(length(idx) == 0){
+    print("Finding reference run using SCORE_PEPTIDE table")
+    refRun <- data.frame("transition_group_id" = precursors$transition_group_id,
+                         "run" = NA_character_)
+    temp <- getRefRun(peptideScores)
+    refRun$run <- temp$run[match(precursors$peptide_id, temp$peptide_id)]
+  } else{
+    run <- rownames(filenames)[idx]
+    refRun <- data.frame("transition_group_id" = precursors$transition_group_id,
+                            "run" = run)
+  }
 
   ####################### Get XICs ##########################################
   # Get Chromatogram for each peptide in each run.
