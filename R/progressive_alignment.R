@@ -108,7 +108,6 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
 
   #### Map Ids from the master1 run to all parents. ####
   start_time <- Sys.time()
-  analytes <- precursors$transition_group_id
   traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
                adaptiveRTs, refRuns, params)
   end_time <- Sys.time()

@@ -112,3 +112,26 @@ get_ropenms <- function(pythonPath = NULL, condaEnv = NULL, useConda=TRUE){
   message("Using pyopenms version ", ropenms$version$version)
   ropenms
 }
+
+
+notReady <- function(dataPath, filename){
+  mz = ropenms$OnDiscMSExperiment()
+  #filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+  mz$openFile(filename)
+  meta_data <- mz$getMetaData()
+  header <- meta_data$getChromatograms()
+  chromatogramIndex <- seq(from = 0L, to = length(header)-1, by = 1L)
+  chromatogramId <- sapply(chromatogramIndex, function(i)
+    as.character(reticulate::py_to_r(header[[i]]$getNativeID()))
+  )
+  chromHead <- data.frame(chromatogramIndex, chromatogramId, stringsAsFactors = FALSE)
+  chromatogramIdAsInteger(chromHead)
+
+  indices <- 11:16
+  XICs <- lapply(seq_along(indices), function(i){
+    df <- reticulate::py_to_r(mz$getChromatogram(indices[i])$get_peaks())
+    names(df) <- c("time", paste0("intensity", i))
+    as.data.frame(df)
+  })
+
+}
