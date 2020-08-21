@@ -402,7 +402,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
     tAligned <- list(tAligned[,1], tAligned[,2])
     df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
     df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
-    multipeptide[[peptide_chr]] <- dplyr::bind_rows(df.other, df.eXp)
+    multipeptide[[peptide_chr]] <- tibble::remove_rownames(dplyr::bind_rows(df.other, df.eXp))
   }
   message(eXp, " has been aligned to ", ref, ".")
 }

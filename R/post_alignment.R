@@ -229,6 +229,7 @@ setOtherPrecursors <- function(df, XICs, analytes, params){
                         "alignment_rank" = 1L)
       df <- rbind(df, row)
     } else{
+      idx <- idx[which.max(pmin(pk[2], df$rightWidth[idx]) - pmax(pk[1], df$leftWidth[idx]))]
       df[["alignment_rank"]][idx] <- 1L # set alignment rank for already present feature
     }
   }
