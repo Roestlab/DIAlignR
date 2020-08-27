@@ -29,7 +29,7 @@
 getRefRun <- function(peptideScores){
   DFs <- lapply(seq_along(peptideScores), function(i){
     pep <- peptideScores[[i]]
-    idx <- which.min(pep$qvalue)
+    idx <- which.min(pep$pvalue)
     if(length(idx)==0) {
       id <- as.integer(names(peptideScores)[i])
       df <- data.frame("peptide_id" = id, "run" = NA_character_)

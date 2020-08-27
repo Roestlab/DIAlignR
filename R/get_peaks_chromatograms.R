@@ -141,7 +141,7 @@ getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, runType =
 
   # Get Chromatogram for each peptide in each run.
   message("Fetching Extracted-ion chromatograms from runs")
-  XICs <- getXICs4AlignObj(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
+  XICs <- getXICs4AlignObj(mzPntrs, fileInfo, runs, prec2chromIndex, analytesFound)
   rm(mzPntrs)
   XICs
 }

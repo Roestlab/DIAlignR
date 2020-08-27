@@ -55,11 +55,11 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
     peptide_chr <- as.character(peptides[i])
     temp1 <- peptideScores[[peptide_chr]]
     temp <- temp1[temp1$run %in% c(runA, runB),]
-    mscoreA <- temp$qvalue[temp$run == runA]
-    mscoreB <- temp$qvalue[temp$run == runB]
-    if(length(mscoreA)==0) mscoreA <- 1
-    if(length(mscoreB)==0) mscoreB <- 1
-    var1[i] <- ifelse(mscoreA > mscoreB, 2L, 1L)
+    pvalA <- temp$pvalue[temp$run == runA]
+    pvalB <- temp$pvalue[temp$run == runB]
+    if(length(pvalA)==0) pvalA <- 1
+    if(length(pvalB)==0) pvalB <- 1
+    var1[i] <- ifelse(pvalA > pvalB, 2L, 1L)
     if(nrow(temp) > 0){
       newdf <- data.frame(peptide_id = as.integer(peptide_chr), run = mergeName, score = max(temp$score),
                           pvalue = min(temp$pvalue), qvalue = min(temp$qvalue))
