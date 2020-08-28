@@ -1,6 +1,6 @@
 #' Fetch the reference run for each peptide
 #'
-#' Provides the reference run based on lowest qvalue.
+#' Provides the reference run based on lowest p-value.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -26,8 +26,8 @@
 #' }
 #' @seealso \code{\link{getPeptideScores}}
 #' @keywords internal
-getRefRun <- function(peptideScores){
-  DFs <- lapply(seq_along(peptideScores), function(i){
+getRefRun <- function(peptideScores, applyFun = lapply){
+  DFs <- applyFun(seq_along(peptideScores), function(i){
     pep <- peptideScores[[i]]
     idx <- which.min(pep$pvalue)
     if(length(idx)==0) {
@@ -74,10 +74,9 @@ getRefRun <- function(peptideScores){
 #' multipeptide[["9861"]]
 #' @seealso \code{\link{getPrecursors}, \link{getFeatures}}
 #' @export
-getMultipeptide <- function(precursors, features){
+getMultipeptide <- function(precursors, features, applyFun=lapply){
   peptideIDs <- unique(precursors$peptide_id)
-  multipeptide <- vector(mode = "list", length = length(peptideIDs))
-  for(i in seq_along(multipeptide)){
+  multipeptide <- applyFun(seq_along(peptideIDs), function(i){
     # Get transition_group_id for a peptideID
     idx <- which(precursors$peptide_id == peptideIDs[i])
     analytes <- precursors[idx, "transition_group_id"]
@@ -100,8 +99,8 @@ getMultipeptide <- function(precursors, features){
       newdf <- rbind(newdf, df, make.row.names = FALSE)
     }
     newdf[["alignment_rank"]] <- NA_integer_
-    multipeptide[[i]] <- newdf
-  }
+    newdf
+  })
 
   # Convert precursors as character. Add names to the multipeptide list.
   names(multipeptide) <- as.character(peptideIDs)
@@ -348,7 +347,7 @@ paramsDIAlignR <- function(){
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
                   fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
-                  keepFlanks = FALSE, w.ref = 0.5)
+                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L)
   params
 }
 

@@ -4,7 +4,7 @@
 \alias{getChromatogramIndices}
 \title{Get chromatogram indices of precursors.}
 \usage{
-getChromatogramIndices(fileInfo, precursors, mzPntrs)
+getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun = lapply)
 }
 \arguments{
 \item{fileInfo}{(data-frame) Output of getRunNames function.}

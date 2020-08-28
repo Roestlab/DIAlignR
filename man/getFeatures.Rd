@@ -4,7 +4,12 @@
 \alias{getFeatures}
 \title{Get features from all feature files}
 \usage{
-getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics")
+getFeatures(
+  fileInfo,
+  maxFdrQuery = 0.05,
+  runType = "DIA_proteomics",
+  applyFun = lapply
+)
 }
 \arguments{
 \item{fileInfo}{(data-frame) Output of \code{\link{getRunNames}} function.}

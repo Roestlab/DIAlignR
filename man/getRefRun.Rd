@@ -4,7 +4,7 @@
 \alias{getRefRun}
 \title{Fetch the reference run for each peptide}
 \usage{
-getRefRun(peptideScores)
+getRefRun(peptideScores, applyFun = lapply)
 }
 \arguments{
 \item{peptideScores}{(list of data-frames) each dataframe has scores of a peptide across all runs.}
@@ -15,7 +15,7 @@ getRefRun(peptideScores)
 \item{run}{(string) run identifier.}
 }
 \description{
-Provides the reference run based on lowest qvalue.
+Provides the reference run based on lowest p-value.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")

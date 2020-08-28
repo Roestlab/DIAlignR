@@ -10,7 +10,8 @@ getGlobalFits(
   fileInfo,
   globalAlignment,
   globalAlignmentFdr,
-  globalAlignmentSpan
+  globalAlignmentSpan,
+  applyFun = lapply
 )
 }
 \arguments{

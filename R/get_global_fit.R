@@ -201,18 +201,17 @@ getRSE <- function(fit){
 #' fits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
 #' }
 getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
-                          globalAlignmentFdr, globalAlignmentSpan){
-  globalFits <- list()
+                          globalAlignmentFdr, globalAlignmentSpan, applyFun = lapply){
   refs <- unique(refRun[["run"]])
   refs <- refs[!is.na(refs)]
-  for(ref in refs){
+  globalFits <- lapply(refs, function(ref){
     exps <- setdiff(rownames(fileInfo), ref)
-    for(eXp in exps){
-      pair <- paste(ref, eXp, sep = "_")
-      globalFit <- getGlobalAlignment(features, ref, eXp,
-                                      globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
-      globalFits[[pair]] <- globalFit
-    }
-  }
+    Fits <- applyFun(exps, function(eXp){
+      getGlobalAlignment(features, ref, eXp, globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
+    })
+    names(Fits) <- paste(ref, exps, sep = "_")
+    Fits
+  })
+  globalFits <- unlist(globalFits, recursive = FALSE)
   globalFits
 }

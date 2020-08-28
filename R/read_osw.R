@@ -356,17 +356,17 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #' features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
 #' dim(features[[2]]) # 227  8
 #' @export
-getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"){
-  features <- vector(mode = "list", length = nrow(fileInfo))
-  for(i in 1:nrow(fileInfo)){
+getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics", applyFun = lapply){
+  features <- applyFun(1:nrow(fileInfo), function(i){
     run <- rownames(fileInfo)[i]
     oswName <- fileInfo[["featureFile"]][[i]]
     runID <- fileInfo[["spectraFileID"]][[i]]
     names(runID) <- rownames(fileInfo)[[i]]
-    features[[i]] <- fetchFeaturesFromRun(oswName, runID, maxFdrQuery, runType)
-    message(paste0(nrow(features[[i]]), " peakgroups are founds below ", maxFdrQuery,
+    df <- fetchFeaturesFromRun(oswName, runID, maxFdrQuery, runType)
+    message(paste0(nrow(df), " peakgroups are founds below ", maxFdrQuery,
                    " FDR in run ", fileInfo[["runName"]][[i]], ", ID = ", runID))
-  }
+    df
+  })
   names(features) <- rownames(fileInfo)
   features
 }

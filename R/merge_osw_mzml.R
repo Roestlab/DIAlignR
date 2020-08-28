@@ -179,25 +179,23 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 #' prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
 #' rm(mzPntrs)
 #' @export
-getChromatogramIndices <- function(fileInfo, precursors, mzPntrs){
+getChromatogramIndices <- function(fileInfo, precursors, mzPntrs, applyFun=lapply){
   # Get precursor to transition mapping and unlist so that each row has one transition.
   prec2transition <- dplyr::select(precursors, .data$transition_group_id, .data$transition_ids) %>%
     tidyr::unnest(.data$transition_ids) %>% as.data.frame()
-
   # For each precursor get associated chromatogram Indices
-  prec2chromIndex <- vector(mode = "list", length = nrow(fileInfo))
   runs <- rownames(fileInfo)
-  for(i in seq_along(prec2chromIndex)){
+  prec2chromIndex <- applyFun(seq_along(runs), function(i){
     # Get chromatogram indices from the header file.
     chromHead <- mzR::chromatogramHeader(mzPntrs[[runs[i]]]) #TODO: Make sure that chromatogramIndex is read as integer64
     chromatogramIdAsInteger(chromHead) # Select only chromatogramId, chromatogramIndex
     df <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
     df <- df[match(precursors$transition_group_id, df$transition_group_id),]
     row.names(df) <- NULL
-    prec2chromIndex[[i]] <- df
     message("Fetched chromatogram indices from ", fileInfo$chromatogramFile[i])
-  }
-  names(prec2chromIndex) <- rownames(fileInfo)
+    df
+  })
+  names(prec2chromIndex) <- runs
   prec2chromIndex
 }
 
