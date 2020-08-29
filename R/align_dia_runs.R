@@ -92,14 +92,14 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
   idx <- which(fileInfo$runName == refRun)
   if(length(idx) == 0){
     message("Calculating reference run for each peptide.")
-    refRuns <- getRefRun(peptideScores)
+    refRuns <- getRefRun(peptideScores, applyFun)
   } else{
     run <- rownames(fileInfo)[idx]
     refRuns <- data.frame("peptide_id" = peptideIDs, "run" = run)
   }
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
-  features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]])
+  features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]], applyFun)
 
   #### Collect pointers for each mzML file. #######
   message("Collecting metadata from mzML files.")
@@ -108,18 +108,18 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
 
   #### Get chromatogram Indices of precursors across all runs. ############
   message("Collecting chromatogram indices for all precursors.")
-  prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
+  prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun)
 
   #### Convert features into multi-peptide #####
   message("Building multipeptide.")
-  multipeptide <- getMultipeptide(precursors, features)
+  multipeptide <- getMultipeptide(precursors, features, applyFun)
   message(length(multipeptide), " peptides are in the multipeptide.")
 
   #### Container to save Global alignments.  #######
   message("Calculating global alignments.")
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
-                              params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
-  RSE <- lapply(globalFits, getRSE)
+                              params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], applyFun)
+  RSE <- applyFun(globalFits, getRSE)
 
   # TODO: Check dimensions of multipeptide, PeptideIDs, precursors etc makes sense.
   #### Perform pairwise alignment ###########

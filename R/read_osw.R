@@ -417,7 +417,7 @@ fetchPeptidesInfo <- function(oswName, runType, context){
 #' peptidesInfo <- getPeptideScores(fileInfo, unique(precursorsInfo$peptide_id))
 #' dim(peptidesInfo) # 681 5
 #' @export
-getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DIA_proteomics", context = "experiment-wide"){
+getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DIA_proteomics", context = "global"){
   if(context == "global") context <- "experiment-wide"
 
   if(oswMerged == TRUE){

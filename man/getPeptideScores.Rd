@@ -9,7 +9,7 @@ getPeptideScores(
   peptides,
   oswMerged = TRUE,
   runType = "DIA_proteomics",
-  context = "experiment-wide"
+  context = "global"
 )
 }
 \arguments{

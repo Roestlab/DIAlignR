@@ -23,6 +23,7 @@ test_that("test_alignTargetedRuns",{
   runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
   BiocParallel::register(BiocParallel::MulticoreParam())
+  params[["batchSize"]] <- 10L
   alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
                       runs = runs, applyFun = BiocParallel::bplapply)
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
