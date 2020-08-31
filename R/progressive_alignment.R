@@ -38,7 +38,7 @@
 #' }
 #' @export
 progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, oswMerged = TRUE,
-                          runs = NULL, newickTree = NULL){
+                          runs = NULL, newickTree = NULL, applyFun = lapply){
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
   fileInfo <- getRunNames(dataPath, oswMerged)
   fileInfo <- updateFileInfo(fileInfo, runs)
@@ -55,28 +55,21 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   #### Get Peptide scores, pvalue and qvalues. ######
   peptideIDs <- unique(precursors$peptide_id)
   peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
-  peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  peptideScores <- applyFun(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
-  peptideScores <- list2env(peptideScores, hash = FALSE)
+  peptideScores <- list2env(peptideScores, hash = TRUE)
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
-  features <- list2env(getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]]), hash = FALSE)
+  features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]], applyFun)
 
   ##### Get distances among runs based on the number of high-quality features. #####
-  tmp <- lapply(features, function(df)
+  tmp <- applyFun(features, function(df)
        df[df[["m_score"]] <= params[["analyteFDR"]] & df[["peak_group_rank"]] == 1, "transition_group_id"])
-  allIDs <- unique(unlist(tmp, recursive = FALSE, use.names = FALSE))
+  tmp <- tmp[order(names(tmp), decreasing = FALSE)]
+  allIDs <- unique(unlist(tmp, recursive = FALSE, use.names = TRUE))
+  allIDs <- sort(allIDs)
   distMat <- length(allIDs) - crossprod(table(stack(tmp)))
   distMat <- stats::dist(distMat, method = "manhattan")
-
-  #### Collect pointers for each mzML file. #######
-  message("Collecting metadata from mzML files.")
-  mzPntrs <- list2env(getMZMLpointers(fileInfo), hash = FALSE)
-  message("Metadata is collected from mzML files.")
-
-  #### Get chromatogram Indices of precursors across all runs. ############
-  message("Collecting chromatogram indices for all precursors.")
-  prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs), hash = FALSE)
 
   #### Get the guidance tree. ####
   start_time <- Sys.time()
@@ -87,10 +80,19 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
     tree <- ape::read.tree(text = newickTree)
   }
 
+  #### Collect pointers for each mzML file. #######
+  message("Collecting metadata from mzML files.")
+  mzPntrs <- list2env(getMZMLpointers(fileInfo), hash = TRUE)
+  message("Metadata is collected from mzML files.")
+
+  #### Get chromatogram Indices of precursors across all runs. ############
+  message("Collecting chromatogram indices for all precursors.")
+  prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun), hash = TRUE)
+
   #### Convert features into multi-peptide #####
   start_time <- Sys.time()
   message("Building multipeptide.")
-  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+  multipeptide <- getMultipeptide(precursors, features, applyFun)
   end_time <- Sys.time()
   message("The execution time for building multipeptide:")
   print(end_time - start_time)
@@ -99,17 +101,20 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   #### Get all the child runs through hybrid alignment. ####
   adaptiveRTs <- new.env(hash = TRUE)
   refRuns <- new.env(hash = TRUE)
+  features <- list2env(features, hash = TRUE)
+
   # Traverse up the tree
-  traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
-             params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
+  start_time <- Sys.time()
+  multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
+             params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms, applyFun)
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
   message("The execution time for creating a master run by alignment:")
   print(end_time - start_time)
 
   #### Map Ids from the master1 run to all parents. ####
   start_time <- Sys.time()
-  traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
-               adaptiveRTs, refRuns, params)
+  multipeptide <- traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs,
+                                precursors, adaptiveRTs, refRuns, params, applyFun)
   end_time <- Sys.time()
   message("The execution time for transfering peaks from root to runs:")
   print(end_time - start_time)
@@ -117,8 +122,7 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   #### Save features and add master runs to osw #####
   addMasterToOSW(dataPath, tree$node.label, oswMerged)
   filename <- file.path(dataPath, "multipeptide.rds")
-  multipeptide <- as.list(multipeptide)
-  saveRDS(as.list(multipeptide), file = filename)
+  saveRDS(multipeptide, file = filename)
 
   #### Cleanup.  #######
   rm(mzPntrs)

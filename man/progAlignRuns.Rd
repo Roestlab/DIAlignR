@@ -11,7 +11,8 @@ progAlignRuns(
   ropenms,
   oswMerged = TRUE,
   runs = NULL,
-  newickTree = NULL
+  newickTree = NULL,
+  applyFun = lapply
 )
 }
 \arguments{
