@@ -19,7 +19,8 @@ getNodeRun(
   refRuns,
   multipeptide,
   peptideScores,
-  ropenms
+  ropenms,
+  applyFun = lapply
 )
 }
 \arguments{
@@ -73,14 +74,14 @@ peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params
 peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
 names(peptideScores) <- as.character(peptideIDs)
 peptideScores <- list2env(peptideScores)
-multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+multipeptide <- getMultipeptide(precursors, features)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 mergeName <- "master"
 adaptiveRTs <- new.env()
 refRuns <- new.env()
 \dontrun{
 ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
-getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
+multipeptide <- getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
 rm(mzPntrs)
 file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.mzML")))

@@ -14,7 +14,8 @@ getChildXICs(
   prec2chromIndex,
   refRun,
   peptideScores,
-  params
+  params,
+  applyFun = lapply
 )
 }
 \arguments{

@@ -35,13 +35,13 @@ test_that("test_getNodeRun",{
   names(peptideScores) <- as.character(peptideIDs)
 
   peptideScores <- list2env(peptideScores)
-  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+  multipeptide <- getMultipeptide(precursors, features)
   prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
   mergeName <- "temp"
   adaptiveRTs <- new.env()
   refRuns <- new.env()
 
-  expect_warning(getNodeRun(runA="run1", runB="run2", mergeName, dataPath = ".",
+  expect_warning(multipeptide <- getNodeRun(runA="run1", runB="run2", mergeName, dataPath = ".",
                             fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
                             adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms),
                  "Chromatogram indices for 7040 are missing.")
