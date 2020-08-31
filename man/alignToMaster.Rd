@@ -15,7 +15,8 @@ alignToMaster(
   mzPntrs,
   fileInfo,
   precursors,
-  params
+  params,
+  applyFun = lapply
 )
 }
 \arguments{
@@ -69,20 +70,20 @@ peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params
 peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
 names(peptideScores) <- as.character(peptideIDs)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
-multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+multipeptide <- getMultipeptide(precursors, features)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 adaptiveRTs <- new.env()
 refRuns <- new.env()
 tree <- ape::reorder.phylo(ape::read.tree(text = "(run1:7,run2:2)master1;"), "postorder")
 \dontrun{
 ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
-traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
+multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
  adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
-multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+multipeptide <- getMultipeptide(precursors, features)
 alignedVecs <- readRDS(file = file.path(dataPath, "master1_av.rds"))
 adaptiveRT <- (adaptiveRTs[["run1_run2"]] + adaptiveRTs[["run2_run1"]])/2
 multipeptide[["14383"]]$alignment_rank[multipeptide[["14383"]]$run == "master1"] <- 1L
-alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRuns[["master1"]][,1], adaptiveRT,
+multipeptide <- alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRuns[["master1"]][,1], adaptiveRT,
  multipeptide, prec2chromIndex, mzPntrs, fileInfo, precursors, params)
 # Cleanup
 rm(mzPntrs)

@@ -14,7 +14,8 @@ traverseDown(
   precursors,
   adaptiveRTs,
   refRuns,
-  params
+  params,
+  applyFun = lapply
 )
 }
 \arguments{
@@ -66,17 +67,17 @@ peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params
 peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
 names(peptideScores) <- as.character(peptideIDs)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
-multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+multipeptide <- getMultipeptide(precursors, features)
 adaptiveRTs <- new.env()
 refRuns <- new.env()
 tree <- ape::read.tree(text = "(run1:9,(run2:7,run0:2)master2:5)master1;")
 tree <- ape::reorder.phylo(tree, "postorder")
 \dontrun{
 ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
-traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
+multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
  adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
-multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
-traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
+multipeptide <- getMultipeptide(precursors, features)
+multipeptide <- traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
  adaptiveRTs, refRuns, params)
 # Cleanup
 rm(mzPntrs)

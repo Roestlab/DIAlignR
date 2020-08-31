@@ -48,12 +48,12 @@ test_that("test_traverseUp", {
   prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
   adaptiveRTs <- new.env()
   refRuns <- new.env()
-  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+  multipeptide <- getMultipeptide(precursors, features)
 
   tree <- ape::read.tree(text = "(run1:7,run2:2)master1;")
   tree <- ape::reorder.phylo(tree, "postorder")
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
-  m <- capture_messages(traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
+  m <- capture_messages(multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
                                         params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms))
   expect_equal(m, c("run1 + run2 = master1\n",
                     "Getting merged chromatograms for run master1\n",
@@ -106,7 +106,7 @@ test_that("test_traverseDown", {
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
   peptideScores <- list2env(peptideScores)
-  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+  multipeptide <- getMultipeptide(precursors, features)
 
   prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
   adaptiveRTs <- new.env()
@@ -115,12 +115,13 @@ test_that("test_traverseDown", {
   tree <- ape::read.tree(text = "(run1:7,run2:2)master1;")
   tree <- ape::reorder.phylo(tree, "postorder")
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
-  expect_warning(traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
+  expect_warning(multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
              params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms))
+
   df1 <- multipeptide[["14383"]]
   df2 <- multipeptide[["9861"]]
   df3 <- multipeptide[["7040"]]
-  expect_message(traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
+  expect_message(multipeptide <- traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
                adaptiveRTs, refRuns, params),
                ("Mapping peaks from master1 to run1 and run2.\n|run1 has been aligned to master1.\n|run2 has been aligned to master1.\n|master1 run has been propagated to all parents."),
                all = TRUE)
@@ -166,25 +167,27 @@ test_that("test_alignToMaster", {
   refRuns <- new.env()
   tree <- ape::reorder.phylo(ape::read.tree(text = "(run1:7,run2:2)master1;"), "postorder")
 
-  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+  multipeptide <- getMultipeptide(precursors, features)
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
-  traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
+  multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors, params,
     adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
-  multipeptide <- list2env(getMultipeptide(precursors, features), hash = TRUE)
+  multipeptide <- getMultipeptide(precursors, features)
   alignedVecs <- readRDS(file = file.path(dataPath, "master1_av.rds"))
   adaptiveRT <- max(adaptiveRTs[["run1_run2"]], adaptiveRTs[["run2_run1"]])
-  multipeptide[["4618"]]$alignment_rank[multipeptide[["4618"]]$run == "master1"] <- 1L
-  df <- multipeptide[["4618"]]
+  multipeptide[["14383"]]$alignment_rank[multipeptide[["14383"]]$run == "master1"] <- 1L
+  df <- multipeptide[["14383"]]
 
-  alignToMaster(ref = "master1", eXp = "run1", alignedVecs, 1L, adaptiveRT,
+  newMP <- alignToMaster(ref = "master1", eXp = "run1", alignedVecs, 1L, adaptiveRT,
     multipeptide, prec2chromIndex, mzPntrs, fileInfo, precursors, params)
   df$alignment_rank[df$run == "run1"] <- 1L
-  expect_equal(multipeptide[["4618"]], df)
+  df2 <- df[c(1,2,4,3),]; row.names(df2) <- NULL
+  expect_equal(newMP[["14383"]], df2)
 
-  alignToMaster(ref = "master1", eXp = "run2", alignedVecs, 2L, adaptiveRT,
-                multipeptide, prec2chromIndex, mzPntrs, fileInfo, precursors, params)
+  newMP <- alignToMaster(ref = "master1", eXp = "run2", alignedVecs, 2L, adaptiveRT,
+                                newMP, prec2chromIndex, mzPntrs, fileInfo, precursors, params)
   df$alignment_rank[df$run == "run2"] <- 1L
-  expect_equal(multipeptide[["4618"]], df)
+  df2 <- df[c(1,4,3,2),]; row.names(df2) <- NULL
+  expect_equal(newMP[["14383"]], df2)
 
   file.remove(file.path(dataPath, "master1_av.rds"))
   file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
