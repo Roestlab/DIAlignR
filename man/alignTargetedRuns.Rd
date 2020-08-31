@@ -108,7 +108,8 @@ It then align XICs of its reference XICs. Best peak, which has lowest m-score, a
 params <- paramsDIAlignR()
 params[["context"]] <- "experiment-wide"
 dataPath <- system.file("extdata", package = "DIAlignR")
-alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", params = params)
+BiocParallel::register(BiocParallel::MulticoreParam(workers = 4, progressbar = TRUE))
+alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", params = params, applyFun = BiocParallel::bplapply)
 }
 \references{
 Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
