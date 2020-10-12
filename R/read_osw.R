@@ -157,9 +157,16 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
 
   if(is.null(selectIDs)){
     query <- getPrecursorsQuery(runType)
-  } else{
+  } 
+  else
+  {
     query <- getPrecursorsQueryID(selectIDs, runType)
   }
+
+  message(paste0(runType))
+
+  if (runType == "DIA_Proteomics")
+  {
   # Run query to get peptides, their coordinates and scores.
   precursorsInfo <- tryCatch(expr = { output <- DBI::dbSendQuery(con, statement = query)
                                         DBI::dbFetch(output)},
@@ -168,6 +175,18 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
   # Each precursor has only one row. tidyr::nest creates a tibble object that is twice as heavy to regular list.
   precursorsInfo <- dplyr::group_by(precursorsInfo, .data$transition_group_id, .data$peptide_id, .data$sequence, .data$charge, .data$group_label) %>%
     dplyr::summarise(transition_ids = base::list(.data$transition_id)) %>% dplyr::ungroup() %>% as.data.frame()
+  }
+  else if (runType == "DIA_Metabolomics")
+  {
+    # Run query to get compounds, their coordinates and scores.
+  precursorsInfo <- tryCatch(expr = { output <- DBI::dbSendQuery(con, statement = query)
+                                        DBI::dbFetch(output)},
+                           finally = {DBI::dbClearResult(output)
+                             DBI::dbDisconnect(con)})
+  # Each precursor has only one row. tidyr::nest creates a tibble object that is twice as heavy to regular list.
+  precursorsInfo <- dplyr::group_by(precursorsInfo, .data$transition_group_id, .data$compound_id, .data$sum_formula, .data$compound_name, .data$adducts, .data$charge, .data$group_label) %>%
+    dplyr::summarise(transition_ids = base::list(.data$transition_id)) %>% dplyr::ungroup() %>% as.data.frame()
+  }
   precursorsInfo
 }
 

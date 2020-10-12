@@ -200,18 +200,39 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchPrecursorsInfo}}
 #' @keywords internal
-getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
-  query <- "SELECT PRECURSOR.ID AS transition_group_id,
-      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
-      PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
-      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
-      PRECURSOR.CHARGE AS charge,
-      PRECURSOR.GROUP_LABEL AS group_label
-      FROM PRECURSOR
-      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
-      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
-      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
-      ORDER BY transition_group_id, transition_id;"
+getPrecursorsQuery <- function(runType)
+{
+  if (runType == "DIA_Proteomics") 
+  {
+    query <- "SELECT PRECURSOR.ID AS transition_group_id,
+        TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+        PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
+        PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+        PRECURSOR.CHARGE AS charge,
+        PRECURSOR.GROUP_LABEL AS group_label
+        FROM PRECURSOR
+        INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+        ORDER BY transition_group_id, transition_id;"
+  }
+  else if (runType == "DIA_Metabolomics")
+  { 
+    message(paste0("getPrecursorsQuery_Metbolomics."))
+    query <- "SELECT PRECURSOR.ID AS transition_group_id,
+        TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+        PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID AS compound_id,
+        COMPOUND.SUM_FORMULA AS sum_formula,
+        COMPOUND.COMPOUND_NAME AS compound_name,
+        COMPOUND.ADDUCTS AS adducts,
+        PRECURSOR.CHARGE AS charge,
+        PRECURSOR.GROUP_LABEL AS group_label
+        FROM PRECURSOR
+        INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN PRECURSOR_COMPOUND_MAPPING ON PRECURSOR_COMPOUND_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID
+        ORDER BY transition_group_id, transition_id;"
+  }
   query
 }
 
@@ -229,21 +250,41 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchFeaturesFromRun}}
 #' @keywords internal
-getFeaturesQuery <- function(runType = "DIA_Proteomics"){
-  query <- "SELECT PRECURSOR.ID AS transition_group_id,
-  FEATURE.EXP_RT AS RT,
-  FEATURE_MS2.AREA_INTENSITY AS intensity,
-  FEATURE.LEFT_WIDTH AS leftWidth,
-  FEATURE.RIGHT_WIDTH AS rightWidth,
-  SCORE_MS2.RANK AS peak_group_rank,
-  SCORE_MS2.QVALUE AS m_score
-  FROM PRECURSOR
-  INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
-  INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
-  LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
-  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
-  ORDER BY transition_group_id, peak_group_rank;"
+getFeaturesQuery <- function(runType){
+  if (runType == "DIA_Proteomics") 
+  {
+    query <- "SELECT PRECURSOR.ID AS transition_group_id,
+      FEATURE.EXP_RT AS RT,
+      FEATURE_MS2.AREA_INTENSITY AS intensity,
+      FEATURE.LEFT_WIDTH AS leftWidth,
+      FEATURE.RIGHT_WIDTH AS rightWidth,
+      SCORE_MS2.RANK AS peak_group_rank,
+      SCORE_MS2.QVALUE AS m_score
+      FROM PRECURSOR
+      INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+      LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
+      LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+      WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+      ORDER BY transition_group_id, peak_group_rank;"  }
+  else if (runType == "DIA_Metabolomics")
+  {
+    message(paste0("getFeaturesQuery_Metabolomics"))
+    query <- "SELECT PRECURSOR.ID AS transition_group_id,
+      FEATURE.EXP_RT AS RT,
+      FEATURE_MS2.AREA_INTENSITY AS intensity,
+      FEATURE.LEFT_WIDTH AS leftWidth,
+      FEATURE.RIGHT_WIDTH AS rightWidth,
+      SCORE_MS2.RANK AS peak_group_rank,
+      SCORE_MS2.QVALUE AS m_score
+      FROM PRECURSOR
+      INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+      LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
+      LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+      WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+      ORDER BY transition_group_id, peak_group_rank;"   
+  }
   query
 }
 
@@ -262,20 +303,44 @@ getFeaturesQuery <- function(runType = "DIA_Proteomics"){
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchPrecursorsInfo}}
 #' @keywords internal
-getPrecursorsQueryID <- function(analytes, runType = "DIA_Proteomics"){
-  selectAnalytes <- paste0(" transition_group_id IN ('", paste(analytes, collapse="','"),"')")
+getPrecursorsQueryID <- function(analytes, runType)
+{
+  if (runType == "DIA_Proteomics") 
+  {
+    selectAnalytes <- paste0(" transition_group_id IN ('", paste(analytes, collapse="','"),"')")
 
-  query <- paste0("SELECT PRECURSOR.ID AS transition_group_id,
-      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
-      PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
-      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
-      PRECURSOR.CHARGE AS charge,
-      PRECURSOR.GROUP_LABEL AS group_label
-      FROM PRECURSOR
-      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
-      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
-      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
-      WHERE ", selectAnalytes, "
-      ORDER BY transition_group_id, transition_id;")
+    query <- paste0("SELECT PRECURSOR.ID AS transition_group_id,
+        TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+        PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
+        PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+        PRECURSOR.CHARGE AS charge,
+        PRECURSOR.GROUP_LABEL AS group_label
+        FROM PRECURSOR
+        INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+        WHERE ", selectAnalytes, "
+        ORDER BY transition_group_id, transition_id;")
+  }
+  else if (runType == "DIA_Metabolomics")
+  {
+    message(paste0("getPrecursorsQueryID_Metabolomics"))
+    selectAnalytes <- paste0(" transition_group_id IN ('", paste(analytes, collapse="','"),"')")
+
+    query <- paste0("SELECT PRECURSOR.ID AS transition_group_id,
+        TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+        PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID AS compound_id,
+        COMPOUND.SUM_FORMULA AS sum_formula,
+        COMPOUND.COMPOUND_NAME AS compound_name,
+        COMPOUND.ADDUCTS AS adducts,
+        PRECURSOR.CHARGE AS charge,
+        PRECURSOR.GROUP_LABEL AS group_label
+        FROM PRECURSOR
+        INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN PRECURSOR_COMPOUND_MAPPING ON PRECURSOR_COMPOUND_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+        INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID
+        WHERE ", selectAnalytes, "
+        ORDER BY transition_group_id, transition_id;") 
+  }
   query
 }
