@@ -97,7 +97,7 @@ fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
 #' oswFiles[["run0"]][1,]
 #' }
 getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FALSE,
-                           maxFdrQuery = 0.05, runType  = "DIA_proteomics"){
+                           maxFdrQuery = 0.05, runType){
   oswFiles <- list()
   for(i in 1:nrow(fileInfo)){
     # Get a query to search against the osw files.
@@ -163,8 +163,6 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
     query <- getPrecursorsQueryID(selectIDs, runType)
   }
 
-  message(paste0(runType))
-
   if (runType == "DIA_Proteomics")
   {
   # Run query to get peptides, their coordinates and scores.
@@ -221,7 +219,7 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
 #' dim(precursorsInfo) # 322  6
 #' }
 #' @export
-getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"){
+getPrecursors <- function(fileInfo, oswMerged = TRUE, runType){
   if(oswMerged == TRUE){
     # Get precursor information from merged.osw file
     oswName <- unique(fileInfo[["featureFile"]])
@@ -269,7 +267,7 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
 #' fileInfo <- getRunNames(dataPath = dataPath, oswMerged = TRUE)
 #' precursors <- getPrecursorByID(c(32L, 2474L), fileInfo, oswMerged = TRUE)
 #' @export
-getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"){
+getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType){
   if(oswMerged == TRUE){
     # Get precursor information from merged.osw file
     oswName <- unique(fileInfo[["featureFile"]])
@@ -322,7 +320,7 @@ getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DI
 #'  maxFdrQuery = 0.05)
 #' dim(featuresInfo) # 211  7
 #' }
-fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = "DIA_proteomics"){
+fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType){
   # Establish a connection of SQLite file.
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = as.character(filename))
   # Generate a query.
@@ -369,7 +367,7 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #' dim(features[[2]]) # 227  7
 #' }
 #' @export
-getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"){
+getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType){
   features <- vector(mode = "list", length = nrow(fileInfo))
   for(i in 1:nrow(fileInfo)){
     run <- rownames(fileInfo)[i]
