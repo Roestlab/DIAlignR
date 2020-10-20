@@ -90,15 +90,16 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   precursors <- getPrecursors(fileInfo, oswMerged, runType)
   message("----------Precursor----------")
-  message(precursors)
-  message("-----------------------------")
+  #message(precursors)
+  #message("-----------------------------")
 
   ################ Get OpenSWATH peak-groups and their retention times. ##########
   features <- getFeatures(fileInfo, maxFdrQuery, runType)
   message("----------Features----------")
-  message(features)
-  message("-----------------------------")
+  #message(features)
+  #message("-----------------------------")
 
+  message("----------allids----------")
   #### Precursors for which features are identified. ##############
   allIDs <- unique(unlist(lapply(features, function(df) df[df[["m_score"]] <= analyteFDR,
                                                            "transition_group_id"]),
@@ -249,7 +250,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param analyteFDR (numeric) only analytes that have m-score less than this, will be included in the output.
-#' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
+#' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or "none".
 #' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
 #' @param kernelLen (integer) number of data-points to consider in the kernel.
 #' @param globalAlignment (string) must be from "loess" or "linear".
