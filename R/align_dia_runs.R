@@ -243,7 +243,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param analyteFDR (numeric) only analytes that have m-score less than this, will be included in the output.
-#' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or "none".
+#' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
 #' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
 #' @param kernelLen (integer) number of data-points to consider in the kernel.
 #' @param globalAlignment (string) must be from "loess" or "linear".

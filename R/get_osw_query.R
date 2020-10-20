@@ -204,7 +204,6 @@ getPrecursorsQuery <- function(runType)
 {
   if (runType == "DIA_Proteomics")
   {
-      message(paste0("getPrecursorsQuery_Proteomics."))
       query <- "SELECT PRECURSOR.ID AS transition_group_id,
       TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
       PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
@@ -219,7 +218,6 @@ getPrecursorsQuery <- function(runType)
   }
   else if (runType == "DIA_Metabolomics")
   {
-      message(paste0("getPrecursorsQuery_Metbolomics."))
       query <- "SELECT PRECURSOR.ID AS transition_group_id,
       TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
       PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID AS compound_id,
@@ -308,7 +306,6 @@ getPrecursorsQueryID <- function(analytes, runType)
 {
   if (runType == "DIA_Proteomics")
   {
-      message(paste0("getPrecursorsQueryID_Proteomics"))
       selectAnalytes <- paste0(" transition_group_id IN ('", paste(analytes, collapse="','"),"')")
 
       query <- paste0("SELECT PRECURSOR.ID AS transition_group_id,
@@ -325,9 +322,7 @@ getPrecursorsQueryID <- function(analytes, runType)
                   ORDER BY transition_group_id, transition_id;")
   }
   else if (runType == "DIA_Metabolomics")
-  {
-      message(paste0("getPrecursorsQueryID_Metabolomics"))
-  
+  {  
       selectAnalytes <- paste0(" transition_group_id IN ('", paste(analytes, collapse="','"),"')")
       query <- paste0("SELECT PRECURSOR.ID AS transition_group_id,
                   TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
