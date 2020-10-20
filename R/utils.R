@@ -64,9 +64,6 @@ getMultipeptide <- function(precursors, features){
   for(i in seq_along(multipeptide)){
     analyte <- precursors[["transition_group_id"]][i]
     multipeptide[[i]] <- data.frame()
-    message("----------Names----------")
-    message(names(features))
-    message("--------------------------")
     for(run in names(features)){
       # Match precursor in each run, if not found add NA
       index <- which(features[[run]][["transition_group_id"]] == analyte)

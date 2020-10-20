@@ -89,17 +89,10 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
   ######### Get Precursors from the query and respectve chromatogram indices. ######
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   precursors <- getPrecursors(fileInfo, oswMerged, runType)
-  message("----------Precursor----------")
-  #message(precursors)
-  #message("-----------------------------")
 
   ################ Get OpenSWATH peak-groups and their retention times. ##########
   features <- getFeatures(fileInfo, maxFdrQuery, runType)
-  message("----------Features----------")
-  #message(features)
-  #message("-----------------------------")
 
-  message("----------allids----------")
   #### Precursors for which features are identified. ##############
   allIDs <- unique(unlist(lapply(features, function(df) df[df[["m_score"]] <= analyteFDR,
                                                            "transition_group_id"]),
