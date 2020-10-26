@@ -12,11 +12,11 @@
 #' @param oswAnalytes (dataframe) This is an output of getOswFiles.
 #' @param chromHead (dataframe) This has two columns: chromatogramId and chromatogramIndex with integer values.
 #' @param analyteFDR (numeric) Not used.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @return Invisible NULL
 #' @seealso \code{\link{getOswFiles}}
 #' @keywords internal
-mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1.00, runType = "DIA_proteomics"){
+mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1.00, runType = "DIA_Proteomics"){
   # TODO: Make sure that transition_id has same order across runs. IMO should be specified in query.
   assign("oswAnalytes", dplyr::left_join(oswAnalytes, chromHead,
                                   by = c("transition_id" = "chromatogramId")) %>%
@@ -46,7 +46,7 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' @param analyteFDR (numeric) Not used.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param analytes (string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @param mzPntrs A list of mzRpwiz.
 #'  FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
@@ -74,7 +74,7 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' rm(mzPntrs)
 #' }
 getOswFiles <- function(fileInfo, mzPntrs, maxFdrQuery = 0.05, analyteFDR = 0.01, oswMerged = TRUE,
-                        analytes = NULL, runType = "DIA_proteomics", analyteInGroupLabel = FALSE){
+                        analytes = NULL, runType = "DIA_Proteomics", analyteInGroupLabel = FALSE){
   oswFiles <- list()
   for(i in 1:nrow(fileInfo)){
     run <- rownames(fileInfo)[i]

@@ -4,12 +4,12 @@
 \alias{fetchPrecursorsInfo}
 \title{Get precursors from a feature file}
 \usage{
-fetchPrecursorsInfo(filename, runType, selectIDs = NULL)
+fetchPrecursorsInfo(filename, runType = "DIA_Proteomics", selectIDs = NULL)
 }
 \arguments{
 \item{filename}{(string) Should be from the RUN.FILENAME column from osw files.}
 
-\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 }
 \value{
 (data-frames) Data-frame has following columns:
@@ -27,7 +27,7 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 dataPath <- system.file("extdata", package = "DIAlignR")
 filename <- paste0(dataPath,"/osw/merged.osw")
 \dontrun{
-precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics")
+precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_Proteomics")
 dim(precursorsInfo) # 303  6
 }
 }

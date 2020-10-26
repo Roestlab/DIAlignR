@@ -13,7 +13,7 @@
 #' @param outFile (string) name of the output file.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param runs (A vector of string) names of mzml file without extension.
-#' @param runType (string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (string) must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
 #' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
@@ -240,7 +240,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.csv", oswMerged = TR
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param refRun (string) reference for alignment. If no run is provided, m-score is used to select reference run.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param analyteFDR (numeric) only analytes that have m-score less than this, will be included in the output.
 #' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.

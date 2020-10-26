@@ -9,7 +9,7 @@ getPrecursorsQueryID(analytes, runType = "DIA_Proteomics")
 \arguments{
 \item{analytes}{(integer) A vector of integer that is searched in PRECURSOR.ID.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 }
 \value{
 SQL query to be searched.

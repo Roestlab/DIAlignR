@@ -24,7 +24,7 @@ extractXIC_group <- function(mz, chromIndices){
   if ( class(XIC_group) == "list" & length(XIC_group) > 1 )
   {
     return( XIC_group )
-  } 
+  }
   else
   {
     return( list(XIC_group) ) # only one transition detected
@@ -113,7 +113,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' @param runs (vector of string) names of mzML files without extension.
 #' @param dataPath (string) Path to mzml and osw directory.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @return A list of list. Each list contains XIC-group for that run. XIC-group is a list of dataframe that has elution time and intensity of fragment-ion XIC.
 #'
@@ -125,7 +125,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' analytes <- c(32L, 898L, 2474L)
 #' XICs <- getXICs(analytes, runs = runs, dataPath = dataPath)
 #' @export
-getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, runType = "DIA_proteomics",
+getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, runType = "DIA_Proteomics",
                     oswMerged = TRUE){
   # Get fileInfo from .merged.osw file and check if names are consistent between osw and mzML files.
   fileInfo <- getRunNames(dataPath, oswMerged)

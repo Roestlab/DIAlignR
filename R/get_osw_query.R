@@ -9,7 +9,7 @@
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param analytes (vector of strings) transition_group_ids for which features are to be extracted. analyteInGroupLabel must be set according the pattern used here.
 #' @param filename (string) as mentioned in RUN table of osw files.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
 #' @keywords internal
@@ -122,7 +122,7 @@ getQuery <- function(maxFdrQuery, oswMerged = TRUE, analytes = NULL,
 #' @param maxFdrQuery (numeric) value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param filename (string) as mentioned in RUN table of osw files..
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #' @return SQL query to be searched.
 #' @seealso \code{\link{getOswAnalytes}}
@@ -196,11 +196,11 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2020-04-04
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchPrecursorsInfo}}
 #' @keywords internal
-getPrecursorsQuery <- function(runType)
+getPrecursorsQuery <- function(runType = "DIA_Proteomics")
 {
   if (runType == "DIA_Proteomics")
   {
@@ -245,11 +245,11 @@ getPrecursorsQuery <- function(runType)
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2020-04-07
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchFeaturesFromRun}}
 #' @keywords internal
-getFeaturesQuery <- function(runType) #is the same call for both
+getFeaturesQuery <- function(runType = "DIA_Proteomics") #is the same call for both
 {
   if (runType == "DIA_Proteomics")
   {
@@ -298,11 +298,11 @@ getFeaturesQuery <- function(runType) #is the same call for both
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-04
 #' @param analytes (integer) A vector of integer that is searched in PRECURSOR.ID.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchPrecursorsInfo}}
 #' @keywords internal
-getPrecursorsQueryID <- function(analytes, runType)
+getPrecursorsQueryID <- function(analytes, runType = "DIA_Proteomics")
 {
   if (runType == "DIA_Proteomics")
   {
@@ -322,7 +322,7 @@ getPrecursorsQueryID <- function(analytes, runType)
                   ORDER BY transition_group_id, transition_id;")
   }
   else if (runType == "DIA_Metabolomics")
-  {  
+  {
       selectAnalytes <- paste0(" transition_group_id IN ('", paste(analytes, collapse="','"),"')")
       query <- paste0("SELECT PRECURSOR.ID AS transition_group_id,
                   TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
@@ -337,7 +337,7 @@ getPrecursorsQueryID <- function(analytes, runType)
                   INNER JOIN PRECURSOR_COMPOUND_MAPPING ON PRECURSOR_COMPOUND_MAPPING.PRECURSOR_ID = PRECURSOR.ID
                   INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID
                   WHERE ", selectAnalytes, "
-                  ORDER BY transition_group_id, transition_id;") 
+                  ORDER BY transition_group_id, transition_id;")
 
   }
   query

@@ -4,14 +4,14 @@
 \alias{getPrecursors}
 \title{Get precursors from all feature files}
 \usage{
-getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics")
 }
 \arguments{
 \item{fileInfo}{(data-frame) Output of DIAlignR::getRunNames function.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 }
 \value{
 (data-frames) A data-frame having following columns:
@@ -29,7 +29,7 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
 \dontrun{
-precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics")
 dim(precursorsInfo) # 322  6
 }
 }

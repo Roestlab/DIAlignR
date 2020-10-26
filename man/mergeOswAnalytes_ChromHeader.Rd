@@ -8,7 +8,7 @@ mergeOswAnalytes_ChromHeader(
   oswAnalytes,
   chromHead,
   analyteFDR = 1,
-  runType = "DIA_proteomics"
+  runType = "DIA_Proteomics"
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ mergeOswAnalytes_ChromHeader(
 
 \item{analyteFDR}{(numeric) Not used.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 }
 \value{
 Invisible NULL
