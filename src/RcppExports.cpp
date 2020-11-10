@@ -79,7 +79,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // areaIntegrator
-double areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right, std::string integrationType, std::string baselineType, bool fitEMG, bool baseSubtraction);
+NumericVector areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right, std::string integrationType, std::string baselineType, bool fitEMG, bool baseSubtraction);
 RcppExport SEXP _DIAlignR_areaIntegrator(SEXP l1SEXP, SEXP l2SEXP, SEXP leftSEXP, SEXP rightSEXP, SEXP integrationTypeSEXP, SEXP baselineTypeSEXP, SEXP fitEMGSEXP, SEXP baseSubtractionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

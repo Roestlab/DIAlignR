@@ -46,7 +46,7 @@ XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0\%PlasmaBiolRepl2_
 l1 <- lapply(XICs, `[[`, 1)
 l2 <- lapply(XICs, `[[`, 2)
 areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE, TRUE)
-# 224.9373
+# 66.10481 69.39996 46.53095 16.34266 13.13564 13.42331
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

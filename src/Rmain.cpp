@@ -247,18 +247,19 @@ double getBaseGapPenaltyCpp(const NumericMatrix& sim, std::string SimType, doubl
 //' l1 <- lapply(XICs, `[[`, 1)
 //' l2 <- lapply(XICs, `[[`, 2)
 //' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE, TRUE)
-//' # 224.9373
+//' # 66.10481 69.39996 46.53095 16.34266 13.13564 13.42331
 //' @export
 // [[Rcpp::export]]
-double areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right,
+NumericVector areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double right,
                       std::string integrationType, std::string baselineType, bool fitEMG, bool baseSubtraction){
   std::vector<std::vector<double> > vov1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > vov2 = list2VecOfVec(l2);
   if(std::isnan(left) or std::isnan(right)) return NumericVector::get_na();
   if(not (right > left)) return NumericVector::get_na();
   std::vector<std::vector<double> > set = peakGroupArea(vov1, vov2, left, right, integrationType, baselineType, fitEMG= false, baseSubtraction);
-  double area = 0.0;
-  for(auto const& i : set[0]) area+= i;
+  // double area = 0.0;
+  // for(auto const& i : set[0]) area+= i;
+  Rcpp::NumericVector area = Rcpp::wrap(set[0]); //0: peak-area, 1: peak-apex
   return area;
 }
 

@@ -33,7 +33,7 @@ calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
   intensityList <- lapply(XICs, `[[`, 2)
   intensity <- areaIntegrator(time, intensityList, left, right, integrationType, baselineType,
                               fitEMG, baseSubtraction)
-  intensity
+  sum(intensity)
 }
 
 #' Calculates area of peaks in peakTable

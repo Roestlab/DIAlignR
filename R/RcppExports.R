@@ -185,7 +185,7 @@ getBaseGapPenaltyCpp <- function(sim, SimType, gapQuantile = 0.5) {
 #' l1 <- lapply(XICs, `[[`, 1)
 #' l2 <- lapply(XICs, `[[`, 2)
 #' areaIntegrator(l1, l2, left = 5203.7, right = 5268.5, "intensity_sum", "base_to_base", FALSE, TRUE)
-#' # 224.9373
+#' # 66.10481 69.39996 46.53095 16.34266 13.13564 13.42331
 #' @export
 areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, fitEMG, baseSubtraction) {
     .Call(`_DIAlignR_areaIntegrator`, l1, l2, left, right, integrationType, baselineType, fitEMG, baseSubtraction)
