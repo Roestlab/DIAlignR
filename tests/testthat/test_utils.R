@@ -25,7 +25,7 @@ test_that("test_getMultipeptide", {
   outData <- getMultipeptide(precursors, features)
 
   expData <- data.frame("transition_group_id" = c(9720L, 9719L, 9720L, 9720L),
-                        "feature_id" = bit64::as.integer64(c(7742456255764097691, 6462000664077079508, 5135268764240690321, 298844719207353347)),
+                        "feature_id" = bit64::as.integer64(c("7742456255764097691", "6462000664077079508", "5135268764240690321", "298844719207353347")),
                         "RT" = c(2541.83, 2586.12, 2585.61, 2607.05),
                         "intensity" = c(34.7208, 26.2182, 52.9595, 33.5961),
                         "leftWidth" = c(2526.555, 2571.738, 2564.094, 2591.431),
@@ -37,7 +37,7 @@ test_that("test_getMultipeptide", {
                         stringsAsFactors = FALSE)
   expect_identical(length(outData), 229L)
   expect_equal(outData[[108]], expData, tolerance = 1e-04)
-  expect_equal(outData[["9861"]], expData, tolerance = 1e-04)
+  expect_equal(outData[["9861"]], expData, tolerance = 1e-03)
 })
 
 test_that("test_writeTables", {
