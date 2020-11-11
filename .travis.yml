@@ -6,7 +6,6 @@ cache: packages
 r:
   - release
   - devel
-  - bioc-devel
   - bioc-release
 
 warnings_are_errors: false
