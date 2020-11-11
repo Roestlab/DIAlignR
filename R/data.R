@@ -110,7 +110,7 @@
 #' run1 : hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML\cr
 #' run2 : hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML
 #'
-#' @format The format is similar to the output of \code{\link{childXICs}}. A list of two elements: First element contains six fragmentation chromatograms.
+#' @format The format is similar to the output of childXICs. A list of two elements: First element contains six fragmentation chromatograms.
 #' The second element has aligned parent time-vectors and corresponding child time-vector. It has
 #' five columns:
 #' \describe{

@@ -5,7 +5,7 @@
 \alias{masterXICs_DIAlignR}
 \title{Master fragment-ion chromatograms from two parents}
 \format{
-The format is similar to the output of \code{\link{childXICs}}. A list of two elements: First element contains six fragmentation chromatograms.
+The format is similar to the output of childXICs. A list of two elements: First element contains six fragmentation chromatograms.
 The second element has aligned parent time-vectors and corresponding child time-vector. It has
 five columns:
 \describe{
