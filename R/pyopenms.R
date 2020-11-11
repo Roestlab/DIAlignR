@@ -114,7 +114,7 @@ get_ropenms <- function(pythonPath = NULL, condaEnv = NULL, useConda=TRUE){
 }
 
 
-notReady <- function(dataPath, filename){
+notReady <- function(ropenms, dataPath, filename){
   mz = ropenms$OnDiscMSExperiment()
   #filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
   mz$openFile(filename)
@@ -133,5 +133,5 @@ notReady <- function(dataPath, filename){
     names(df) <- c("time", paste0("intensity", i))
     as.data.frame(df)
   })
-
+  XICs
 }
