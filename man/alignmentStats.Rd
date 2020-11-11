@@ -11,6 +11,9 @@ alignmentStats(finalTbl, params)
 
 \item{params}{(list) must have following elements: alignedFDR and unalignedFDR.}
 }
+\value{
+Invisible NULL
+}
 \description{
 Prints alignment summary
 }

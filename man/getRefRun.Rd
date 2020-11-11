@@ -8,6 +8,8 @@ getRefRun(peptideScores, applyFun = lapply)
 }
 \arguments{
 \item{peptideScores}{(list of data-frames) each dataframe has scores of a peptide across all runs.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (dataframe) has two columns:

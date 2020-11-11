@@ -10,6 +10,8 @@ getMultipeptide(precursors, features, applyFun = lapply)
 \item{precursors}{(data-frames) Contains precursors and associated transition IDs.}
 
 \item{features}{(list of data-frames) Contains features and their properties identified in each run.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (list) of dataframes having following columns:

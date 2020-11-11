@@ -8,6 +8,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
+#' @inheritParams alignTargetedRuns
 #' @param peptideScores (list of data-frames) each dataframe has scores of a peptide across all runs.
 #' @return (dataframe) has two columns:
 #' \item{peptide_id}{(integer) a unique id for each peptide.}
@@ -52,6 +53,7 @@ getRefRun <- function(peptideScores, applyFun = lapply){
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
 #' @importFrom bit64 NA_integer64_
+#' @inheritParams alignTargetedRuns
 #' @param precursors (data-frames) Contains precursors and associated transition IDs.
 #' @param features (list of data-frames) Contains features and their properties identified in each run.
 #' @return (list) of dataframes having following columns:
@@ -149,8 +151,8 @@ writeTables <- function(fileInfo, multipeptide, precursors){
   })
   finalTbl <- dplyr::bind_rows(finalTbl)
   finalTbl$run <- runName[match(finalTbl$run, runs)]
-  finalTbl <- dplyr::select(finalTbl, transition_group_id, feature_id, run, RT, intensity,
-                            leftWidth, rightWidth, peak_group_rank, m_score, alignment_rank)
+  finalTbl <- dplyr::select(finalTbl, .data$transition_group_id, .data$feature_id, .data$run, .data$RT, .data$intensity,
+                            .data$leftWidth, .data$rightWidth, .data$peak_group_rank, .data$m_score, .data$alignment_rank)
 
   ##### Merging precursor information and return the dataframe. ###################
   finalTbl <- merge(x = finalTbl, y = precursors[,-which(names(precursors) %in% c("transition_ids"))],
@@ -189,6 +191,7 @@ testAlignObj <- function(){
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-01
 #' @param params (list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.
+#' @return Invisible NULL
 #' @examples
 #' params <- paramsDIAlignR()
 #' \dontrun{
@@ -361,6 +364,7 @@ paramsDIAlignR <- function(){
 #' Date: 2020-07-15
 #' @param finalTbl (dataframe) an output of  \code{\link{writeTables}} function.
 #' @param params (list) must have following elements: alignedFDR and unalignedFDR.
+#' @return Invisible NULL
 #' @seealso \code{\link{paramsDIAlignR}, \link{writeTables}}
 #' @keywords internal
 alignmentStats <- function(finalTbl, params){
@@ -389,6 +393,7 @@ alignmentStats <- function(finalTbl, params){
 
   if(params[["fillMissing"]]) message(sum(is.na(finalTbl$intensity)),
                           " precursors had part of the aligned peak out of the chromatograms or missing chromatograms, hence could not be quantified.")
+  invisible(NULL)
 }
 
 #' Prints messages if a certain number of analytes are aligned
@@ -398,6 +403,7 @@ alignmentStats <- function(finalTbl, params){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-26
+#' @return Invisible NULL
 #' @keywords internal
 updateOnalignTargetedRuns <-  function(i){
   if(i < 5){
@@ -407,6 +413,7 @@ updateOnalignTargetedRuns <-  function(i){
   } else {
     if(i %% 1000 == 0) message(i, " precursors have been aligned.")
   }
+  invisible(NULL)
 }
 
 envName <- "TricEnvr"
@@ -415,5 +422,35 @@ skip_if_no_pyopenms <- function() {
   ropenms <- try(get_ropenms(condaEnv = envName, useConda=TRUE))
   no_ropenms <- is(ropenms, "try-error")
   if(no_ropenms)
-    skip("ropenms not available for testing. A conda environment with name TricEnvr is MUST for testing.")
+    testthat::skip("ropenms not available for testing. A conda environment with name TricEnvr is MUST for testing.")
+}
+
+
+#' Overlap of two time ranges
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-17
+#' @param x (numeric) must have only two values and x[2] > x[1].
+#' @param y (numeric) must have only two values and y[2] > y[1].
+#' @return (logical) TRUE: both time ranges overlap. FALSE: both time ranges do not overlap.
+#' @keywords internal
+#' @seealso getChildFeature
+#' @examples
+#' \dontrun{
+#' checkOverlap(c(9.1, 13.1), c(2.1, 3.1))
+#' checkOverlap(c(1.1, 3.1), c(3.2, 7.1))
+#' }
+checkOverlap <- function(x, y){
+  # y has left boundary between x
+  leftOverlap <- (y[1] - x[1]) >= 0 & (y[1] - x[2]) <= 0
+  # y has right boundary between x
+  rightOverlap <- (y[2] - x[1]) >= 0 & (y[2] - x[2]) <= 0
+  # y is over-arching x
+  overArch <- (y[2] - x[2]) >= 0 & (y[1] - x[1]) <= 0
+  olap <- (leftOverlap | rightOverlap | overArch)
+  olap
 }

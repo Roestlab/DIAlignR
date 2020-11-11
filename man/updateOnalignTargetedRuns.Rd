@@ -6,6 +6,9 @@
 \usage{
 updateOnalignTargetedRuns(i)
 }
+\value{
+Invisible NULL
+}
 \description{
 Prints messages if a certain number of analytes are aligned
 }
