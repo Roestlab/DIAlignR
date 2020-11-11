@@ -17,11 +17,15 @@ getAlignObjs(
 \arguments{
 \item{analytes}{(vector of integers) transition_group_ids for which features are to be extracted.}
 
-\item{runs}{(A vector of string) Names of mzml file without extension.}
+\item{runs}{(a vector of string) names of mzml file without extension.}
 
-\item{dataPath}{(char) Path to mzml and osw directory.}
+\item{dataPath}{(string) path to mzml and osw directory.}
 
 \item{refRun}{(string) reference for alignment. If no run is provided, m-score is used to select reference run.}
+
+\item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
+
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
 \item{objType}{(char) Must be selected from light, medium and heavy.}
 }

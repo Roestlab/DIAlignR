@@ -21,6 +21,8 @@ alignIthAnalyte(
 \arguments{
 \item{rownum}{(integer) represnts the index of the multipepetide to be aligned.}
 
+\item{peptideIDs}{(integer) vector of peptideIDs.}
+
 \item{multipeptide}{(list) contains multiple data-frames that are collection of features
 associated with analytes. This is an output of \code{\link{getMultipeptide}}.}
 
@@ -41,11 +43,9 @@ chromatogramIndex: index of chromatogram in mzML file.}
 \item{globalFits}{(list) each element is either of class lm or loess. This is an output of \code{\link{getGlobalFits}}.}
 
 \item{RSE}{(list) Each element represents Residual Standard Error of corresponding fit in globalFits.}
-
-\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
-(dataframe) a collection of aligned features related to analyte_chr.
+(dataframe) a collection of aligned features for a peptide( = peptideIDs[rownum]).
 }
 \description{
 For the ith analyte in multipeptide, this function aligns all runs to the reference run. The result is

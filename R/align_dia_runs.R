@@ -9,48 +9,12 @@
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom dplyr %>%
+#' @inheritParams checkParams
 #' @param dataPath (string) path to mzml and osw directory.
 #' @param outFile (string) name of the output file.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
+#' @param runs (a vector of string) names of mzml file without extension.
 #' @param refRun (string) reference for alignment. If no run is provided, m-score is used to select reference run.
-#' @param runs (A vector of string) names of mzml file without extension.
-#' @param runType (string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
-#' @param context (string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".
-#' @param maxPeptideFdr (numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.
-#' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
-#' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
-#' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
-#' @param kernelLen (integer) number of data-points to consider in the kernel.
-#' @param globalAlignment (string) must be from "loess" or "linear".
-#' @param globalAlignmentFdr (numeric) a numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
-#' @param globalAlignmentSpan (numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
-#' @param RSEdistFactor (numeric) defines how much distance in the unit of rse remains a noBeef zone.
-#' @param normalization (character) must be selected from "mean", "l2".
-#' @param simMeasure (string) must be selected from dotProduct, cosineAngle, crossCorrelation,
-#'   cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.
-#' @param alignType available alignment methods are "global", "local" and "hybrid".
-#' @param goFactor (numeric) penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
-#' @param geFactor (numeric) penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
-#' @param cosAngleThresh (numeric) in simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
-#' @param OverlapAlignment (logical) an input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
-#' @param dotProdThresh (numeric) in simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
-#' @param gapQuantile (numeric) must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
-#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
-#' @param hardConstrain (logical) if FALSE; indices farther from noBeef distance are filled with distance from linear fit line.
-#' @param samples4gradient (numeric) modulates penalization of masked indices.
-#' @param analyteFDR (numeric) defines the upper limit of FDR on a precursor to be considered for multipeptide.
-#' @param unalignedFDR (numeric) must be between 0 and maxFdrQuery. Features below unalignedFDR are
-#'  considered for quantification even without the RT alignment.
-#' @param alignedFDR (numeric) must be between unalignedFDR and 1. Features below alignedFDR are
-#'  considered for quantification after the alignment.
-#' @param baselineType (string) method to estimate the background of a peak contained in XICs. Must be
-#'  from "base_to_base", "vertical_division_min", "vertical_division_max".
-#' @param integrationType (string) method to ompute the area of a peak contained in XICs. Must be
-#'  from "intensity_sum", "trapezoid", "simpson".
-#' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
-#' @param recalIntensity (logical) recalculate intensity for all analytes.
-#' @param fillMissing (logical) calculate intensity for ananlytes for which features are not found.
-#' @param smoothPeakArea (logical) FALSE: raw chromatograms will be used for quantification. TRUE: smoothed chromatograms will be used for quantification.
 #' @param applyFun (function) value must be either lapply or BiocParallel::bplapply.
 #' @return An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
 #'  peak_group_rank, m_score, alignment_rank, peptide_id, sequence, charge, group_label.
@@ -65,7 +29,7 @@
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
-alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMerged = TRUE, runs = NULL,
+alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = paramsDIAlignR(), oswMerged = TRUE, runs = NULL,
                               refRun = NULL, applyFun = lapply){
   #### Check if all parameters make sense.  #########
   checkParams(params)
@@ -158,10 +122,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params, oswMer
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom rlang .data
+#' @inheritParams alignTargetedRuns
 #' @param analytes (vector of integers) transition_group_ids for which features are to be extracted.
-#' @param runs (A vector of string) Names of mzml file without extension.
-#' @param dataPath (char) Path to mzml and osw directory.
-#' @param refRun (string) reference for alignment. If no run is provided, m-score is used to select reference run.
 #' @param objType (char) Must be selected from light, medium and heavy.
 #' @return A list of fileInfo and AlignObjs. Each AlignObj is an S4 object. Three most-important slots are:
 #' \item{indexA_aligned}{(integer) aligned indices of reference run.}
@@ -218,7 +180,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
   analytes <- analytesFound
   precursors <- precursors[precursors[["transition_group_id"]] %in% analytes, ]
   if(nrow(precursors) == 0){
-    stop("No precursors are found below ", analyteFDR)
+    stop("No precursors are found below ", params[["analyteFDR"]])
   }
 
   ############# Get chromatogram Indices of precursors across all runs. ############
@@ -404,15 +366,21 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
 #' Date: 2020-07-26
 #' @keywords internal
 #' @import dplyr
-#' @inheritParams traverseUp
+#' @inheritParams checkParams
 #' @param rownum (integer) represnts the index of the multipepetide to be aligned.
-#' @param refRuns (data-frame) output of \code{\link{getRefRun}}. Must have two columsn : transition_group_id and run.
+#' @param peptideIDs (integer) vector of peptideIDs.
 #' @param multipeptide (list) contains multiple data-frames that are collection of features
 #'  associated with analytes. This is an output of \code{\link{getMultipeptide}}.
+#' @param refRuns (data-frame) output of \code{\link{getRefRun}}. Must have two columsn : transition_group_id and run.
+#' @param precursors (data-frame) atleast two columns transition_group_id and transition_ids are required.
+#' @param prec2chromIndex (list) a list of dataframes having following columns: \cr
+#' transition_group_id: it is PRECURSOR.ID from osw file. \cr
+#' chromatogramIndex: index of chromatogram in mzML file.
+#' @param fileInfo (data-frame) output of \code{\link{getRunNames}}.
+#' @param mzPntrs (list) a list of mzRpwiz.
 #' @param globalFits (list) each element is either of class lm or loess. This is an output of \code{\link{getGlobalFits}}.
 #' @param RSE (list) Each element represents Residual Standard Error of corresponding fit in globalFits.
-#' @param applyFun (function) value must be either lapply or BiocParallel::bplapply.
-#' @return (dataframe) a collection of aligned features related to analyte_chr.
+#' @return (dataframe) a collection of aligned features for a peptide( = peptideIDs[rownum]).
 #' @seealso \code{\link{alignTargetedRuns}, \link{alignToRef}, \link{getAlignedTimes}, \link{getMultipeptide}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
