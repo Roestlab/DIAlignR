@@ -12,6 +12,8 @@ getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun = lapply)
 \item{precursors}{(data-frame) Atleast two columns transition_group_id and transition_ids are required.}
 
 \item{mzPntrs}{A list of mzRpwiz.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (list) A list of dataframes having following columns:

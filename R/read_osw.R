@@ -337,10 +337,11 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-06
 #' @importFrom dplyr %>%
-#' @param fileInfo (data-frame) Output of \code{\link{getRunNames}} function.
-#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
-#' @return (data-frames) Data-frame has following columns:
+#' @inheritParams alignTargetedRuns
+#' @param fileInfo (data-frame) output of \code{\link{getRunNames}} function.
+#' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param runType (char) yhis must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return (list of dataframes) each dataframe has following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
 #' \item{Intensity}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
@@ -371,7 +372,34 @@ getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"
   features
 }
 
-
+#' Get scores of all peptides
+#'
+#' Return a scores, pvalues, and qvalues for all peptides from the osw file.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-01
+#' @keywords internal
+#' @inheritParams getPrecursors
+#' @param oswName (char) path to the osw file.
+#' @return (dataframe) with following columns:
+#' \item{peptide_id}{(integer) a unique id for each precursor.}
+#' \item{run}{(character) retention time as in FEATURE.EXP_RT of osw files.}
+#' \item{score}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
+#' \item{pvalue}{(numeric) as in FEATURE.LEFT_WIDTH of osw files.}
+#' \item{qvalue}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
+#'
+#' @seealso \code{\link{getPeptideQuery}, \link{getPeptideScores}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' oswName <- fileInfo[["featureFile"]][1]
+#' \dontrun{
+#' precursorsInfo <- fetchPeptidesInfo(fileInfo, runType = "DIA_proteomics", context = "experiment-wide")
+#' }
 fetchPeptidesInfo <- function(oswName, runType, context){
   # Establish a connection of SQLite file.
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)

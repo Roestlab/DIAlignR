@@ -12,14 +12,16 @@ getFeatures(
 )
 }
 \arguments{
-\item{fileInfo}{(data-frame) Output of \code{\link{getRunNames}} function.}
+\item{fileInfo}{(data-frame) output of \code{\link{getRunNames}} function.}
 
-\item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
+\item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) yhis must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
-(data-frames) Data-frame has following columns:
+(list of dataframes) each dataframe has following columns:
 \item{transition_group_id}{(integer) a unique id for each precursor.}
 \item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
 \item{Intensity}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}

@@ -24,7 +24,7 @@ the second element is the aligned experiment time.}
 features with m-score below aligned FDR are considered for quantification.}
 }
 \value{
-(dataframe) a collection of aligned features related to analyte_chr.
+(dataframe) a collection of aligned features for a peptide( = peptideIDs[rownum]).
 }
 \description{
 Picks the top feature in run by comparing m-score to unaligned FDR and aligned FDR.
