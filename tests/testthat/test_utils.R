@@ -80,3 +80,12 @@ test_that("test_paramsDIAlignR", {
 test_that("test_alignmentStats", {
 })
 
+
+test_that("test_checkOverlap",{
+  expect_true(checkOverlap(c(1.1, 3.1), c(2.1, 3.1)))
+  expect_true(checkOverlap(c(1.1, 3.1), c(3.1, 4.1)))
+  expect_true(checkOverlap(c(1.1, 3.1), c(2.1, 2.5)))
+  expect_true(checkOverlap(c(1.1, 3.1), c(0.1, 9.1)))
+  expect_false(checkOverlap(c(1.1, 3.1), c(3.2, 7.1)))
+
+})

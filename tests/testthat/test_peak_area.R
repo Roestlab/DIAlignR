@@ -47,7 +47,7 @@ test_that("test_recalculateIntensity", {
                       "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"), 2),
                       intensity = c(186.166, 579.832, 47.9525, 3.7413),
                       leftWidth = c(5001.76, 5025.66, 6441.51, 6516.6),
-                      rightWidth = c(5076.86, 5121.25, 6475.65, 6554.2), stringsAsFactors = F)
+                      rightWidth = c(5076.86, 5121.25, 6475.65, 6554.2), stringsAsFactors = FALSE)
   dataPath <- system.file("extdata", package = "DIAlignR")
   outData <- recalculateIntensity(peakTable, dataPath)
   expOutput <- data.frame(precursor = c(1967L, 1967L, 2474L, 2474L),

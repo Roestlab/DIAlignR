@@ -71,7 +71,7 @@ test_that("test_alignToRef",{
   params[["globalAlignmentFdr"]] <- 0.05
 
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-  precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
+  precursors <- getPrecursors(fileInfo, oswMerged= TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
   precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
 
   mzPntrs <- getMZMLpointers(fileInfo)
@@ -135,7 +135,7 @@ test_that("test_alignIthAnalyte",{
   params[["globalAlignmentFdr"]] <- 0.05
 
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-  precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
+  precursors <- getPrecursors(fileInfo, oswMerged= TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
   precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
   peptideIDs <-  c(7040L, 14383L, 9861L)
   mzPntrs <- getMZMLpointers(fileInfo)
