@@ -27,10 +27,12 @@ filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
 XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt"]]
 nativeIds <- list(27706:27711)
-ropenms <- get_ropenms(condaEnv = "TricEnvr")
+\dontrun{
+ropenms <- get_ropenms(condaEnv = "envName")
 createMZML(ropenms, "testfile.chrom.mzML", XICs, nativeIds)
 mzR::chromatogramHeader(mzR::openMSfile("testfile.chrom.mzML", backend = "pwiz"))
 file.remove("testfile.chrom.mzML")
+}
 }
 \seealso{
 \code{\link{get_ropenms}, \link{addXIC}}

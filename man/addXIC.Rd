@@ -22,11 +22,11 @@ addXIC(ropenms, expriment, xic, nativeId)
 A chromatogram and its repective native ID (transition ID) is added to MSExperiment object.
 }
 \examples{
-ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+\dontrun{
+ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 expriment <- ropenms$MSExperiment()
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
 xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]][[1]]
-\dontrun{
 addXIC(ropenms, expriment, xic, 34L)
 chroms <- expriment$getChromatograms()
 reticulate::py_to_r(chroms[[0]]$getNativeID())

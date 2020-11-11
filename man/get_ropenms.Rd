@@ -22,7 +22,7 @@ Also, remove .Rhistory file to avoid conflict with previously used python versio
 }
 \examples{
 \dontrun{
-  ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+  ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 }
 }
 \author{

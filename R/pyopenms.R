@@ -16,11 +16,11 @@
 #'
 #' @keywords internal
 #' @examples
-#' ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+#' \dontrun{
+#' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' expriment <- ropenms$MSExperiment()
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
 #' xic <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]][[1]]
-#' \dontrun{
 #' addXIC(ropenms, expriment, xic, 34L)
 #' chroms <- expriment$getChromatograms()
 #' reticulate::py_to_r(chroms[[0]]$getNativeID())
@@ -59,10 +59,12 @@ addXIC <- function(ropenms, expriment, xic, nativeId){
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
 #' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]]
 #' nativeIds <- list(27706:27711)
-#' ropenms <- get_ropenms(condaEnv = "TricEnvr")
+#' \dontrun{
+#' ropenms <- get_ropenms(condaEnv = "envName")
 #' createMZML(ropenms, "testfile.chrom.mzML", XICs, nativeIds)
 #' mzR::chromatogramHeader(mzR::openMSfile("testfile.chrom.mzML", backend = "pwiz"))
 #' file.remove("testfile.chrom.mzML")
+#' }
 #' @export
 createMZML <- function(ropenms, filename, XICs, transitionIDs){
   expriment = ropenms$MSExperiment()
@@ -99,7 +101,7 @@ createMZML <- function(ropenms, filename, XICs, transitionIDs){
 #'
 #' @examples
 #' \dontrun{
-#'   ropenms <- get_ropenms(condaEnv = "TricEnvr", useConda=TRUE)
+#'   ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' }
 #' @export
 get_ropenms <- function(pythonPath = NULL, condaEnv = NULL, useConda=TRUE){
