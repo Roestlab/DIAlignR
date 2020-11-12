@@ -5,9 +5,12 @@ CHANGES IN VERSION 1.4.1 (May 07, 2020)
 + Using context-specific qvalues to determine reference.
 + Alignment is done over multipeptide instead of multiprecursor.
 + Precursors of a peptides are forced to have same feature-RT.
-+ Using ananlyteFDR to limit features for multipeptide.
-+ Removed decoy from features.
 + Robust global alignment.
+
+CHANGES IN VERSION 1.1.5 (May 07, 2020)
+------------------------
++ ananlyteFDR to limit features for multipeptide.
++ Removed decoy from features.
 + BugFix alignment if all intensities are zero.
 + Fixed printed stats.
 
