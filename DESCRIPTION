@@ -17,12 +17,13 @@ biocViews: MassSpectrometry, Metabolomics, Proteomics, Alignment, Software
 Depends: methods, stats
 Imports:
     zoo (>= 1.8-3),
-    magrittr, dplyr, tidyr, rlang,
+    magrittr, dplyr, tidyr, rlang, tibble,
     mzR (>= 2.18),
     signal, bit64,
     ggplot2, scales, gridExtra,
     RSQLite, DBI,
     reticulate,
+    ape, phangorn, pracma,
     Rcpp
 Suggests:
     knitr,
