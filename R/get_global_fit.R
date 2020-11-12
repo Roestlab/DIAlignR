@@ -9,13 +9,12 @@
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom rlang .data
+#' @importFrom dplyr %>%
 #' @param oswFiles (list of data-frames) it is output from getFeatures function.
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
 #' @param spanvalue (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
-#' @importFrom dplyr %>%
-#' @importFrom stats loess loess.control
 #' @return An object of class "loess".
 #' @seealso \code{\link{getLinearfit}, \link{getFeatures}}
 #' @keywords internal
@@ -31,12 +30,48 @@ getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
   df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
     dplyr::select(.data$transition_group_id, .data$RT)
   RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
-  Loess.fit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT,
-                     span = spanvalue,
-                     control=loess.control(surface="direct"))
-  # direct surface allows to extrapolate outside of training data boundary while using predict.
+  Loess.fit <- dialignrLoess(RUNS_RT, spanvalue)
+
   Loess.fit
 }
+
+
+#' Modified loess for condition handling
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-11
+#' @importFrom stats loess loess.control
+#' @param RUNS_RT (data-frame) must have three calumns: transition_group_id, RT.eXp, and RT.ref.
+#' @param spanvalue (numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
+#' @return An object of class "loess" or "lm".
+#' @seealso \code{\link{getLinearfit}, \link{getLOESSfit}}
+#' @keywords internal
+#' @examples
+#' df <- data.frame("transition_group_id" = 1:10, "RT.eXp" = 2:11, "RT.ref" = 10:19)
+#' \dontrun{
+#' dialignrLoess(df, 0.1)
+#' dialignrLoess(df[1:4,], 0.1)
+#' }
+dialignrLoess <- function(RUNS_RT, spanvalue){
+  # direct surface allows to extrapolate outside of training data boundary while using predict.
+  fit <- tryCatch(expr = loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = spanvalue,
+                               control=loess.control(surface="direct")),
+                  error = function(c) {
+                    print(c)
+                    message("\nError in loess. Using linear fit instead.")
+                    lm(RT.eXp ~ RT.ref, data = RUNS_RT)},
+                  warning = function(c) {
+                    print(c)
+                    message(paste0("\nWarning in loess, spanvalue is doubled to ", 2*spanvalue))
+                    dialignrLoess(RUNS_RT, 2*spanvalue)}
+  )
+  fit
+}
+
 
 #' Calculates linear fit between RT of two runs
 #'
@@ -166,17 +201,17 @@ getRSE <- function(fit){
 #' fits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
 #' }
 getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
-                          globalAlignmentFdr, globalAlignmentSpan){
-  globalFits <- list()
+                          globalAlignmentFdr, globalAlignmentSpan, applyFun = lapply){
   refs <- unique(refRun[["run"]])
-  for(ref in refs){
+  refs <- refs[!is.na(refs)]
+  globalFits <- lapply(refs, function(ref){
     exps <- setdiff(rownames(fileInfo), ref)
-    for(eXp in exps){
-      pair <- paste(ref, eXp, sep = "_")
-      globalFit <- getGlobalAlignment(features, ref, eXp,
-                                      globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
-      globalFits[[pair]] <- globalFit
-    }
-  }
+    Fits <- applyFun(exps, function(eXp){
+      getGlobalAlignment(features, ref, eXp, globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
+    })
+    names(Fits) <- paste(ref, exps, sep = "_")
+    Fits
+  })
+  globalFits <- unlist(globalFits, recursive = FALSE)
   globalFits
 }

@@ -21,6 +21,7 @@ alignChromatogramsCpp(
   OverlapAlignment = TRUE,
   dotProdThresh = 0.96,
   gapQuantile = 0.5,
+  kerLen = 9L,
   hardConstrain = FALSE,
   samples4gradient = 100,
   objType = "heavy"
@@ -39,7 +40,7 @@ alignChromatogramsCpp(
 
 \item{normalization}{(char) A character string. Normalization must be selected from (L2, mean or none).}
 
-\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
 Mask = s > quantile(s, dotProdThresh)\cr
 AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 s_new= s × AllowDotProd}
@@ -63,6 +64,8 @@ The window length = 2*noBeef.}
 
 \item{gapQuantile}{(numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
 
+\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
+
 \item{hardConstrain}{(logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.}
 
 \item{samples4gradient}{(numeric) This parameter modulates penalization of masked indices.}
@@ -80,8 +83,8 @@ data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
 data(oswFiles_DIAlignR, package="DIAlignR")
 oswFiles <- oswFiles_DIAlignR
-XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+XICs.ref <- XICs[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+XICs.eXp <- XICs[["hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
 tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
 B1p <- 4964.752

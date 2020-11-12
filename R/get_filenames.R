@@ -180,3 +180,18 @@ updateFileInfo <- function(fileInfo, runs = NULL){
   }
   fileInfo
 }
+
+
+addMasterToOSW <- function(dataPath, runs, oswMerged = TRUE){
+  df <- data.frame(ID = 1:length(runs), FILENAME = paste(runs, "mzML.gz", sep="."))
+  temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw", full.names = TRUE)
+  newFile <- file.path(dataPath, "master.merged.osw")
+  if(file.copy(from = temp, to = newFile)){
+    conn <- DBI::dbConnect(RSQLite::SQLite(), newFile)
+    DBI::dbExecute(conn,"drop table if exists myTempTable")
+    DBI::dbWriteTable(conn,"myTempTable",df)
+    DBI::dbExecute(conn,"INSERT INTO RUN (ID, FILENAME) select ID,FILENAME from myTempTable")
+    DBI::dbExecute(conn,"drop table if exists myTempTable")
+    DBI::dbDisconnect(conn)
+  }
+}

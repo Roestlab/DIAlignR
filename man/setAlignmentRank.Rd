@@ -4,63 +4,27 @@
 \alias{setAlignmentRank}
 \title{Set Alignment rank to the aligned feature}
 \usage{
-setAlignmentRank(
-  multipeptide,
-  ref,
-  eXp,
-  analyte_chr,
-  unalignedFDR,
-  alignedFDR,
-  adaptiveRT,
-  tAligned,
-  XICs.ref,
-  XICs.eXp,
-  integrationType,
-  baselineType,
-  fitEMG,
-  recalIntensity,
-  fillMissing = TRUE
-)
+setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
 }
 \arguments{
-\item{multipeptide}{(list of data-frames) each element of the list is collection of features associated with a precursor.}
+\item{df}{(dataframe) a collection of features related to analyte_chr.}
 
-\item{ref}{(numeric) name of the refernce run.}
+\item{ref}{(string) name of the reference run. Must be in the rownames of fileInfo.}
 
-\item{eXp}{(numeric) name of the experiment run.}
-
-\item{analyte_chr}{(string) coerced transition_group_id.}
-
-\item{unalignedFDR}{(numeric) must be between 0 and maxFdrQuery. Features below unalignedFDR are
-considered for quantification even without the RT alignment.}
-
-\item{alignedFDR}{(numeric) must be between unalignedFDR and 1. Features below alignedFDR are
-considered for quantification after the alignment.}
-
-\item{adaptiveRT}{(numeric) defines the window around the aligned retention time, within which
-features with m-score below aligned FDR are considered for quantification.}
+\item{eXp}{(string) name of the run to be aligned to reference run. Must be in the rownames of fileInfo.}
 
 \item{tAligned}{(list) the first element corresponds to the aligned reference time,
 the second element is the aligned experiment time.}
 
-\item{XICs.ref}{(list) list of extracted ion chromatograms from reference run.}
-
 \item{XICs.eXp}{(list) list of extracted ion chromatograms from experiment run.}
 
-\item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
-from "intensity_sum", "trapezoid", "simpson".}
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
-\item{baselineType}{(string) method to estimate the background of a peak contained in XICs. Must be
-from "base_to_base", "vertical_division_min", "vertical_division_max".}
-
-\item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
-
-\item{recalIntensity}{(logical) recalculate intensity for all analytes.}
-
-\item{fillMissing}{(logical) calculate intensity for ananlytes for which features are not found.}
+\item{adaptiveRT}{(numeric) defines the window around the aligned retention time, within which
+features with m-score below aligned FDR are considered for quantification.}
 }
 \value{
-(NULL)
+(dataframe) a collection of aligned features for a peptide( = peptideIDs[rownum]).
 }
 \description{
 Picks the top feature in run by comparing m-score to unaligned FDR and aligned FDR.
@@ -70,19 +34,21 @@ boundaries from the reference feature and integrating area under the curve.
 \examples{
 data(multipeptide_DIAlignR, package="DIAlignR")
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
-XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+params <- paramsDIAlignR()
+df <- multipeptide_DIAlignR[["14383"]]
+df$alignment_rank[2] <- 1L
+XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 \dontrun{
-# Use getAlignedIndices() to get tAligned.
-setAlignmentRank(multipeptide_DIAlignR, ref = "run1", eXp = "run2", analyte_chr = "4618",
- unalignedFDR = 0.01, alignedFDR = 0.05, adaptiveRT = 30, tAligned, XICs.ref, XICs.eXp,
- integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
- recalIntensity = FALSE, fillMissing = TRUE)
-multipeptide[["4618"]]
+# Use getAlignedTimes() to get tAligned.
+alignObj <- DIAlignR:::testAlignObj()
+tAligned <- DIAlignR:::alignedTimes2(XICs.ref, XICs.eXp)
+setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
+params, adaptiveRT = 38.66)
 }
 }
 \seealso{
-\code{\link{getMultipeptide}, \link{calculateIntensity}}
+\code{\link{getMultipeptide}, \link{calculateIntensity}, \link{alignToRef}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

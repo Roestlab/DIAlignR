@@ -10,7 +10,8 @@ getChromSimMatCpp(
   normalization,
   simType,
   cosAngleThresh = 0.3,
-  dotProdThresh = 0.96
+  dotProdThresh = 0.96,
+  kerLen = 9L
 )
 }
 \arguments{
@@ -20,7 +21,7 @@ getChromSimMatCpp(
 
 \item{normalization}{(char) A character string. Normalization must be selected from (L2, mean or none).}
 
-\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation).\cr
+\item{simType}{(char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
 Mask = s > quantile(s, dotProdThresh)\cr
 AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
 s_new= s × AllowDotProd}
@@ -28,6 +29,8 @@ s_new= s × AllowDotProd}
 \item{cosAngleThresh}{(numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.}
 
 \item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
+
+\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
 }
 \value{
 s (matrix) Numeric similarity matrix. Rows and columns expresses seq1 and seq2, respectively.

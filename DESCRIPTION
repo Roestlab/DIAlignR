@@ -1,7 +1,7 @@
 Package: DIAlignR
 Type: Package
 Title: Dynamic Programming Based Alignment of MS2 Chromatograms
-Version: 1.1.5
+Version: 1.4.1
 Author: Shubham Gupta <shubham.1637@gmail.com>, Hannes Rost <hannes.rost@utoronto.ca>
 Maintainer: Shubham Gupta <shubham.1637@gmail.com>
 Description: To obtain unbiased proteome coverage from a biological sample, mass-spectrometer is operated in 
@@ -12,23 +12,24 @@ Description: To obtain unbiased proteome coverage from a biological sample, mass
 License: GPL-3
 Encoding: UTF-8
 LazyData: false
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 biocViews: MassSpectrometry, Metabolomics, Proteomics, Alignment, Software
 Depends: methods, stats
 Imports:
     zoo (>= 1.8-3),
-    dplyr, tidyr, rlang,
+    magrittr, dplyr, tidyr, rlang,
     mzR (>= 2.18),
-    signal,
+    signal, bit64,
     ggplot2, scales, gridExtra,
     RSQLite, DBI,
+    reticulate,
     Rcpp
 Suggests:
     knitr,
     lattice,
     latticeExtra,
     rmarkdown,
-    BiocStyle,
+    BiocStyle, BiocParallel,
     testthat (>= 2.1.0)
 VignetteBuilder: knitr
 BugReports: https://github.com/shubham1637/DIAlignR/issues

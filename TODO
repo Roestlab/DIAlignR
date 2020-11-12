@@ -1,4 +1,4 @@
-Item 1 : Kernel based similarity
+Item 1 : Kernel based similarity https://abibuilder.informatik.uni-tuebingen.de/archive/openms/Documentation/nightly/html/classOpenSwath_1_1MRMScoring.html
 Item 2 : Gap penalty zero case
 Item 4 : Multiple parameterised query SQL.
 Item 5 : BigMemory package and parallel processing package
@@ -15,7 +15,7 @@ Item 19: Number of points in area integration
 Item 20: Use MS1 in alignment.
 Item 21: Remove index from example data.
 Item 22: Change Traceback to lower-case.
-Item 23: Add similarity matrices of same multipeptide.
+Item 23: Add similarity matrices of same multipeptide
 Item 29: Travis for all three.  https://github.com/tidyverse/dplyr/blob/master/.github/workflows/R-CMD-check.yaml
 
 # Change all times to reference time. We can not output Retention times then.
@@ -25,22 +25,27 @@ Item 29: Travis for all three.  https://github.com/tidyverse/dplyr/blob/master/.
 # Map retention time of all features from eXp to ref.
 # Map reference peak boundaries from ref to eXp.
 
-Fix sampling time in Smoothing.
+
 Make sure ID matches in multipeptide and prec2ChromIndices.
 smooth chromatogram and area calculation in vignette.
-Param sanity check.
+
 param silent in DPosition and chromatogramPeak
 documentation of DIAlignPy
-
-  If loess fails, resort to linear alignment.
-Align only those where FDr is > 0.05, true false in refRun
-Alignment rank = 1 and fdr < 0.01
-Alignment rank = 1 and fdr > 0.01 and < 0.05 (precursor and run)
-Add test for visualization.
 parallelize execution (fetching chromatograms) over multiple threads.
 Update reference only once. Look for wider chromatogram if aligned peak is outside.
 Implement for alignType = "local" and "hybrid"
 Make decoy == 0 in getFeaturesQuery
-Convert from csv to tsv.
-Add featureID as well.
+
 Implement a function to requantify across all runs.
+
+
+setMethod("show") for S4 objects.
+foreach, BiocParallel
+
+Normalization of runs within mastermap
+Put weights on the intensity while merging
+
+rename properly: rooted tree/ unrooted tree
+
+MulticoreParam uses ’forked’ processes with ’copy-on-change’ semantics
+C++: Check if the length of XICs is not same

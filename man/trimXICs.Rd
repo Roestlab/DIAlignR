@@ -20,7 +20,7 @@ This function trims chromatograms from the end-points.
 }
 \examples{
 data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
-XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]]
+XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]]
 \dontrun{
 newXICs <- smoothXICs(XICs, len = 0.5)
 }

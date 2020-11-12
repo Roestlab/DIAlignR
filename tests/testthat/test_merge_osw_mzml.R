@@ -115,15 +115,23 @@ test_that("test_getOswFiles", {
 
 test_that("test_getChromatogramIndices",{
   dataPath <- system.file("extdata", package = "DIAlignR")
-  fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-  precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+  fileInfo <- getRunNames(dataPath = dataPath)
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE,
+                              context = "experiment-wide", maxPeptideFdr = 1.00)
   mzPntrs <- getMZMLpointers(fileInfo)
   outData <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
+  outData2 <- getChromatogramIndices(fileInfo, precursors[c(3,25,1),], mzPntrs)
   rm(mzPntrs)
 
   expData <- data.frame("transition_group_id" = c(9720L, 9723L),
-                        row.names = c(149L, 150L))
+                        row.names = c(144L, 145L))
   expData[1, "chromatogramIndex"][[1]] <- list(c(49L, 50L, 51L, 52L, 53L, 54L))
   expData[2, "chromatogramIndex"][[1]] <- list(rep(NA_integer_, 6))
-  expect_identical(expData, outData[["run2"]][149:150,])
+  expect_identical(expData, outData[["run2"]][144:145,])
+
+  expData <- data.frame("transition_group_id" = c(470L, 1967L, 32L))
+  expData[1, "chromatogramIndex"][[1]] <- list(rep(NA_integer_, 6))
+  expData[2, "chromatogramIndex"][[1]] <- list(c(13:18))
+  expData[3, "chromatogramIndex"][[1]] <- list(rep(NA_integer_, 6))
+  expect_identical(expData, outData2[["run2"]])
 })

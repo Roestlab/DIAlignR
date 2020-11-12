@@ -33,7 +33,7 @@
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' filenames <- DIAlignR::getRunNames(dataPath = dataPath)
+#' filenames <- getRunNames(dataPath = dataPath)
 #' oswName <- paste0(dataPath,"/osw/merged.osw")
 #' \dontrun{
 #' analytesInfo <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
@@ -70,7 +70,7 @@ fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
 #' Date: 2019-12-13
 #' @param dataPath (char) path to mzml and osw directory.
 #' @param filenames (data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
-#' To get filenames use DIAlignR::getRunNames function.
+#' To get filenames use \code{\link{getRunNames}} function.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param analyteInGroupLabel (logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 #'  FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.
@@ -133,6 +133,9 @@ getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FAL
 #' @importFrom rlang .data
 #' @param filename (string) Should be from the RUN.FILENAME column from osw files.
 #' @param runType (string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param selectIDs (integer) a vector of integers.
+#' @param context (string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".
+#' @param maxPeptideFdr (numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.
 #' @return (data-frames) Data-frame has following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
@@ -150,20 +153,23 @@ getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FAL
 #' precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics")
 #' dim(precursorsInfo) # 303  6
 #' }
-fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
+fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL,
+                                context = "global", maxPeptideFdr = 0.05){
   # Establish a connection of SQLite file.
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = as.character(filename))
   # Generate a query.
-
-  if(is.null(selectIDs)){
+  all = FALSE
+  if(is.null(selectIDs)) all = TRUE
+  if(all){
     query <- getPrecursorsQuery(runType)
   } else{
     query <- getPrecursorsQueryID(selectIDs, runType)
   }
   # Run query to get peptides, their coordinates and scores.
   precursorsInfo <- tryCatch(expr = { output <- DBI::dbSendQuery(con, statement = query)
+                                        if(all) {DBI::dbBind(output, list("CONTEXT"=context, "FDR"=maxPeptideFdr))}
                                         DBI::dbFetch(output)},
-                           finally = {DBI::dbClearResult(output)
+                             finally = {DBI::dbClearResult(output)
                              DBI::dbDisconnect(con)})
   # Each precursor has only one row. tidyr::nest creates a tibble object that is twice as heavy to regular list.
   precursorsInfo <- dplyr::group_by(precursorsInfo, .data$transition_group_id, .data$peptide_id, .data$sequence, .data$charge, .data$group_label) %>%
@@ -182,9 +188,11 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-06
 #' @importFrom dplyr %>%
-#' @param fileInfo (data-frame) Output of DIAlignR::getRunNames function.
+#' @param fileInfo (data-frame) Output of \code{\link{getRunNames}} function.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param context (string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".
+#' @param maxPeptideFdr (numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.
 #' @return (data-frames) A data-frame having following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
@@ -196,23 +204,23 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL){
 #' @seealso \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-#' \dontrun{
-#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+#' context = "experiment-wide", maxPeptideFdr = 0.05)
 #' dim(precursorsInfo) # 322  6
-#' }
 #' @export
-getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"){
+getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+                          context = "global", maxPeptideFdr = 0.05){
   if(oswMerged == TRUE){
     # Get precursor information from merged.osw file
     oswName <- unique(fileInfo[["featureFile"]])
-    precursors <- fetchPrecursorsInfo(oswName, runType)
+    precursors <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr)
   } else {
     # Iterate over each file and collect precursor information
     precursors <- data.frame("transition_group_id" = integer())
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
-      temp <- fetchPrecursorsInfo(oswName, runType)
+      temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr)
       precursors <- merge(precursors, temp, by = c("transition_group_id", all.x = TRUE, all.y = TRUE))
     }
   }
@@ -297,11 +305,11 @@ getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DI
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+#' fileInfo <- getRunNames(dataPath = dataPath)
 #' \dontrun{
 #' featuresInfo <- fetchFeaturesFromRun(fileInfo$featureFile[1], fileInfo$spectraFileID[1],
 #'  maxFdrQuery = 0.05)
-#' dim(featuresInfo) # 211  7
+#' dim(featuresInfo) # 211  8
 #' }
 fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = "DIA_proteomics"){
   # Establish a connection of SQLite file.
@@ -329,10 +337,11 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-06
 #' @importFrom dplyr %>%
-#' @param fileInfo (data-frame) Output of DIAlignR::getRunNames function.
-#' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
-#' @return (data-frames) Data-frame has following columns:
+#' @inheritParams alignTargetedRuns
+#' @param fileInfo (data-frame) output of \code{\link{getRunNames}} function.
+#' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
+#' @param runType (char) yhis must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return (list of dataframes) each dataframe has following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{RT}{(numeric) retention time as in FEATURE.EXP_RT of osw files.}
 #' \item{Intensity}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
@@ -344,23 +353,124 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #' @seealso \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-#' \dontrun{
+#' fileInfo <- getRunNames(dataPath = dataPath)
 #' features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
-#' dim(features[[2]]) # 227  7
-#' }
+#' dim(features[[2]]) # 227  8
 #' @export
-getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"){
-  features <- vector(mode = "list", length = nrow(fileInfo))
-  for(i in 1:nrow(fileInfo)){
+getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics", applyFun = lapply){
+  features <- applyFun(1:nrow(fileInfo), function(i){
     run <- rownames(fileInfo)[i]
     oswName <- fileInfo[["featureFile"]][[i]]
     runID <- fileInfo[["spectraFileID"]][[i]]
     names(runID) <- rownames(fileInfo)[[i]]
-    features[[i]] <- fetchFeaturesFromRun(oswName, runID, maxFdrQuery, runType)
-    message(paste0(nrow(features[[i]]), " peakgroups are founds below ", maxFdrQuery,
+    df <- fetchFeaturesFromRun(oswName, runID, maxFdrQuery, runType)
+    message(paste0(nrow(df), " peakgroups are founds below ", maxFdrQuery,
                    " FDR in run ", fileInfo[["runName"]][[i]], ", ID = ", runID))
-  }
+    df
+  })
   names(features) <- rownames(fileInfo)
   features
+}
+
+#' Get scores of all peptides
+#'
+#' Return a scores, pvalues, and qvalues for all peptides from the osw file.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-01
+#' @keywords internal
+#' @inheritParams getPrecursors
+#' @param oswName (char) path to the osw file.
+#' @return (dataframe) with following columns:
+#' \item{peptide_id}{(integer) a unique id for each precursor.}
+#' \item{run}{(character) retention time as in FEATURE.EXP_RT of osw files.}
+#' \item{score}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
+#' \item{pvalue}{(numeric) as in FEATURE.LEFT_WIDTH of osw files.}
+#' \item{qvalue}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
+#'
+#' @seealso \code{\link{getPeptideQuery}, \link{getPeptideScores}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' oswName <- fileInfo[["featureFile"]][1]
+#' \dontrun{
+#' precursorsInfo <- fetchPeptidesInfo(fileInfo, runType = "DIA_proteomics", context = "experiment-wide")
+#' }
+fetchPeptidesInfo <- function(oswName, runType, context){
+  # Establish a connection of SQLite file.
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
+  # Generate a query.
+  query <- getPeptideQuery(runType)
+
+  # Run query to get peptides, their scores and pvalues.
+  peptidesInfo <- tryCatch(expr = {output <- DBI::dbSendQuery(con, statement = query)
+                     DBI::dbBind(output, list("CONTEXT"=context))
+                     DBI::dbFetch(output)},
+              finally = {DBI::dbClearResult(output)
+                         DBI::dbDisconnect(con)})
+
+  peptidesInfo
+}
+
+#' Get scores of peptide
+#'
+#' Get a list of dataframes that contains peptide scores, pvalues, and qvalues across all runs.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-01
+#' @import dplyr bit64
+#' @inheritParams getPrecursors
+#' @param peptides (integer) Ids of peptides for which scores are required.
+#' @return (list of dataframes) dataframe has following columns:
+#' \item{peptide_id}{(integer) a unique id for each precursor.}
+#' \item{run}{(character) retention time as in FEATURE.EXP_RT of osw files.}
+#' \item{score}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
+#' \item{pvalue}{(numeric) as in FEATURE.LEFT_WIDTH of osw files.}
+#' \item{qvalue}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
+#'
+#' @seealso \code{\link{getRunNames}, \link{fetchPeptidesInfo}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+#' context = "experiment-wide", maxPeptideFdr = 0.05)
+#' peptidesInfo <- getPeptideScores(fileInfo, unique(precursorsInfo$peptide_id))
+#' dim(peptidesInfo) # 681 5
+#' @export
+getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DIA_proteomics", context = "global"){
+  if(context == "global") context <- "experiment-wide"
+
+  if(oswMerged == TRUE){
+    # Get precursor information from merged.osw file
+    oswName <- unique(fileInfo[["featureFile"]])
+    peptidesInfo <- fetchPeptidesInfo(oswName, runType, context)
+  } else {
+    # Iterate over each file and collect peptides information
+    peptidesInfo <- data.frame()
+    for(i in 1:nrow(fileInfo)){
+      oswName <- fileInfo[["featureFile"]][[i]]
+      temp <- fetchPeptidesInfo(oswName, runType, context)
+      peptidesInfo <- dplyr::bind_rows(peptidesInfo, temp)
+    }
+  }
+  peptidesInfo <- dplyr::filter(peptidesInfo, .data$peptide_id %in% peptides)
+  runs <- bit64::as.integer64(fileInfo$spectraFileID)
+  peptidesInfo <- dplyr::filter(peptidesInfo, .data$run %in% runs)
+  peptidesInfo$run <- rownames(fileInfo)[match(peptidesInfo$run, runs)]
+  if(length(unique(peptidesInfo$peptide_id)) != length(peptides)) {
+    warning("Unable to fine scores for few peptides. Appending NAs.")
+    temp <- data.frame(peptide_id = setdiff(peptides, unique(peptidesInfo$peptide_id)),
+                       run = NA_character_, score = NA_real_, pvalue = NA_real_, qvalue = NA_real_)
+    peptidesInfo <- rbind(peptidesInfo, temp)
+  }
+  message(nrow(peptidesInfo), " peptides scores are fetched.")
+  peptidesInfo
 }

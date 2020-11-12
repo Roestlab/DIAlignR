@@ -1,5 +1,7 @@
 context("Generate test data")
 
+# save(ascii = TRUE) : File will be a text file instead of binary.
+# saved data is compressed, thats why size is different than pryr::object_size
 generateDIAlignRdata <- function(){
   dataPath <- system.file("extdata", package = "DIAlignR")
   oswMerged <- TRUE
@@ -7,19 +9,20 @@ generateDIAlignRdata <- function(){
   oswFiles_DIAlignR <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2)
 
-  analytes <- "14299_QFNNTDIVLLEDFQK/3"
+  analytes <- 4618L # peptide_id = 14383
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
             "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-  outData <- getXICs4AlignObj(dataPath, runs, oswFiles_DIAlignR, analytes, XICfilter = "none")
+  mzPntrs <- getMZMLpointers(filenames)
+  precursors <- getPrecursorByID(analytes,filenames)
+  prec2chromIndex <- getChromatogramIndices(filenames, precursors, mzPntrs)
+  outData <- getXICs4AlignObj(mzPntrs, filenames, runs, prec2chromIndex, analytes)
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
   save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
 
-  precursors <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics")
-  precursors_DIAlignR <- precursors
-  save(precursors_DIAlignR, file = "precursors_DIAlignR.rda", version = 2)
-
-  multipeptide <- getMultipeptide(precursors, oswFiles_DIAlignR)
+  p <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics", context = "experiment-wide", maxPeptideFdr = 0.01)
+  f <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
+  multipeptide <- getMultipeptide(p, f)
   multipeptide_DIAlignR <- multipeptide
   save(multipeptide_DIAlignR, file = "multipeptide_DIAlignR.rda", version = 2)
 }
@@ -45,6 +48,40 @@ generateDIAlignRchrom <- function(){
   DBI::dbDisconnect(con)
   write.table(NativeIDS, file = "NativeIDs.csv", sep = ",", row.names= FALSE)
   }
+
+generateAlignObj <- function(){
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+  run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
+  globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2", fitType = "loess",
+                                  maxFdrGlobal = 0.05, spanvalue = 0.1)
+  alignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
+                          normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
+                          geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
+                          gapQuantile = 0.5, hardConstrain = FALSE, kerLen = 9, samples4gradient = 100, objType = "heavy")
+  alignObj_DIAlignR <- alignObj
+  save(alignObj_DIAlignR, file = "alignObj_DIAlignR.rda", version = 2)
+}
+
+generateMasterXICs <- function(){
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  data(alignObj_DIAlignR, package="DIAlignR")
+  run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+  run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+  XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+  XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
+  alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
+  colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
+  alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
+  newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices, method = "spline", splineMethod = "fmm",
+                       mergeStrategy = "avg", keepFlanks = TRUE)
+
+  masterXICs_DIAlignR <- newXICs
+  save(masterXICs_DIAlignR, file = "masterXICs_DIAlignR.rda", version = 2)
+}
 
 generateMergedOsw <- function(){
   transition_group_id <- c("19051_KLIVTSEGC[160]FK/2", "19052_KLIVTSEGC[160]FK/3",

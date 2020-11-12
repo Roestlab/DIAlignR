@@ -1,7 +1,7 @@
 #' Extracted-ion chromatograms (XICs) of a peptide
 #'
 #' @description
-#'  XICs of peptide QFNNTDIVLLEDFQK/3 from three SWATH runs:
+#'  XICs of peptide QFNNTDIVLLEDFQK/3 (precursor ID: 4618) from three SWATH runs:
 #'
 #' run0 : hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML\cr
 #' run1 : hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML\cr
@@ -68,3 +68,58 @@
 #' File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}
 #' to generate the example data.
 "multipeptide_DIAlignR"
+
+
+#' Alignment object of a peptide.
+#'
+#' @description
+#'  Aligned XICs of peptide (ID = 4618) 14299_QFNNTDIVLLEDFQK/3 across two SWATH runs:
+#'
+#' run1 : hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML\cr
+#' run2 : hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML
+#'
+#' @format A S4 object of 16 slots:
+#' \describe{
+#'   \item{s}{similarity score matrix.}
+#'   \item{M}{Match or Mismatch matrix, residues of A and B are aligned without a gap. M(i,j) = Best score upto (i,j) given Ai is aligned to Bj.}
+#'   \item{A}{Insert in sequence A, residue in A is aligned to gap in B. A(i,j) is the best score given that Ai is aligned to a gap in B.}
+#'   \item{B}{Insert in sequence B, residue in B is aligned to gap in A. B(i,j) is the best score given that Bj is aligned to a gap in A.}
+#'   \item{Traceback}{Traceback matrices store source matrix name and direction as matrices are filled with dynamic programming.}
+#'   \item{path}{Path matrix would represent alignment path through similarity matrix as binary-hot encoding.}
+#'   \item{signalA_len}{Number of data-points in signal A.}
+#'   \item{signalB_len}{Number of data-points in signal B.}
+#'   \item{GapOpen}{Penalty for Gap opening. For n consecutive gaps: Penalty = GapOpen + (n-1)*GapExten.}
+#'   \item{GapExten}{Penalty for Gap extension. For n consecutive gaps: Penalty = GapOpen + (n-1)*GapExten.}
+#'   \item{FreeEndGaps}{True for Overlap alignment.}
+#'   \item{indexA_aligned}{Aligned signalA indices after affine alignment.}
+#'   \item{indexB_aligned}{Aligned signalB indices after affine alignment.}
+#'   \item{score}{Cumulative score along the aligned path.}
+#'   \item{simScore_forw}{Not needed, will be removed.}
+#'   \item{nGaps}{Total number of gaps in the alignment path.}
+#' }
+#' @source C++ code is exaplained at \href{https://shubham1637.github.io/DIAlignR/src/doc/html/structDIAlign_1_1AffineAlignObj.html}{DIAlign namespace}.
+#' File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}
+#' to generate the example data.
+"alignObj_DIAlignR"
+
+
+#' Master fragment-ion chromatograms from two parents
+#'
+#' @description
+#'  Created merged XICs of peptide (ID = 4618) 14299_QFNNTDIVLLEDFQK/3 from two SWATH runs: \cr
+#' run1 : hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML\cr
+#' run2 : hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML
+#'
+#' @format The format is similar to the output of childXICs. A list of two elements: First element contains six fragmentation chromatograms.
+#' The second element has aligned parent time-vectors and corresponding child time-vector. It has
+#' five columns:
+#' \describe{
+#' \item{indexAligned.ref}{(integer) aligned indices of reference run.}
+#' \item{indexAligned.eXp}{(integer) aligned indices of experiment run.}
+#' \item{tAligned.ref}{(numeric) aligned time-vector of reference run.}
+#' \item{tAligned.eXp}{(numeric) aligned time-vector of experiment run.}
+#' \item{alignedChildTime}{(numeric) aligned time-vector of master run.}
+#' }
+#' @source File test_GenerateData.R has \href{https://github.com/shubham1637/DIAlignR/tree/master/data-raw}{source code}
+#' to generate the example data.
+"masterXICs_DIAlignR"

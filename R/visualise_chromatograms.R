@@ -14,6 +14,7 @@
 #' @param peakAnnot (numeric) Peak-apex time.
 #' @param Title (logical) TRUE: name of the list will be displayed as title.
 #' @return A plot to the current device.
+#' @seealso \code{\link{plotAnalyteXICs}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
@@ -24,7 +25,6 @@
 #'   type = "sgolay", kernelLen = 13, polyOrd = 4)
 #' plotXICgroup(XICs, Title = "Precursor 4618 \n
 #'  run hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
-#'
 #' @export
 plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
   df <- do.call("cbind", XIC_group)
@@ -42,7 +42,6 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 
 
 #' Plot extracted-ion chromatogram.
-#'
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -64,7 +63,7 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' @param Title (logical) TRUE: name of the list will be displayed as title.
 #'
 #' @return A plot to the current device.
-#'
+#' @seealso \code{\link{plotXICgroup}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' run <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"

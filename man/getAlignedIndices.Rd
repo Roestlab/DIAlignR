@@ -2,7 +2,7 @@
 % Please edit documentation in R/pairwise_pep_peak_corp.R
 \name{getAlignedIndices}
 \alias{getAlignedIndices}
-\title{Get aligned Retention times.}
+\title{Get aligned indices.}
 \usage{
 getAlignedIndices(
   XICs.ref,
@@ -18,6 +18,7 @@ getAlignedIndices(
   OverlapAlignment,
   dotProdThresh,
   gapQuantile,
+  kerLen,
   hardConstrain,
   samples4gradient,
   objType = "light"
@@ -36,7 +37,7 @@ getAlignedIndices(
 
 \item{normalization}{(character) Must be selected from "mean", "l2".}
 
-\item{simMeasure}{(string) Must be selected from dotProduct, cosineAngle,
+\item{simMeasure}{(string) Must be selected from dotProduct, cosineAngle, crossCorrelation,
 cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 
 \item{goFactor}{(numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
@@ -51,6 +52,8 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 
 \item{gapQuantile}{(numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
 
+\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
+
 \item{hardConstrain}{(logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
 
 \item{samples4gradient}{(numeric) This parameter modulates penalization of masked indices.}
@@ -58,25 +61,29 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 \item{objType}{(char) Must be selected from light, medium and heavy.}
 }
 \value{
-(list) the first element corresponds to the aligned reference time, the second element is the aligned experiment time.
+(data-frame) Aligned indices of reference and experiment runs. Gaps are introduced as NA.
 }
 \description{
 This function aligns XICs of reference and experiment runs.
-It produces aligned retention times between refernce run and experiment run.
+It produces aligned indices between refernce run and experiment run.
 }
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 data(oswFiles_DIAlignR, package="DIAlignR")
-XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
- maxFdrGlobal = 0.05, spanvalue = 0.1)
+run1 <- "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"
+run2 <- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"
+XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
+globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+  fitType = "loess", maxFdrGlobal = 0.05, spanvalue = 0.1)
 adaptiveRT <- 77.82315 #3.5*globalFit$s
+\dontrun{
 getAlignedIndices(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
  adaptiveRT = adaptiveRT, normalization = "mean",
   simMeasure = "dotProductMasked", goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3,
-  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+  OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE,
   samples4gradient = 100)
+ }
 }
 \seealso{
 \code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
@@ -86,6 +93,7 @@ Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 
 ORCID: 0000-0003-3500-8152
 
-License: (c) Author (2019) + GPL-3
-Date: 2019-12-13
+License: (c) Author (2020) + GPL-3
+Date: 2020-06-07
 }
+\keyword{internal}

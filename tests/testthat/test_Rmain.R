@@ -73,7 +73,7 @@ test_that("test_constrainSimCpp",{
 test_that("test_getBaseGapPenaltyCpp",{
   sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80,
                   2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = FALSE)
-  expect_equal(getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5), -0.25)
+  expect_equal(getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5), 0.01)
 })
 
 test_that("test_areaIntegrator",{
@@ -107,12 +107,12 @@ test_that("test_areaIntegrator",{
   left <- 2.472833334
   right <- 3.022891666
   outData <- areaIntegrator(list(time), list(intensity), left, right, integrationType = "intensity_sum",
-                                baselineType = "base_to_base", fitEMG = FALSE)
+                                baselineType = "base_to_base", fitEMG = FALSE, baseSubtraction = TRUE)
   expect_equal(outData, 6645331.33866)
 
   outData <- areaIntegrator(list(time, time), list(intensity, intensity), left, right, integrationType = "trapezoid",
-                                baselineType = "vertical_division_min", fitEMG = FALSE)
-  expect_equal(outData, 2*71063.59368, tolerance = 0.01)
+                                baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
+  expect_equal(outData, rep(71063.59368, 2), tolerance = 0.01)
 })
 
 test_that("test_alignChromatogramsCpp",{
@@ -121,9 +121,9 @@ test_that("test_alignChromatogramsCpp",{
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
   Loess.fit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
-  XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   XICs.ref <- smoothXICs(XICs.ref, type = "sgolay", kernelLen = 13, polyOrd = 4)
-  XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   XICs.eXp <- smoothXICs(XICs.eXp, type = "sgolay", kernelLen = 13, polyOrd = 4)
   tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
