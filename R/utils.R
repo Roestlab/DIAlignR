@@ -99,6 +99,7 @@ getMultipeptide <- function(precursors, features, applyFun=lapply){
         df$feature_id <- bit64::as.integer64(df$feature_id)
       }
       newdf <- rbind(newdf, df, make.row.names = FALSE)
+      #TODO: Check if multiple precursors have a reasonable time difference.
     }
     newdf[["alignment_rank"]] <- NA_integer_
     newdf

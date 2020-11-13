@@ -195,11 +195,11 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL,
 #' @param maxPeptideFdr (numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.
 #' @return (data-frames) A data-frame having following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
-#' \item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 #' \item{peptide_id}{(integer) a unique id for each peptide. A peptide can have multiple precursors.}
 #' \item{sequence}{(string) amino-acid sequence of the precursor with possible modifications.}
 #' \item{charge}{(integer) charge on the precursor.}
 #' \item{group_label}{(string) TODO Figure it out.}
+#' \item{transition_ids}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 #'
 #' @seealso \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}
 #' @examples
@@ -207,7 +207,7 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL,
 #' fileInfo <- getRunNames(dataPath = dataPath)
 #' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
 #' context = "experiment-wide", maxPeptideFdr = 0.05)
-#' dim(precursorsInfo) # 322  6
+#' dim(precursorsInfo) # 234  6
 #' @export
 getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
                           context = "global", maxPeptideFdr = 0.05){
