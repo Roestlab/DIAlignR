@@ -537,11 +537,17 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
   pair <- paste(ref, eXp, sep = "_")
   globalFit <- globalFits[[pair]]
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
-  tAligned <- getAlignedTimes(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]], adaptiveRT,
-                              params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
-                              params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
-                              params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
-                              params[["hardConstrain"]], params[["samples4gradient"]], objType = "light")
+
+  tAligned <- tryCatch(expr = getAlignedTimes(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]], adaptiveRT,
+                                  params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
+                                  params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
+                                  params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
+                                  params[["hardConstrain"]], params[["samples4gradient"]], objType = "light"),
+           error = function(e){
+             message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs",
+                     fileInfo[eXp, "runName"], " and", fileInfo[eXp, "runName"])
+             stop(e)
+           })
   df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
   df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
   if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)

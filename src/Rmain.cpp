@@ -326,6 +326,20 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             std::string objType = "heavy"){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
+
+  // Check if fragment-ions are of same length.
+  std::vector<int> len;
+  len.resize(r1.size(), 0);
+  for (unsigned int i = 0; i < r1.size(); i++) len[i] = r1[i].size();
+  if(std::adjacent_find(len.begin(), len.end(), std::not_equal_to<int>()) != len.end()){
+    throw std::length_error("Fragment-ion vectors must have same length");
+  }
+
+  for (unsigned int i = 0; i < r2.size(); i++) len[i] = r2[i].size();
+  if(std::adjacent_find(len.begin(), len.end(), std::not_equal_to<int>()) != len.end()){
+    throw std::length_error("Fragment-ion vectors must have same length");
+  }
+
   SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
   if (alignType == "hybrid"){
