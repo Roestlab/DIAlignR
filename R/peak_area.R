@@ -33,7 +33,7 @@ calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
   intensityList <- lapply(XICs, `[[`, 2)
   intensity <- areaIntegrator(time, intensityList, left, right, integrationType, baselineType,
                               fitEMG, baseSubtraction)
-  sum(intensity)
+  sum(intensity, na.rm = FALSE)
 }
 
 #' Calculates area of peaks in peakTable
@@ -125,4 +125,17 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
                                  values_to = "intensity") %>% as.data.frame()
   newArea$run <- fileInfo[newArea$run, "runName"]
   newArea
+}
+
+
+
+reIntensity <- function(df, XICs, params){
+  idx <- which(df[["alignment_rank"]] == 1)
+  for(i in idx){
+    analyte_chr <- as.character(df$transition_group_id[i])
+    area <- calculateIntensity(XICs[[analyte_chr]], df$leftWidth[i], df$rightWidth[i],
+                               params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
+    df$intensity[i] <- area
+  }
+  df
 }

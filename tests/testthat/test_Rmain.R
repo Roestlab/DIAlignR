@@ -113,6 +113,10 @@ test_that("test_areaIntegrator",{
   outData <- areaIntegrator(list(time, time), list(intensity, intensity), left, right, integrationType = "trapezoid",
                                 baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
   expect_equal(outData, rep(71063.59368, 2), tolerance = 0.01)
+
+  outData <- areaIntegrator(list(time, time), list(intensity, intensity), right, left, integrationType = "trapezoid",
+                            baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
+  expect_identical(outData, NA_real_)
 })
 
 test_that("test_alignChromatogramsCpp",{

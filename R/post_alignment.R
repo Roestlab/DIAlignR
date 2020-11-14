@@ -236,18 +236,6 @@ setOtherPrecursors <- function(df, XICs, analytes, params){
   df
 }
 
-
-reIntensity <- function(df, XICs, params){
-  idx <- which(df[["alignment_rank"]] == 1)
-  for(i in idx){
-    analyte_chr <- as.character(df$transition_group_id[i])
-    area <- calculateIntensity(XICs[[analyte_chr]], df$leftWidth[i], df$rightWidth[i],
-                               params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
-    df$intensity[i] <- area
-  }
-  df
-}
-
 #' Set Alignment rank to the aligned feature
 #'
 #' Picks the top feature in run by comparing m-score to unaligned FDR and aligned FDR.
