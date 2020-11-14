@@ -217,11 +217,14 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
     precursors <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr)
   } else {
     # Iterate over each file and collect precursor information
-    precursors <- data.frame("transition_group_id" = integer())
+    precursors <- data.frame()
+    ids <- integer()
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
       temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr)
-      precursors <- merge(precursors, temp, by = c("transition_group_id", all.x = TRUE, all.y = TRUE))
+      idx <- !(temp$transition_group_id %in% ids)
+      precursors <- rbind(precursors, temp[idx,])
+      ids <- precursors$transition_group_id
     }
   }
   message(paste0(nrow(precursors), " precursors are found."))
