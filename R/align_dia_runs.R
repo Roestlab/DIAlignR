@@ -439,6 +439,7 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
 
 perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec2chromIndex,
                      fileInfo, mzPntrs, params, globalFits, RSE, applyFun = lapply){
+  message("Processing Batch ", iBatch)
   batchSize <- params[["batchSize"]]
   strt <- ((iBatch-1)*batchSize+1)
   stp <- min((iBatch*batchSize), length(multipeptide))
@@ -548,7 +549,12 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
                      fileInfo[eXp, "runName"], " and", fileInfo[eXp, "runName"])
              stop(e)
            })
-  df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+  df.eXp <- tryCatch(expr = setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT),
+               error = function(e){
+               message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs",
+                     fileInfo[eXp, "runName"], " and", fileInfo[eXp, "runName"])
+               stop(e)
+           })
   df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
   if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
   df.eXp
