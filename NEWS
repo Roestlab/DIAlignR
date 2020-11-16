@@ -1,5 +1,6 @@
-CHANGES IN VERSION 1.3.2 (May 07, 2020)
+CHANGES IN VERSION 1.3.3 (November 16, 2020)
 ------------------------
++ Supporting transition level intensity for SAINTq
 + Added support for pyopenms.
 + Added parallelization using BiocParallel.
 + Using context-specific qvalues to determine reference.
