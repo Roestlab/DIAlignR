@@ -26,11 +26,11 @@ getPrecursors(
 \value{
 (data-frames) A data-frame having following columns:
 \item{transition_group_id}{(integer) a unique id for each precursor.}
-\item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 \item{peptide_id}{(integer) a unique id for each peptide. A peptide can have multiple precursors.}
 \item{sequence}{(string) amino-acid sequence of the precursor with possible modifications.}
 \item{charge}{(integer) charge on the precursor.}
 \item{group_label}{(string) TODO Figure it out.}
+\item{transition_ids}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 }
 \description{
 Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id and amino-acid sequences.
@@ -40,7 +40,7 @@ dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath = dataPath)
 precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
 context = "experiment-wide", maxPeptideFdr = 0.05)
-dim(precursorsInfo) # 322  6
+dim(precursorsInfo) # 234  6
 }
 \seealso{
 \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}

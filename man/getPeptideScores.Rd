@@ -26,10 +26,10 @@ getPeptideScores(
 \value{
 (list of dataframes) dataframe has following columns:
 \item{peptide_id}{(integer) a unique id for each precursor.}
-\item{run}{(character) retention time as in FEATURE.EXP_RT of osw files.}
-\item{score}{(numeric) peak intensity as in FEATURE_MS2.AREA_INTENSITY of osw files.}
-\item{pvalue}{(numeric) as in FEATURE.LEFT_WIDTH of osw files.}
-\item{qvalue}{(numeric) as in FEATURE.RIGHT_WIDTH of osw files.}
+\item{run}{(character) as in SCORE_PEPTIDE.RUN_ID of osw files.}
+\item{score}{(numeric) as in SCORE_PEPTIDE.SCORE of osw files.}
+\item{pvalue}{(numeric) as in SCORE_PEPTIDE.PVALUE of osw files.}
+\item{qvalue}{(numeric) as in SCORE_PEPTIDE.QVALUE of osw files.}
 }
 \description{
 Get a list of dataframes that contains peptide scores, pvalues, and qvalues across all runs.

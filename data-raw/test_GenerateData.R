@@ -7,7 +7,7 @@ generateDIAlignRdata <- function(){
   oswMerged <- TRUE
   filenames <- getRunNames(dataPath, oswMerged)
   oswFiles_DIAlignR <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
-  save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2)
+  save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2, compress = "xz")
 
   analytes <- 4618L # peptide_id = 14383
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
@@ -18,13 +18,13 @@ generateDIAlignRdata <- function(){
   prec2chromIndex <- getChromatogramIndices(filenames, precursors, mzPntrs)
   outData <- getXICs4AlignObj(mzPntrs, filenames, runs, prec2chromIndex, analytes)
   XIC_QFNNTDIVLLEDFQK_3_DIAlignR <- outData
-  save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2)
+  save(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, file = "XIC_QFNNTDIVLLEDFQK_3_DIAlignR.rda", version = 2, compress = "xz")
 
   p <- getPrecursors(filenames, oswMerged = TRUE, runType = "DIA_proteomics", context = "experiment-wide", maxPeptideFdr = 0.01)
   f <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   multipeptide <- getMultipeptide(p, f)
   multipeptide_DIAlignR <- multipeptide
-  save(multipeptide_DIAlignR, file = "multipeptide_DIAlignR.rda", version = 2)
+  save(multipeptide_DIAlignR, file = "multipeptide_DIAlignR.rda", version = 2, compress = "xz")
 }
 
 generateDIAlignRchrom <- function(){
@@ -63,7 +63,7 @@ generateAlignObj <- function(){
                           geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
                           gapQuantile = 0.5, hardConstrain = FALSE, kerLen = 9, samples4gradient = 100, objType = "heavy")
   alignObj_DIAlignR <- alignObj
-  save(alignObj_DIAlignR, file = "alignObj_DIAlignR.rda", version = 2)
+  save(alignObj_DIAlignR, file = "alignObj_DIAlignR.rda", version = 2, compress = "xz")
 }
 
 generateMasterXICs <- function(){

@@ -113,6 +113,10 @@ test_that("test_areaIntegrator",{
   outData <- areaIntegrator(list(time, time), list(intensity, intensity), left, right, integrationType = "trapezoid",
                                 baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
   expect_equal(outData, rep(71063.59368, 2), tolerance = 0.01)
+
+  outData <- areaIntegrator(list(time, time), list(intensity, intensity), right, left, integrationType = "trapezoid",
+                            baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
+  expect_identical(outData, NA_real_)
 })
 
 test_that("test_alignChromatogramsCpp",{
@@ -141,6 +145,16 @@ test_that("test_alignChromatogramsCpp",{
                          samples4gradient = 100, objType = "light")
   expData <- testAlignObj()
   expect_equal(outData, expData, tolerance = 1e-03)
+
+  l1 <- list(rnorm(100), rnorm(101))
+  l2 <- list(rnorm(100), rnorm(100))
+  expect_error(alignChromatogramsCpp(l1, l2, alignType = "hybrid",
+                                   tA = 1:100, tB = 1:100, normalization = "mean", simType = "dotProductMasked",
+                                   B1p = 1, B2p = 90, noBeef = 10,
+                                   goFactor = 0.125, geFactor = 40,
+                                   cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+                                   dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+                                   samples4gradient = 100, objType = "light"))
 })
 
 test_that("test_doAlignmentCpp",{

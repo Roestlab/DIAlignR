@@ -254,8 +254,8 @@ NumericVector areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double r
                       std::string integrationType, std::string baselineType, bool fitEMG, bool baseSubtraction){
   std::vector<std::vector<double> > vov1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > vov2 = list2VecOfVec(l2);
-  if(std::isnan(left) or std::isnan(right)) return NumericVector::get_na();
-  if(not (right > left)) return NumericVector::get_na();
+  if(std::isnan(left) or std::isnan(right)) return NumericVector::create(NA_REAL);
+  if(not ((right - left) > 1e-02)) return NumericVector::create(NA_REAL);
   std::vector<std::vector<double> > set = peakGroupArea(vov1, vov2, left, right, integrationType, baselineType, fitEMG= false, baseSubtraction);
   // double area = 0.0;
   // for(auto const& i : set[0]) area+= i;
@@ -326,6 +326,20 @@ S4 alignChromatogramsCpp(Rcpp::List l1, Rcpp::List l2, std::string alignType,
                             std::string objType = "heavy"){
   std::vector<std::vector<double> > r1 = list2VecOfVec(l1);
   std::vector<std::vector<double> > r2 = list2VecOfVec(l2);
+
+  // Check if fragment-ions are of same length.
+  std::vector<int> len;
+  len.resize(r1.size(), 0);
+  for (unsigned int i = 0; i < r1.size(); i++) len[i] = r1[i].size();
+  if(std::adjacent_find(len.begin(), len.end(), std::not_equal_to<int>()) != len.end()){
+    throw std::length_error("Fragment-ion vectors must have same length");
+  }
+
+  for (unsigned int i = 0; i < r2.size(); i++) len[i] = r2[i].size();
+  if(std::adjacent_find(len.begin(), len.end(), std::not_equal_to<int>()) != len.end()){
+    throw std::length_error("Fragment-ion vectors must have same length");
+  }
+
   SimMatrix s = getSimilarityMatrix(r1, r2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
   if (alignType == "hybrid"){

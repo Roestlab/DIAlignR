@@ -11,7 +11,8 @@ calculateIntensity(
   integrationType,
   baselineType,
   fitEMG = FALSE,
-  baseSubtraction = TRUE
+  baseSubtraction = TRUE,
+  transitionIntensity = FALSE
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ from "base_to_base", "vertical_division_min", "vertical_division_max".}
 \item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
 
 \item{baseSubtraction}{(logical) TRUE: remove background from peak signal using estimated noise levels.}
+
+\item{transitionIntensity}{(logical) TRUE: return intensity of each transition, FALSE: return sum of all transitions.}
 }
 \value{
 (numeric)

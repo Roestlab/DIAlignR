@@ -39,8 +39,8 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 dataPath <- system.file("extdata", package = "DIAlignR")
 filename <- paste0(dataPath,"/osw/merged.osw")
 \dontrun{
-precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics")
-dim(precursorsInfo) # 303  6
+precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics", context = "experiment-wide")
+dim(precursorsInfo) # 234  6
 }
 }
 \seealso{

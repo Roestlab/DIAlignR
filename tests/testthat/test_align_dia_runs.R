@@ -37,6 +37,29 @@ test_that("test_alignTargetedRuns",{
     expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
   }
   file.remove("temp.tsv")
+
+  dataPath <- system.file("extdata", package = "DIAlignR")
+  params <- paramsDIAlignR()
+  params[["context"]] <- "experiment-wide"
+  params[["transitionIntensity"]] <- TRUE
+  expect_warning(
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
+                      runs = NULL, applyFun = lapply)
+  )
+  outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
+  expData <- read.table("test.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
+  expect_identical(dim(outData), dim(expData))
+  expect_identical(colnames(outData), colnames(expData))
+  expect_identical(outData[["peptide_id"]], expData[["peptide_id"]])
+  expect_identical(outData[["precursor"]], expData[["precursor"]])
+  expect_identical(outData[["run"]], expData[["run"]])
+  x <- sapply(outData[["intensity"]], function(a) sum(as.numeric(strsplit(a, split = ",")[[1]])), USE.NAMES = FALSE)
+  expect_equal(x, expData[["intensity"]], tolerance = 1e-04)
+  for(i in 6:10){
+    expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
+  }
+  file.remove("temp.tsv")
+
 })
 
 test_that("test_getAlignObjs",{

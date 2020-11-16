@@ -28,14 +28,14 @@ filenamesFromOSW <- function(dataPath, pattern){
     temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw")
     # Throw an error if no .osw files are found.
     if(length(temp) == 0){return(stop("No .osw files are found."))}
-    filenames <- vapply(seq_along(temp), function(i){
+    filenames <- lapply(seq_along(temp), function(i){
       oswName <- file.path(dataPath, "osw", temp[i])
       con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
       # Fetch mzML filenames from RUN table.
       cbind(tryCatch(expr = DBI::dbGetQuery(con, statement = query),
                      finally = DBI::dbDisconnect(con)), oswName)
-    }, c(list))
-    filenames <- as.data.frame(do.call(rbind, filenames))
+    })
+    filenames <- do.call(rbind, filenames)
     message(nrow(filenames), " .osw files are found.")
   } else if (pattern == "*merged.osw") {
     # Look for merged.osw files in osw/ directory.

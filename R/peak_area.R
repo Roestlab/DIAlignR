@@ -17,6 +17,7 @@
 #'  from "base_to_base", "vertical_division_min", "vertical_division_max".
 #' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
 #' @param baseSubtraction (logical) TRUE: remove background from peak signal using estimated noise levels.
+#' @param transitionIntensity (logical) TRUE: return intensity of each transition, FALSE: return sum of all transitions.
 #' @return (numeric)
 #' @keywords internal
 #' @seealso \code{\link{getMultipeptide}, \link{setAlignmentRank}}
@@ -28,12 +29,29 @@
 #'  baselineType = "base_to_base", fitEMG = FALSE)
 #' }
 calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
-                               fitEMG = FALSE, baseSubtraction = TRUE){
+                               fitEMG = FALSE, baseSubtraction = TRUE, transitionIntensity = FALSE){
   time <- lapply(XICs, `[[`, 1)
   intensityList <- lapply(XICs, `[[`, 2)
   intensity <- areaIntegrator(time, intensityList, left, right, integrationType, baselineType,
                               fitEMG, baseSubtraction)
-  sum(intensity)
+  if(transitionIntensity) return (intensity)
+  sum(intensity, na.rm = FALSE)
+}
+
+
+newRow <- function(xics, left, right, RT, analyte, run, params){
+  intensity <- calculateIntensity(xics, left, right, params[["integrationType"]], params[["baselineType"]],
+                                  params[["fitEMG"]], params[["baseSubtraction"]], params[["transitionIntensity"]])
+  row <- data.frame("transition_group_id" = analyte, "feature_id" = bit64::NA_integer64_,
+                    "RT" = RT, "intensity"= NA_real_, "leftWidth" = left, "rightWidth" = right,
+                    "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = run,
+                    "alignment_rank" = 1L)
+  if(params[["transitionIntensity"]]){
+    row[1, "intensity"][[1]] <- list(intensity)
+  } else {
+    row[1, "intensity"] <- intensity
+  }
+  row
 }
 
 #' Calculates area of peaks in peakTable
@@ -125,4 +143,17 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
                                  values_to = "intensity") %>% as.data.frame()
   newArea$run <- fileInfo[newArea$run, "runName"]
   newArea
+}
+
+
+
+reIntensity <- function(df, XICs, params){
+  idx <- which(df[["alignment_rank"]] == 1)
+  for(i in idx){
+    analyte_chr <- as.character(df$transition_group_id[i])
+    area <- calculateIntensity(XICs[[analyte_chr]], df$leftWidth[i], df$rightWidth[i],
+                               params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
+    df$intensity[i] <- area
+  }
+  df
 }
