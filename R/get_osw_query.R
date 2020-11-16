@@ -190,6 +190,7 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
 #' Get precursor Info
 #'
 #' For each precursor in the table respective transition ids are fetched.
+#' Order of transition is kept same as the order of their intensities in \code{\link{getTransitionsQuery}}.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -254,6 +255,7 @@ getFeaturesQuery <- function(runType = "DIA_Proteomics"){
 #' Get precursor Info
 #'
 #' For each precursor in the table respective transition ids are fetched.
+#' Order of transition is kept same as the order of their intensities in \code{\link{getTransitionsQuery}}.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -305,5 +307,39 @@ getPeptideQuery <- function(runType = "DIA_Proteomics"){
   SCORE_PEPTIDE.QVALUE AS qvalue
   FROM SCORE_PEPTIDE
   WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT;"
+  query
+}
+
+#' Get transitions from a SQLite file
+#'
+#' Query is generated to identify features and their transitions below a FDR cut-off from a run.
+#' Order of transition intensity is kept same as the order of their Ids in \code{\link{getPrecursorsQuery}}.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-11-15
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return SQL query to be searched.
+#' @seealso \code{\link{fetchTransitionsFromRun}, \link{getPrecursorsQueryID}, \link{getPrecursorsQuery}}
+#' @keywords internal
+getTransitionsQuery <- function(runType = "DIA_Proteomics"){
+  query <- "SELECT PRECURSOR.ID AS transition_group_id,
+  FEATURE.ID AS feature_id,
+  FEATURE.EXP_RT AS RT,
+  FEATURE_TRANSITION.AREA_INTENSITY AS intensity,
+  FEATURE.LEFT_WIDTH AS leftWidth,
+  FEATURE.RIGHT_WIDTH AS rightWidth,
+  SCORE_MS2.RANK AS peak_group_rank,
+  SCORE_MS2.QVALUE AS m_score
+  FROM PRECURSOR
+  INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+  INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+  LEFT JOIN FEATURE_TRANSITION ON FEATURE.ID = FEATURE_TRANSITION.FEATURE_ID
+  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+  ORDER BY transition_group_id, peak_group_rank, FEATURE_TRANSITION.TRANSITION_ID;"
   query
 }

@@ -43,7 +43,6 @@ test_that("test_getPrecursorsQuery",{
   expect_identical(outData, expOutput)
 })
 
-
 test_that("test_getFeaturesQuery",{
   outData <- getFeaturesQuery(runType = "DIA_Proteomics")
   expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
@@ -64,7 +63,6 @@ test_that("test_getFeaturesQuery",{
   expect_identical(outData, expOutput)
 })
 
-
 test_that("test_getPrecursorsQueryID",{
   outData <- getPrecursorsQueryID(c(32L, 43L), runType = "DIA_Proteomics")
   expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
@@ -79,5 +77,25 @@ test_that("test_getPrecursorsQueryID",{
       INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
       WHERE  transition_group_id IN ('32','43')
       ORDER BY peptide_id, transition_group_id, transition_id;"
+  expect_identical(outData, expOutput)
+})
+
+test_that("test_getTransitionsQuery",{
+  outData <- getTransitionsQuery(runType = "DIA_Proteomics")
+  expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
+  FEATURE.ID AS feature_id,
+  FEATURE.EXP_RT AS RT,
+  FEATURE_TRANSITION.AREA_INTENSITY AS intensity,
+  FEATURE.LEFT_WIDTH AS leftWidth,
+  FEATURE.RIGHT_WIDTH AS rightWidth,
+  SCORE_MS2.RANK AS peak_group_rank,
+  SCORE_MS2.QVALUE AS m_score
+  FROM PRECURSOR
+  INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+  INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+  LEFT JOIN FEATURE_TRANSITION ON FEATURE.ID = FEATURE_TRANSITION.FEATURE_ID
+  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+  ORDER BY transition_group_id, peak_group_rank, FEATURE_TRANSITION.TRANSITION_ID;"
   expect_identical(outData, expOutput)
 })

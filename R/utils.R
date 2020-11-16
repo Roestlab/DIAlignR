@@ -110,6 +110,42 @@ getMultipeptide <- function(precursors, features, applyFun=lapply){
   multipeptide
 }
 
+
+getMultipeptide2 <- function(precursors, features, applyFun=lapply){
+  peptideIDs <- unique(precursors$peptide_id)
+  multipeptide <- applyFun(seq_along(peptideIDs), function(i){
+    # Get transition_group_id for a peptideID
+    idx <- which(precursors$peptide_id == peptideIDs[i])
+    analytes <- precursors[idx, "transition_group_id"]
+
+    newdf <- data.frame()
+    for(run in names(features)){
+      # Match precursor in each run, if not found add NA
+      index <- which(features[[run]][["transition_group_id"]] %in% analytes)
+      if(length(index) != 0){
+        df <- features[[run]][index, ]
+        df["run"] <- run
+      } else {
+        df <- data.frame("transition_group_id" = analytes, "feature_id" = NA_integer_, "run" = run,
+                         "RT" = NA_real_, "intensity" = NA_real_,
+                         "leftWidth" = NA_real_, "rightWidth" = NA_real_,
+                         "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
+                         stringsAsFactors = FALSE)
+        df[1,"intensity"][[1]] <- list(NA_real_)
+        df$feature_id <- bit64::as.integer64(df$feature_id)
+      }
+      newdf <- rbind(newdf, df, make.row.names = FALSE)
+      #TODO: Check if multiple precursors have a reasonable time difference.
+    }
+    newdf[["alignment_rank"]] <- NA_integer_
+    newdf
+  })
+
+  # Convert precursors as character. Add names to the multipeptide list.
+  names(multipeptide) <- as.character(peptideIDs)
+  multipeptide
+}
+
 #' Writes the output table post-alignment
 #'
 #' Selects all features from multipeptide with alignment rank = 1, and write them onto the disk.
@@ -351,7 +387,7 @@ paramsDIAlignR <- function(){
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
                   fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
-                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L)
+                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L, transitionIntensity = FALSE)
   params
 }
 

@@ -14,6 +14,7 @@ SQL query to be searched.
 }
 \description{
 For each precursor in the table respective transition ids are fetched.
+Order of transition is kept same as the order of their intensities in \code{\link{getTransitionsQuery}}.
 }
 \seealso{
 \code{\link{fetchPrecursorsInfo}}

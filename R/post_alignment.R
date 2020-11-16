@@ -192,12 +192,7 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
 
   ##### Create a new feature. #####
   if(params[["fillMissing"]]){
-    intensity <- calculateIntensity(XICs.eXp[[analyte_chr]], left, right, params[["integrationType"]],
-                                    params[["baselineType"]], params[["fitEMG"]])
-    row <- data.frame("transition_group_id" = analyte, "feature_id" = NA_integer64_,
-                      "RT" = eXpRT, "intensity"= intensity, "leftWidth" = left, "rightWidth" = right,
-                      "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = eXp,
-                      "alignment_rank" = 1L)
+    row <- newRow(XICs.eXp[[analyte_chr]], left, right, eXpRT, analyte, eXp, params)
     df.eXp <- rbind(df.eXp, row)
   }
   df.eXp
@@ -221,12 +216,7 @@ setOtherPrecursors <- function(df, XICs, analytes, params){
     if(length(idx)==0 & params[["fillMissing"]]){
       # Create a feature for missing precursor
       analyte_chr <- as.character(analyte)
-      intensity <- calculateIntensity(XICs[[analyte_chr]], pk[1], pk[2], params[["integrationType"]],
-                                      params[["baselineType"]], params[["fitEMG"]])
-      row <- data.frame("transition_group_id" = analyte, "feature_id" = NA_integer64_,
-                        "RT" = df$RT[refIdx], "intensity"= intensity, "leftWidth" = pk[1], "rightWidth" = pk[2],
-                        "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = run,
-                        "alignment_rank" = 1L)
+      row <- newRow(XICs[[analyte_chr]], pk[1], pk[2], df$RT[refIdx], analyte, run, params)
       df <- rbind(df, row)
     } else{
       idx <- idx[which.max(pmin(pk[2], df$rightWidth[idx]) - pmax(pk[1], df$leftWidth[idx]))]

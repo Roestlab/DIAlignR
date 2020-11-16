@@ -1,6 +1,5 @@
 
 test_that("test_calculateIntensity", {
-
   time <- c( 2.23095,2.239716667,2.248866667,2.25765,2.266416667,
              2.275566667,2.2847,2.293833333,2.304066667,2.315033333,2.325983333,2.336566667,
              2.3468,2.357016667,2.367283333,2.377183333,2.387083333,2.39735,2.40725,2.4175,
@@ -38,6 +37,10 @@ test_that("test_calculateIntensity", {
   outData <- calculateIntensity(list(df, df), left, right, integrationType = "trapezoid",
                                 baselineType = "vertical_division_min", fitEMG = FALSE)
   expect_equal(outData, 2*71063.59368, tolerance = 0.01)
+
+  outData <- calculateIntensity(list(df, df), left, right, integrationType = "trapezoid",
+                                baselineType = "vertical_division_min", fitEMG = FALSE, transitionIntensity = TRUE)
+  expect_equal(outData, rep(71063.59368, 2), tolerance = 0.01)
 })
 
 

@@ -63,7 +63,11 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = param
   }
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
-  features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]], applyFun)
+  if(params[["transitionIntensity"]]){
+    features <- getTransitions(fileInfo, params[["maxFdrQuery"]], params[["runType"]], applyFun)
+  } else{
+    features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]], applyFun)
+  }
 
   #### Collect pointers for each mzML file. #######
   message("Collecting metadata from mzML files.")
@@ -76,7 +80,11 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = param
 
   #### Convert features into multi-peptide #####
   message("Building multipeptide.")
-  multipeptide <- getMultipeptide(precursors, features, applyFun)
+  if(params[["transitionIntensity"]]){
+    multipeptide <- getMultipeptide2(precursors, features, applyFun)
+  } else{
+    multipeptide <- getMultipeptide(precursors, features, applyFun)
+  }
   message(length(multipeptide), " peptides are in the multipeptide.")
 
   #### Container to save Global alignments.  #######
@@ -103,6 +111,10 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = param
 
   #### Write tables to the disk  #######
   finalTbl <- writeTables(fileInfo, multipeptide, precursors)
+  if(params[["transitionIntensity"]]){
+    finalTbl$intensity <- lapply(finalTbl$intensity,round, 3)
+    finalTbl$intensity <- sapply(finalTbl$intensity, function(x) paste(unlist(x), collapse=", "))
+  }
   utils::write.table(finalTbl, file = outFile, sep = "\t", row.names = FALSE, quote = FALSE)
   message("Retention time alignment across runs is done.")
   message(paste0(outFile, " file has been written."))
