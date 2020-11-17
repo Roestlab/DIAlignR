@@ -552,20 +552,22 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
 
   tAligned <- tryCatch(expr = getAlignedTimes(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]], adaptiveRT,
-                                  params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
-                                  params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
-                                  params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
-                                  params[["hardConstrain"]], params[["samples4gradient"]], objType = "light"),
-           error = function(e){
-             message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs",
-                     fileInfo[eXp, "runName"], " and", fileInfo[eXp, "runName"])
-             stop(e)
+           params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
+           params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
+           params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
+           params[["hardConstrain"]], params[["samples4gradient"]], objType = "light"),
+             error = function(e){
+             message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs ",
+                     fileInfo[ref, "runName"], " and ", fileInfo[eXp, "runName"])
+             warning(e)
+             return(df.eXp)
            })
   df.eXp <- tryCatch(expr = setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT),
-               error = function(e){
-               message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs",
-                     fileInfo[eXp, "runName"], " and", fileInfo[eXp, "runName"])
-               stop(e)
+             error = function(e){
+             message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs ",
+                     fileInfo[eXp, "runName"], " and ", fileInfo[eXp, "runName"])
+             warning(e)
+             return(df.eXp)
            })
   df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
   if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
