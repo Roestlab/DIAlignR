@@ -24,6 +24,18 @@ extractXIC_group <- function(mz, chromIndices){
   XIC_group
 }
 
+xicIntersect <- function(xics){
+  time <- lapply(xics, function(df) floor(df[["time"]]))
+  strt <- max(sapply(time, function(v) v[1]))
+  end <- min(sapply(time, function(v) v[length(v)]))
+  newXICs <- lapply(seq_along(xics), function(i){
+    st = which(time[[i]] == strt)
+    en = which(time[[i]] == end)
+    xics[[i]][st:en,]
+  })
+  newXICs
+}
+
 #' Extract XICs of analytes
 #'
 #' For all the analytes requested, it fetches chromatogram indices from prec2chromIndex and

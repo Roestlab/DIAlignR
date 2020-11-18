@@ -50,8 +50,11 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
                         cosAngleThresh, OverlapAlignment,
                         dotProdThresh, gapQuantile, kerLen, hardConstrain,
                         samples4gradient, objType = "light"){
-  tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
-  tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
+  XICs.ref1 <- xicIntersect(XICs.ref) # Fixed common time in fragment-ions
+  XICs.eXp1 <- xicIntersect(XICs.eXp) # Fixed common time in fragment-ions
+
+  tVec.ref <- XICs.ref1[[1]][["time"]] # Extracting time component
+  tVec.eXp <- XICs.eXp1[[1]][["time"]] # Extracting time component
   len <- length(tVec.ref)
   B1p <- stats::predict(globalFit, data.frame("RT.ref" = tVec.ref[1]))[[1]]
   B2p <- stats::predict(globalFit, data.frame("RT.ref" = tVec.ref[len]))[[1]]
@@ -61,8 +64,8 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
   noBeef <- ceiling(adaptiveRT/samplingTime)
 
   # Perform dynamic programming for chromatogram alignment
-  intensityList.ref <- lapply(XICs.ref, `[[`, 2) # Extracting intensity values
-  intensityList.eXp <- lapply(XICs.eXp, `[[`, 2) # Extracting intensity values
+  intensityList.ref <- lapply(XICs.ref1, `[[`, 2) # Extracting intensity values
+  intensityList.eXp <- lapply(XICs.eXp1, `[[`, 2) # Extracting intensity values
   AlignObj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
                                     alignType, tVec.ref, tVec.eXp,
                                     normalization = normalization, simType = simType,
