@@ -557,14 +557,14 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
            params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
            params[["hardConstrain"]], params[["samples4gradient"]], objType = "light"),
              error = function(e){
-             message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs ",
+             message("\nError in the alignment of ", paste0(analytes, sep = " "), "in runs ",
                      fileInfo[ref, "runName"], " and ", fileInfo[eXp, "runName"])
              warning(e)
              return(df.eXp)
            })
   df.eXp <- tryCatch(expr = setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT),
              error = function(e){
-             message("\nError in alignment of ", paste0(analytes, sep = " "), "in runs ",
+             message("\nError in setting alignment rank of ", paste0(analytes, sep = " "), "in runs ",
                      fileInfo[eXp, "runName"], " and ", fileInfo[eXp, "runName"])
              warning(e)
              return(df.eXp)
