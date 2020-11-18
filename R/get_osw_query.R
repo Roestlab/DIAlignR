@@ -310,6 +310,30 @@ getPeptideQuery <- function(runType = "DIA_Proteomics"){
   query
 }
 
+#' Get peptide scores
+#'
+#' For each peptide, its score, pvalue and qvalues are fetched across all runs.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-11-18
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return SQL query to be searched.
+#' @seealso \code{\link{getPeptideScores}}
+#' @keywords internal
+getPeptideQuery2 <- function(runType = "DIA_Proteomics"){
+  query <- "SELECT DISTINCT SCORE_PEPTIDE.PEPTIDE_ID AS peptide_id,
+  SCORE_PEPTIDE.RUN_ID AS run,
+  SCORE_PEPTIDE.SCORE AS score,
+  SCORE_PEPTIDE.PVALUE AS pvalue,
+  SCORE_PEPTIDE.QVALUE AS qvalue
+  FROM SCORE_PEPTIDE
+  WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.RUN_ID = $runID;"
+  query
+}
+
 #' Get transitions from a SQLite file
 #'
 #' Query is generated to identify features and their transitions below a FDR cut-off from a run.

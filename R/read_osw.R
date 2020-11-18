@@ -419,6 +419,51 @@ fetchPeptidesInfo <- function(oswName, runType, context){
   peptidesInfo
 }
 
+#' Get scores of all peptides
+#'
+#' Return a scores, pvalues, and qvalues for all peptides from the osw file.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-11-18
+#' @keywords internal
+#' @inheritParams getPrecursors
+#' @param oswName (char) path to the osw file.
+#' @return (dataframe) with following columns:
+#' \item{peptide_id}{(integer) a unique id for each precursor.}
+#' \item{run}{(character) as in SCORE_PEPTIDE.RUN_ID of osw files.}
+#' \item{score}{(numeric) as in SCORE_PEPTIDE.SCORE of osw files.}
+#' \item{pvalue}{(numeric) as in SCORE_PEPTIDE.PVALUE of osw files.}
+#' \item{qvalue}{(numeric) as in SCORE_PEPTIDE.QVALUE of osw files.}
+#'
+#' @seealso \code{\link{getPeptideQuery}, \link{getPeptideScores}}
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' fileInfo <- getRunNames(dataPath = dataPath)
+#' oswName <- fileInfo[["featureFile"]][1]
+#' \dontrun{
+#' precursorsInfo <- fetchPeptidesInfo(fileInfo, runType = "DIA_proteomics", context = "experiment-wide")
+#' }
+fetchPeptidesInfo2 <- function(oswName, runType, context, runID){
+  # Establish a connection of SQLite file.
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = oswName)
+  # Generate a query.
+  query <- getPeptideQuery2(runType)
+
+  # Run query to get peptides, their scores and pvalues.
+  peptidesInfo <- tryCatch(expr = {output <- DBI::dbSendQuery(con, statement = query)
+  DBI::dbBind(output, list("CONTEXT"=context, "runID" = runID ))
+  DBI::dbFetch(output)},
+  finally = {DBI::dbClearResult(output)
+    DBI::dbDisconnect(con)})
+
+  peptidesInfo
+}
+
+
 #' Get scores of peptide
 #'
 #' Get a list of dataframes that contains peptide scores, pvalues, and qvalues across all runs.
@@ -460,7 +505,8 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
     peptidesInfo <- data.frame()
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
-      temp <- fetchPeptidesInfo(oswName, runType, context)
+      runID <- fileInfo[["spectraFileID"]][[i]]
+      temp <- fetchPeptidesInfo2(oswName, runType, context, runID)
       peptidesInfo <- dplyr::bind_rows(peptidesInfo, temp)
     }
   }
@@ -469,7 +515,7 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
   peptidesInfo <- dplyr::filter(peptidesInfo, .data$run %in% runs)
   peptidesInfo$run <- rownames(fileInfo)[match(peptidesInfo$run, runs)]
   if(length(unique(peptidesInfo$peptide_id)) != length(peptides)) {
-    warning("Unable to fine scores for few peptides. Appending NAs.")
+    warning("Unable to find scores for few peptides. Appending NAs.")
     temp <- data.frame(peptide_id = setdiff(peptides, unique(peptidesInfo$peptide_id)),
                        run = NA_character_, score = NA_real_, pvalue = NA_real_, qvalue = NA_real_)
     peptidesInfo <- rbind(peptidesInfo, temp)
