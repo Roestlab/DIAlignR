@@ -506,6 +506,7 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
       runID <- fileInfo[["spectraFileID"]][[i]]
+      names(runID) <- rownames(fileInfo)[[i]]
       temp <- fetchPeptidesInfo2(oswName, runType, context, runID)
       peptidesInfo <- dplyr::bind_rows(peptidesInfo, temp)
     }
