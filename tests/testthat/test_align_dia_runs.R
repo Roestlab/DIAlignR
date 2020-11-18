@@ -4,7 +4,7 @@ test_that("test_alignTargetedRuns",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
   params[["context"]] <- "experiment-wide"
-  expect_warning(
+  expect_message(
     alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)
   )
@@ -42,7 +42,7 @@ test_that("test_alignTargetedRuns",{
   params <- paramsDIAlignR()
   params[["context"]] <- "experiment-wide"
   params[["transitionIntensity"]] <- TRUE
-  expect_warning(
+  expect_message(
     alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)
   )
@@ -145,7 +145,7 @@ test_that("test_alignToRef",{
                tolerance = 1e-06)
 
   # Case 4
-  expect_warning(outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = c(1L), analytes = c(32L), fileInfo,
+  expect_message(outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = c(1L), analytes = c(32L), fileInfo,
                         XICs.ref, params, prec2chromIndex, mzPntrs, df, globalFits, RSE))
 
 })
@@ -171,7 +171,7 @@ test_that("test_alignIthAnalyte",{
   RSE <- list()
   RSE[["run1_run2"]] <- RSE[["run1_run0"]] <- 38.6594179136227/params$RSEdistFactor
   # Case 1
-  expect_warning(outData <- alignIthAnalyte(rownum = 1, peptideIDs, multipeptide, refRuns, precursors,
+  expect_message(outData <- alignIthAnalyte(rownum = 1, peptideIDs, multipeptide, refRuns, precursors,
                              prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE))
   # Case 2
   outData <- alignIthAnalyte(rownum = 2, peptideIDs, multipeptide, refRuns, precursors,

@@ -327,7 +327,7 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
   # Get XIC_group from experiment run. if missing, go to next run.
   chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][preIdx]
   if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
-    warning("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
+    message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
     df.eXp <- df[df[["run"]] == eXp, ]
     return(df.eXp)
@@ -411,7 +411,7 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   ##### Get XIC_group from reference run. if missing, return unaligned features #####
   chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][idx]
   if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
-    warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[ref, "runName"])
+    message("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[ref, "runName"])
     message("Skipping peptide ", peptide, " across all runs.")
     return(df)
   } else {
@@ -426,7 +426,7 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
   refIdx <- refIdx[which.min(df$m_score[refIdx])]
   if(length(refIdx)==0) {
-    warning("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
+    message("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
     message("Skipping peptide ", peptide, " across all runs.")
     return(df)
   }
@@ -479,7 +479,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
     idx <- (rownum - (iBatch-1)*batchSize)
     XICs.ref <- XICs[[idx]][[ref]]
     if(is.null(XICs.ref)){
-      warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[ref, "runName"])
+      message("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[ref, "runName"])
       message("Skipping peptide ", peptide, " across all runs.")
       return(df)
     } else {
@@ -494,7 +494,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
     refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
     refIdx <- refIdx[which.min(df$m_score[refIdx])]
     if(length(refIdx)==0) {
-      warning("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
+      message("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
       message("Skipping peptide ", peptide, " across all runs.")
       return(df)
     }
@@ -522,10 +522,10 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
                        df, globalFits, RSE){
   # Get XIC_group from experiment run. if missing, go to next run.
   XICs.eXp <- XICs[[idx]][[eXp]]
+  df.eXp <- df[df[["run"]] == eXp, ]
   if(is.null(XICs.eXp)){
-    warning("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
+    message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
-    df.eXp <- df[df[["run"]] == eXp, ]
     return(df.eXp)
   } else {
     XICs.eXp.s <- lapply(XICs.eXp, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
