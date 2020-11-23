@@ -12,7 +12,7 @@ plotAnalyteXICs(
   XICfilter = "sgolay",
   polyOrd = 4,
   kernelLen = 9,
-  runType = "DIA_proteomics",
+  runType = "DIA_Proteomics",
   oswMerged = TRUE,
   peakAnnot = NULL,
   Title = NULL
@@ -33,7 +33,7 @@ plotAnalyteXICs(
 
 \item{kernelLen}{(integer) number of data-points to consider in the kernel.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 

@@ -49,7 +49,7 @@ alignTargetedRuns(
 
 \item{runs}{(A vector of string) names of mzml file without extension.}
 
-\item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 

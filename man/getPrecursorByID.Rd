@@ -8,7 +8,7 @@ getPrecursorByID(
   analytes,
   fileInfo,
   oswMerged = TRUE,
-  runType = "DIA_proteomics"
+  runType = "DIA_Proteomics"
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ getPrecursorByID(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 }
 \value{
 (data-frames) A data-frame having following columns:

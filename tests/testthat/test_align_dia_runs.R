@@ -85,3 +85,32 @@ test_that("test_getAlignObjs",{
   expect_identical(outData[[2]][["32"]], NULL)
   expect_identical(outData[[2]][["898"]], NULL)
 })
+
+test_that("test_alignTargetedRuns_metabolomics",{
+  dataPath <- system.file("metabo", package = "DIAlignR")
+  expect_warning(
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp_metabo.csv", oswMerged = TRUE,
+                      runs = NULL, runType = "DIA_Metabolomics",
+                      maxFdrQuery = 0.05, XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
+                      globalAlignment = "linear", globalAlignmentFdr = 1, globalAlignmentSpan = 0.1,
+                      RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
+                      alignType = "hybrid", goFactor = 0.125, geFactor = 40,
+                      cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+                      dotProdThresh = 0.96, gapQuantile = 0.5,
+                      hardConstrain = FALSE, samples4gradient = 100,
+                      analyteFDR = 1.0,
+                      unalignedFDR = 0.05, alignedFDR = 1,
+                      baselineType = "base_to_base", integrationType = "intensity_sum",
+                      fitEMG = FALSE, recalIntensity = FALSE, fillMissing = TRUE, smoothPeakArea = FALSE)
+  )
+  outData <- read.table("temp_metabo.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  expData <- read.table("test_metabo.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  expect_identical(dim(outData), dim(expData))
+  expect_identical(colnames(outData), colnames(expData))
+  expect_identical(outData[["peptide"]], expData[["peptide"]])
+  expect_identical(outData[["run"]], expData[["run"]])
+  for(i in 1:13){
+    expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
+  }
+  file.remove("temp_metabo.csv")
+})

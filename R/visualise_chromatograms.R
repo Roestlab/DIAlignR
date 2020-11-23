@@ -58,7 +58,7 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
 #' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
 #' @param kernelLen (integer) number of data-points to consider in the kernel.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param peakAnnot (numeric) Peak-apex time.
 #' @param Title (logical) TRUE: name of the list will be displayed as title.
@@ -73,7 +73,7 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' @export
 plotAnalyteXICs <- function(analyte, run, dataPath = ".", maxFdrQuery = 1.0,
                             XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
-                            runType = "DIA_proteomics", oswMerged = TRUE,
+                            runType = "DIA_Proteomics", oswMerged = TRUE,
                             peakAnnot = NULL, Title = NULL){
   if((length(run) != 1) | (length(analyte) != 1)){
     return(stop("One analyte and single run are needed."))

@@ -45,7 +45,7 @@ getAlignObjs(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 

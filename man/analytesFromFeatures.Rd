@@ -22,7 +22,7 @@ Provides all found analytes or only common analytes that have m-score less than 
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath = dataPath)
-features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_Proteomics")
 \dontrun{
 commonAnalytes <- analytesFromFeatures(features, analyteFDR = 0.01, commonAnalytes = TRUE)
 }

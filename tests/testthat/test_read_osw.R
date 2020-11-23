@@ -24,11 +24,11 @@ test_that("test_fetchAnalytesInfo",{
                           stringsAsFactors=FALSE)
   outData <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
                                analytes = c("19051_KLIVTSEGC[160]FK/2"), filename = filenames$filename[2],
-                               runType = "DIA_proteomics", analyteInGroupLabel = TRUE)
+                               runType = "DIA_Proteomics", analyteInGroupLabel = TRUE)
   expect_equal(outData, expOutput, tolerance=1e-6)
   outData <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.5, oswMerged = TRUE,
                                analytes = c("IHFLSPVRPFTLTPGDEEESFIQLITPVR_3"), filename = filenames$filename[3],
-                               runType = "DIA_proteomics", analyteInGroupLabel = FALSE)
+                               runType = "DIA_Proteomics", analyteInGroupLabel = FALSE)
   expOutput <- data.frame("transition_group_id" = rep("IHFLSPVRPFTLTPGDEEESFIQLITPVR_3", 12),
                           "filename" = rep("data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 12),
                           "RT" = c(rep(6483.50, 6), rep(6597.54, 6)),
@@ -48,7 +48,7 @@ test_that("test_getOswAnalytes",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
   outData <- getOswAnalytes(fileInfo, oswMerged = TRUE,
-                            maxFdrQuery = 0.01, runType  = "DIA_proteomics")
+                            maxFdrQuery = 0.01, runType  = "DIA_Proteomics")
   expData <- data.frame("transition_group_id" = rep("AAMIGGADATSNVR_2", 2),
                         "filename" = rep("data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz", 2),
                         "peak_group_rank" = c(1L, 1L),
@@ -64,7 +64,7 @@ test_that("test_getOswAnalytes",{
 test_that("test_fetchPrecursorsInfo",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   filename <- paste0(dataPath,"/osw/merged.osw")
-  outData <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics")
+  outData <- fetchPrecursorsInfo(filename, runType = "DIA_Proteomics")
   expData <- data.frame("transition_group_id" = 32L,
              "peptide_id" = 7040L,
              "sequence" = "GNNSVYMNNFLNLILQNER",
@@ -82,7 +82,7 @@ test_that("test_getPrecursors",{
                          row.names = c("run0", "run1", "run2"),
                          stringsAsFactors=FALSE)
   fileInfo$featureFile <- as.factor(fileInfo$featureFile)
-  outData <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+  outData <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics")
   expData <- data.frame("transition_group_id" = 32L,
                         "peptide_id" = 7040L,
                         "sequence" = "GNNSVYMNNFLNLILQNER",
@@ -99,7 +99,7 @@ test_that("test_getPrecursorByID",{
   fileInfo <- data.frame("featureFile" = rep(file.path(dataPath, "osw", "merged.osw"),3),
                          row.names = c("run0", "run1", "run2"),
                          stringsAsFactors=FALSE)
-  outData <- getPrecursorByID(c(32L, 2474L), fileInfo, oswMerged = TRUE, runType = "DIA_proteomics")
+  outData <- getPrecursorByID(c(32L, 2474L), fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics")
   expData <- data.frame("transition_group_id" = c(32L, 2474L),
                         "peptide_id" = c(7040L, 8496L),
                         "sequence" = c("GNNSVYMNNFLNLILQNER", "IHFLSPVRPFTLTPGDEEESFIQLITPVR"),
@@ -118,7 +118,7 @@ test_that("test_fetchFeaturesFromRun",{
                          row.names = c("run0", "run1", "run2"),
                          stringsAsFactors=FALSE)
   fileInfo$featureFile <- as.factor(fileInfo$featureFile)
-  outData <- fetchFeaturesFromRun(fileInfo$featureFile[1], runID = "125704171604355508", maxFdrQuery = 0.05, runType = "DIA_proteomics")
+  outData <- fetchFeaturesFromRun(fileInfo$featureFile[1], runID = "125704171604355508", maxFdrQuery = 0.05, runType = "DIA_Proteomics")
   expData <- data.frame("transition_group_id" = 32L, "RT" = 6528.23, "intensity" = 26.7603,
                         "leftWidth" = 6518.602, "rightWidth" = 6535.67,
                         "peak_group_rank" = 1L, "m_score" = 0.0264475,
@@ -126,7 +126,7 @@ test_that("test_fetchFeaturesFromRun",{
   expect_equal(outData[1,], expData, tolerance = 1e-04)
   expect_identical(dim(outData), c(211L, 7L))
 
-  outData <- fetchFeaturesFromRun(fileInfo$featureFile[2], runID = "6752973645981403097", maxFdrQuery = 0.01, runType = "DIA_proteomics")
+  outData <- fetchFeaturesFromRun(fileInfo$featureFile[2], runID = "6752973645981403097", maxFdrQuery = 0.01, runType = "DIA_Proteomics")
   expData <- data.frame("transition_group_id" = 19954L, "RT" = 5226.47, "intensity" = 104.944,
                         "leftWidth" = 5215.051, "rightWidth" = 5228.706,
                         "peak_group_rank" = 3L, "m_score" = 0.0009634075,
@@ -135,7 +135,7 @@ test_that("test_fetchFeaturesFromRun",{
   expect_equal(outData[192,], expData, tolerance = 1e-04)
   expect_identical(dim(outData), c(192L, 7L))
 
-  outData <- fetchFeaturesFromRun(fileInfo$featureFile[3], runID = "2234664662238281994", maxFdrQuery = 1.00, runType = "DIA_proteomics")
+  outData <- fetchFeaturesFromRun(fileInfo$featureFile[3], runID = "2234664662238281994", maxFdrQuery = 1.00, runType = "DIA_Proteomics")
   expData <- data.frame("transition_group_id" = 10918L, "RT" = 6019.18, "intensity" = 78.4294,
                         "leftWidth" = 6006.667, "rightWidth" = 6044.217,
                         "peak_group_rank" = 3L, "m_score" = 0.3225775,
@@ -152,7 +152,7 @@ test_that("test_getFeatures",{
                          row.names = c("run0", "run1", "run2"),
                          stringsAsFactors=FALSE)
   fileInfo$featureFile <- as.factor(fileInfo$featureFile)
-  outData <- getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics")
+  outData <- getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics")
   expect_identical(length(outData), 3L)
   expect_identical(dim(outData[["run1"]]), c(227L, 7L))
 })

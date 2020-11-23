@@ -11,7 +11,7 @@ getOswFiles(
   analyteFDR = 0.01,
   oswMerged = TRUE,
   analytes = NULL,
-  runType = "DIA_proteomics",
+  runType = "DIA_Proteomics",
   analyteInGroupLabel = FALSE
 )
 }
@@ -27,7 +27,7 @@ FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE fr
 
 \item{analytes}{(string) analyte is as PRECURSOR.GROUP_LABEL or as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
 
