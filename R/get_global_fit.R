@@ -25,13 +25,8 @@
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' }
 getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
-  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
+  RUNS_RT <- getRTdf(oswFiles, ref, eXp, maxFdrGlobal)
   Loess.fit <- dialignrLoess(RUNS_RT, spanvalue)
-
   Loess.fit
 }
 
@@ -99,11 +94,7 @@ dialignrLoess <- function(RUNS_RT, spanvalue){
 #'  maxFdrGlobal = 0.05)
 #' }
 getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
-  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
+  RUNS_RT <- getRTdf(oswFiles, ref, eXp, maxFdrGlobal)
   # For testing we want to avoid validation peptides getting used in the fit.
   lm.fit <- lm(RT.eXp ~ RT.ref, data = RUNS_RT)
   lm.fit
@@ -141,6 +132,12 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
   else{
     fit <- getLinearfit(oswFiles, ref, eXp, maxFdrGlobal)
   }
+  if(is(fit, "loess")){
+    N <- fit$n
+  } else{
+    N <- length(fit$residuals)
+  }
+  message(" n = ", N)
   fit
 }
 
@@ -195,9 +192,14 @@ getRSE <- function(fit){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
 #' features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
-#' data("multipeptide_DIAlignR", package = "DIAlignR")
+#' precursors <- getPrecursors(fileInfo, TRUE, "DIA_proteomics", "experiment-wide", 0.01)
+#' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+#' peptideIDs <- unique(precursors$peptide_id)
+#' peptideScores <- getPeptideScores(fileInfo, peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+#' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+#' names(peptideScores) <- as.character(peptideIDs)
 #' \dontrun{
-#' refRun <- getRefRun(multipeptide_DIAlignR)
+#' refRun <- getRefRun(peptideScores)
 #' fits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
 #' }
 getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
@@ -207,6 +209,7 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
   globalFits <- lapply(refs, function(ref){
     exps <- setdiff(rownames(fileInfo), ref)
     Fits <- applyFun(exps, function(eXp){
+      message("Geting global alignment of ", ref, " and ", eXp, ",", appendLF = FALSE)
       getGlobalAlignment(features, ref, eXp, globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
     })
     names(Fits) <- paste(ref, exps, sep = "_")
@@ -214,4 +217,19 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
   })
   globalFits <- unlist(globalFits, recursive = FALSE)
   globalFits
+}
+
+
+getRTdf <- function(oswFiles, ref, eXp, maxFdrGlobal){
+  if(maxFdrGlobal > 1) stop("No common precursors found between ", ref, " and ", eXp)
+  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
+    dplyr::select(.data$transition_group_id, .data$RT)
+  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
+    dplyr::select(.data$transition_group_id, .data$RT)
+  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
+  if(nrow(RUNS_RT) < 2){
+    message("Increasing maxFdrGlobal 10 times")
+    RUNS_RT <- getRTdf(oswFiles, ref, eXp, 10*maxFdrGlobal)
+  }
+  RUNS_RT
 }

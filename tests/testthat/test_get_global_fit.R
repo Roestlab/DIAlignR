@@ -1,6 +1,6 @@
 context("Global Fit")
 
-  test_that("test_getLOESSfit", {
+test_that("test_getLOESSfit", {
     data(oswFiles_DIAlignR, package="DIAlignR")
     oswFiles <- oswFiles_DIAlignR
     Loess.fit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
