@@ -47,6 +47,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = param
   precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 
   #### Get Peptide scores, pvalue and qvalues. ######
+  # Some peptides may not be found due to using a subset of runs. Appends NA for them.
+  # This translates as "Chromatogram indices for peptide ID are missing in NA"
   peptideIDs <- unique(precursors$peptide_id)
   peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
@@ -463,7 +465,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
     xics <- lapply(names(mzPntrs), function(run){
       chromIndices <- prec2chromIndex[[run]][["chromatogramIndex"]][idx]
       if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))) return(NULL)
-      temp <- lapply(chromIndices, function(i1) mzR::chromatograms(mzPntrs[[run]], i1))
+      temp <- lapply(chromIndices, function(i1) extractXIC_group(mzPntrs[[run]], i1))
       names(temp) <- as.character(analytes)
       temp
     })
