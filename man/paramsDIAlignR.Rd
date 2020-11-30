@@ -17,6 +17,7 @@ A list of parameters:
  considered for quantification even without the RT alignment.}
 \item{alignedFDR}{(numeric) must be between unalignedFDR and 1. Features below alignedFDR are
  considered for quantification after the alignment.}
+\item{level}{(string) apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 \item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
  from "intensity_sum", "trapezoid", "simpson".}
 \item{baseSubtraction}{{logical} TRUE: remove background from peak signal using estimated noise levels.}

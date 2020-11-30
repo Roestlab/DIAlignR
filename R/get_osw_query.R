@@ -197,12 +197,30 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2020-04-04
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @inheritParams fetchPrecursorsInfo
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchPrecursorsInfo}}
 #' @keywords internal
-getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
-  query <- "SELECT DISTINCT PRECURSOR.ID AS transition_group_id,
+getPrecursorsQuery <- function(runType = "DIA_Proteomics", level = "Peptide"){
+  if(level == "Protein"){
+    query <- "SELECT DISTINCT PRECURSOR.ID AS transition_group_id,
+      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+      PEPTIDE.ID AS peptide_id,
+      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+      PRECURSOR.CHARGE AS charge,
+      PRECURSOR.GROUP_LABEL AS group_label
+      FROM PRECURSOR
+      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      INNER JOIN PEPTIDE_PROTEIN_MAPPING ON PEPTIDE_PROTEIN_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      LEFT JOIN SCORE_PROTEIN ON SCORE_PROTEIN.PROTEIN_ID = PEPTIDE_PROTEIN_MAPPING.PROTEIN_ID
+      LEFT JOIN SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
+      WHERE SCORE_PROTEIN.CONTEXT = $CONTEXT AND SCORE_PROTEIN.QVALUE < $FDR AND
+      SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+      ORDER BY peptide_id, transition_group_id, transition_id;"
+  } else{
+    query <- "SELECT DISTINCT PRECURSOR.ID AS transition_group_id,
       TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
       PEPTIDE.ID AS peptide_id,
       PEPTIDE.MODIFIED_SEQUENCE AS sequence,
@@ -215,6 +233,7 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
       INNER JOIN SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
       WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR AND PRECURSOR.DECOY = 0
       ORDER BY peptide_id, transition_group_id, transition_id;"
+  }
   query
 }
 

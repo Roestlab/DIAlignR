@@ -9,7 +9,7 @@ fetchPeptidesInfo(oswName, runType, context)
 \arguments{
 \item{oswName}{(char) path to the osw file.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
 \item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
 }

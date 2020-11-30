@@ -19,7 +19,7 @@ getPeptideScores(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
 \item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
 }

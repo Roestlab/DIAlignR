@@ -131,11 +131,10 @@ getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FAL
 #' Date: 2019-04-04
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
+#' @inheritParams getPrecursors
 #' @param filename (string) Should be from the RUN.FILENAME column from osw files.
 #' @param runType (string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param selectIDs (integer) a vector of integers.
-#' @param context (string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".
-#' @param maxPeptideFdr (numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.
 #' @return (data-frames) Data-frame has following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
@@ -154,14 +153,14 @@ getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FAL
 #' dim(precursorsInfo) # 234  6
 #' }
 fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL,
-                                context = "global", maxPeptideFdr = 0.05){
+                                context = "global", maxPeptideFdr = 0.05, level = "Peptide"){
   # Establish a connection of SQLite file.
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = as.character(filename))
   # Generate a query.
   all = FALSE
   if(is.null(selectIDs)) all = TRUE
   if(all){
-    query <- getPrecursorsQuery(runType)
+    query <- getPrecursorsQuery(runType, level)
   } else{
     query <- getPrecursorsQueryID(selectIDs, runType)
   }
@@ -190,9 +189,10 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL,
 #' @importFrom magrittr %>%
 #' @param fileInfo (data-frame) Output of \code{\link{getRunNames}} function.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @param runType (string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param context (string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".
 #' @param maxPeptideFdr (numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.
+#' @param level (string) Apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".
 #' @return (data-frames) A data-frame having following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{peptide_id}{(integer) a unique id for each peptide. A peptide can have multiple precursors.}
@@ -210,18 +210,18 @@ fetchPrecursorsInfo <- function(filename, runType, selectIDs = NULL,
 #' dim(precursorsInfo) # 234  6
 #' @export
 getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
-                          context = "global", maxPeptideFdr = 0.05){
+                          context = "global", maxPeptideFdr = 0.05, level = "Peptide"){
   if(oswMerged == TRUE){
     # Get precursor information from merged.osw file
     oswName <- unique(fileInfo[["featureFile"]])
-    precursors <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr)
+    precursors <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
   } else {
     # Iterate over each file and collect precursor information
     precursors <- data.frame()
     ids <- integer()
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
-      temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr)
+      temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
       idx <- !(temp$transition_group_id %in% ids)
       precursors <- rbind(precursors, temp[idx,])
       ids <- precursors$transition_group_id
@@ -243,10 +243,8 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2019-04-06
 #' @importFrom magrittr %>%
+#' @inheritParams getPrecursors
 #' @param analytes (integer) a vector of integers.
-#' @param fileInfo (data-frame) output of getRunNames function.
-#' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param runType (string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @return (data-frames) A data-frame having following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
@@ -265,13 +263,13 @@ getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DI
   if(oswMerged == TRUE){
     # Get precursor information from merged.osw file
     oswName <- unique(fileInfo[["featureFile"]])
-    precursors <- fetchPrecursorsInfo(oswName, runType, analytes)
+    precursors <- fetchPrecursorsInfo(oswName, runType, analytes, maxPeptideFdr = 1.00)
   } else {
     # Iterate over each file and collect precursor information
     precursors <- data.frame("transition_group_id" = integer())
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
-      temp <- fetchPrecursorsInfo(oswName, runType, analytes)
+      temp <- fetchPrecursorsInfo(oswName, runType, analytes, maxPeptideFdr = 1.00)
       precursors <- merge(precursors, temp, by = c("transition_group_id", all.x = TRUE, all.y = TRUE))
     }
   }

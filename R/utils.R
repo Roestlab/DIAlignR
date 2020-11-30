@@ -312,6 +312,10 @@ checkParams <- function(params){
     # Find some logic for analyteFDR.
   }
 
+  if(!any(params[["level"]] %in% c("Peptide", "Protein"))){
+    stop("level for maxPeptideFDR should be either Peptide or Protein.")
+  }
+
   invisible(NULL)
 }
 
@@ -338,6 +342,7 @@ checkParams <- function(params){
 #'  considered for quantification even without the RT alignment.}
 #' \item{alignedFDR}{(numeric) must be between unalignedFDR and 1. Features below alignedFDR are
 #'  considered for quantification after the alignment.}
+#' \item{level}{(string) apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 #' \item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
 #'  from "intensity_sum", "trapezoid", "simpson".}
 #' \item{baseSubtraction}{{logical} TRUE: remove background from peak signal using estimated noise levels.}
@@ -376,7 +381,7 @@ checkParams <- function(params){
 #' @export
 paramsDIAlignR <- function(){
   params <- list( runType = "DIA_proteomics", maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
-                  context = "global", unalignedFDR = 0.01, alignedFDR = 0.05,
+                  context = "global", unalignedFDR = 0.01, alignedFDR = 0.05, level = "Peptide",
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
                   recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,
                   XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,

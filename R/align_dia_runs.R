@@ -43,7 +43,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = param
 
   #### Get Precursors from the query and respectve chromatogram indices. ######
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
-  precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
+  precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]], params[["level"]])
   precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 
   #### Get Peptide scores, pvalue and qvalues. ######

@@ -9,7 +9,8 @@ fetchPrecursorsInfo(
   runType,
   selectIDs = NULL,
   context = "global",
-  maxPeptideFdr = 0.05
+  maxPeptideFdr = 0.05,
+  level = "Peptide"
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ fetchPrecursorsInfo(
 \item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
 
 \item{maxPeptideFdr}{(numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
+
+\item{level}{(string) Apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 }
 \value{
 (data-frames) Data-frame has following columns:
