@@ -312,6 +312,14 @@ checkParams <- function(params){
     # Find some logic for analyteFDR.
   }
 
+  if(params[["fractionPercent"]] < 1 | params[["fractionPercent"]] > 100){
+    stop("fractionPercent must be between [1, 100]")
+  }
+
+  if(params[["fraction"]] < 1 | params[["fraction"]] > ceiling(100/params[["fractionPercent"]])){
+    stop("fraction must be between [1, ceiling(100/fractionPercent)]")
+  }
+
   if(!any(params[["level"]] %in% c("Peptide", "Protein"))){
     stop("level for maxPeptideFDR should be either Peptide or Protein.")
   }
@@ -375,6 +383,8 @@ checkParams <- function(params){
 #' \item{splineMethod}{(string) must be either "fmm" or "natural".}
 #' \item{mergeTime}{(string) must be either "ref", "avg", "refStart" or "refEnd".}
 #' \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
+#' \item{fraction}{(integer) indicates which fraction to align.}
+#' \item{fractionPercent}{(integer) percentage number of peptides to align.}
 #' @seealso \code{\link{checkParams}, \link{alignTargetedRuns}}
 #' @examples
 #' params <- paramsDIAlignR()
@@ -392,7 +402,8 @@ paramsDIAlignR <- function(){
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
                   fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
-                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L, transitionIntensity = FALSE)
+                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L, transitionIntensity = FALSE,
+                  fraction = 1L, fractionPercent = 100L)
   params
 }
 
@@ -495,4 +506,21 @@ checkOverlap <- function(x, y){
   overArch <- (y[2] - x[2]) >= 0 & (y[1] - x[1]) <= 0
   olap <- (leftOverlap | rightOverlap | overArch)
   olap
+}
+
+getPrecursorSubset <- function(precursors, params){
+  peptideIDs <- unique(precursors$peptide_id)
+  len = length(peptideIDs)
+  a = params[["fraction"]]
+  b = params[["fractionPercent"]]
+  pepStart <- (a-1)*floor(len*b*0.01)+1
+  pepEnd <- min(a*floor(len*b*0.01), len)
+  r <- rle(precursors$peptide_id)
+  if(a == 1) {
+    pepStart = 1
+  } else{
+    pepStart <- sum(r$lengths[1:(which(r$value == peptideIDs[pepStart])-1)], 1)
+  }
+  pepEnd <- sum(r$lengths[1:which(r$value== peptideIDs[pepEnd])])
+  c(pepStart, pepEnd)
 }

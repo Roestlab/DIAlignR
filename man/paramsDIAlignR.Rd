@@ -50,6 +50,8 @@ A list of parameters:
 \item{splineMethod}{(string) must be either "fmm" or "natural".}
 \item{mergeTime}{(string) must be either "ref", "avg", "refStart" or "refEnd".}
 \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
+\item{fraction}{(integer) indicates which fraction to align.}
+\item{fractionPercent}{(integer) percentage number of peptides to align.}
 }
 \description{
 Retention alignment requires OpenSWATH/pyProphet extracted features and chromatograms. This function provides

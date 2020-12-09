@@ -25,11 +25,11 @@
 #' params[["context"]] <- "experiment-wide"
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' BiocParallel::register(BiocParallel::MulticoreParam(workers = 4, progressbar = TRUE))
-#' alignTargetedRuns(dataPath, outFile = "testDIAlignR.tsv", params = params, applyFun = BiocParallel::bplapply)
+#' alignTargetedRuns(dataPath, outFile = "testDIAlignR", params = params, applyFun = BiocParallel::bplapply)
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
-alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = paramsDIAlignR(), oswMerged = TRUE, runs = NULL,
+alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), oswMerged = TRUE, runs = NULL,
                               refRun = NULL, applyFun = lapply){
   #### Check if all parameters make sense.  #########
   checkParams(params)
@@ -45,6 +45,12 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR.tsv", params = param
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]], params[["level"]])
   precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+  if(params[["fractionPercent"]] != 100L){
+    idx <- getPrecursorSubset(precursors, params)
+    precursors <- precursors[idx[1]:idx[2],]
+    outFile <- paste(outFile, params[["fraction"]], params[["fractionPercent"]], sep = "_")
+  }
+  outFile <- paste0(outFile,".tsv")
 
   #### Get Peptide scores, pvalue and qvalues. ######
   # Some peptides may not be found due to using a subset of runs. Appends NA for them.

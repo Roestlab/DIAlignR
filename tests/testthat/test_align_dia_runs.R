@@ -5,7 +5,7 @@ test_that("test_alignTargetedRuns",{
   params <- paramsDIAlignR()
   params[["context"]] <- "experiment-wide"
   expect_message(
-    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)
   )
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
@@ -24,7 +24,7 @@ test_that("test_alignTargetedRuns",{
             "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
   BiocParallel::register(BiocParallel::MulticoreParam())
   params[["batchSize"]] <- 10L
-  alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
+  alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = runs, applyFun = BiocParallel::bplapply)
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
   expData <- read.table("test2.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
@@ -43,7 +43,7 @@ test_that("test_alignTargetedRuns",{
   params[["context"]] <- "experiment-wide"
   params[["transitionIntensity"]] <- TRUE
   expect_message(
-    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)
   )
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
