@@ -140,7 +140,7 @@ getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, runType =
   fileInfo <- getRunNames(dataPath, oswMerged)
   fileInfo <- updateFileInfo(fileInfo, runs)
 
-  precursors <- getPrecursorByID(analytes,fileInfo)
+  precursors <- getPrecursorByID(analytes, fileInfo, oswMerged)
   mzPntrs <- getMZMLpointers(fileInfo)
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
 

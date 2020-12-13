@@ -243,6 +243,7 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2019-04-06
 #' @importFrom magrittr %>%
+#' @import dplyr
 #' @inheritParams getPrecursors
 #' @param analytes (integer) a vector of integers.
 #' @return (data-frames) A data-frame having following columns:
@@ -270,7 +271,8 @@ getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DI
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
       temp <- fetchPrecursorsInfo(oswName, runType, analytes, maxPeptideFdr = 1.00)
-      precursors <- merge(precursors, temp, by = c("transition_group_id", all.x = TRUE, all.y = TRUE))
+      idx <- !(temp$transition_group_id %in% precursors$transition_group_id)
+      precursors <- dplyr::bind_rows(precursors, temp[idx,])
     }
   }
   message(paste0(nrow(precursors), " precursors are found."))
