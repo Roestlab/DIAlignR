@@ -224,7 +224,7 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
                              "transition_ids" = list())
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
-      temp <- fetchPrecursorsInfo2(oswName, runType, NULL, context, maxPeptideFdr, level)
+      temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
       temp <- temp[!precursors, on = .(transition_group_id)] # Anti-join
       precursors <- rbind(precursors, temp, use.names = FALSE)
     }
