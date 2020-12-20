@@ -45,10 +45,10 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   start_time <- Sys.time()
   precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]], params[["level"]])
-  precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
   if(params[["fractionPercent"]] != 100L){
     idx <- getPrecursorSubset(precursors, params)
     precursors <- precursors[idx[1]:idx[2],]
+    data.table::setkeyv(precursors, c("peptide_id", "transition_group_id"))
     outFile <- paste(outFile, params[["fraction"]], params[["fractionPercent"]], sep = "_")
   }
   outFile <- paste0(outFile,".tsv")
@@ -60,9 +60,9 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   # Some peptides may not be found due to using a subset of runs. Appends NA for them.
   # This translates as "Chromatogram indices for peptide ID are missing in NA"
   start_time <- Sys.time()
-  peptideIDs <- unique(precursors$peptide_id)
+  peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
   peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
-  peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  peptideScores <- lapply(peptideIDs, function(pep) peptideScores[.(pep)])
   names(peptideScores) <- as.character(peptideIDs)
   end_time <- Sys.time()
   message("The execution time for fetching peptide scores:")
@@ -76,7 +76,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
     refRuns <- getRefRun(peptideScores, applyFun)
   } else{
     run <- rownames(fileInfo)[idx]
-    refRuns <- data.frame("peptide_id" = peptideIDs, "run" = run)
+    refRuns <- data.table("peptide_id" = peptideIDs, "run" = run, key = "peptide_id")
   }
   end_time <- Sys.time()
   message("The execution time for calculating a reference run:")
@@ -113,11 +113,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   #### Convert features into multi-peptide #####
   message("Building multipeptide.")
   start_time <- Sys.time()
-  if(params[["transitionIntensity"]]){
-    multipeptide <- getMultipeptide2(precursors, features, applyFun)
-  } else{
-    multipeptide <- getMultipeptide(precursors, features, applyFun)
-  }
+  multipeptide <- getMultipeptide(precursors, features, applyFun)
   message(length(multipeptide), " peptides are in the multipeptide.")
   end_time <- Sys.time()
   message("The execution time for building multipeptide:")
@@ -152,8 +148,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   #### Write tables to the disk  #######
   finalTbl <- writeTables(fileInfo, multipeptide, precursors)
   if(params[["transitionIntensity"]]){
-    finalTbl$intensity <- lapply(finalTbl$intensity,round, 3)
-    finalTbl$intensity <- sapply(finalTbl$intensity, function(x) paste(unlist(x), collapse=", "))
+    finalTbl[,intensity := sapply(intensity,function(x) paste(round(x, 3), collapse=", "))]
   }
   utils::write.table(finalTbl, file = outFile, sep = "\t", row.names = FALSE, quote = FALSE)
   message("Retention time alignment across runs is done.")
@@ -385,8 +380,7 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
     XICs.ref.pep <- unlist(XICs.ref.s, recursive = FALSE, use.names = FALSE)
     XICs.eXp.pep <- unlist(XICs.eXp.s, recursive = FALSE, use.names = FALSE)
   } else {
-    temp <- df[df$run == ref, c("transition_group_id", "m_score")]
-    analyte_chr <- as.character(temp[which.min(temp$m_score), "transition_group_id"])
+    analyte_chr <- as.character(df[run == ref, ][which.min(m_score), transition_group_id])
     XICs.ref.pep <- XICs.ref.s[[analyte_chr]]
     XICs.eXp.pep <- XICs.eXp.s[[analyte_chr]]
   }
@@ -494,14 +488,14 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
   message("Processing Batch ", iBatch)
   batchSize <- params[["batchSize"]]
   strt <- ((iBatch-1)*batchSize+1)
-  stp <- min((iBatch*batchSize), length(multipeptide))
+  stp <- min((iBatch*batchSize), length(peptideIDs))
   ##### Get XICs for the batch across all runs #####
   XICs <- lapply(strt:stp, function(rownum){
     ##### Get transition_group_id for that peptideID #####
-    idx <- which(precursors$peptide_id == peptideIDs[rownum])
-    analytes <- precursors[idx, "transition_group_id"]
+    idx <- precursors[.(peptideIDs[rownum]),  which = TRUE]
+    analytes <- precursors[idx, transition_group_id]
     xics <- lapply(names(mzPntrs), function(run){
-      chromIndices <- prec2chromIndex[[run]][["chromatogramIndex"]][idx]
+      chromIndices <- prec2chromIndex[[run]][idx, "chromatogramIndex"]
       if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))) return(NULL)
       temp <- lapply(chromIndices, function(i1) extractXIC_group(mzPntrs[[run]], i1))
       names(temp) <- as.character(analytes)
@@ -511,10 +505,11 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
     xics
   })
 
+  # Get aligned multipeptide for the batch
   mp <- applyFun(strt:stp, function(rownum){
     peptide <- peptideIDs[rownum]
     df <- multipeptide[[rownum]]
-    ref <- refRuns[["run"]][rownum]
+    ref <- refRuns[rownum, run]
 
     idx <- (rownum - (iBatch-1)*batchSize)
     XICs.ref <- XICs[[idx]][[ref]]
@@ -531,15 +526,15 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
 
     ##### Set alignment rank for all precrusors of the peptide in the reference run #####
     analytes <- as.integer(names(XICs.ref))
-    refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
-    refIdx <- refIdx[which.min(df$m_score[refIdx])]
+    refIdx <- df[,ID := .I][run == ref & peak_group_rank ==1,][which.min(m_score), ID]
+    df[,ID:= NULL]
     if(length(refIdx)==0) {
       message("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
       message("Skipping peptide ", peptide, " across all runs.")
       return(df)
     }
-    df[["alignment_rank"]][refIdx] <- 1L
-    df.ref <- df[df$run == ref,]
+    df[refIdx, alignment_rank := 1L]
+    df.ref <- df[run == ref,]
     df.ref <- setOtherPrecursors(df.ref, XICs.ref, analytes, params)
     # Update multipeptide reference intensity if recal is true
     if(params[["recalIntensity"]]) df.ref <- reIntensity(df.ref, XICs.ref, params)
@@ -551,7 +546,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
 
     ##### Return the dataframe with alignment rank set to TRUE #####
     updateOnalignTargetedRuns(rownum)
-    newDF <- dplyr::bind_rows(df.ref, df.exps)
+    newDF <- rbindlist(list(df.ref, rbindlist(df.exps)))
     newDF
   })
   mp
@@ -562,7 +557,7 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
                        df, globalFits, RSE){
   # Get XIC_group from experiment run. if missing, go to next run.
   XICs.eXp <- XICs[[idx]][[eXp]]
-  df.eXp <- df[df[["run"]] == eXp, ]
+  df.eXp <- df[run == eXp, ]
   if(is.null(XICs.eXp)){
     message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
@@ -580,8 +575,8 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
     XICs.ref.pep <- unlist(XICs.ref.s, recursive = FALSE, use.names = FALSE)
     XICs.eXp.pep <- unlist(XICs.eXp.s, recursive = FALSE, use.names = FALSE)
   } else {
-    temp <- df[df$run == ref, c("transition_group_id", "m_score")]
-    analyte_chr <- as.character(temp[which.min(temp$m_score), "transition_group_id"])
+    temp <- df[run == ref, c("transition_group_id", "m_score")]
+    analyte_chr <- as.character(temp[which.min(m_score), transition_group_id])
     XICs.ref.pep <- XICs.ref.s[[analyte_chr]]
     XICs.eXp.pep <- XICs.eXp.s[[analyte_chr]]
   }

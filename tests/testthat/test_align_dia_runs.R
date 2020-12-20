@@ -110,20 +110,21 @@ test_that("test_alignToRef",{
   data(multipeptide_DIAlignR, package="DIAlignR")
 
   # Case 1
-  df <- multipeptide_DIAlignR[["14383"]]
+  df <- data.table::setDT(multipeptide_DIAlignR[["14383"]])
   df$alignment_rank[2] <- 1L; df$m_score[3] <- 0.06
   XICs.ref <- list()
   XICs.ref[["4618"]] <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 2L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
              mzPntrs, df, globalFits, RSE)
   expect_equal(df[3,], outData[1,])
-  expect_equal(outData[2,], data.frame("transition_group_id" = 4618L, feature_id = bit64::NA_integer64_,
+  expect_equal(outData[2,], data.table("transition_group_id" = 4618L, feature_id = bit64::NA_integer64_,
                                        RT = 5241.30, intensity = 189.304,  leftWidth = 5224.2, rightWidth = 5265.2, peak_group_rank = NA_integer_,
-                                       m_score = NA_real_, run = "run2", alignment_rank = 1, row.names = c(1L)),
+                                       m_score = NA_real_, run = "run2", alignment_rank = 1),
                tolerance = 1e-06)
 
   # Case 2
-  df <- multipeptide_DIAlignR[["14383"]]
+  data(multipeptide_DIAlignR, package="DIAlignR")
+  df <- data.table::setDT(multipeptide_DIAlignR[["14383"]])
   outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 2L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
                         mzPntrs, df, globalFits, RSE)
   df$alignment_rank[3] <- 1L
@@ -134,14 +135,14 @@ test_that("test_alignToRef",{
   mz <- mzR::openMSfile(file.path(dataPath, "mzml","hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
   XICs.ref <- lapply(chromIndices, function(i) extractXIC_group(mz, chromIndices = i))
   names(XICs.ref) <- c("9719", "9720")
-  df <- multipeptide_DIAlignR[["9861"]]
+  df <- data.table::setDT(multipeptide_DIAlignR[["9861"]])
   outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = c(3L,4L), analytes = c(9719L, 9720L), fileInfo,
              XICs.ref, params, prec2chromIndex, mzPntrs, df, globalFits, RSE)
   df$alignment_rank[4] <- 1L
   expect_equal(df[4,], outData[1,])
-  expect_equal(outData[2,], data.frame("transition_group_id" = 9719L, feature_id = bit64::NA_integer64_,
+  expect_equal(outData[2,], data.table("transition_group_id" = 9719L, feature_id = bit64::NA_integer64_,
                                        RT = 2607.05, intensity = 11.80541,  leftWidth = 2591.431, rightWidth = 2625.569, peak_group_rank = NA_integer_,
-                                       m_score = NA_real_, run = "run2", alignment_rank = 1, row.names = c(1L)),
+                                       m_score = NA_real_, run = "run2", alignment_rank = 1),
                tolerance = 1e-06)
 
   # Case 4

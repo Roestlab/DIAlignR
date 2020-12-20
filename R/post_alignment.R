@@ -151,26 +151,25 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' }
 setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
   ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
-  df.eXp <- df[df$run == eXp,]
-  if(any(df.eXp[["m_score"]] < params[["unalignedFDR"]], na.rm = TRUE)){
-    idx <- which.min(df.eXp[["m_score"]])
-    df.eXp[["alignment_rank"]][idx] <- 1L
+  df.eXp <- df[run == eXp,]
+  if(any(df.eXp[,"m_score" < params[["unalignedFDR"]]], na.rm = TRUE)){
+    df.eXp[which.min("m_score"), alignment_rank := 1L]
     return(df.eXp)
   }
 
   ##### No high quality feature, hence, alignment is needed. Map peak from ref to eXp #####
   # reference run.
-  refIdx <- which(df[["run"]] == ref & df[["alignment_rank"]] == 1)
-  if(all(is.na(df$m_score[refIdx]))){
+  refIdx <- df[run == ref & alignment_rank == 1, which = TRUE]
+  if(all(is.na(df[refIdx, m_score]))){
     refIdx <- refIdx[1]
   } else {
-    refIdx <- refIdx[which.min(df$m_score[refIdx])]
+    refIdx <- refIdx[which.min(df[refIdx, m_score])]
   }
-  analyte <- df[["transition_group_id"]][refIdx]
+  analyte <- df[refIdx, transition_group_id]
   analyte_chr <- as.character(analyte)
-  refRT <- df[["RT"]][refIdx]
-  leftRef <- df[["leftWidth"]][refIdx]
-  rightRef <- df[["rightWidth"]][refIdx]
+  refRT <- df[refIdx, RT]
+  leftRef <- df[refIdx, leftWidth]
+  rightRef <- df[refIdx, rightWidth]
   # Experiment run.
   left <- tAligned[[2]][which.min(abs(tAligned[[1]] - leftRef))]
   right <- tAligned[[2]][which.min(abs(tAligned[[1]] - rightRef))]
@@ -182,11 +181,11 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
 
   ##### Find any feature present within adaptiveRT. #####
   pk <- c(left - adaptiveRT, right + adaptiveRT)
-  idx <- sapply(1:nrow(df.eXp), function(i) checkOverlap(pk, c(df.eXp$leftWidth[i], df.eXp$rightWidth[i])))
+  idx <- sapply(1:nrow(df.eXp), function(i) checkOverlap(pk, c(df.eXp[i, leftWidth], df.eXp[i, rightWidth])))
   idx <- which(idx)
-  if(any(df.eXp[["m_score"]][idx] < params[["alignedFDR"]], na.rm = TRUE)){
-    idx <- idx[which.min(df.eXp[["m_score"]][idx])]
-    df.eXp[["alignment_rank"]][idx] <- 1L
+  if(any(df.eXp[idx, m_score] < params[["alignedFDR"]], na.rm = TRUE)){
+    idx <- idx[which.min(df.eXp[idx, m_score])]
+    df.eXp[idx, "alignment_rank" := 1L]
     return(df.eXp)
   }
 
@@ -200,30 +199,33 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
 
 # df should have features from one run only.
 setOtherPrecursors <- function(df, XICs, analytes, params){
-  refIdx <- which(df[["alignment_rank"]] == 1)
+  refIdx <- df[alignment_rank == 1, which = TRUE]
   if(length(refIdx) == 0 | is.null(refIdx)) return(df)
 
-  run <- df$run[refIdx]
-  precRef <- df$transition_group_id[refIdx]
-  pk <- c(df$leftWidth[refIdx], df$rightWidth[refIdx])
+  run <- df[refIdx, run]
+  precRef <- df[refIdx, transition_group_id]
+  pk <- c(df[refIdx, leftWidth], df[refIdx, rightWidth])
 
   # If other precursors have overlapping feature then set their alignment rank to 1.
   for(analyte in setdiff(analytes, precRef)){
-    idx <- which(df[["transition_group_id"]] == analyte)
+    idx <- df[transition_group_id == analyte, which = TRUE]
     if(length(idx)!=0){
-      idx <- idx[sapply(idx, function(i) checkOverlap(pk, c(df$leftWidth[i], df$rightWidth[i])))]
+      idx <- idx[sapply(idx, function(i) {
+        sts <- checkOverlap(pk, c(df[i, leftWidth], df[i, rightWidth]))
+        ifelse(is.na(sts), FALSE, sts)
+      } )]
     }
     if(length(idx)==0 & params[["fillMissing"]]){
       # Create a feature for missing precursor
       analyte_chr <- as.character(analyte)
-      row <- newRow(XICs[[analyte_chr]], pk[1], pk[2], df$RT[refIdx], analyte, run, params)
-      df <- rbind(df, row)
+      row <- newRow(XICs[[analyte_chr]], pk[1], pk[2], df[refIdx, RT], analyte, run, params)
+      df <- rbindlist(list(df, row), use.names = TRUE)
     } else{
-      idx <- idx[which.max(pmin(pk[2], df$rightWidth[idx]) - pmax(pk[1], df$leftWidth[idx]))]
-      df[["alignment_rank"]][idx] <- 1L # set alignment rank for already present feature
+      idx <- idx[which.max(pmin(pk[2], df[idx, rightWidth]) - pmax(pk[1], df[idx, leftWidth]))]
+      df[idx, "alignment_rank" := 1L] # set alignment rank for already present feature
     }
   }
-  df
+  df[complete.cases(leftWidth, rightWidth),]
 }
 
 #' Set Alignment rank to the aligned feature

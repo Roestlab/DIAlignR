@@ -8,6 +8,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
+#' @importFrom data.table setkey rbindlist
 #' @inheritParams alignTargetedRuns
 #' @param peptideScores (list of data-frames) each dataframe has scores of a peptide across all runs.
 #' @return (dataframe) has two columns:
@@ -33,13 +34,14 @@ getRefRun <- function(peptideScores, applyFun = lapply){
     idx <- which.min(pep$pvalue)
     if(length(idx)==0) {
       id <- as.integer(names(peptideScores)[i])
-      df <- data.frame("peptide_id" = id, "run" = NA_character_)
+      df <- data.table("peptide_id" = id, "run" = NA_character_)
     } else{
       df <- pep[idx, c("peptide_id", "run")]
     }
     df
   })
-  DFs <- dplyr::bind_rows(DFs)
+  DFs <- rbindlist(DFs)
+  setkey(DFs, peptide_id)
   DFs
 }
 
@@ -52,6 +54,7 @@ getRefRun <- function(peptideScores, applyFun = lapply){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
+#' @importFrom data.table rbindlist
 #' @importFrom bit64 NA_integer64_
 #' @inheritParams alignTargetedRuns
 #' @param precursors (data-frames) Contains precursors and associated transition IDs.
@@ -77,71 +80,21 @@ getRefRun <- function(peptideScores, applyFun = lapply){
 #' @seealso \code{\link{getPrecursors}, \link{getFeatures}}
 #' @export
 getMultipeptide <- function(precursors, features, applyFun=lapply){
-  peptideIDs <- unique(precursors$peptide_id)
+  peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
+  runs <- names(features)
   multipeptide <- applyFun(seq_along(peptideIDs), function(i){
-    # Get transition_group_id for a peptideID
-    idx <- which(precursors$peptide_id == peptideIDs[i])
-    analytes <- precursors[idx, "transition_group_id"]
-
-    newdf <- data.frame()
-    for(run in names(features)){
-      # Match precursor in each run, if not found add NA
-      index <- which(features[[run]][["transition_group_id"]] %in% analytes)
-      if(length(index) != 0){
-        df <- features[[run]][index, ]
-        df["run"] <- run
-      } else {
-        df <- data.frame("transition_group_id" = analytes, "feature_id" = NA_integer_, "run" = run,
-                         "RT" = NA_real_, "intensity" = NA_real_,
-                         "leftWidth" = NA_real_, "rightWidth" = NA_real_,
-                         "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
-                         stringsAsFactors = FALSE)
-        df$feature_id <- bit64::as.integer64(df$feature_id)
-      }
-      newdf <- rbind(newdf, df, make.row.names = FALSE)
-      #TODO: Check if multiple precursors have a reasonable time difference.
-    }
-    newdf[["alignment_rank"]] <- NA_integer_
+    # Get transition_group_id for a peptide
+    analytes <- precursors[.(peptideIDs[i]), "transition_group_id"]
+    newdf <- rbindlist(lapply(runs, function(run){
+      df <- features[[run]][.(analytes), ]
+      df[,"run" := run]
+      df
+    }), use.names=FALSE)
+    newdf[, "alignment_rank" := NA_integer_]
     newdf
   })
 
-  # Convert precursors as character. Add names to the multipeptide list.
-  names(multipeptide) <- as.character(peptideIDs)
-  multipeptide
-}
-
-
-getMultipeptide2 <- function(precursors, features, applyFun=lapply){
-  peptideIDs <- unique(precursors$peptide_id)
-  multipeptide <- applyFun(seq_along(peptideIDs), function(i){
-    # Get transition_group_id for a peptideID
-    idx <- which(precursors$peptide_id == peptideIDs[i])
-    analytes <- precursors[idx, "transition_group_id"]
-
-    newdf <- data.frame()
-    for(run in names(features)){
-      # Match precursor in each run, if not found add NA
-      index <- which(features[[run]][["transition_group_id"]] %in% analytes)
-      if(length(index) != 0){
-        df <- features[[run]][index, ]
-        df["run"] <- run
-      } else {
-        df <- data.frame("transition_group_id" = analytes, "feature_id" = NA_integer_, "run" = run,
-                         "RT" = NA_real_, "intensity" = NA_real_,
-                         "leftWidth" = NA_real_, "rightWidth" = NA_real_,
-                         "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
-                         stringsAsFactors = FALSE)
-        df[1,"intensity"][[1]] <- list(NA_real_)
-        df$feature_id <- bit64::as.integer64(df$feature_id)
-      }
-      newdf <- rbind(newdf, df, make.row.names = FALSE)
-      #TODO: Check if multiple precursors have a reasonable time difference.
-    }
-    newdf[["alignment_rank"]] <- NA_integer_
-    newdf
-  })
-
-  # Convert precursors as character. Add names to the multipeptide list.
+  # Convert peptides as character. Add names to the multipeptide list.
   names(multipeptide) <- as.character(peptideIDs)
   multipeptide
 }
@@ -156,7 +109,7 @@ getMultipeptide2 <- function(precursors, features, applyFun=lapply){
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-14
 #' @importFrom rlang .data
-#' @importFrom tidyr pivot_longer
+#' @importFrom data.table rbindlist setnames setorder setcolorder set
 #' @param filename (string) Name of the output file.
 #' @param fileInfo (data-frame) Output of getRunNames function.
 #' @param multipeptide (list of data-frames) Each element of the list is collection of features associated with a precursor.
@@ -172,34 +125,29 @@ getMultipeptide2 <- function(precursors, features, applyFun=lapply){
 #' writeTables(fileInfo, multipeptide, precursors)
 #' }
 writeTables <- function(fileInfo, multipeptide, precursors){
-  peptides <- as.integer(names(multipeptide))
+  peptides <- precursors[, logical(1), keyby = peptide_id]$peptide_id
   runs <- rownames(fileInfo)
   idx <- grep("^master[0-9]+$", runs, invert = TRUE)
   runs <- runs[idx]
-  runName <- fileInfo$runName[idx]
+  runName <- fileInfo[idx, "runName"]
 
   #### Get a dataframe of all analytes with alignment rank = 1 ###########
   finalTbl <- lapply(seq_along(peptides), function(i){
-    df <- multipeptide[[i]]
-    idx <- which(df[["alignment_rank"]] == 1L & df[["run"]] %in% runs)
-    if(length(idx) == 0) idx <- which(df[["peak_group_rank"]] == 1L & df[["run"]] %in% runs)
-    df <- df[idx,]
-    df
+    idx <- multipeptide[[i]][alignment_rank == 1L & run %in% runs, which = TRUE]
+    if(length(idx) == 0) idx <- multipeptide[[i]][peak_group_rank == 1L & run %in% runs, which = TRUE]
+    multipeptide[[i]][idx,]
   })
-  finalTbl <- dplyr::bind_rows(finalTbl)
-  finalTbl$run <- runName[match(finalTbl$run, runs)]
-  finalTbl <- dplyr::select(finalTbl, .data$transition_group_id, .data$feature_id, .data$run, .data$RT, .data$intensity,
-                            .data$leftWidth, .data$rightWidth, .data$peak_group_rank, .data$m_score, .data$alignment_rank)
+  finalTbl <- rbindlist(finalTbl)
+  finalTbl[,run := runName[match(finalTbl$run, runs)]]
 
   ##### Merging precursor information and return the dataframe. ###################
-  finalTbl <- merge(x = finalTbl, y = precursors[,-which(names(precursors) %in% c("transition_ids"))],
-                    by = "transition_group_id", all.x = TRUE)
-  colnames(finalTbl)[1] <- c("precursor")
-  finalTbl$feature_id <- as.character(finalTbl$feature_id)
-  finalTbl <- dplyr::arrange(finalTbl, .data$peptide_id, .data$precursor, .data$run)
-  finalTbl <- dplyr::select(finalTbl, .data$peptide_id, .data$precursor, .data$run, .data$RT, .data$intensity,
-                            .data$leftWidth, .data$rightWidth, .data$peak_group_rank, .data$m_score,
-                            .data$alignment_rank, .data$feature_id, .data$sequence, .data$charge, .data$group_label)
+  finalTbl <- precursors[, !("transition_ids")][finalTbl, on = "transition_group_id"]
+  setnames(finalTbl, "transition_group_id", "precursor")
+  set(finalTbl, j = "feature_id", value = as.character(finalTbl[["feature_id"]]))
+
+  setorder(finalTbl, peptide_id, precursor, run)
+  setcolorder(finalTbl, c("peptide_id", "precursor", "run", "RT", "intensity", "leftWidth", "rightWidth",
+                    "peak_group_rank", "m_score", "alignment_rank", "feature_id", "sequence", "charge", "group_label"))
   finalTbl
 }
 
@@ -498,6 +446,7 @@ skip_if_no_pyopenms <- function() {
 #' checkOverlap(c(1.1, 3.1), c(3.2, 7.1))
 #' }
 checkOverlap <- function(x, y){
+  if(any(is.na(c(x,y)))) return(NA)
   # y has left boundary between x
   leftOverlap <- (y[1] - x[1]) >= 0 & (y[1] - x[2]) <= 0
   # y has right boundary between x
@@ -508,14 +457,23 @@ checkOverlap <- function(x, y){
   olap
 }
 
+#' Prints messages if a certain number of analytes are aligned
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-11-19
+#' @return Invisible NULL
+#' @keywords internal
 getPrecursorSubset <- function(precursors, params){
-  peptideIDs <- unique(precursors$peptide_id)
+  peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
   len = length(peptideIDs)
   a = params[["fraction"]]
   b = params[["fractionPercent"]]
   pepStart <- (a-1)*floor(len*b*0.01)+1
   pepEnd <- min(a*floor(len*b*0.01), len)
-  r <- rle(precursors$peptide_id)
+  r <- rle(precursors[, peptide_id])
   if(a == 1) {
     pepStart = 1
   } else{

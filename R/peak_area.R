@@ -42,15 +42,11 @@ calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
 newRow <- function(xics, left, right, RT, analyte, run, params){
   intensity <- calculateIntensity(xics, left, right, params[["integrationType"]], params[["baselineType"]],
                                   params[["fitEMG"]], params[["baseSubtraction"]], params[["transitionIntensity"]])
-  row <- data.frame("transition_group_id" = analyte, "feature_id" = bit64::NA_integer64_,
-                    "RT" = RT, "intensity"= NA_real_, "leftWidth" = left, "rightWidth" = right,
+  intensity <- ifelse(params[["transitionIntensity"]], list(intensity), intensity)
+  row <- data.table("transition_group_id" = analyte, "feature_id" = bit64::NA_integer64_,
+                    "RT" = RT, "intensity"= intensity, "leftWidth" = left, "rightWidth" = right,
                     "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = run,
                     "alignment_rank" = 1L)
-  if(params[["transitionIntensity"]]){
-    row[1, "intensity"][[1]] <- list(intensity)
-  } else {
-    row[1, "intensity"] <- intensity
-  }
   row
 }
 
@@ -148,12 +144,12 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
 
 
 reIntensity <- function(df, XICs, params){
-  idx <- which(df[["alignment_rank"]] == 1)
+  idx <- df[alignment_rank == 1, which = TRUE]
   for(i in idx){
-    analyte_chr <- as.character(df$transition_group_id[i])
-    area <- calculateIntensity(XICs[[analyte_chr]], df$leftWidth[i], df$rightWidth[i],
+    analyte_chr <- as.character(df[i, transition_group_id])
+    area <- calculateIntensity(XICs[[analyte_chr]], df[i, leftWidth], df[i, rightWidth],
                                params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
-    df$intensity[i] <- area
+    df[i, intensity := area]
   }
   df
 }

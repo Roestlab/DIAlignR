@@ -16,7 +16,7 @@ RoxygenNote: 7.1.1
 biocViews: MassSpectrometry, Metabolomics, Proteomics, Alignment, Software
 Depends: methods, stats, R (>= 4.0)
 Imports:
-    zoo (>= 1.8-3),
+    zoo (>= 1.8-3), data.table,
     magrittr, dplyr, tidyr, rlang,
     mzR (>= 2.18),
     signal, bit64,
