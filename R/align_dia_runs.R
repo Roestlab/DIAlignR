@@ -436,11 +436,11 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   # print(rownum)
   peptide <- peptideIDs[rownum]
   df <- multipeptide[[rownum]]
-  ref <- refRuns[peptide, run]
+  ref <- refRuns[.(peptide), run]
 
   ##### Get transition_group_id for that peptideID #####
-  idx <- precursors[.(peptide),which = TRUE]
-  analytes <- precursors[idx, "transition_group_id"]
+  idx <- precursors[.(peptide), which = TRUE]
+  analytes <- precursors[idx, transition_group_id]
 
   ##### Get XIC_group from reference run. if missing, return unaligned features #####
   chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][idx]
@@ -478,7 +478,6 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   ##### Return the dataframe with alignment rank set to TRUE #####
   updateOnalignTargetedRuns(rownum)
   newDF <- rbindlist(list(df.ref, rbindlist(df.exps)))
-  newDF
 }
 
 

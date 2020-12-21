@@ -23,13 +23,11 @@
 #' peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)
 #' peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
 #' names(peptidesInfo) <- as.character(peptideIDs)
-#' \dontrun{
 #' getRefRun(peptidesInfo)
-#' }
 #' @seealso \code{\link{getPeptideScores}}
-#' @keywords internal
+#' @export
 getRefRun <- function(peptideScores, applyFun = lapply){
-  DFs <- applyFun(seq_along(peptideScores), function(i){
+  DFs <- lapply(seq_along(peptideScores), function(i){
     pep <- peptideScores[[i]]
     idx <- pep[, which.min(pvalue)]
     if(length(idx)==0) {
@@ -82,9 +80,9 @@ getRefRun <- function(peptideScores, applyFun = lapply){
 getMultipeptide <- function(precursors, features, applyFun=lapply){
   peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
   runs <- names(features)
-  multipeptide <- applyFun(seq_along(peptideIDs), function(i){
+  multipeptide <- lapply(seq_along(peptideIDs), function(i){
     # Get transition_group_id for a peptide
-    analytes <- precursors[.(peptideIDs[i]), "transition_group_id"]
+    analytes <- precursors[.(peptideIDs[i]), transition_group_id]
     newdf <- rbindlist(lapply(runs, function(run){
       df <- features[[run]][.(analytes), ]
       df[,"run" := run]
@@ -93,7 +91,6 @@ getMultipeptide <- function(precursors, features, applyFun=lapply){
     newdf[, "alignment_rank" := NA_integer_]
     newdf
   })
-
   # Convert peptides as character. Add names to the multipeptide list.
   names(multipeptide) <- as.character(peptideIDs)
   multipeptide

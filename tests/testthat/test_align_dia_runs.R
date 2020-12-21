@@ -162,12 +162,12 @@ test_that("test_alignIthAnalyte",{
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
   precursors <- getPrecursors(fileInfo, oswMerged= TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
   precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
-  peptideIDs <-  c(7040L, 14383L, 9861L)
+  peptideIDs <-  c(7040L, 9861L, 14383L)
   mzPntrs <- getMZMLpointers(fileInfo)
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
   features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
   multipeptide <- getMultipeptide(precursors, features)
-  refRuns <- data.table("peptide_id" = c("7040", "14383", "9861"), "run" = "run1", key = "peptide_id")
+  refRuns <- data.table("peptide_id" = c(7040L, 9861L, 14383L), "run" = "run1", key = "peptide_id")
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
   RSE <- list()
@@ -176,13 +176,13 @@ test_that("test_alignIthAnalyte",{
   expect_message(outData <- alignIthAnalyte(rownum = 1, peptideIDs, multipeptide, refRuns, precursors,
                              prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE))
   # Case 2
-  outData <- alignIthAnalyte(rownum = 2, peptideIDs, multipeptide, refRuns, precursors,
+  outData <- alignIthAnalyte(rownum = 3L, peptideIDs, multipeptide, refRuns, precursors,
                              prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE)
-  df <- data.table::setDT(multipeptide[["14383"]])
+  df <- data.table::data.table(multipeptide[["14383"]])
   df$alignment_rank <- 1L
-  expect_equal(outData, df)
+  expect_equal(outData, df[c(2,1,3)])
   # Case 3
-  outData <- alignIthAnalyte(rownum = 3, peptideIDs, multipeptide, refRuns, precursors,
+  outData <- alignIthAnalyte(rownum = 2L, peptideIDs, multipeptide, refRuns, precursors,
                              prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE)
   expect_equal(outData[6,], data.table("transition_group_id" = 9719L, feature_id = bit64::NA_integer64_,
                                                      RT = 2607.05, intensity = 11.80541,  leftWidth = 2591.431, rightWidth = 2625.569, peak_group_rank = NA_integer_,
