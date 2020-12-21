@@ -152,8 +152,8 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
   ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
   df.eXp <- df[run == eXp,]
-  if(any(df.eXp[,"m_score" < params[["unalignedFDR"]]], na.rm = TRUE)){
-    df.eXp[which.min("m_score"), alignment_rank := 1L]
+  if(any(df.eXp[,m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
+    df.eXp[which.min(m_score), alignment_rank := 1L]
     return(df.eXp)
   }
 
@@ -183,7 +183,7 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
   pk <- c(left - adaptiveRT, right + adaptiveRT)
   idx <- sapply(1:nrow(df.eXp), function(i) checkOverlap(pk, c(df.eXp[i, leftWidth], df.eXp[i, rightWidth])))
   idx <- which(idx)
-  if(any(df.eXp[idx, m_score] < params[["alignedFDR"]], na.rm = TRUE)){
+  if(any(df.eXp[idx, m_score] <= params[["alignedFDR"]], na.rm = TRUE)){
     idx <- idx[which.min(df.eXp[idx, m_score])]
     df.eXp[idx, "alignment_rank" := 1L]
     return(df.eXp)

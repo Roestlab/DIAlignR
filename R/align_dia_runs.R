@@ -364,7 +364,7 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
   if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
     message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
-    df.eXp <- df[df[["run"]] == eXp, ]
+    df.eXp <- df[run == eXp, ]
     return(df.eXp)
   } else {
     XICs.eXp <- lapply(chromIndices, function(i) extractXIC_group(mz = mzPntrs[[eXp]], chromIndices = i))
@@ -555,9 +555,15 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
 
 alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, params,
                        df, globalFits, RSE){
+
+  df.eXp <- df[run == eXp, ]
+  if(any(df.eXp[,m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
+    #df.eXp[which.min(m_score), alignment_rank := 1L]
+    #return(df.eXp)
+  }
+
   # Get XIC_group from experiment run. if missing, go to next run.
   XICs.eXp <- XICs[[idx]][[eXp]]
-  df.eXp <- df[run == eXp, ]
   if(is.null(XICs.eXp)){
     message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")

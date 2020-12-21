@@ -114,7 +114,7 @@ test_that("test_alignToRef",{
   df$alignment_rank[2] <- 1L; df$m_score[3] <- 0.06
   XICs.ref <- list()
   XICs.ref[["4618"]] <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
-  outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 2L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
+  outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 4L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
              mzPntrs, df, globalFits, RSE)
   expect_equal(df[3,], outData[1,])
   expect_equal(outData[2,], data.table("transition_group_id" = 4618L, feature_id = bit64::NA_integer64_,
@@ -125,7 +125,7 @@ test_that("test_alignToRef",{
   # Case 2
   data(multipeptide_DIAlignR, package="DIAlignR")
   df <- data.table::setDT(multipeptide_DIAlignR[["14383"]])
-  outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 2L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
+  outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 4L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
                         mzPntrs, df, globalFits, RSE)
   df$alignment_rank[3] <- 1L
   expect_equal(outData, df[3,])
@@ -136,7 +136,7 @@ test_that("test_alignToRef",{
   XICs.ref <- lapply(chromIndices, function(i) extractXIC_group(mz, chromIndices = i))
   names(XICs.ref) <- c("9719", "9720")
   df <- data.table::setDT(multipeptide_DIAlignR[["9861"]])
-  outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = c(3L,4L), analytes = c(9719L, 9720L), fileInfo,
+  outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = c(2L,3L), analytes = c(9719L, 9720L), fileInfo,
              XICs.ref, params, prec2chromIndex, mzPntrs, df, globalFits, RSE)
   df$alignment_rank[4] <- 1L
   expect_equal(df[4,], outData[1,])
