@@ -436,10 +436,10 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   # print(rownum)
   peptide <- peptideIDs[rownum]
   df <- multipeptide[[rownum]]
-  ref <- refRuns[["run"]][rownum]
+  ref <- refRuns[peptide, run]
 
   ##### Get transition_group_id for that peptideID #####
-  idx <- which(precursors$peptide_id == peptide)
+  idx <- precursors[.(peptide),which = TRUE]
   analytes <- precursors[idx, "transition_group_id"]
 
   ##### Get XIC_group from reference run. if missing, return unaligned features #####
@@ -457,15 +457,15 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   if(params[["smoothPeakArea"]]) XICs.ref <- XICs.ref.s
 
   ##### Set alignment rank for all precrusors of the peptide in the reference run #####
-  refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
-  refIdx <- refIdx[which.min(df$m_score[refIdx])]
+  refIdx <- df[run == ref & peak_group_rank == 1, which = TRUE]
+  refIdx <- refIdx[which.min(df[refIdx, m_score])]
   if(length(refIdx)==0) {
     message("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
     message("Skipping peptide ", peptide, " across all runs.")
     return(df)
   }
-  df[["alignment_rank"]][refIdx] <- 1L
-  df.ref <- df[df$run == ref,]
+  df[refIdx, "alignment_rank" := 1L]
+  df.ref <- df[run == ref,]
   df.ref <- setOtherPrecursors(df.ref, XICs.ref, analytes, params)
   # Update multipeptide reference intensity if recal is true
   if(params[["recalIntensity"]]) df.ref <- reIntensity(df.ref, XICs.ref, params)
@@ -477,7 +477,7 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
 
   ##### Return the dataframe with alignment rank set to TRUE #####
   updateOnalignTargetedRuns(rownum)
-  newDF <- dplyr::bind_rows(df.ref, df.exps)
+  newDF <- rbindlist(list(df.ref, rbindlist(df.exps)))
   newDF
 }
 
@@ -558,8 +558,12 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
 
   df.eXp <- df[run == eXp, ]
   if(any(df.eXp[,m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
-    #df.eXp[which.min(m_score), alignment_rank := 1L]
-    #return(df.eXp)
+    df.eXp[which.min(m_score), alignment_rank := 1L]
+    XICs.eXp <- XICs[[idx]][[eXp]]
+    df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
+    # Have smooth peak
+    if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
+    return(df.eXp)
   }
 
   # Get XIC_group from experiment run. if missing, go to next run.

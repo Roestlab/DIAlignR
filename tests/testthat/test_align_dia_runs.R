@@ -127,6 +127,7 @@ test_that("test_alignToRef",{
   df <- data.table::setDT(multipeptide_DIAlignR[["14383"]])
   outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 4L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
                         mzPntrs, df, globalFits, RSE)
+  data.table::setindex(outData, NULL)
   df$alignment_rank[3] <- 1L
   expect_equal(outData, df[3,])
 
@@ -166,7 +167,7 @@ test_that("test_alignIthAnalyte",{
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
   features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
   multipeptide <- getMultipeptide(precursors, features)
-  refRuns <- data.frame("peptide_id" = c("7040", "14383", "9861"), "run" = "run1")
+  refRuns <- data.table("peptide_id" = c("7040", "14383", "9861"), "run" = "run1", key = "peptide_id")
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
   RSE <- list()
@@ -177,16 +178,15 @@ test_that("test_alignIthAnalyte",{
   # Case 2
   outData <- alignIthAnalyte(rownum = 2, peptideIDs, multipeptide, refRuns, precursors,
                              prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE)
-  df <- multipeptide[["14383"]]
+  df <- data.table::setDT(multipeptide[["14383"]])
   df$alignment_rank <- 1L
-  df <- df[c(2,1,3),]; row.names(df) <- NULL
   expect_equal(outData, df)
   # Case 3
   outData <- alignIthAnalyte(rownum = 3, peptideIDs, multipeptide, refRuns, precursors,
                              prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE)
-  expect_equal(outData[6,], data.frame("transition_group_id" = 9719L, feature_id = bit64::NA_integer64_,
+  expect_equal(outData[6,], data.table("transition_group_id" = 9719L, feature_id = bit64::NA_integer64_,
                                                      RT = 2607.05, intensity = 11.80541,  leftWidth = 2591.431, rightWidth = 2625.569, peak_group_rank = NA_integer_,
-                                                     m_score = NA_real_, run = "run2", alignment_rank = 1, row.names = c(6L)),
+                                                     m_score = NA_real_, run = "run2", alignment_rank = 1),
                              tolerance = 1e-06)
   expect_identical(outData$alignment_rank , rep(1L, 6))
   expect_equal(outData$intensity[4], 12.92301, tolerance = 1e-06)

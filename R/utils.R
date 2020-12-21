@@ -31,7 +31,7 @@
 getRefRun <- function(peptideScores, applyFun = lapply){
   DFs <- applyFun(seq_along(peptideScores), function(i){
     pep <- peptideScores[[i]]
-    idx <- which.min(pep$pvalue)
+    idx <- pep[, which.min(pvalue)]
     if(length(idx)==0) {
       id <- as.integer(names(peptideScores)[i])
       df <- data.table("peptide_id" = id, "run" = NA_character_)
@@ -40,7 +40,7 @@ getRefRun <- function(peptideScores, applyFun = lapply){
     }
     df
   })
-  DFs <- rbindlist(DFs)
+  DFs <- rbindlist(DFs, use.names=TRUE)
   setkey(DFs, peptide_id)
   DFs
 }
@@ -89,7 +89,7 @@ getMultipeptide <- function(precursors, features, applyFun=lapply){
       df <- features[[run]][.(analytes), ]
       df[,"run" := run]
       df
-    }), use.names=FALSE)
+    }), use.names=TRUE)
     newdf[, "alignment_rank" := NA_integer_]
     newdf
   })
