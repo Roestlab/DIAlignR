@@ -392,10 +392,10 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
                                params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
                                params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
                                params[["hardConstrain"]], params[["samples4gradient"]], objType = "light")
-  df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
-  df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
-  if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
-  df.eXp
+  setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+  setOtherPrecursors(df, eXp, XICs.eXp, analytes, params)
+  if(params[["recalIntensity"]]) reIntensity(df, eXp, XICs.eXp, params)
+  df[run == eXp,]
 }
 
 #' Aligns an analyte across runs
@@ -463,10 +463,9 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
     return(df)
   }
   df[refIdx, "alignment_rank" := 1L]
-  df.ref <- df[run == ref,]
-  df.ref <- setOtherPrecursors(df.ref, XICs.ref, analytes, params)
+  setOtherPrecursors(df, ref, XICs.ref, analytes, params)
   # Update multipeptide reference intensity if recal is true
-  if(params[["recalIntensity"]]) df.ref <- reIntensity(df.ref, XICs.ref, params)
+  if(params[["recalIntensity"]]) reIntensity(df, ref, XICs.ref, params)
 
   ##### Align all runs to reference run and set their alignment rank #####
   exps <- setdiff(rownames(fileInfo), ref)
@@ -475,6 +474,7 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
 
   ##### Return the dataframe with alignment rank set to TRUE #####
   updateOnalignTargetedRuns(rownum)
+  df.ref <- df[run == ref,]
   newDF <- rbindlist(list(df.ref, rbindlist(df.exps)))
 }
 
@@ -555,8 +555,7 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
     df[tempi, alignment_rank := 1L]
     XICs.eXp <- XICs[[idx]][[eXp]]
     setOtherPrecursors(df, eXp, XICs.eXp, analytes, params)
-    # Have smooth peak
-    if(params[["recalIntensity"]]) reIntensity(df, eXp, XICs.eXp, params)
+    reIntensity2(df, eXp, XICs.eXp, params)
     return(invisible(NULL))
   }
 
@@ -613,3 +612,20 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, par
   invisible(NULL)
 }
 
+library(data.table)
+l = list(data.table(x = letters[1:3], y = 1),
+         data.table(x = letters[3:5], y = 2))
+function1 <- function(DT){
+  DT[x == "b", y := 10]
+  function2(DT)
+  invisible(NULL)
+}
+
+function2 <- function(DT){
+  DT[x == "c", y := 100]
+  invisible(NULL)
+}
+invisible(lapply(l, function(df) function1(df)))
+library(BiocParallel)
+BiocParallel::MulticoreParam()
+invisible(BiocParallel::bplapply(l, function(df) function1(df)))

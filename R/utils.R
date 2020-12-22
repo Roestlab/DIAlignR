@@ -367,7 +367,7 @@ paramsDIAlignR <- function(){
                   context = "global", unalignedFDR = 0.01, alignedFDR = 0.05, level = "Peptide",
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
                   recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,
-                  XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
+                  XICfilter = "sgolay", polyOrd = 3, kernelLen = 11,
                   globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                   RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                   alignType = "hybrid", goFactor = 0.125, geFactor = 40,

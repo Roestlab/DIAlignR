@@ -38,7 +38,6 @@ calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
   sum(intensity, na.rm = FALSE)
 }
 
-
 newRow <- function(xics, left, right, RT, analyte, run, params){
   intensity <- calculateIntensity(xics, left, right, params[["integrationType"]], params[["baselineType"]],
                                   params[["fitEMG"]], params[["baseSubtraction"]], params[["transitionIntensity"]])
@@ -153,8 +152,6 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
   newArea
 }
 
-
-
 reIntensity <- function(df, Run, XICs, params){
   idx <- df[run == Run & alignment_rank == 1, which = TRUE]
   for(i in idx){
@@ -163,5 +160,14 @@ reIntensity <- function(df, Run, XICs, params){
                                params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
     df[i, intensity := area]
   }
+  invisible(NULL)
+}
+
+reIntensity2 <- function(df, Run, XICs, params){
+  XICs.s <- lapply(XICs, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
+                       polyOrd = params[["polyOrd"]])
+  names(XICs.s) <- names(XICs)
+  if(params[["smoothPeakArea"]]) XICs <- XICs.s
+  if(params[["recalIntensity"]]) reIntensity(df, Run, XICs, params)
   invisible(NULL)
 }
