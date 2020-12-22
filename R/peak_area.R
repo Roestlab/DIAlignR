@@ -50,6 +50,18 @@ newRow <- function(xics, left, right, RT, analyte, run, params){
   row
 }
 
+modifyRow <- function(df, xics, left, right, rt, analyte, Run, params){
+  intensity2 <- calculateIntensity(xics, left, right, params[["integrationType"]], params[["baselineType"]],
+                                  params[["fitEMG"]], params[["baseSubtraction"]], params[["transitionIntensity"]])
+  intensity2 <- ifelse(params[["transitionIntensity"]], list(intensity2), intensity2)
+
+  idx <- df[run == Run & transition_group_id == analyte, .I[is.na(peak_group_rank)][1], by = run]$V1
+  if(length(idx) == 0) return(invisible(NULL))
+  df[idx, `:=`(RT = rt, intensity = intensity2,
+               leftWidth = left, rightWidth = right, alignment_rank = 1L)]
+  invisible(NULL)
+}
+
 #' Calculates area of peaks in peakTable
 #'
 #' For the give peak boundary in peakTable, the function extracts raw chromatograms and recalculate intensities.
@@ -143,13 +155,13 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
 
 
 
-reIntensity <- function(df, XICs, params){
-  idx <- df[alignment_rank == 1, which = TRUE]
+reIntensity <- function(df, Run, XICs, params){
+  idx <- df[run == Run & alignment_rank == 1, which = TRUE]
   for(i in idx){
     analyte_chr <- as.character(df[i, transition_group_id])
     area <- calculateIntensity(XICs[[analyte_chr]], df[i, leftWidth], df[i, rightWidth],
                                params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
     df[i, intensity := area]
   }
-  df
+  invisible(NULL)
 }

@@ -151,10 +151,10 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' }
 setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
   ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
-  df.eXp <- df[run == eXp,]
-  if(any(df.eXp[,m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
-    df.eXp[which.min(m_score), alignment_rank := 1L]
-    return(df.eXp)
+  if(any(df[run == eXp, m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
+    tempi <- df[run == eXp, .I[which.min(m_score)], by = run]$V1
+    df[tempi, alignment_rank := 1L]
+    return(invisible(NULL))
   }
 
   ##### No high quality feature, hence, alignment is needed. Map peak from ref to eXp #####
@@ -176,39 +176,38 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
   eXpRT <- tAligned[[2]][which.min(abs(tAligned[[1]] - refRT))]
   # TODO. Save for the edge cases. or use wider chromatogram.
   if(any(length(left)==0, length(right)==0, length(eXpRT)==0)){
-    return(df.eXp) # Can happen if XICs have all zero intensities.
+    return(invisible(NULL)) # Can happen if XICs have all zero intensities.
   }
 
   ##### Find any feature present within adaptiveRT. #####
   pk <- c(left - adaptiveRT, right + adaptiveRT)
-  idx <- sapply(1:nrow(df.eXp), function(i) checkOverlap(pk, c(df.eXp[i, leftWidth], df.eXp[i, rightWidth])))
-  idx <- which(idx)
-  if(any(df.eXp[idx, m_score] <= params[["alignedFDR"]], na.rm = TRUE)){
-    idx <- idx[which.min(df.eXp[idx, m_score])]
-    df.eXp[idx, "alignment_rank" := 1L]
-    return(df.eXp)
+  tempi <- df[run == eXp, which = TRUE]
+  idx <- sapply(tempi, function(i) checkOverlap(pk, c(df[i, leftWidth], df[i, rightWidth])))
+  idx <- tempi[which(idx)]
+  if(any(df[idx, m_score] <= params[["alignedFDR"]], na.rm = TRUE)){
+    idx <- df[idx, .I[which.min(m_score)], by = run]$V1
+    df[idx, "alignment_rank" := 1L]
+    return(invisible(NULL))
   }
 
   ##### Create a new feature. #####
   if(params[["fillMissing"]]){
-    row <- newRow(XICs.eXp[[analyte_chr]], left, right, eXpRT, analyte, eXp, params)
-    df.eXp <- rbind(df.eXp, row)
+    modifyRow(df, XICs.eXp[[analyte_chr]], left, right, eXpRT, analyte, eXp, params)
   }
-  df.eXp
+  invisible(NULL)
 }
 
 # df should have features from one run only.
-setOtherPrecursors <- function(df, XICs, analytes, params){
-  refIdx <- df[alignment_rank == 1, which = TRUE]
-  if(length(refIdx) == 0 | is.null(refIdx)) return(df)
+setOtherPrecursors <- function(df, Run, XICs, analytes, params){
+  refIdx <- df[run == Run & alignment_rank == 1, which = TRUE]
+  if(length(refIdx) == 0 | is.null(refIdx)) return(NULL)
 
-  run <- df[refIdx, run]
   precRef <- df[refIdx, transition_group_id]
   pk <- c(df[refIdx, leftWidth], df[refIdx, rightWidth])
 
   # If other precursors have overlapping feature then set their alignment rank to 1.
   for(analyte in setdiff(analytes, precRef)){
-    idx <- df[transition_group_id == analyte, which = TRUE]
+    idx <- df[run == Run & transition_group_id == analyte, which = TRUE]
     if(length(idx)!=0){
       idx <- idx[sapply(idx, function(i) {
         sts <- checkOverlap(pk, c(df[i, leftWidth], df[i, rightWidth]))
@@ -218,14 +217,13 @@ setOtherPrecursors <- function(df, XICs, analytes, params){
     if(length(idx)==0 & params[["fillMissing"]]){
       # Create a feature for missing precursor
       analyte_chr <- as.character(analyte)
-      row <- newRow(XICs[[analyte_chr]], pk[1], pk[2], df[refIdx, RT], analyte, run, params)
-      df <- rbindlist(list(df, row), use.names = TRUE)
+      modifyRow(df, XICs[[analyte_chr]], pk[1], pk[2], df[refIdx, RT], analyte, Run, params)
     } else{
       idx <- idx[which.max(pmin(pk[2], df[idx, rightWidth]) - pmax(pk[1], df[idx, leftWidth]))]
       df[idx, "alignment_rank" := 1L] # set alignment rank for already present feature
     }
   }
-  df[complete.cases(leftWidth, rightWidth),]
+  invisible(NULL)
 }
 
 #' Set Alignment rank to the aligned feature
