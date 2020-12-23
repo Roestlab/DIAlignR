@@ -3,6 +3,7 @@ context("Align DIA runs")
 test_that("test_alignTargetedRuns",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
   expect_message(
     alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
@@ -24,6 +25,7 @@ test_that("test_alignTargetedRuns",{
             "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
   BiocParallel::register(BiocParallel::MulticoreParam())
   params[["batchSize"]] <- 10L
+  params[["globalAlignment"]] <- "loess"
   alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = runs, applyFun = BiocParallel::bplapply)
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
@@ -68,6 +70,7 @@ test_that("test_getAlignObjs",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   analytes <- c(32L, 898L, 4618L)
   params <- paramsDIAlignR()
+  params[["globalAlignment"]] <- "loess"
   params[["kernelLen"]] <- 13L
   params[["context"]] <- "experiment-wide"
   expect_warning(
