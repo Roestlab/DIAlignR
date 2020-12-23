@@ -217,15 +217,17 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
     precursors <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
   } else {
     # Iterate over each file and collect precursor information
-    precursors <- data.frame()
-    ids <- integer()
-    for(i in 1:nrow(fileInfo)){
-      oswName <- fileInfo[["featureFile"]][[i]]
-      temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
-      idx <- !(temp$transition_group_id %in% ids)
-      precursors <- rbind(precursors, temp[idx,])
-      ids <- precursors$transition_group_id
-    }
+    oswName <- fileInfo[["featureFile"]][[1]]
+    precursors <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
+    #precursors <- data.frame()
+    #ids <- integer()
+    #for(i in 1:nrow(fileInfo)){
+    #  oswName <- fileInfo[["featureFile"]][[i]]
+    #  temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
+    #  idx <- !(temp$transition_group_id %in% ids)
+    #  precursors <- rbind(precursors, temp[idx,])
+    #  ids <- precursors$transition_group_id
+    # }
   }
   message(paste0(nrow(precursors), " precursors are found."))
   precursors
@@ -501,15 +503,17 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
     oswName <- unique(fileInfo[["featureFile"]])
     peptidesInfo <- fetchPeptidesInfo(oswName, runType, context)
   } else {
+    oswName <- fileInfo[["featureFile"]][[1]]
+    peptidesInfo <- fetchPeptidesInfo(oswName, runType, context)
     # Iterate over each file and collect peptides information
-    peptidesInfo <- data.frame()
-    for(i in 1:nrow(fileInfo)){
-      oswName <- fileInfo[["featureFile"]][[i]]
-      runID <- fileInfo[["spectraFileID"]][[i]]
-      names(runID) <- rownames(fileInfo)[[i]]
-      temp <- fetchPeptidesInfo2(oswName, runType, context, runID)
-      peptidesInfo <- dplyr::bind_rows(peptidesInfo, temp)
-    }
+    #peptidesInfo <- data.frame()
+    #for(i in 1:nrow(fileInfo)){
+    #  oswName <- fileInfo[["featureFile"]][[i]]
+    #  runID <- fileInfo[["spectraFileID"]][[i]]
+    #  names(runID) <- rownames(fileInfo)[[i]]
+    #  temp <- fetchPeptidesInfo2(oswName, runType, context, runID)
+    #  peptidesInfo <- dplyr::bind_rows(peptidesInfo, temp)
+    #}
   }
   peptidesInfo <- dplyr::filter(peptidesInfo, .data$peptide_id %in% peptides)
   runs <- bit64::as.integer64(fileInfo$spectraFileID)
