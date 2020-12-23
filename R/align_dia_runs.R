@@ -522,12 +522,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
       message("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[ref, "runName"])
       message("Skipping peptide ", peptide, " across all runs.")
       return(df)
-    } else {
-      XICs.ref.s <- lapply(XICs.ref, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                           polyOrd = params[["polyOrd"]])
-      names(XICs.ref.s) <- names(XICs.ref)
     }
-    if(params[["smoothPeakArea"]]) XICs.ref <- XICs.ref.s
 
     ##### Set alignment rank for all precrusors of the peptide in the reference run #####
     analytes <- as.integer(names(XICs.ref))
@@ -546,7 +541,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
 
     ##### Align all runs to reference run and set their alignment rank #####
     exps <- setdiff(rownames(fileInfo), ref)
-    df.exps <- lapply(exps, alignToRef2, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, params,
+    df.exps <- lapply(exps, alignToRef2, ref, idx, analytes, fileInfo, XICs, XICs.ref, params,
                       df, globalFits, RSE)
 
     ##### Return the dataframe with alignment rank set to TRUE #####
@@ -558,32 +553,35 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
 }
 
 
-alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref.s, params,
+alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, params,
                        df, globalFits, RSE){
-  # Get XIC_group from experiment run. if missing, go to next run.
-  XICs.eXp <- XICs[[idx]][[eXp]]
   df.eXp <- df[df[["run"]] == eXp, ]
+  XICs.eXp <- XICs[[idx]][[eXp]]
+  if(any(df.eXp[["m_score"]] < params[["unalignedFDR"]], na.rm = TRUE)){
+    idx <- which.min(df.eXp[["m_score"]])
+    df.eXp[["alignment_rank"]][idx] <- 1L
+    df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
+    if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
+    return(df.eXp)
+  }
+
+  # Get XIC_group from experiment run. if missing, go to next run.
   if(is.null(XICs.eXp)){
     message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
     return(df.eXp)
-  } else {
-    XICs.eXp.s <- lapply(XICs.eXp, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                         polyOrd = params[["polyOrd"]])
-    names(XICs.eXp.s) <- names(XICs.eXp)
   }
-  if(params[["smoothPeakArea"]]) XICs.eXp <- XICs.eXp.s
 
   # Select 1) all precursors OR 2) high quality precursor
   if(FALSE){
     # Turned off as precursor XICs have different time ranges.
-    XICs.ref.pep <- unlist(XICs.ref.s, recursive = FALSE, use.names = FALSE)
-    XICs.eXp.pep <- unlist(XICs.eXp.s, recursive = FALSE, use.names = FALSE)
+    XICs.ref.pep <- unlist(XICs.ref, recursive = FALSE, use.names = FALSE)
+    XICs.eXp.pep <- unlist(XICs.eXp, recursive = FALSE, use.names = FALSE)
   } else {
     temp <- df[df$run == ref, c("transition_group_id", "m_score")]
     analyte_chr <- as.character(temp[which.min(temp$m_score), "transition_group_id"])
-    XICs.ref.pep <- XICs.ref.s[[analyte_chr]]
-    XICs.eXp.pep <- XICs.eXp.s[[analyte_chr]]
+    XICs.ref.pep <- XICs.ref[[analyte_chr]]
+    XICs.eXp.pep <- XICs.eXp[[analyte_chr]]
   }
 
   ##### Get the aligned Indices #####
