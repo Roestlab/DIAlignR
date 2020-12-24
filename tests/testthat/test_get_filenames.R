@@ -8,7 +8,7 @@ test_that("test_filenamesFromOSW", {
                           "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
                           "featureFile" = file.path(dataPath, "osw", "merged.osw"),
                         stringsAsFactors=FALSE)
-  outData <- filenamesFromOSW(dataPath = dataPath, "*merged.osw")
+  outData <- filenamesFromOSW(dataPath = dataPath, "*merged.osw$")
   expect_identical(outData, expOutput)
   expect_message(filenamesFromOSW(dataPath = dataPath, "*.mzML"), "Only .osw and merged.osw files can be read.")
 })

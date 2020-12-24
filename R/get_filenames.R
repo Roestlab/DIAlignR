@@ -22,10 +22,10 @@
 filenamesFromOSW <- function(dataPath, pattern){
   # Fetch mzML filenames from RUN table.
   query <- "SELECT DISTINCT RUN.FILENAME AS filename, RUN.ID AS ID FROM RUN"
-  if(pattern == "*.osw"){
+  if(pattern == "*.osw$"){
     message("Looking for .osw files.")
     # Look for .osw files in osw/ directory.
-    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw")
+    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*.osw$")
     # Throw an error if no .osw files are found.
     if(length(temp) == 0){return(stop("No .osw files are found."))}
     filenames <- lapply(seq_along(temp), function(i){
@@ -37,10 +37,10 @@ filenamesFromOSW <- function(dataPath, pattern){
     })
     filenames <- do.call(rbind, filenames)
     message(nrow(filenames), " .osw files are found.")
-  } else if (pattern == "*merged.osw") {
+  } else if (pattern == "*merged.osw$") {
     # Look for merged.osw files in osw/ directory.
     message("Looking for merged.osw file.")
-    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw")
+    temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw$")
     # Throw an error if no merged.osw files are found.
     if(length(temp) == 0){return(stop("No merged.osw file is found."))}
     oswName <- file.path(dataPath, "osw", temp[1])
@@ -79,7 +79,7 @@ filenamesFromOSW <- function(dataPath, pattern){
 #' filenamesFromMZML(dataPath)
 #' }
 filenamesFromMZML <- function(dataPath){
-  temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML")
+  temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML$")
   message(length(temp), " .chrom.mzML files are found.")
   mzMLfiles <- vapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1], "")
   output <- data.frame("runName" = unname(mzMLfiles), "chromatogramFile" = file.path(dataPath, "mzml", temp))
@@ -114,9 +114,9 @@ filenamesFromMZML <- function(dataPath){
 getRunNames <- function(dataPath, oswMerged = TRUE){
   # Get filenames from RUN table of osw files.
   if(oswMerged == FALSE){
-    filenames <- filenamesFromOSW(dataPath, pattern = "*.osw")
+    filenames <- filenamesFromOSW(dataPath, pattern = "*.osw$")
   } else{
-    filenames <- filenamesFromOSW(dataPath, pattern = "*merged.osw")
+    filenames <- filenamesFromOSW(dataPath, pattern = "*merged.osw$")
   }
   # Get names of mzml files.
   nameCutPattern = "(.*)(/)(.*)" # regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
@@ -184,7 +184,7 @@ updateFileInfo <- function(fileInfo, runs = NULL){
 
 addMasterToOSW <- function(dataPath, runs, oswMerged = TRUE){
   df <- data.frame(ID = 1:length(runs), FILENAME = paste(runs, "mzML.gz", sep="."))
-  temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw", full.names = TRUE)
+  temp <- list.files(path = file.path(dataPath, "osw"), pattern="*merged.osw$", full.names = TRUE)
   newFile <- file.path(dataPath, "master.merged.osw")
   if(file.copy(from = temp, to = newFile)){
     conn <- DBI::dbConnect(RSQLite::SQLite(), newFile)
