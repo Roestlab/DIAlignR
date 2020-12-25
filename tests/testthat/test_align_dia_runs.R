@@ -72,6 +72,7 @@ test_that("test_getAlignObjs",{
   params <- paramsDIAlignR()
   params[["globalAlignment"]] <- "loess"
   params[["kernelLen"]] <- 13L
+  params[["polyOrd"]] <- 4L
   params[["context"]] <- "experiment-wide"
   expect_warning(
     outData <- getAlignObjs(analytes, runs, dataPath = dataPath, refRun = refRun,
