@@ -4,7 +4,7 @@
 \alias{getRunNames}
 \title{Get names of all runs}
 \usage{
-getRunNames(dataPath, oswMerged = TRUE)
+getRunNames(dataPath, oswMerged = TRUE, params = paramsDIAlignR())
 }
 \arguments{
 \item{dataPath}{(char) Path to mzml and osw directory.}

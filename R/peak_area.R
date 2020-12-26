@@ -30,8 +30,8 @@
 #' }
 calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
                                fitEMG = FALSE, baseSubtraction = TRUE, transitionIntensity = FALSE){
-  time <- lapply(XICs, `[[`, 1)
-  intensityList <- lapply(XICs, `[[`, 2)
+  time <- lapply(XICs, `[`, i =, j =1)
+  intensityList <- lapply(XICs, `[`, i =, j= 2)
   intensity <- areaIntegrator(time, intensityList, left, right, integrationType, baselineType,
                               fitEMG, baseSubtraction)
   if(transitionIntensity) return (intensity)

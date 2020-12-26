@@ -21,15 +21,59 @@
 #' }
 extractXIC_group <- function(mz, chromIndices){
   XIC_group <- mzR::chromatograms(mz, chromIndices)
-  if ( class(XIC_group) == "list" & length(XIC_group) > 1 ) {
+  if (class(XIC_group) == "list" & length(XIC_group) > 1) {
     return( XIC_group )
   } else {
     return( list(XIC_group) ) # only one transition detected
   }
 }
 
+uncompressVec <- function(x, type){
+  if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(Rcompression::uncompress(x, asText = FALSE))))
+  if(type == 6L) return(RMSNumpress::decodeSlof(as.raw(Rcompression::uncompress(x, asText = FALSE))))
+  else stop("Data can't be decompressed with RMSNumpress.")
+}
+
+#' Extract XICs of chromIndices
+#'
+#' Extracts XICs using connection to sqMass file Each chromatogram represents a transition of precursor.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-12-25
+#' @param mz (SQLiteConnection object)
+#' @param chromIndices (vector of Integers) Indices of chromatograms to be extracted.
+#' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+#' @keywords internal
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' sqName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+#' chromIndices <- c(36L, 37L, 38L, 39L, 40L, 41L)
+#' \dontrun{
+#' con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
+#' XIC_group <- extractXIC_group2(con, chromIndices)
+#' DBI::dbDisconnect(con)
+#' }
+extractXIC_group2 <- function(con, chromIndices){
+  ids1 <- paste0(chromIndices, collapse = ", ")
+  query <- paste0("SELECT CHROMATOGRAM_ID, COMPRESSION, DATA_TYPE, DATA
+                 FROM DATA
+                 WHERE CHROMATOGRAM_ID IN (", ids1, ");", sep = "")
+  results <- DBI::dbGetQuery(con, query)
+  XIC_group <- lapply(chromIndices, function(id){
+    df <- results[results$CHROMATOGRAM_ID == id, c(2,3,4)]
+    df1 <- df[df$DATA_TYPE == 2L, c(1,3)]
+    df2 <- df[df$DATA_TYPE == 1L, c(1,3)]
+    cbind("time" = uncompressVec(df1[["DATA"]][[1]], df1$COMPRESSION[[1]]),
+          "intensity" = uncompressVec(df2[["DATA"]][[1]], df2$COMPRESSION[[1]]))
+  })
+  XIC_group
+}
+
 xicIntersect <- function(xics){
-  time <- lapply(xics, function(df) floor(df[["time"]]))
+  time <- lapply(xics, function(df) floor(df[, "time"]))
   strt <- max(sapply(time, function(v) v[1]))
   end <- min(sapply(time, function(v) v[length(v)]))
   newXICs <- lapply(seq_along(xics), function(i){

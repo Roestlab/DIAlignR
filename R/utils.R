@@ -237,6 +237,8 @@ testAlignObj <- function(){
 #' @seealso \code{\link{paramsDIAlignR}}
 #' @keywords internal
 checkParams <- function(params){
+  if(!(params[["chromFile"]] %in% c("mzML", "sqMass"))) stop("chromFile must either be mzML or sqMass.")
+
   if(params[["context"]] != "experiment-wide" & params[["context"]] != "global"){
     stop("context must either be experiment-wide or global for the alignment.")
   }
@@ -342,6 +344,7 @@ checkParams <- function(params){
 #' Date: 2020-07-11
 #' @return A list of parameters:
 #' \item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+#' \item{chromFile}{(string) must either be "mzML" or "sqMass".}
 #' \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_MS2.QVALUE less than itself.}
 #' \item{maxPeptideFdr}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
 #' \item{analyteFDR}{(numeric) defines the upper limit of FDR on a precursor to be considered for multipeptide.}
@@ -390,7 +393,8 @@ checkParams <- function(params){
 #' params <- paramsDIAlignR()
 #' @export
 paramsDIAlignR <- function(){
-  params <- list( runType = "DIA_proteomics", maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
+  params <- list( runType = "DIA_proteomics", chromFile = "mzML",
+                  maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
                   context = "global", unalignedFDR = 0.01, alignedFDR = 0.05, level = "Peptide",
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
                   recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,

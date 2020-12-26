@@ -35,7 +35,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   checkParams(params)
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
-  fileInfo <- getRunNames(dataPath, oswMerged)
+  fileInfo <- getRunNames(dataPath, oswMerged, params)
   fileInfo <- updateFileInfo(fileInfo, runs)
   runs <- rownames(fileInfo)
   message("Following runs will be aligned:")
@@ -144,7 +144,11 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   names(multipeptide) <- as.character(peptideIDs)
 
   #### Cleanup.  #######
-  rm(mzPntrs)
+  for(mz in mzPntrs){
+    if(is(mz)[1] == "SQLiteConnection") DBI::dbDisconnect(mz)
+    if(is(mz)[1] == "mzRpwiz") rm(mz)
+  }
+
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
   message("The execution time for alignment:")
   print(end_time - start_time)
@@ -491,6 +495,8 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
 
 perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec2chromIndex,
                      fileInfo, mzPntrs, params, globalFits, RSE, applyFun = lapply){
+  if(params[["chromFile"]] =="mzML") fetchXIC = extractXIC_group
+  if(params[["chromFile"]] =="sqMass") fetchXIC = extractXIC_group2
   message("Processing Batch ", iBatch)
   batchSize <- params[["batchSize"]]
   strt <- ((iBatch-1)*batchSize+1)
@@ -503,7 +509,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
     xics <- lapply(names(mzPntrs), function(run){
       chromIndices <- prec2chromIndex[[run]][["chromatogramIndex"]][idx]
       if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))) return(NULL)
-      temp <- lapply(chromIndices, function(i1) extractXIC_group(mzPntrs[[run]], i1))
+      temp <- lapply(chromIndices, function(i1) fetchXIC(mzPntrs[[run]], i1))
       names(temp) <- as.character(analytes)
       temp
     })
@@ -589,8 +595,8 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, param
   globalFit <- globalFits[[pair]]
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
 
-  tAligned <- tryCatch(expr = getAlignedTimes(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]], adaptiveRT,
-           params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
+  tAligned <- tryCatch(expr = getAlignedTimes(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]],
+           adaptiveRT, params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
            params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
            params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
            params[["hardConstrain"]], params[["samples4gradient"]], objType = "light"),

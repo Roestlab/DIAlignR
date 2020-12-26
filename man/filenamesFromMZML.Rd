@@ -4,7 +4,7 @@
 \alias{filenamesFromMZML}
 \title{Get mzML filenames from the directory.}
 \usage{
-filenamesFromMZML(dataPath)
+filenamesFromMZML(dataPath, chromFile)
 }
 \arguments{
 \item{dataPath}{(char) Path to mzml and osw directory.}

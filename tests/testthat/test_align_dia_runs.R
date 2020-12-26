@@ -5,6 +5,7 @@ test_that("test_alignTargetedRuns",{
   params <- paramsDIAlignR()
   params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
+  params[["chromFile"]] <- "sqMass"
   expect_message(
     alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)

@@ -78,11 +78,13 @@ filenamesFromOSW <- function(dataPath, pattern){
 #' \dontrun{
 #' filenamesFromMZML(dataPath)
 #' }
-filenamesFromMZML <- function(dataPath){
-  temp <- list.files(path = file.path(dataPath, "mzml"), pattern="*.chrom.mzML$")
-  message(length(temp), " .chrom.mzML files are found.")
-  mzMLfiles <- vapply(temp, function(x) strsplit(x, split = ".chrom.mzML")[[1]][1], "")
-  output <- data.frame("runName" = unname(mzMLfiles), "chromatogramFile" = file.path(dataPath, "mzml", temp))
+filenamesFromMZML <- function(dataPath, chromFile){
+  if(chromFile == "mzML") p <- ".chrom.mzML$"
+  if(chromFile == "sqMass") p <- ".chrom.sqMass$"
+  temp <- list.files(path = file.path(dataPath, "mzml"), pattern=p)
+  message(length(temp), " ", sub("\\$","",p), " files are found.")
+  mzMLfiles <- vapply(temp, function(x) sub(p,"", x), "", USE.NAMES = FALSE)
+  output <- data.frame("runName" = mzMLfiles, "chromatogramFile" = file.path(dataPath, "mzml", temp))
   output[["chromatogramFile"]] <- as.character(output[["chromatogramFile"]]) # Convert from factor to character.
   output[["runName"]] <- as.character(output[["runName"]]) # Convert from factor to character.
   output
@@ -111,7 +113,7 @@ filenamesFromMZML <- function(dataPath){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' getRunNames(dataPath = dataPath, oswMerged = TRUE)
 #' @export
-getRunNames <- function(dataPath, oswMerged = TRUE){
+getRunNames <- function(dataPath, oswMerged = TRUE, params = paramsDIAlignR()){
   # Get filenames from RUN table of osw files.
   if(oswMerged == FALSE){
     filenames <- filenamesFromOSW(dataPath, pattern = "*.osw$")
@@ -125,7 +127,7 @@ getRunNames <- function(dataPath, oswMerged = TRUE){
   fileExtn <- paste0(".", fileExtn)
   filenames[["runName"]] <- vapply(runs, function(x) strsplit(x, split = fileExtn)[[1]][1], "")
 
-  mzMLfiles <- filenamesFromMZML(dataPath)
+  mzMLfiles <- filenamesFromMZML(dataPath, params[["chromFile"]])
   # Check if osw files have corresponding mzML file.
   runs <- intersect(filenames[["runName"]], mzMLfiles[["runName"]])
   if(length(runs) != length(filenames[["runName"]])){
