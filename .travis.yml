@@ -8,6 +8,10 @@ r:
   - devel
   - bioc-release
 
+before_install:
+  - Rscript -e 'devtools::install_github("omegahat/Rcompression")'
+
+
 warnings_are_errors: false
 
 r_build_args: --no-build-vignettes --no-manual
