@@ -101,6 +101,7 @@ filenamesFromMZML <- function(dataPath, chromFile){
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
+#' @inheritParams checkParams
 #' @param dataPath (char) Path to mzml and osw directory.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @return (dataframe) it has five columns:

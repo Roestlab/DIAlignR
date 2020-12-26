@@ -28,6 +28,20 @@ extractXIC_group <- function(mz, chromIndices){
   }
 }
 
+
+#' Uncompress a Blob object
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-12-13
+#' @import RMSNumpress Rcompression
+#' @param x (Blob object)
+#' @param type (integer) must either be 5L or 6L to indicate linear and short logged float compression, respectively.
+#' @return A numeric vector. Uncompressed form of the Blob.
+#' @keywords internal
 uncompressVec <- function(x, type){
   if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(Rcompression::uncompress(x, asText = FALSE))))
   if(type == 6L) return(RMSNumpress::decodeSlof(as.raw(Rcompression::uncompress(x, asText = FALSE))))

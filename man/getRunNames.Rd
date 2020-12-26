@@ -10,6 +10,8 @@ getRunNames(dataPath, oswMerged = TRUE, params = paramsDIAlignR())
 \item{dataPath}{(char) Path to mzml and osw directory.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
+
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 }
 \value{
 (dataframe) it has five columns:

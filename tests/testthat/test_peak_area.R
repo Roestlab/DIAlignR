@@ -34,6 +34,11 @@ test_that("test_calculateIntensity", {
                                 baselineType = "base_to_base", fitEMG = FALSE)
   expect_equal(outData, 6645331.33866)
 
+  df <- cbind(time, intensity)
+  outData <- calculateIntensity(list(df), left, right, integrationType = "intensity_sum",
+                              baselineType = "base_to_base", fitEMG = FALSE)
+  expect_equal(outData, 6645331.33866)
+
   outData <- calculateIntensity(list(df, df), left, right, integrationType = "trapezoid",
                                 baselineType = "vertical_division_min", fitEMG = FALSE)
   expect_equal(outData, 2*71063.59368, tolerance = 0.01)

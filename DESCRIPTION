@@ -23,6 +23,7 @@ Imports:
     ggplot2, scales, gridExtra,
     RSQLite, DBI,
     reticulate,
+    RMSNumpress, Rcompression,
     Rcpp
 Suggests:
     knitr,
