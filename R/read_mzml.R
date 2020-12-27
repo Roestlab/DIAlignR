@@ -90,6 +90,7 @@ getMZMLpointers <- function(fileInfo){
     }
 
     if(grepl(".chrom.sqMass$", mzmlName)){
+      message("Getting connection to ", mzmlName)
       mzPntrs[[i]] <- DBI::dbConnect(RSQLite::SQLite(), dbname = mzmlName)
     }
   }
