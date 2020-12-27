@@ -128,8 +128,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   message("Calculating global alignments.")
   start_time <- Sys.time()
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
-                              params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], applyFun)
-  RSE <- applyFun(globalFits, getRSE)
+                              params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], lapply)
+  RSE <- lapply(globalFits, getRSE)
   rm(features)
   end_time <- Sys.time()
   message("The execution time for calculating global alignment:")
@@ -141,7 +141,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   start_time <- Sys.time()
   num_of_batch <- ceiling(length(multipeptide)/params[["batchSize"]])
   multipeptide <- lapply(1:num_of_batch, perBatch, peptideIDs, multipeptide, refRuns, precursors,
-                           prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, applyFun)
+                           prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, lapply)
   multipeptide <- unlist(multipeptide, recursive = FALSE)
   names(multipeptide) <- as.character(peptideIDs)
 
