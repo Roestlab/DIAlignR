@@ -81,6 +81,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   end_time <- Sys.time()
   message("The execution time for calculating a reference run:")
   print(end_time - start_time)
+  rm(peptideScores)
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
   start_time <- Sys.time()
@@ -129,6 +130,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], applyFun)
   RSE <- applyFun(globalFits, getRSE)
+  rm(features)
   end_time <- Sys.time()
   message("The execution time for calculating global alignment:")
   print(end_time - start_time)
@@ -148,6 +150,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
     if(is(mz)[1] == "SQLiteConnection") DBI::dbDisconnect(mz)
     if(is(mz)[1] == "mzRpwiz") rm(mz)
   }
+  rm(prec2chromIndex, globalFits, refRuns, RSE)
 
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
   message("The execution time for alignment:")
