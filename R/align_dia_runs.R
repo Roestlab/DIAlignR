@@ -33,6 +33,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
                               refRun = NULL, applyFun = lapply){
   #### Check if all parameters make sense.  #########
   checkParams(params)
+  print("New version.")
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
   fileInfo <- getRunNames(dataPath, oswMerged, params)
@@ -127,9 +128,10 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   #### Container to save Global alignments.  #######
   message("Calculating global alignments.")
   start_time <- Sys.time()
+  applyFun <- lapply
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
-                              params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], lapply)
-  RSE <- lapply(globalFits, getRSE)
+                              params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], applyFun)
+  RSE <- applyFun(globalFits, getRSE)
   rm(features)
   end_time <- Sys.time()
   message("The execution time for calculating global alignment:")
@@ -141,7 +143,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   start_time <- Sys.time()
   num_of_batch <- ceiling(length(multipeptide)/params[["batchSize"]])
   multipeptide <- lapply(1:num_of_batch, perBatch, peptideIDs, multipeptide, refRuns, precursors,
-                           prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, lapply)
+                           prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, applyFun)
   multipeptide <- unlist(multipeptide, recursive = FALSE)
   names(multipeptide) <- as.character(peptideIDs)
 
