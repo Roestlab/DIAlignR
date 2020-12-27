@@ -9,7 +9,7 @@ r:
   - bioc-release
 
 before_install:
-  - Rscript -e 'remotes::install_github("omegahat/Rcompression")
+  - Rscript -e 'remotes::install_github("omegahat/Rcompression")'
 
 warnings_are_errors: false
 
