@@ -45,7 +45,11 @@ extractXIC_group <- function(mz, chromIndices){
 uncompressVec <- function(x, type){
   if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(Rcompression::uncompress(x, asText = FALSE))))
   if(type == 6L) return(RMSNumpress::decodeSlof(as.raw(Rcompression::uncompress(x, asText = FALSE))))
-  else stop("Data can't be decompressed with RMSNumpress.")
+  if(type == 1L) {
+    r <- as.raw(Rcompression::uncompress(x, asText = FALSE))
+    return(readBin(r, "numeric", length(r)/8, NA_real_, TRUE))
+  }
+  else stop("Compression = 1, 5, 6 are supported only.")
 }
 
 #' Extract XICs of chromIndices
