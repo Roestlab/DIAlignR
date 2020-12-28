@@ -33,7 +33,6 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
                               refRun = NULL, applyFun = lapply){
   #### Check if all parameters make sense.  #########
   checkParams(params)
-  print("New version.")
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
   fileInfo <- getRunNames(dataPath, oswMerged, params)
@@ -128,7 +127,6 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   #### Container to save Global alignments.  #######
   message("Calculating global alignments.")
   start_time <- Sys.time()
-  applyFun <- lapply
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], applyFun)
   RSE <- applyFun(globalFits, getRSE)
