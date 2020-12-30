@@ -27,8 +27,8 @@
 #'  run hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
 #' @export
 plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
-  df <- do.call("cbind", XIC_group)
-  df <- df[,!duplicated(colnames(df))]
+  df <- do.call("cbind", lapply(XIC_group, `[`, i =, j = 2))
+  df <- data.frame(cbind(XIC_group[[1]][,1],  df))
   colnames(df) <- c("time", paste("V", 1:(ncol(df)-1), sep=""))
   df <- gather(df, key = "Transition", value = "Intensity", -.data$time)
   g <- ggplot(df, aes(.data$time, .data$Intensity, col=.data$Transition)) +

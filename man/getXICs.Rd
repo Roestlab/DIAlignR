@@ -10,7 +10,8 @@ getXICs(
   dataPath = ".",
   maxFdrQuery = 1,
   runType = "DIA_proteomics",
-  oswMerged = TRUE
+  oswMerged = TRUE,
+  params = paramsDIAlignR()
 )
 }
 \arguments{

@@ -136,6 +136,8 @@ xicIntersect <- function(xics){
 #' @export
 getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes){
   # Select ony runs that are present in fileInfo.
+  if(is(mzPntrs[[1]])[1] == "mzRpwiz") fetchXIC = extractXIC_group
+  if(is(mzPntrs[[1]])[1] == "SQLiteConnection") fetchXIC = extractXIC_group2
   fileInfo <- updateFileInfo(fileInfo, runs)
   runs <- rownames(fileInfo)
   # Create empty list to store chromatograms.
@@ -157,7 +159,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
         message("Skipping ", analyte)
         XIC_group <- NULL
       } else {
-        XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices)
+        XIC_group <- fetchXIC(mzPntrs[[runname]], chromIndices)
       }
       XIC_group
     })
@@ -197,17 +199,17 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' XICs <- getXICs(analytes, runs = runs, dataPath = dataPath)
 #' @export
 getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, runType = "DIA_proteomics",
-                    oswMerged = TRUE){
+                    oswMerged = TRUE, params = paramsDIAlignR()){
   # Get fileInfo from .merged.osw file and check if names are consistent between osw and mzML files.
-  fileInfo <- getRunNames(dataPath, oswMerged)
+  fileInfo <- getRunNames(dataPath, oswMerged, params)
   fileInfo <- updateFileInfo(fileInfo, runs)
 
-  precursors <- getPrecursorByID(analytes, fileInfo, oswMerged)
+  precursors <- getPrecursorByID(analytes, fileInfo, oswMerged, "DIA_proteomics")
   mzPntrs <- getMZMLpointers(fileInfo)
-  prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
+  prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs, lapply)
 
   # Get Chromatogram indices for each peptide in each run.
-  features <- getFeatures(fileInfo, maxFdrQuery, runType)
+  features <- getFeatures(fileInfo, maxFdrQuery, runType, lapply)
   refAnalytes <-  analytesFromFeatures(features, analyteFDR = maxFdrQuery, commonAnalytes = FALSE)
   analytesFound <- intersect(analytes, refAnalytes)
   analytesNotFound <- setdiff(analytes, analytesFound)
