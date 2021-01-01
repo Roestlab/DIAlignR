@@ -76,6 +76,17 @@ test_that("test_getBaseGapPenaltyCpp",{
   expect_equal(getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5), 0.01)
 })
 
+test_that("test_sgolayCpp",{
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+  outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
+  expect_equal(outData[,1], XICs[[1]][,1])
+  expect_equal(outData[,2], signal::sgolayfilt(XICs[[1]][,2], n = 11L, p = 4L), tolerance = 1e-03)
+
+  outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 9L, polyOrd = 3L)
+  # expect_equal(outData[,2], signal::sgolayfilt(XICs[[1]][,2], n = 9L, p = 3L), tolerance = 1e-03)
+})
+
 test_that("test_areaIntegrator",{
   time <- c( 2.23095,2.239716667,2.248866667,2.25765,2.266416667,
              2.275566667,2.2847,2.293833333,2.304066667,2.315033333,2.325983333,2.336566667,
