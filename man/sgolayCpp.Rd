@@ -23,7 +23,6 @@ Smooth chromatogram with savitzky-golay filter.
 data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
 XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 xic <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
-# 66.10481 69.39996 46.53095 16.34266 13.13564 13.42331
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

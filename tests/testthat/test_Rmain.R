@@ -80,11 +80,46 @@ test_that("test_sgolayCpp",{
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
+  expData <- signal::sgolayfilt(XICs[[1]][,2], n = 11L, p = 4L)
+  expData[expData<0] <- 0
   expect_equal(outData[,1], XICs[[1]][,1])
-  expect_equal(outData[,2], signal::sgolayfilt(XICs[[1]][,2], n = 11L, p = 4L), tolerance = 1e-03)
+  expect_equal(outData[,2], expData, tolerance = 1e-03)
 
   outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 9L, polyOrd = 3L)
-  # expect_equal(outData[,2], signal::sgolayfilt(XICs[[1]][,2], n = 9L, p = 3L), tolerance = 1e-03)
+  expData <- signal::sgolayfilt(XICs[[1]][,2], n = 9L, p = 3L)
+  expData[expData<0] <- 0
+  expect_equal(outData[,2], expData, tolerance = 1e-03)
+
+  outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 7L, polyOrd = 4L)
+  expData <- signal::sgolayfilt(XICs[[1]][,2], n = 7L, p = 4L)
+  expData[expData<0] <- 0
+  expect_equal(outData[,2], expData, tolerance = 1e-03)
+})
+
+test_that("test_getAlignedTimesCpp",{
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+  run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+  XICs.ref <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]], as.matrix)
+  XICs.eXp <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]], as.matrix)
+  globalFit <- getLOESSfit(oswFiles_DIAlignR, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
+  tVec.ref <- XICs.ref[[1]][, "time"] # Extracting time component
+  tVec.eXp <- XICs.eXp[[1]][, "time"] # Extracting time component
+  len <- length(tVec.ref)
+  B1p <- stats::predict(globalFit, data.frame("RT.ref" = tVec.ref[1]))[[1]]
+  B2p <- stats::predict(globalFit, data.frame("RT.ref" = tVec.ref[len]))[[1]]
+  outData <- getAlignedTimesCpp(XICs.ref, XICs.eXp, kernelLen = 0L, polyOrd = 4L, alignType = "hybrid",
+                  adaptiveRT = 77.82315, normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+                  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+                  dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9, hardConstrain = FALSE, samples4gradient = 100)
+
+  expect_equal(outData[1:3,1], c(4978.4, 4981.8, 4985.2), tolerance = 1e-03)
+  expect_equal(outData[1:3,2], c(NA_real_, NA_real_, NA_real_), tolerance = 1e-03)
+  expect_equal(outData[17:19,2], c(NA_real_, NA_real_, 4988.60), tolerance = 1e-03)
+  expect_equal(outData[174:176,1], c(5569.0, 5572.4, 5575.8), tolerance = 1e-03)
+  expect_equal(outData[174:176,2], c(5572.40, 5575.80, 5582.60), tolerance = 1e-03)
+  expect_identical(dim(outData), c(176L, 2L))
 })
 
 test_that("test_areaIntegrator",{

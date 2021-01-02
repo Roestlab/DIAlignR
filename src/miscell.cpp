@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <stdexcept>
-#include "xicIntersects.h"
+#include "miscell.h"
 
 namespace DIAlign
 {
@@ -44,18 +44,18 @@ void xicIntersect(std::vector<std::vector<double> > &time,
 }
 
 static bool const detect_end_na(double a, double b){
-  return (std::abs(a)< 1e-06) && !(std::abs(b) < 1e-06);
+  return (a < 0) && !(b < 0);
 };
 
 static bool const detect_start_na(double a, double b){
-  return !(std::abs(a) < 1e-06) && (std::abs(b) < 1e-06);
+  return !(a < 0) && (b < 0);
 };
 
 
 void interpolateZero(std::vector<double> & x){
   auto start = x.begin();
   auto end = x.end();
-  if(std::abs(x[0]) < 1e-06) start = std::adjacent_find(start, end, detect_start_na);
+  if(x[0] < 0) start = std::adjacent_find(start, end, detect_start_na);
   while (true) {
     // Find transitions to and from NA values.  If we hit end of
     // vector whilst looking, our work is done.

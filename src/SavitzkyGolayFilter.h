@@ -96,16 +96,7 @@ class SavitzkyGolayFilter
 {
 private:
   /// Coefficients
-  std::vector<double> coeffs_ = {0.041958, -0.0699301, -0.034965, 0.034965, 0.0699301, 0.041958,
-                                 -0.034965, -0.104895, -0.0699301, 0.20979, 0.916084, -0.0699301,
-                                 0.104895, 0.0699301, -0.034965, -0.111888, -0.104895, 0.0, 0.174825,
-                                 0.34965, 0.412587, 0.20979, -0.034965, 0.0699301, 0.02331, -0.0536131,
-                                 -0.0815851, -0.02331, 0.11655, 0.291375, 0.412587, 0.34965, -0.0699301,
-                                 0.034965, -0.034965, -0.0536131, -0.02331, 0.04662, 0.13986, 0.2331,
-                                 0.296037, 0.291375, 0.174825, -0.104895, 0.0699301, -0.111888,
-                                 -0.0815851, 0.04662, 0.18648, 0.27972, 0.296037, 0.2331, 0.11655, 0.0,
-                                 -0.034965, 0.041958, -0.104895, -0.02331, 0.13986, 0.27972, 0.333333,
-                                 0.27972, 0.13986, -0.02331, -0.104895, 0.041958};
+  std::vector<double> coeffs_;
   /// int of the filter kernel (number of pre-tabulated coefficients)
   int frame_size_ = 11;
   /// The order of the smoothing polynomial.
@@ -224,13 +215,14 @@ public:
     }
   }
   // Docu in base class
-  void updateMembers();
+  void updateMembers_();
 
   std::vector<double> getCoeff(){
     return coeffs_;
   }
+
+  void setCoeff();
 };
 
-std::vector<double> smoothChroms(std::vector<double> intensity, SavitzkyGolayFilter sgolay);
 }
 #endif // SAVITZKYGOLAYFILTER_H

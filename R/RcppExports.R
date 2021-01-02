@@ -206,7 +206,6 @@ areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, f
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
 #' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 #' xic <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
-#' # 66.10481 69.39996 46.53095 16.34266 13.13564 13.42331
 #' @export
 sgolayCpp <- function(chrom, kernelLen, polyOrd) {
     .Call(`_DIAlignR_sgolayCpp`, chrom, kernelLen, polyOrd)
@@ -218,8 +217,8 @@ sgolayCpp <- function(chrom, kernelLen, polyOrd) {
 #' ORCID: 0000-0003-3500-8152
 #' License: (c) Author (2019) + MIT
 #' Date: 2019-03-08
-#' @param l1 (list) A list of numeric matrix. l1 and l2 should have same length.
-#' @param l2 (list) A list of numeric matrix. l1 and l2 should have same length.
+#' @param l1 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
+#' @param l2 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
 #' @param kernelLen (integer) length of filter. Must be an odd number.
 #' @param polyOrd (integer) TRUE: remove background from peak signal using estimated noise levels.
 #' @param alignType (char) A character string. Available alignment methods are "global", "local" and "hybrid".

@@ -25,7 +25,7 @@ src/PeakIntegrator.cpp
 src/MSChromatogram.cpp
 src/ChromatogramPeak.cpp
 src/DPosition.cpp
-src/xicIntersects.cpp
+src/miscell.cpp
 )
 
 add_library(DIAAlignment ${SOURCE_FILES})
@@ -48,7 +48,7 @@ add_executable(runTest6 src/test/test_alignment.cpp)
 add_executable(runTest7 src/test/test_affinealignobj.cpp)
 add_executable(runTest8 src/test/test_affinealignment.cpp)
 add_executable(runTest9 src/test/test_integrateArea.cpp)
-add_executable(runTest10 src/test/test_xicIntersects.cpp)
+add_executable(runTest10 src/test/test_miscell.cpp)
 
 set(LIST_TESTS
 runTest1

@@ -1,7 +1,7 @@
 #include <vector>
 #include <cmath> // require for std::abs
 #include <assert.h>
-#include "../xicIntersects.h"
+#include "../miscell.h"
 #include "../utils.h" //To propagate #define USE_Rcpp
 
 //TODO update this statement so we know which line failed.
@@ -68,9 +68,9 @@ void test_xicIntersect(){
 }
 
 void test_interpolateZero(){
-  std::vector<double> x = {0, 0,2,3,0, 0, 5, 9, 0, 10, 0 , 0};
+  std::vector<double> x = {-1, -1,2,3,-1, -1, 5, 9, -1, 10, -1 , -1};
   interpolateZero(x);
-  std::vector<double> y = {0,0,2,3,3.667, 4.333, 5, 9, 9.5, 10, 0 , 0};
+  std::vector<double> y = {-1,-1,2,3,3.667, 4.333, 5, 9, 9.5, 10, -1 , -1};
   for (int i = 0; i < x.size(); i++){
     ASSERT(std::abs(x[i] - y[i]) < 1e-2);
   }
@@ -84,6 +84,6 @@ int main_xicIntersect(){
 #endif
     test_xicIntersect();
     test_interpolateZero();
-    std::cout << "test xicIntersects successful" << std::endl;
+    std::cout << "test miscell successful" << std::endl;
     return 0;
   }

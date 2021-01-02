@@ -15,7 +15,7 @@
 #include "ChromatogramPeak.h"
 #include "DPosition.h"
 #include "SavitzkyGolayFilter.h"
-#include "xicIntersects.h"
+#include "miscell.h"
 using namespace Rcpp;
 using namespace DIAlign;
 using namespace AffineAlignment;
@@ -283,21 +283,17 @@ NumericVector areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double r
 //' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
 //' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 //' xic <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
-//' # 66.10481 69.39996 46.53095 16.34266 13.13564 13.42331
 //' @export
 // [[Rcpp::export]]
 NumericVector sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd){
   SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
-  sgolay.updateMembers();
-  //std::vector<double> d1 = sgolay.getCoeff();
-  //for (const auto& i : d1) Rcpp::Rcout<< i << " ";
+  sgolay.setCoeff();
   NumericVector v = chrom(_, 1);
   std::vector<double> d = Rcpp::as<std::vector<double>>(v);
-  d = smoothChroms(d, sgolay);
+  sgolay.smoothChroms(d);
   for(int i = 0; i<d.size(); i++){
     chrom(i, 1) = d[i];
   }
-  // NumericVector r = Rcpp::wrap(d);
   return chrom;
 }
 
@@ -308,8 +304,8 @@ NumericVector sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd){
 //' ORCID: 0000-0003-3500-8152
 //' License: (c) Author (2019) + MIT
 //' Date: 2019-03-08
-//' @param l1 (list) A list of numeric matrix. l1 and l2 should have same length.
-//' @param l2 (list) A list of numeric matrix. l1 and l2 should have same length.
+//' @param l1 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
+//' @param l2 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
 //' @param kernelLen (integer) length of filter. Must be an odd number.
 //' @param polyOrd (integer) TRUE: remove background from peak signal using estimated noise levels.
 //' @param alignType (char) A character string. Available alignment methods are "global", "local" and "hybrid".
@@ -344,7 +340,7 @@ NumericVector sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd){
 //'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100)
 //' @export
 // [[Rcpp::export]]
-NumericVector getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd,
+NumericMatrix getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd,
                                  std::string alignType, double adaptiveRT, std::string normalization,
                                  std::string simType, double B1p = 0.0, double B2p =0.0,
                                  double goFactor = 0.125, double geFactor = 40,
@@ -357,11 +353,13 @@ NumericVector getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, in
   std::vector<std::vector<double> > intensity2 = getIntensity(l2);
 
   // Smooth chromatograms
-  SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
-  sgolay.updateMembers();
-  for(int i = 0; i<intensity1.size(); i++){
-    sgolay.smoothChroms(intensity1[i]);
-    sgolay.smoothChroms(intensity2[i]);
+  if(kernelLen != 0){
+    SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
+    sgolay.setCoeff();
+    for(int i = 0; i<intensity1.size(); i++){
+      sgolay.smoothChroms(intensity1[i]);
+      sgolay.smoothChroms(intensity2[i]);
+    }
   }
 
   // Make sure that time vector is same for all fragment-ions.
@@ -369,7 +367,7 @@ NumericVector getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, in
   xicIntersect(time2, intensity2);
 
   int len = time1[0].size();
-  double samplingTime = (time1[0][len] - time1[0][0])/(len-1);
+  double samplingTime = (time1[0][len-1] - time1[0][0])/(len-1);
   int noBeef = ceil(adaptiveRT/samplingTime);
 
   SimMatrix s = getSimilarityMatrix(intensity1, intensity2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
@@ -390,12 +388,39 @@ NumericVector getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, in
   doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
   getAffineAlignedIndices(obj, 9); // Performs traceback and fills aligned indices in AffineAlignObj struct
 
-  std::vector<int> AB;
+  // Expand time vector to aligned-indices
   int nrow = obj.indexA_aligned.size();
-  AB.reserve(nrow + nrow);                // preallocate memory
-  AB.insert(AB.end(), obj.indexA_aligned.begin(), obj.indexA_aligned.end());        // add A;
-  AB.insert(AB.end(), obj.indexB_aligned.begin(), obj.indexB_aligned.end());
-  return NumericMatrix(nrow, 2, AB.begin());
+  std::vector<double> tRef(nrow, -1.0);
+  std::vector<double> tExp(nrow, -1.0);
+  for(int i= 0; i<nrow; i++){
+    if(obj.indexA_aligned[i] != 0){
+      tRef[i] = time1[0][obj.indexA_aligned[i]-1];
+    }
+    if(obj.indexB_aligned[i] != 0){
+      tExp[i] = time2[0][obj.indexB_aligned[i]-1];
+    }
+  }
+
+  // Fill missing values like zoo::na.approx
+  interpolateZero(tRef);
+  interpolateZero(tExp);
+
+  // Keep only those values for which there is no missing insert in the reference.
+  int noKeep = std::count(obj.indexA_aligned.begin(), obj.indexA_aligned.end(), 0);
+  Rcpp::NumericVector A(nrow-noKeep, NA_REAL);
+  Rcpp::NumericVector B(nrow-noKeep, NA_REAL);
+
+
+  int j = 0;
+  for(int i = 0; i<nrow; i++){
+    if(obj.indexA_aligned[i] != 0){
+      A[j] = (tRef[i] < 0) ? NA_REAL : ::Rf_fround(tRef[i], 2);
+      B[j] = (tExp[i] < 0) ? NA_REAL : ::Rf_fround(tExp[i], 2);
+      ++j;
+    }
+  }
+
+  return Rcpp::cbind(A,B);
 }
 
 //' Aligns MS2 extracted-ion chromatograms(XICs) pair.

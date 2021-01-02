@@ -111,7 +111,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // getAlignedTimesCpp
-NumericVector getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd, std::string alignType, double adaptiveRT, std::string normalization, std::string simType, double B1p, double B2p, double goFactor, double geFactor, double cosAngleThresh, bool OverlapAlignment, double dotProdThresh, double gapQuantile, int kerLen, bool hardConstrain, double samples4gradient);
+NumericMatrix getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd, std::string alignType, double adaptiveRT, std::string normalization, std::string simType, double B1p, double B2p, double goFactor, double geFactor, double cosAngleThresh, bool OverlapAlignment, double dotProdThresh, double gapQuantile, int kerLen, bool hardConstrain, double samples4gradient);
 RcppExport SEXP _DIAlignR_getAlignedTimesCpp(SEXP l1SEXP, SEXP l2SEXP, SEXP kernelLenSEXP, SEXP polyOrdSEXP, SEXP alignTypeSEXP, SEXP adaptiveRTSEXP, SEXP normalizationSEXP, SEXP simTypeSEXP, SEXP B1pSEXP, SEXP B2pSEXP, SEXP goFactorSEXP, SEXP geFactorSEXP, SEXP cosAngleThreshSEXP, SEXP OverlapAlignmentSEXP, SEXP dotProdThreshSEXP, SEXP gapQuantileSEXP, SEXP kerLenSEXP, SEXP hardConstrainSEXP, SEXP samples4gradientSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

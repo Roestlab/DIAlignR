@@ -27,9 +27,9 @@ getAlignedTimesCpp(
 )
 }
 \arguments{
-\item{l1}{(list) A list of numeric matrix. l1 and l2 should have same length.}
+\item{l1}{(list) A list of numeric matrix of two columns. l1 and l2 should have same length.}
 
-\item{l2}{(list) A list of numeric matrix. l1 and l2 should have same length.}
+\item{l2}{(list) A list of numeric matrix of two columns. l1 and l2 should have same length.}
 
 \item{kernelLen}{(integer) length of filter. Must be an odd number.}
 
