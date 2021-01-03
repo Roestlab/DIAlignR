@@ -1,4 +1,4 @@
-CHANGES IN VERSION 1.3.5 (December 28, 2020)
+CHANGES IN VERSION 1.3.5 (January 03, 2021)
 ------------------------
 + Supporting transition level intensity for SAINTq
 + Added support for pyopenms.
@@ -8,7 +8,8 @@ CHANGES IN VERSION 1.3.5 (December 28, 2020)
 + Alignment is done over multipeptide instead of multiprecursor.
 + Precursors of a peptides are forced to have same feature-RT.
 + Robust global alignment.
-+ Removed smoothing due to its slow nature.
++ Savitzky Golay smoothing in C++.
++ Fast and light global alignment functions.
 
 CHANGES IN VERSION 1.1.5 (May 07, 2020)
 ------------------------

@@ -26,8 +26,10 @@
 #' }
 getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
   RUNS_RT <- getRTdf(oswFiles, ref, eXp, maxFdrGlobal)
-  Loess.fit <- dialignrLoess(RUNS_RT, spanvalue)
-  Loess.fit
+  fit <- stats::lowess(RUNS_RT$RT.ref, RUNS_RT$RT.eXp, f = spanvalue, iter =3)
+  fit$RT.ref <- RUNS_RT$RT.ref
+  fit$RT.eXp <- RUNS_RT$RT.eXp
+  fit
 }
 
 
@@ -96,8 +98,8 @@ dialignrLoess <- function(RUNS_RT, spanvalue){
 getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
   RUNS_RT <- getRTdf(oswFiles, ref, eXp, maxFdrGlobal)
   # For testing we want to avoid validation peptides getting used in the fit.
-  lm.fit <- lm(RT.eXp ~ RT.ref, data = RUNS_RT)
-  lm.fit
+  fit <- stats::.lm.fit(cbind(1, RUNS_RT$RT.ref), RUNS_RT$RT.eXp)
+  fit
 }
 
 
@@ -122,19 +124,16 @@ getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
 #' @seealso \code{\link{getFeatures}}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' lm.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+#' fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #'  fitType = "linear", maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' @export
 getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlobal = 0.01, spanvalue = 0.1){
   if(fitType == "loess"){
     fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrGlobal, spanvalue)
+    N <- length(fit$x)
   }
   else{
     fit <- getLinearfit(oswFiles, ref, eXp, maxFdrGlobal)
-  }
-  if(is(fit, "loess")){
-    N <- fit$n
-  } else{
     N <- length(fit$residuals)
   }
   message(" n = ", N)
@@ -162,12 +161,15 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
 #' maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
 #' getRSE(Loess.fit)
 #' }
-getRSE <- function(fit){
-  if(is(fit, "loess")){
-    RSE <- fit[["s"]]
+getRSE <- function(fit, globalAlignment){
+  if(globalAlignment == "loess"){
+    lfun <- stats::approxfun(fit)
+    fitted <- lfun(fit$RT.ref)
+    res <- fit$RT.eXp - fitted
   } else{
-    RSE <- summary(fit)[["sigma"]]
+    res <- fit$residuals
   }
+  RSE <- sqrt(sum((res)^2)/(length(res)-2))
   RSE
 }
 
@@ -219,7 +221,24 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
   globalFits
 }
 
-
+#' Calculates global alignment between RT of two runs
+#'
+#' This function selects features from oswFiles which has m-score < maxFdrLoess. It fits linear/loess regression on these feature.
+#' Retention-time mapping is established from reference to experiment run.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2021) + GPL-3
+#' Date: 2019-03-01
+#' @importFrom dplyr %>%
+#' @inheritParams getGlobalAlignment
+#' @return A data-frame
+#' @seealso \code{\link{getGlobalAlignment}}
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' df <- getRTdf(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' @export
 getRTdf <- function(oswFiles, ref, eXp, maxFdrGlobal){
   if(maxFdrGlobal > 1) stop("No common precursors found between ", ref, " and ", eXp)
   df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
@@ -232,4 +251,21 @@ getRTdf <- function(oswFiles, ref, eXp, maxFdrGlobal){
     RUNS_RT <- getRTdf(oswFiles, ref, eXp, 10*maxFdrGlobal)
   }
   RUNS_RT
+}
+
+
+extractFit <- function(fit, globalAlignment){
+  if(globalAlignment == "linear"){
+    return(stats::coef(fit))
+  }else{
+    return(stats::approxfun(fit[1:2]))
+  }
+}
+
+getPredict <- function(fit, x, globalAlignment){
+  if(globalAlignment == "linear"){
+    return(sum(fit*c(1, x)))
+  } else{
+    return(fit(x))
+  }
 }

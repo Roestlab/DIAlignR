@@ -1,4 +1,6 @@
 #include <Rcpp.h>
+#include <cmath>
+#include <math.h>
 #include "simpleFcn.h"
 #include "interface.h"
 #include "chromSimMatrix.h"
@@ -12,6 +14,8 @@
 #include "MSChromatogram.h"
 #include "ChromatogramPeak.h"
 #include "DPosition.h"
+#include "SavitzkyGolayFilter.h"
+#include "miscell.h"
 using namespace Rcpp;
 using namespace DIAlign;
 using namespace AffineAlignment;
@@ -21,6 +25,7 @@ using namespace ConstrainMatrix;
 using namespace Utils;
 using namespace Traceback;
 using namespace PeakGroupIntensity;
+//using namespace PeakIntegration;
 
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
 // [[Rcpp::plugins(cpp11)]]
@@ -261,6 +266,161 @@ NumericVector areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double r
   // for(auto const& i : set[0]) area+= i;
   Rcpp::NumericVector area = Rcpp::wrap(set[0]); //0: peak-area, 1: peak-apex
   return area;
+}
+
+//' Smooth chromatogram with savitzky-golay filter.
+//'
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2020) + MIT
+//' Date: 2019-12-31
+//' @param chrom (matrix) chromatogram containing time and intensity vectors.
+//' @param kernelLen (integer) length of filter. Must be an odd number.
+//' @param polyOrd (integer) TRUE: remove background from peak signal using estimated noise levels.
+//' @return (matrix).
+//' @examples
+//' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
+//' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+//' xic <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
+//' @export
+// [[Rcpp::export]]
+NumericVector sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd){
+  SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
+  sgolay.setCoeff();
+  NumericVector v = chrom(_, 1);
+  std::vector<double> d = Rcpp::as<std::vector<double>>(v);
+  sgolay.smoothChroms(d);
+  for(int i = 0; i<d.size(); i++){
+    chrom(i, 1) = d[i];
+  }
+  return chrom;
+}
+
+
+//' Get aligned indices from MS2 extracted-ion chromatograms(XICs) pair.
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2019) + MIT
+//' Date: 2019-03-08
+//' @param l1 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
+//' @param l2 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
+//' @param kernelLen (integer) length of filter. Must be an odd number.
+//' @param polyOrd (integer) TRUE: remove background from peak signal using estimated noise levels.
+//' @param alignType (char) A character string. Available alignment methods are "global", "local" and "hybrid".
+//' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
+//' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
+//' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
+//' Mask = s > quantile(s, dotProdThresh)\cr
+//' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
+//' s_new= s × AllowDotProd
+//' @param B1p (numeric) Timepoint mapped by global fit for tA[1].
+//' @param B2p (numeric) Timepoint mapped by global fit for tA[length(tA)].
+//' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
+//' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+//' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+//' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
+//' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+//' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+//' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
+//' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
+//' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
+//' @return NumericMatrix Aligned indices of l1 and l2.
+//' @examples
+//' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+//' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+//' XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+//' XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+//' B1p <- 4964.752
+//' B2p <- 5565.462
+//' indices <- getAlignedTimesCpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+//'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+//'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+//'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100)
+//' @export
+// [[Rcpp::export]]
+NumericMatrix getAlignedTimesCpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd,
+                                 std::string alignType, double adaptiveRT, std::string normalization,
+                                 std::string simType, double B1p = 0.0, double B2p =0.0,
+                                 double goFactor = 0.125, double geFactor = 40,
+                                 double cosAngleThresh = 0.3, bool OverlapAlignment = true,
+                                 double dotProdThresh = 0.96, double gapQuantile = 0.5, int kerLen = 9,
+                                 bool hardConstrain = false, double samples4gradient = 100.0){
+  std::vector<std::vector<double> > time1 = getTime(l1);
+  std::vector<std::vector<double> > intensity1 = getIntensity(l1);
+  std::vector<std::vector<double> > time2 = getTime(l2);
+  std::vector<std::vector<double> > intensity2 = getIntensity(l2);
+
+  // Smooth chromatograms
+  if(kernelLen != 0){
+    SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
+    sgolay.setCoeff();
+    for(int i = 0; i<intensity1.size(); i++){
+      sgolay.smoothChroms(intensity1[i]);
+      sgolay.smoothChroms(intensity2[i]);
+    }
+  }
+
+  // Make sure that time vector is same for all fragment-ions.
+  xicIntersect(time1, intensity1);
+  xicIntersect(time2, intensity2);
+
+  int len = time1[0].size();
+  double samplingTime = (time1[0][len-1] - time1[0][0])/(len-1);
+  int noBeef = ceil(adaptiveRT/samplingTime);
+
+  SimMatrix s = getSimilarityMatrix(intensity1, intensity2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
+  double gapPenalty = getGapPenalty(s, gapQuantile, simType);
+  if (alignType == "hybrid"){
+    SimMatrix MASK;
+    MASK.n_row = time1[0].size();
+    MASK.n_col = time2[0].size();
+    MASK.data.resize(MASK.n_row*MASK.n_col, 0.0);
+    double A1 = time1[0][0], A2 = time1[0][MASK.n_row-1];
+    double B1 = time2[0][0], B2 = time2[0][MASK.n_col-1];
+    if(B2p > B1p) calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
+    auto maxIt = max_element(std::begin(s.data), std::end(s.data));
+    double maxVal = *maxIt;
+    constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
+  }
+  AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
+  doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+  getAffineAlignedIndices(obj, 9); // Performs traceback and fills aligned indices in AffineAlignObj struct
+
+  // Expand time vector to aligned-indices
+  int nrow = obj.indexA_aligned.size();
+  std::vector<double> tRef(nrow, -1.0);
+  std::vector<double> tExp(nrow, -1.0);
+  for(int i= 0; i<nrow; i++){
+    if(obj.indexA_aligned[i] != 0){
+      tRef[i] = time1[0][obj.indexA_aligned[i]-1];
+    }
+    if(obj.indexB_aligned[i] != 0){
+      tExp[i] = time2[0][obj.indexB_aligned[i]-1];
+    }
+  }
+
+  // Fill missing values like zoo::na.approx
+  interpolateZero(tRef);
+  interpolateZero(tExp);
+
+  // Keep only those values for which there is no missing insert in the reference.
+  int noKeep = std::count(obj.indexA_aligned.begin(), obj.indexA_aligned.end(), 0);
+  Rcpp::NumericVector A(nrow-noKeep, NA_REAL);
+  Rcpp::NumericVector B(nrow-noKeep, NA_REAL);
+
+
+  int j = 0;
+  for(int i = 0; i<nrow; i++){
+    if(obj.indexA_aligned[i] != 0){
+      A[j] = (tRef[i] < 0) ? NA_REAL : ::Rf_fround(tRef[i], 2);
+      B[j] = (tExp[i] < 0) ? NA_REAL : ::Rf_fround(tExp[i], 2);
+      ++j;
+    }
+  }
+
+  return Rcpp::cbind(A,B);
 }
 
 //' Aligns MS2 extracted-ion chromatograms(XICs) pair.

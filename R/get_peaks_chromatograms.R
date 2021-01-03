@@ -20,7 +20,7 @@
 #' XIC_group <- extractXIC_group(mz, chromIndices)
 #' }
 extractXIC_group <- function(mz, chromIndices){
-  XIC_group <- mzR::chromatograms(mz, chromIndices)
+  XIC_group <- lapply(mzR::chromatograms(mz, chromIndices), as.matrix)
   if (class(XIC_group) == "list" & length(XIC_group) > 1) {
     return( XIC_group )
   } else {
@@ -182,6 +182,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
+#' @inheritParams checkParams
 #' @param analytes (integer) a vector of precursor IDs.
 #' @param runs (vector of string) names of mzML files without extension.
 #' @param dataPath (string) Path to mzml and osw directory.

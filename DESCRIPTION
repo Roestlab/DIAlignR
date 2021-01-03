@@ -24,7 +24,7 @@ Imports:
     RSQLite, DBI,
     reticulate,
     RMSNumpress, Rcompression,
-    Rcpp
+    Rcpp, RcppEigen
 Suggests:
     knitr,
     lattice,
@@ -35,5 +35,5 @@ Suggests:
 VignetteBuilder: knitr
 BugReports: https://github.com/shubham1637/DIAlignR/issues
 LinkingTo: 
-    Rcpp
+    Rcpp, RcppEigen
 SystemRequirements: C++11

@@ -191,6 +191,71 @@ areaIntegrator <- function(l1, l2, left, right, integrationType, baselineType, f
     .Call(`_DIAlignR_areaIntegrator`, l1, l2, left, right, integrationType, baselineType, fitEMG, baseSubtraction)
 }
 
+#' Smooth chromatogram with savitzky-golay filter.
+#'
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2020) + MIT
+#' Date: 2019-12-31
+#' @param chrom (matrix) chromatogram containing time and intensity vectors.
+#' @param kernelLen (integer) length of filter. Must be an odd number.
+#' @param polyOrd (integer) TRUE: remove background from peak signal using estimated noise levels.
+#' @return (matrix).
+#' @examples
+#' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR", package = "DIAlignR")
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+#' xic <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
+#' @export
+sgolayCpp <- function(chrom, kernelLen, polyOrd) {
+    .Call(`_DIAlignR_sgolayCpp`, chrom, kernelLen, polyOrd)
+}
+
+#' Get aligned indices from MS2 extracted-ion chromatograms(XICs) pair.
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2019) + MIT
+#' Date: 2019-03-08
+#' @param l1 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
+#' @param l2 (list) A list of numeric matrix of two columns. l1 and l2 should have same length.
+#' @param kernelLen (integer) length of filter. Must be an odd number.
+#' @param polyOrd (integer) TRUE: remove background from peak signal using estimated noise levels.
+#' @param alignType (char) A character string. Available alignment methods are "global", "local" and "hybrid".
+#' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
+#' @param normalization (char) A character string. Normalization must be selected from (L2, mean or none).
+#' @param simType (char) A character string. Similarity type must be selected from (dotProductMasked, dotProduct, cosineAngle, cosine2Angle, euclideanDist, covariance, correlation, crossCorrelation).\cr
+#' Mask = s > quantile(s, dotProdThresh)\cr
+#' AllowDotProd= [Mask × cosine2Angle + (1 - Mask)] > cosAngleThresh\cr
+#' s_new= s × AllowDotProd
+#' @param B1p (numeric) Timepoint mapped by global fit for tA[1].
+#' @param B2p (numeric) Timepoint mapped by global fit for tA[length(tA)].
+#' @param goFactor (numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.
+#' @param geFactor (numeric) Penalty for introducing subsequent gaps in alignment. This value is multiplied by base gap-penalty.
+#' @param cosAngleThresh (numeric) In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+#' @param OverlapAlignment (logical) An input for alignment with free end-gaps. False: Global alignment, True: overlap alignment.
+#' @param dotProdThresh (numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+#' @param gapQuantile (numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.
+#' @param kerLen (integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
+#' @param hardConstrain (logical) if false; indices farther from noBeef distance are filled with distance from linear fit line.
+#' @param samples4gradient (numeric) This parameter modulates penalization of masked indices.
+#' @return NumericMatrix Aligned indices of l1 and l2.
+#' @examples
+#' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+#' XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+#' XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+#' B1p <- 4964.752
+#' B2p <- 5565.462
+#' indices <- getAlignedTimesCpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+#'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+#'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+#'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100)
+#' @export
+getAlignedTimesCpp <- function(l1, l2, kernelLen, polyOrd, alignType, adaptiveRT, normalization, simType, B1p = 0.0, B2p = 0.0, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE, samples4gradient = 100.0) {
+    .Call(`_DIAlignR_getAlignedTimesCpp`, l1, l2, kernelLen, polyOrd, alignType, adaptiveRT, normalization, simType, B1p, B2p, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain, samples4gradient)
+}
+
 #' Aligns MS2 extracted-ion chromatograms(XICs) pair.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

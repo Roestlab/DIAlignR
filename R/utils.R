@@ -264,6 +264,8 @@ checkParams <- function(params){
     }
   }
 
+  if(params[["XICfilter"]] == "none") params[["kernelLen"]] <- 0L
+
   if(!any(params[["globalAlignment"]] %in% c("loess",  "linear"))){
     stop("globalAlignment must either be loess or linear.")
   }
@@ -326,7 +328,7 @@ checkParams <- function(params){
     stop("level for maxPeptideFDR should be either Peptide or Protein.")
   }
 
-  invisible(NULL)
+  params
 }
 
 #' Parameters for the alignment functions
@@ -398,7 +400,7 @@ paramsDIAlignR <- function(){
                   context = "global", unalignedFDR = 0.01, alignedFDR = 0.05, level = "Peptide",
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
                   recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,
-                  XICfilter = "sgolay", polyOrd = 3L, kernelLen = 11L,
+                  XICfilter = "sgolay", polyOrd = 4L, kernelLen = 11L,
                   globalAlignment = "linear", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                   RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                   alignType = "hybrid", goFactor = 0.125, geFactor = 40,

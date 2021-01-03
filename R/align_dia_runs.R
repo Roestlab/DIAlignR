@@ -29,10 +29,10 @@
 #' @references Gupta S, Ahadi S, Zhou W, Röst H. "DIAlignR Provides Precise Retention Time Alignment Across Distant Runs in DIA and Targeted Proteomics." Mol Cell Proteomics. 2019 Apr;18(4):806-817. doi: https://doi.org/10.1074/mcp.TIR118.001132 Epub 2019 Jan 31.
 #'
 #' @export
-alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), oswMerged = TRUE, runs = NULL,
-                              refRun = NULL, applyFun = lapply){
+alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), oswMerged = TRUE,
+                              runs = NULL, refRun = NULL, applyFun = lapply){
   #### Check if all parameters make sense.  #########
-  checkParams(params)
+  params <- checkParams(params)
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
   fileInfo <- getRunNames(dataPath, oswMerged, params)
@@ -129,7 +129,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   start_time <- Sys.time()
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], applyFun)
-  RSE <- applyFun(globalFits, getRSE)
+  RSE <- applyFun(globalFits, getRSE, params[["globalAlignment"]])
+  globalFits <- applyFun(globalFits, extractFit, params[["globalAlignment"]])
   rm(features)
   end_time <- Sys.time()
   message("The execution time for calculating global alignment:")
@@ -314,18 +315,13 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
       } else{
         globalFit <- getGlobalAlignment(features, ref, eXp, params[["globalAlignment"]],
                                         params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
-        globalFits[[pair]] <- globalFit
-        RSE[[pair]] <- getRSE(globalFit)
+        RSE[[pair]] <- getRSE(globalFit, params[["globalAlignment"]])
+        globalFits[[pair]] <- extractFit(globalFit, params[["globalAlignment"]])
       }
       adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
 
       # Fetch alignment object between XICs.ref and XICs.eXp
-      AlignObj <- getAlignObj(XICs.ref.s, XICs.eXp.s, globalFit, params[["alignType"]], adaptiveRT,
-                              params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
-                              params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
-                              params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
-                              params[["hardConstrain"]], params[["samples4gradient"]],
-                              objType)
+      AlignObj <- getAlignObj2(XICs.ref.s, XICs.eXp.s, globalFits[[pair]], adaptiveRT, params, objType)
       # Attach AlignObj for the analyte.
       AlignObjs[[analyteIdx]][[pair]][["AlignObj"]] <- AlignObj
       # Attach intensities of reference XICs.
@@ -369,7 +365,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
 #' @seealso \code{\link{alignTargetedRuns}, \link{alignIthAnalyte}, \link{setAlignmentRank}, \link{getMultipeptide}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params, prec2chromIndex,
+alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref, params, prec2chromIndex,
                        mzPntrs, df, globalFits, RSE){
   # Get XIC_group from experiment run. if missing, go to next run.
   chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][preIdx]
@@ -380,33 +376,27 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref.s, params,
     return(df.eXp)
   } else {
     XICs.eXp <- lapply(chromIndices, function(i) extractXIC_group(mz = mzPntrs[[eXp]], chromIndices = i))
-    XICs.eXp.s <- lapply(XICs.eXp, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                         polyOrd = params[["polyOrd"]])
-    names(XICs.eXp.s) <- names(XICs.eXp) <- as.character(analytes)
+    names(XICs.eXp) <- as.character(analytes)
   }
-  if(params[["smoothPeakArea"]]) XICs.eXp <- XICs.eXp.s
 
   # Select 1) all precursors OR 2) high quality precursor
   if(FALSE){
     # Turned off as precursor XICs have different time ranges.
-    XICs.ref.pep <- unlist(XICs.ref.s, recursive = FALSE, use.names = FALSE)
-    XICs.eXp.pep <- unlist(XICs.eXp.s, recursive = FALSE, use.names = FALSE)
+    XICs.ref.pep <- unlist(XICs.ref, recursive = FALSE, use.names = FALSE)
+    XICs.eXp.pep <- unlist(XICs.eXp, recursive = FALSE, use.names = FALSE)
   } else {
     temp <- df[df$run == ref, c("transition_group_id", "m_score")]
     analyte_chr <- as.character(temp[which.min(temp$m_score), "transition_group_id"])
-    XICs.ref.pep <- XICs.ref.s[[analyte_chr]]
-    XICs.eXp.pep <- XICs.eXp.s[[analyte_chr]]
+    XICs.ref.pep <- XICs.ref[[analyte_chr]]
+    XICs.eXp.pep <- XICs.eXp[[analyte_chr]]
   }
 
   ##### Get the aligned Indices #####
   pair <- paste(ref, eXp, sep = "_")
   globalFit <- globalFits[[pair]]
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
-  tAligned <- getAlignedTimes(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]], adaptiveRT,
-                               params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
-                               params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
-                               params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
-                               params[["hardConstrain"]], params[["samples4gradient"]], objType = "light")
+  tAligned <- getAlignedTimesFast(XICs.ref.pep, XICs.eXp.pep, globalFit, adaptiveRT,
+                                  params)
   df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
   df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
   if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
@@ -463,11 +453,8 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
     return(df)
   } else {
     XICs.ref <- lapply(chromIndices, function(i) extractXIC_group(mz = mzPntrs[[ref]], chromIndices = i))
-    XICs.ref.s <- lapply(XICs.ref, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                             polyOrd = params[["polyOrd"]])
-    names(XICs.ref.s) <- names(XICs.ref) <- as.character(analytes)
+    names(XICs.ref) <- as.character(analytes)
   }
-  if(params[["smoothPeakArea"]]) XICs.ref <- XICs.ref.s
 
   ##### Set alignment rank for all precrusors of the peptide in the reference run #####
   refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
@@ -485,7 +472,7 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
 
   ##### Align all runs to reference run and set their alignment rank #####
   exps <- setdiff(rownames(fileInfo), ref)
-  df.exps <- lapply(exps, alignToRef, ref, idx, analytes, fileInfo, XICs.ref.s, params, prec2chromIndex, mzPntrs,
+  df.exps <- lapply(exps, alignToRef, ref, idx, analytes, fileInfo, XICs.ref, params, prec2chromIndex, mzPntrs,
                     df, globalFits, RSE)
 
   ##### Return the dataframe with alignment rank set to TRUE #####
@@ -598,11 +585,8 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, param
   globalFit <- globalFits[[pair]]
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
 
-  tAligned <- tryCatch(expr = getAlignedTimes(XICs.ref.pep, XICs.eXp.pep, globalFit, params[["alignType"]],
-           adaptiveRT, params[["normalization"]], params[["simMeasure"]], params[["goFactor"]],
-           params[["geFactor"]], params[["cosAngleThresh"]], params[["OverlapAlignment"]],
-           params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
-           params[["hardConstrain"]], params[["samples4gradient"]], objType = "light"),
+  tAligned <- tryCatch(expr = getAlignedTimesFast(XICs.ref.pep, XICs.eXp.pep, globalFit, adaptiveRT,
+                                                  params),
              error = function(e){
              message("\nError in the alignment of ", paste0(analytes, sep = " "), "in runs ",
                      fileInfo[ref, "runName"], " and ", fileInfo[eXp, "runName"])

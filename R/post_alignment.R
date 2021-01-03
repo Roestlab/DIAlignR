@@ -172,9 +172,9 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
   leftRef <- df[["leftWidth"]][refIdx]
   rightRef <- df[["rightWidth"]][refIdx]
   # Experiment run.
-  left <- tAligned[[2]][which.min(abs(tAligned[[1]] - leftRef))]
-  right <- tAligned[[2]][which.min(abs(tAligned[[1]] - rightRef))]
-  eXpRT <- tAligned[[2]][which.min(abs(tAligned[[1]] - refRT))]
+  left <- tAligned[,2][which.min(abs(tAligned[,1] - leftRef))]
+  right <- tAligned[,2][which.min(abs(tAligned[,1] - rightRef))]
+  eXpRT <- tAligned[,2][which.min(abs(tAligned[,1] - refRT))]
   # TODO. Save for the edge cases. or use wider chromatogram.
   if(any(length(left)==0, length(right)==0, length(eXpRT)==0)){
     return(df.eXp) # Can happen if XICs have all zero intensities.
