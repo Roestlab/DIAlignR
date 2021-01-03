@@ -107,8 +107,9 @@ test_that("test_getAlignedTimesCpp",{
   tVec.ref <- XICs.ref[[1]][, "time"] # Extracting time component
   tVec.eXp <- XICs.eXp[[1]][, "time"] # Extracting time component
   len <- length(tVec.ref)
-  B1p <- stats::predict(globalFit, data.frame("RT.ref" = tVec.ref[1]))[[1]]
-  B2p <- stats::predict(globalFit, data.frame("RT.ref" = tVec.ref[len]))[[1]]
+  lfun <- stats::approxfun(globalFit)
+  B1p <- lfun(tVec.ref[1])
+  B2p <- lfun(tVec.ref[len])
   outData <- getAlignedTimesCpp(XICs.ref, XICs.eXp, kernelLen = 0L, polyOrd = 4L, alignType = "hybrid",
                   adaptiveRT = 77.82315, normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
                   goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
@@ -175,13 +176,14 @@ test_that("test_alignChromatogramsCpp",{
   XICs.ref <- smoothXICs(XICs.ref, type = "sgolay", kernelLen = 13, polyOrd = 4)
   XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   XICs.eXp <- smoothXICs(XICs.eXp, type = "sgolay", kernelLen = 13, polyOrd = 4)
-  tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
-  tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-  B1p <- predict(Loess.fit, tVec.ref[1])
-  B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
+  tVec.ref <- XICs.ref[[1]][,"time"] # Extracting time component
+  tVec.eXp <- XICs.eXp[[1]][,"time"] # Extracting time component
+  lfun <- stats::approxfun(Loess.fit)
+  B1p <- lfun(tVec.ref[1])
+  B2p <- lfun(tVec.ref[length(tVec.ref)])
   noBeef <- 38.6594179136227/3.414
-  l1 <- lapply(XICs.ref, `[[`, 2)
-  l2 <- lapply(XICs.eXp, `[[`, 2)
+  l1 <- lapply(XICs.ref, `[`, i=, j =2)
+  l2 <- lapply(XICs.eXp, `[`, i=, j =2)
   outData <- alignChromatogramsCpp(l1, l2, alignType = "hybrid",
                                    tA = tVec.ref, tB = tVec.eXp, normalization = "mean", simType = "dotProductMasked",
                                    B1p = B1p, B2p = B2p, noBeef = noBeef,

@@ -78,6 +78,37 @@ getAlignObj <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT,
   AlignObj
 }
 
+
+getAlignObj2 <- function(XICs.ref, XICs.eXp, globalFit, adaptiveRT, params,
+                         objType = "light"){
+  XICs.ref1 <- xicIntersect(XICs.ref) # Fixed common time in fragment-ions
+  XICs.eXp1 <- xicIntersect(XICs.eXp) # Fixed common time in fragment-ions
+
+  tVec.ref <- XICs.ref1[[1]][, "time"] # Extracting time component
+  tVec.eXp <- XICs.eXp1[[1]][, "time"] # Extracting time component
+  len <- length(tVec.ref)
+  B1p <- getPredict(globalFit, tVec.ref[1], params[["globalAlignment"]])
+  B2p <- getPredict(globalFit, tVec.ref[len], params[["globalAlignment"]])
+
+  # Set up constraints for penalizing similarity matrix
+  samplingTime <- (tVec.ref[len] - tVec.ref[1])/(len-1)
+  noBeef <- ceiling(adaptiveRT/samplingTime)
+
+  # Perform dynamic programming for chromatogram alignment
+  intensityList.ref <- lapply(XICs.ref1, `[`, i =, j = 2) # Extracting intensity values
+  intensityList.eXp <- lapply(XICs.eXp1, `[`, i =, j = 2) # Extracting intensity values
+  AlignObj <- alignChromatogramsCpp(intensityList.ref, intensityList.eXp,
+                                    params[["alignType"]], tVec.ref, tVec.eXp,
+                                    params[["normalization"]], params[["simMeasure"]],
+                                    B1p = B1p, B2p = B2p, noBeef = noBeef,
+                                    params[["goFactor"]], params[["geFactor"]],
+                                    params[["cosAngleThresh"]], params[["OverlapAlignment"]],
+                                    params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
+                                    params[["hardConstrain"]], params[["samples4gradient"]],
+                                    objType = objType)
+  AlignObj
+}
+
 #' Get mapping of reference RT on experiment run.
 #'
 #' This function aligns XICs of reference and experiment runs. Using alignment, it maps retention time from refernce run on experiment run.
@@ -204,7 +235,49 @@ getAlignedTimes <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT
   list(tAligned.ref, tAligned.eXp)
 }
 
-
+#' Get aligned Retention times.
+#'
+#' This function aligns XICs of reference and experiment runs.
+#' It produces aligned retention times between refernce run and experiment run.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2021) + GPL-3
+#' Date: 2021-01-02
+#' @param XICs.ref List of extracted ion chromatograms from reference run.
+#' @param XICs.eXp List of extracted ion chromatograms from experiment run.
+#' @param globalFit Linear or loess fit object between reference and experiment run.
+#' @param alignType Available alignment methods are "global", "local" and "hybrid".
+#' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
+#' @param params (list) .
+#' @return (matrix) the first column corresponds to the aligned reference time, the second column is the aligned experiment time.
+#' @seealso \code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
+#' @examples
+#' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+#' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+#' XICs.ref <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]], as.matrix)
+#' XICs.eXp <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]], as.matrix)
+#' params <- paramsDIAlignR()
+#' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
+#'  fitType = params[["globalAlignment"]], maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' adaptiveRT <- 77.82315 #3.5*getRSE(globalFit, params[["globalAlignment"]])
+#' globalFit <- coef(globalFit)
+#' getAlignedTimesFast(XICs.ref, XICs.eXp, globalFit, adaptiveRT, params)
+#' @export
+getAlignedTimesFast <- function(XICs.ref, XICs.eXp, globalFit, adaptiveRT, params){
+  B1p <- getPredict(globalFit, XICs.ref[[1]][1,1], params[["globalAlignment"]])
+  len <- nrow(XICs.ref[[1]])
+  B2p <- getPredict(globalFit, XICs.ref[[1]][len,1], params[["globalAlignment"]])
+  tAligned <- getAlignedTimesCpp(XICs.ref, XICs.eXp, params[["kernelLen"]], params[["polyOrd"]], params[["alignType"]],
+                     adaptiveRT, params[["normalization"]], params[["simMeasure"]],
+                     B1p = B1p, B2p = B2p, params[["goFactor"]], params[["geFactor"]], params[["cosAngleThresh"]],
+                     params[["OverlapAlignment"]], params[["dotProdThresh"]], params[["gapQuantile"]],
+                     params[["hardConstrain"]], params[["samples4gradient"]])
+  tAligned
+}
 
 #' Get aligned indices.
 #'

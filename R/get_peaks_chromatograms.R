@@ -20,7 +20,7 @@
 #' XIC_group <- extractXIC_group(mz, chromIndices)
 #' }
 extractXIC_group <- function(mz, chromIndices){
-  XIC_group <- mzR::chromatograms(mz, chromIndices)
+  XIC_group <- lapply(mzR::chromatograms(mz, chromIndices), as.matrix)
   if (class(XIC_group) == "list" & length(XIC_group) > 1) {
     return( XIC_group )
   } else {

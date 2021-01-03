@@ -4,7 +4,7 @@
 \alias{getRSE}
 \title{Calculates Residual Standard Error of the fit}
 \usage{
-getRSE(fit)
+getRSE(fit, globalAlignment)
 }
 \arguments{
 \item{fit}{(lm or loess) Linear or loess fit object between reference and experiment run.}
