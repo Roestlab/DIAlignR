@@ -15,9 +15,7 @@ getAlignedTimesFast(XICs.ref, XICs.eXp, globalFit, adaptiveRT, params)
 
 \item{adaptiveRT}{(numeric) Similarity matrix is not penalized within adaptive RT.}
 
-\item{params}{(list) .}
-
-\item{alignType}{Available alignment methods are "global", "local" and "hybrid".}
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 }
 \value{
 (matrix) the first column corresponds to the aligned reference time, the second column is the aligned experiment time.

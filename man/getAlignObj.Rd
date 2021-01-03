@@ -76,8 +76,8 @@ run1 <- "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"
 run2 <- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"
 XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
 XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
-globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
- maxFdrGlobal = 0.05, spanvalue = 0.1)
+RUNS_RT <- getRTdf(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+globalFit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = 0.1, control=loess.control(surface="direct"))
 AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
  normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
   geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,

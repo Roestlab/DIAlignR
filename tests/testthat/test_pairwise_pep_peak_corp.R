@@ -85,7 +85,7 @@ test_that("test_getAlignedIndices", {
 })
 
 
-test_that("test_getAlignedTimes", {
+test_that("test_getAlignedTimesFast", {
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   data(oswFiles_DIAlignR, package="DIAlignR")
   params <- paramsDIAlignR()

@@ -38,8 +38,8 @@
 #' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
-#' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
-#'  maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' RUNS_RT <- getRTdf(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' globalFit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = 0.1, control=loess.control(surface="direct"))
 #' AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
 #'  normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
 #'   geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
@@ -147,8 +147,8 @@ getAlignObj2 <- function(XICs.ref, XICs.eXp, globalFit, adaptiveRT, params,
 #' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
-#' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
-#'  maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' RUNS_RT <- getRTdf(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' globalFit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = 0.1, control=loess.control(surface="direct"))
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
 #' \dontrun{
 #' getMappedRT(refRT = 5238.35, XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
@@ -208,8 +208,8 @@ getMappedRT <- function(refRT, XICs.ref, XICs.eXp, globalFit, alignType, adaptiv
 #' run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
-#' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
-#'  maxFdrGlobal = 0.05, spanvalue = 0.1)
+#' RUNS_RT <- getRTdf(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' globalFit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = 0.1, control=loess.control(surface="direct"))
 #' adaptiveRT <- 77.82315 #3.5*globalFit$s
 #' getAlignedTimes(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid",
 #'  adaptiveRT = adaptiveRT, normalization = "mean",
@@ -245,12 +245,11 @@ getAlignedTimes <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT
 #'
 #' License: (c) Author (2021) + GPL-3
 #' Date: 2021-01-02
+#' @inheritParams checkParams
 #' @param XICs.ref List of extracted ion chromatograms from reference run.
 #' @param XICs.eXp List of extracted ion chromatograms from experiment run.
 #' @param globalFit Linear or loess fit object between reference and experiment run.
-#' @param alignType Available alignment methods are "global", "local" and "hybrid".
 #' @param adaptiveRT (numeric) Similarity matrix is not penalized within adaptive RT.
-#' @param params (list) .
 #' @return (matrix) the first column corresponds to the aligned reference time, the second column is the aligned experiment time.
 #' @seealso \code{\link{alignChromatogramsCpp}, \link{getAlignObj}}
 #' @examples
@@ -274,7 +273,7 @@ getAlignedTimesFast <- function(XICs.ref, XICs.eXp, globalFit, adaptiveRT, param
   tAligned <- getAlignedTimesCpp(XICs.ref, XICs.eXp, params[["kernelLen"]], params[["polyOrd"]], params[["alignType"]],
                      adaptiveRT, params[["normalization"]], params[["simMeasure"]],
                      B1p = B1p, B2p = B2p, params[["goFactor"]], params[["geFactor"]], params[["cosAngleThresh"]],
-                     params[["OverlapAlignment"]], params[["dotProdThresh"]], params[["gapQuantile"]],
+                     params[["OverlapAlignment"]], params[["dotProdThresh"]], params[["gapQuantile"]], 9L,
                      params[["hardConstrain"]], params[["samples4gradient"]])
   tAligned
 }

@@ -182,6 +182,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
+#' @inheritParams checkParams
 #' @param analytes (integer) a vector of precursor IDs.
 #' @param runs (vector of string) names of mzML files without extension.
 #' @param dataPath (string) Path to mzml and osw directory.

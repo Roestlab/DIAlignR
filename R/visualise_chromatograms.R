@@ -110,7 +110,7 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
     mutateInt <- na.locf(na.locf(na.approx(mutateInt, na.rm = FALSE), na.rm = FALSE), fromLast = TRUE)
     intensity[[k]] <- mutateInt
   }
-  mutateT <- mapIdxToTime(XIC_group[[1]][["time"]], idx)
+  mutateT <- mapIdxToTime(XIC_group[[1]][, "time"], idx)
 
   # Extrapolate time
   if(sum(is.na(mutateT)) > 0){
@@ -176,8 +176,8 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
   # Do not include gaps in reference run.
   AlignedIndices <- AlignedIndices[(AlignedIndices[,"indexAligned.ref"] != 0L), ]
   AlignedIndices[, 1:2][AlignedIndices[, 1:2] == 0] <- NA
-  t.ref <- XICs.ref[[1]][["time"]]
-  t.eXp <- mapIdxToTime(XICs.eXp[[1]][["time"]], AlignedIndices[,"indexAligned.eXp"])
+  t.ref <- XICs.ref[[1]][, "time"]
+  t.eXp <- mapIdxToTime(XICs.eXp[[1]][, "time"], AlignedIndices[,"indexAligned.eXp"])
   ###################### Plot unaligned chromatogram ######################################
   prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("ref time")
   if(annotatePeak){

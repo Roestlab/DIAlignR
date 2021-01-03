@@ -221,7 +221,24 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
   globalFits
 }
 
-
+#' Calculates global alignment between RT of two runs
+#'
+#' This function selects features from oswFiles which has m-score < maxFdrLoess. It fits linear/loess regression on these feature.
+#' Retention-time mapping is established from reference to experiment run.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2021) + GPL-3
+#' Date: 2019-03-01
+#' @importFrom dplyr %>%
+#' @inheritParams getGlobalAlignment
+#' @return A data-frame
+#' @seealso \code{\link{getGlobalAlignment}}
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' df <- getRTdf(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' @export
 getRTdf <- function(oswFiles, ref, eXp, maxFdrGlobal){
   if(maxFdrGlobal > 1) stop("No common precursors found between ", ref, " and ", eXp)
   df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
