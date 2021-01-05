@@ -466,11 +466,11 @@ alignmentStats <- function(finalTbl, params){
 #' @keywords internal
 updateOnalignTargetedRuns <-  function(i){
   if(i < 5){
-    message(i, " precursors have been aligned.")
+    message(i, " peptides have been aligned.")
   } else if(i < 1000){
-    if(i %% 100 == 0) message(i, " precursors have been aligned.")
+    if(i %% 100 == 0) message(i, " peptides have been aligned.")
   } else {
-    if(i %% 1000 == 0) message(i, " precursors have been aligned.")
+    if(i %% 1000 == 0) message(i, " peptides have been aligned.")
   }
   invisible(NULL)
 }
