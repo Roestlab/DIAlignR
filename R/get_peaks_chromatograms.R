@@ -20,8 +20,86 @@
 #' XIC_group <- extractXIC_group(mz, chromIndices)
 #' }
 extractXIC_group <- function(mz, chromIndices){
-  XIC_group <- mzR::chromatograms(mz, chromIndices)
+  XIC_group <- lapply(mzR::chromatograms(mz, chromIndices), as.matrix)
+  if (class(XIC_group) == "list" & length(XIC_group) > 1) {
+    return( XIC_group )
+  } else {
+    return( list(XIC_group) ) # only one transition detected
+  }
+}
+
+
+#' Uncompress a Blob object
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-12-13
+#' @import RMSNumpress Rcompression
+#' @param x (Blob object)
+#' @param type (integer) must either be 5L or 6L to indicate linear and short logged float compression, respectively.
+#' @return A numeric vector. Uncompressed form of the Blob.
+#' @keywords internal
+uncompressVec <- function(x, type){
+  if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(Rcompression::uncompress(x, asText = FALSE))))
+  if(type == 6L) return(RMSNumpress::decodeSlof(as.raw(Rcompression::uncompress(x, asText = FALSE))))
+  if(type == 1L) {
+    r <- as.raw(Rcompression::uncompress(x, asText = FALSE))
+    return(readBin(r, "numeric", length(r)/8, NA_real_, TRUE))
+  }
+  else stop("Compression = 1, 5, 6 are supported only.")
+}
+
+#' Extract XICs of chromIndices
+#'
+#' Extracts XICs using connection to sqMass file Each chromatogram represents a transition of precursor.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-12-25
+#' @param mz (SQLiteConnection object)
+#' @param chromIndices (vector of Integers) Indices of chromatograms to be extracted.
+#' @return A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
+#' @keywords internal
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' sqName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+#' chromIndices <- c(36L, 37L, 38L, 39L, 40L, 41L)
+#' \dontrun{
+#' con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
+#' XIC_group <- extractXIC_group2(con, chromIndices)
+#' DBI::dbDisconnect(con)
+#' }
+extractXIC_group2 <- function(con, chromIndices){
+  ids1 <- paste0(chromIndices, collapse = ", ")
+  query <- paste0("SELECT CHROMATOGRAM_ID, COMPRESSION, DATA_TYPE, DATA
+                 FROM DATA
+                 WHERE CHROMATOGRAM_ID IN (", ids1, ");", sep = "")
+  results <- DBI::dbGetQuery(con, query)
+  XIC_group <- lapply(chromIndices, function(id){
+    df <- results[results$CHROMATOGRAM_ID == id, c(2,3,4)]
+    df1 <- df[df$DATA_TYPE == 2L, c(1,3)]
+    df2 <- df[df$DATA_TYPE == 1L, c(1,3)]
+    cbind("time" = uncompressVec(df1[["DATA"]][[1]], df1$COMPRESSION[[1]]),
+          "intensity" = uncompressVec(df2[["DATA"]][[1]], df2$COMPRESSION[[1]]))
+  })
   XIC_group
+}
+
+xicIntersect <- function(xics){
+  time <- lapply(xics, function(df) floor(df[, "time"]))
+  strt <- max(sapply(time, function(v) v[1]))
+  end <- min(sapply(time, function(v) v[length(v)]))
+  newXICs <- lapply(seq_along(xics), function(i){
+    st = which(time[[i]] == strt)
+    en = which(time[[i]] == end)
+    xics[[i]][st:en,]
+  })
+  newXICs
 }
 
 #' Extract XICs of analytes
@@ -58,6 +136,8 @@ extractXIC_group <- function(mz, chromIndices){
 #' @export
 getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes){
   # Select ony runs that are present in fileInfo.
+  if(is(mzPntrs[[1]])[1] == "mzRpwiz") fetchXIC = extractXIC_group
+  if(is(mzPntrs[[1]])[1] == "SQLiteConnection") fetchXIC = extractXIC_group2
   fileInfo <- updateFileInfo(fileInfo, runs)
   runs <- rownames(fileInfo)
   # Create empty list to store chromatograms.
@@ -79,7 +159,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
         message("Skipping ", analyte)
         XIC_group <- NULL
       } else {
-        XIC_group <- extractXIC_group(mzPntrs[[runname]], chromIndices)
+        XIC_group <- fetchXIC(mzPntrs[[runname]], chromIndices)
       }
       XIC_group
     })
@@ -102,6 +182,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #'
+#' @inheritParams checkParams
 #' @param analytes (integer) a vector of precursor IDs.
 #' @param runs (vector of string) names of mzML files without extension.
 #' @param dataPath (string) Path to mzml and osw directory.
@@ -119,17 +200,17 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' XICs <- getXICs(analytes, runs = runs, dataPath = dataPath)
 #' @export
 getXICs <- function(analytes, runs, dataPath = ".", maxFdrQuery = 1.0, runType = "DIA_proteomics",
-                    oswMerged = TRUE){
+                    oswMerged = TRUE, params = paramsDIAlignR()){
   # Get fileInfo from .merged.osw file and check if names are consistent between osw and mzML files.
-  fileInfo <- getRunNames(dataPath, oswMerged)
+  fileInfo <- getRunNames(dataPath, oswMerged, params)
   fileInfo <- updateFileInfo(fileInfo, runs)
 
-  precursors <- getPrecursorByID(analytes,fileInfo)
+  precursors <- getPrecursorByID(analytes, fileInfo, oswMerged, "DIA_proteomics")
   mzPntrs <- getMZMLpointers(fileInfo)
-  prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
+  prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs, lapply)
 
   # Get Chromatogram indices for each peptide in each run.
-  features <- getFeatures(fileInfo, maxFdrQuery, runType)
+  features <- getFeatures(fileInfo, maxFdrQuery, runType, lapply)
   refAnalytes <-  analytesFromFeatures(features, analyteFDR = maxFdrQuery, commonAnalytes = FALSE)
   analytesFound <- intersect(analytes, refAnalytes)
   analytesNotFound <- setdiff(analytes, analytesFound)

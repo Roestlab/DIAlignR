@@ -10,7 +10,8 @@ getXICs(
   dataPath = ".",
   maxFdrQuery = 1,
   runType = "DIA_proteomics",
-  oswMerged = TRUE
+  oswMerged = TRUE,
+  params = paramsDIAlignR()
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ getXICs(
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
+
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 }
 \value{
 A list of list. Each list contains XIC-group for that run. XIC-group is a list of dataframe that has elution time and intensity of fragment-ion XIC.

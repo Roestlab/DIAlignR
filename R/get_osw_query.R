@@ -197,12 +197,13 @@ getAnalytesQuery <- function(maxFdrQuery, oswMerged = TRUE, filename = NULL,
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2020-04-04
-#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @inheritParams fetchPrecursorsInfo
 #' @return SQL query to be searched.
 #' @seealso \code{\link{fetchPrecursorsInfo}}
 #' @keywords internal
-getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
-  query <- "SELECT DISTINCT PRECURSOR.ID AS transition_group_id,
+getPrecursorsQuery <- function(runType = "DIA_Proteomics", level = "Peptide"){
+  if(level == "Protein"){
+    query <- "SELECT DISTINCT PRECURSOR.ID AS transition_group_id,
       TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
       PEPTIDE.ID AS peptide_id,
       PEPTIDE.MODIFIED_SEQUENCE AS sequence,
@@ -212,9 +213,38 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics"){
       INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
-      INNER JOIN SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
-      WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+      INNER JOIN PEPTIDE_PROTEIN_MAPPING ON PEPTIDE_PROTEIN_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      LEFT JOIN (
+      SELECT PROTEIN_ID
+      FROM SCORE_PROTEIN
+      WHERE SCORE_PROTEIN.CONTEXT = $CONTEXT AND SCORE_PROTEIN.QVALUE < $FDR
+      ) AS SCORE_PROTEIN ON SCORE_PROTEIN.PROTEIN_ID = PEPTIDE_PROTEIN_MAPPING.PROTEIN_ID
+      LEFT JOIN(
+      SELECT PEPTIDE_ID
+      FROM SCORE_PEPTIDE
+      WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR
+      ) AS SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
+      WHERE PRECURSOR.DECOY = 0
       ORDER BY peptide_id, transition_group_id, transition_id;"
+  } else{
+    query <- "SELECT DISTINCT PRECURSOR.ID AS transition_group_id,
+      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+      PEPTIDE.ID AS peptide_id,
+      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+      PRECURSOR.CHARGE AS charge,
+      PRECURSOR.GROUP_LABEL AS group_label
+      FROM PRECURSOR
+      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+      INNER JOIN (
+      SELECT PEPTIDE_ID
+      FROM SCORE_PEPTIDE
+      WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.QVALUE < $FDR
+      ) AS SCORE_PEPTIDE ON SCORE_PEPTIDE.PEPTIDE_ID = PEPTIDE.ID
+      WHERE PRECURSOR.DECOY = 0
+      ORDER BY peptide_id, transition_group_id, transition_id;"
+  }
   query
 }
 
@@ -244,9 +274,16 @@ getFeaturesQuery <- function(runType = "DIA_Proteomics"){
   FROM PRECURSOR
   INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
   INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
-  LEFT JOIN FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
-  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+  LEFT JOIN (
+      SELECT FEATURE_ID, AREA_INTENSITY
+      FROM FEATURE_MS2
+  ) AS FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
+  INNER JOIN (
+      SELECT FEATURE_ID, RANK, QVALUE
+      FROM SCORE_MS2
+      WHERE SCORE_MS2.QVALUE < $FDR
+      ) AS SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+  WHERE PRECURSOR.DECOY = 0 AND RUN.ID = $runID
   ORDER BY transition_group_id, peak_group_rank;"
   query
 }
@@ -310,6 +347,30 @@ getPeptideQuery <- function(runType = "DIA_Proteomics"){
   query
 }
 
+#' Get peptide scores
+#'
+#' For each peptide, its score, pvalue and qvalues are fetched across all runs.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-11-18
+#' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
+#' @return SQL query to be searched.
+#' @seealso \code{\link{getPeptideScores}}
+#' @keywords internal
+getPeptideQuery2 <- function(runType = "DIA_Proteomics"){
+  query <- "SELECT DISTINCT SCORE_PEPTIDE.PEPTIDE_ID AS peptide_id,
+  SCORE_PEPTIDE.RUN_ID AS run,
+  SCORE_PEPTIDE.SCORE AS score,
+  SCORE_PEPTIDE.PVALUE AS pvalue,
+  SCORE_PEPTIDE.QVALUE AS qvalue
+  FROM SCORE_PEPTIDE
+  WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT AND SCORE_PEPTIDE.RUN_ID = $runID;"
+  query
+}
+
 #' Get transitions from a SQLite file
 #'
 #' Query is generated to identify features and their transitions below a FDR cut-off from a run.
@@ -337,9 +398,16 @@ getTransitionsQuery <- function(runType = "DIA_Proteomics"){
   FROM PRECURSOR
   INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
   INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
-  LEFT JOIN FEATURE_TRANSITION ON FEATURE.ID = FEATURE_TRANSITION.FEATURE_ID
-  LEFT JOIN SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE RUN.ID = $runID AND SCORE_MS2.QVALUE < $FDR AND PRECURSOR.DECOY = 0
+  LEFT JOIN (
+    SELECT FEATURE_ID, TRANSITION_ID, AREA_INTENSITY
+    FROM FEATURE_TRANSITION
+    ) AS FEATURE_TRANSITION ON FEATURE.ID = FEATURE_TRANSITION.FEATURE_ID
+  INNER JOIN (
+      SELECT FEATURE_ID, RANK, QVALUE
+      FROM SCORE_MS2
+      WHERE SCORE_MS2.QVALUE < $FDR
+      ) AS SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+  WHERE PRECURSOR.DECOY = 0 AND RUN.ID = $runID
   ORDER BY transition_group_id, peak_group_rank, FEATURE_TRANSITION.TRANSITION_ID;"
   query
 }

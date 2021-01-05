@@ -9,6 +9,7 @@ paramsDIAlignR()
 \value{
 A list of parameters:
 \item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{chromFile}{(string) must either be "mzML" or "sqMass".}
 \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_MS2.QVALUE less than itself.}
 \item{maxPeptideFdr}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
 \item{analyteFDR}{(numeric) defines the upper limit of FDR on a precursor to be considered for multipeptide.}
@@ -17,6 +18,7 @@ A list of parameters:
  considered for quantification even without the RT alignment.}
 \item{alignedFDR}{(numeric) must be between unalignedFDR and 1. Features below alignedFDR are
  considered for quantification after the alignment.}
+\item{level}{(string) apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 \item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
  from "intensity_sum", "trapezoid", "simpson".}
 \item{baseSubtraction}{{logical} TRUE: remove background from peak signal using estimated noise levels.}
@@ -49,6 +51,8 @@ A list of parameters:
 \item{splineMethod}{(string) must be either "fmm" or "natural".}
 \item{mergeTime}{(string) must be either "ref", "avg", "refStart" or "refEnd".}
 \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
+\item{fraction}{(integer) indicates which fraction to align.}
+\item{fractionPercent}{(integer) percentage number of peptides to align.}
 }
 \description{
 Retention alignment requires OpenSWATH/pyProphet extracted features and chromatograms. This function provides

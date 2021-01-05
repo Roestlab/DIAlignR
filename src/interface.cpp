@@ -11,6 +11,26 @@ std::vector<std::vector<double> > list2VecOfVec (Rcpp::List l){
   return VecOfVec;
 }
 
+std::vector<std::vector<double> > getTime(Rcpp::List l){
+  int len = l.size();
+  std::vector<std::vector<double> > VecOfVec(len);
+  for (int i = 0; i < len; i++){
+    NumericVector t = as<NumericMatrix>(l[i])(_, 0);
+    VecOfVec[i] = as<std::vector<double>>(t);
+  }
+  return VecOfVec;
+}
+
+std::vector<std::vector<double> > getIntensity(Rcpp::List l){
+  int len = l.size();
+  std::vector<std::vector<double> > VecOfVec(len);
+  for (int i = 0; i < len; i++){
+    NumericVector t = as<NumericMatrix>(l[i])(_, 1);
+    VecOfVec[i] = as<std::vector<double>>(t);
+  }
+  return VecOfVec;
+}
+
 void printVecOfVec(Rcpp::List l){
   // Printing output of list2VecOfVec function
   std::vector<std::vector<double> > VecOfVec = list2VecOfVec(l);

@@ -4,10 +4,12 @@
 \alias{getPrecursorsQuery}
 \title{Get precursor Info}
 \usage{
-getPrecursorsQuery(runType = "DIA_Proteomics")
+getPrecursorsQuery(runType = "DIA_Proteomics", level = "Peptide")
 }
 \arguments{
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+
+\item{level}{(string) Apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 }
 \value{
 SQL query to be searched.

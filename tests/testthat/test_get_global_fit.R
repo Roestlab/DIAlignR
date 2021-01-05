@@ -1,14 +1,16 @@
 context("Global Fit")
 
-  test_that("test_getLOESSfit", {
+test_that("test_getLOESSfit", {
     data(oswFiles_DIAlignR, package="DIAlignR")
     oswFiles <- oswFiles_DIAlignR
     Loess.fit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
     # Testing for Residual standard error
-    expect_equal(Loess.fit$s, 22.23519, tolerance = 1e-05)
+    expect_equal(getRSE(Loess.fit, "loess"), 22.00103, tolerance = 1e-05)
+    expect_identical(names(Loess.fit), c("x", "y", "RT.ref", "RT.eXp"))
     # Add predict function as well.
-    expect_equal(predict(Loess.fit, newdata = data.frame("RT.ref"= 4978.4))[[1]], 4964.752, tolerance = 1e-05)
-    expect_equal(predict(Loess.fit, newdata = data.frame("RT.ref"= 5575.8))[[1]], 5565.462, tolerance = 1e-05)
+    lfun <- stats::approxfun(Loess.fit)
+    expect_equal(lfun(4978.4), 4966.134, tolerance = 1e-05)
+    expect_equal(lfun(5575.8), 5566.859, tolerance = 1e-05)
   })
 
 test_that("test_dialignrLoess", {
@@ -28,10 +30,10 @@ test_that("test_getLinearfit", {
   oswFiles <- oswFiles_DIAlignR
   Linear.fit <- getLinearfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
   # Testing for Residual standard error
-  expect_equal(summary(Linear.fit)[["sigma"]], 30.12705, tolerance = 1e-05)
-  outData <- predict(Linear.fit, newdata = data.frame("RT.ref"=4978.4))[[1]]
+  expect_equal(getRSE(Linear.fit, "linear"), 30.12705, tolerance = 1e-05)
+  outData <- sum(coef(Linear.fit)*c(1,4978.4))
   expect_equal(outData, 4990.682, tolerance = 1e-05)
-  outData <- predict(Linear.fit, newdata = data.frame("RT.ref"=5575.8))[[1]]
+  outData <- sum(coef(Linear.fit)*c(1,5575.8))
   expect_equal(outData, 5577.561, tolerance = 1e-05)
 })
 
@@ -40,17 +42,18 @@ test_that("test_getGlobalAlignment", {
   oswFiles <- oswFiles_DIAlignR
   globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1, fitType = "loess")
   # Testing for Residual standard error
-  expect_equal(globalFit$s, 22.23519, tolerance = 1e-05)
+  expect_equal(getRSE(globalFit, "loess"), 22.00103, tolerance = 1e-05)
   # Add predict function as well.
-  expect_equal(predict(globalFit, newdata = data.frame("RT.ref"= 4978.4))[[1]], 4964.752, tolerance = 1e-05)
-  expect_equal(predict(globalFit, newdata = data.frame("RT.ref"= 5575.8))[[1]], 5565.462, tolerance = 1e-05)
+  lfun <- stats::approxfun(globalFit)
+  expect_equal(lfun(4978.4), 4966.134, tolerance = 1e-05)
+  expect_equal(lfun(5575.8), 5566.859, tolerance = 1e-05)
 
   globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, fitType = "linear")
   # Testing for Residual standard error
-  expect_equal(summary(globalFit)[["sigma"]], 30.12705, tolerance = 1e-05)
-  outData <- predict(globalFit, newdata = data.frame("RT.ref"=4978.4))[[1]]
+  expect_equal(getRSE(globalFit, "linear"), 30.12705, tolerance = 1e-05)
+  outData <- sum(coef(globalFit)*c(1,4978.4))
   expect_equal(outData, 4990.682, tolerance = 1e-05)
-  outData <- predict(globalFit, newdata = data.frame("RT.ref"=5575.8))[[1]]
+  outData <- sum(coef(globalFit)*c(1,5575.8))
   expect_equal(outData, 5577.561, tolerance = 1e-05)
 })
 
@@ -59,10 +62,10 @@ test_that("test_getRSE", {
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
   globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1, fitType = "loess")
-  expect_equal(getRSE(globalFit), 22.23519, tolerance = 1e-05)
+  expect_equal(getRSE(globalFit, "loess"), 22.00103, tolerance = 1e-05)
 
   globalFit <- getGlobalAlignment(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, fitType = "linear")
-  expect_equal(getRSE(globalFit), 30.12705, tolerance = 1e-05)
+  expect_equal(getRSE(globalFit, "linear"), 30.12705, tolerance = 1e-05)
 })
 
 
@@ -74,9 +77,9 @@ test_that("test_getGlobalFits", {
                        "run" = c("run0", "run1"),stringsAsFactors = FALSE)
   globalFits <- getGlobalFits(refRun, features, fileInfo, "loess", 0.05, 0.1)
   globalFit <- globalFits[["run1_run2"]]
-  expect_equal(globalFit$s, 22.23519, tolerance = 1e-05)
+  expect_equal(getRSE(globalFit, "loess"), 22.00103, tolerance = 1e-05)
 
   globalFits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
   globalFit <- globalFits[["run1_run2"]]
-  expect_equal(summary(globalFit)[["sigma"]], 30.12705, tolerance = 1e-05)
+  expect_equal(getRSE(globalFit, "linear"), 30.12705, tolerance = 1e-05)
 })

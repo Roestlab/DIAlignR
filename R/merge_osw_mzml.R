@@ -187,8 +187,13 @@ getChromatogramIndices <- function(fileInfo, precursors, mzPntrs, applyFun=lappl
   # For each precursor get associated chromatogram Indices
   runs <- rownames(fileInfo)
   prec2chromIndex <- applyFun(seq_along(runs), function(i){
+    mz <- mzPntrs[[runs[i]]]
     # Get chromatogram indices from the header file.
-    chromHead <- mzR::chromatogramHeader(mzPntrs[[runs[i]]]) #TODO: Make sure that chromatogramIndex is read as integer64
+    if(is(mz)[1] == "SQLiteConnection"){chromHead <- readSqMassHeader(mz)}
+    if(is(mz)[1] == "mzRpwiz"){
+      chromHead <- mzR::chromatogramHeader(mz) #TODO: Make sure that chromatogramIndex is read as integer64
+    }
+    chromHead <- chromHead[grepl("^[[:digit:]]+$", chromHead[,1]),]
     chromatogramIdAsInteger(chromHead) # Select only chromatogramId, chromatogramIndex
     df <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
     df <- df[match(precursors$transition_group_id, df$transition_group_id),]

@@ -35,7 +35,7 @@ Retention-time mapping is established from reference to experiment run.
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
-lm.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
  fitType = "linear", maxFdrGlobal = 0.05, spanvalue = 0.1)
 }
 \seealso{

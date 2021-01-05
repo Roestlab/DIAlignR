@@ -237,6 +237,8 @@ testAlignObj <- function(){
 #' @seealso \code{\link{paramsDIAlignR}}
 #' @keywords internal
 checkParams <- function(params){
+  if(!(params[["chromFile"]] %in% c("mzML", "sqMass"))) stop("chromFile must either be mzML or sqMass.")
+
   if(params[["context"]] != "experiment-wide" & params[["context"]] != "global"){
     stop("context must either be experiment-wide or global for the alignment.")
   }
@@ -261,6 +263,8 @@ checkParams <- function(params){
       stop("For XICfilter = sgolay, polyOrd must be less than kernelLen.")
     }
   }
+
+  if(params[["XICfilter"]] == "none") params[["kernelLen"]] <- 0L
 
   if(!any(params[["globalAlignment"]] %in% c("loess",  "linear"))){
     stop("globalAlignment must either be loess or linear.")
@@ -312,7 +316,19 @@ checkParams <- function(params){
     # Find some logic for analyteFDR.
   }
 
-  invisible(NULL)
+  if(params[["fractionPercent"]] < 1 | params[["fractionPercent"]] > 100){
+    stop("fractionPercent must be between [1, 100]")
+  }
+
+  if(params[["fraction"]] < 1 | params[["fraction"]] > ceiling(100/params[["fractionPercent"]])){
+    stop("fraction must be between [1, ceiling(100/fractionPercent)]")
+  }
+
+  if(!any(params[["level"]] %in% c("Peptide", "Protein"))){
+    stop("level for maxPeptideFDR should be either Peptide or Protein.")
+  }
+
+  params
 }
 
 #' Parameters for the alignment functions
@@ -330,6 +346,7 @@ checkParams <- function(params){
 #' Date: 2020-07-11
 #' @return A list of parameters:
 #' \item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+#' \item{chromFile}{(string) must either be "mzML" or "sqMass".}
 #' \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_MS2.QVALUE less than itself.}
 #' \item{maxPeptideFdr}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
 #' \item{analyteFDR}{(numeric) defines the upper limit of FDR on a precursor to be considered for multipeptide.}
@@ -338,6 +355,7 @@ checkParams <- function(params){
 #'  considered for quantification even without the RT alignment.}
 #' \item{alignedFDR}{(numeric) must be between unalignedFDR and 1. Features below alignedFDR are
 #'  considered for quantification after the alignment.}
+#' \item{level}{(string) apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 #' \item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
 #'  from "intensity_sum", "trapezoid", "simpson".}
 #' \item{baseSubtraction}{{logical} TRUE: remove background from peak signal using estimated noise levels.}
@@ -370,24 +388,28 @@ checkParams <- function(params){
 #' \item{splineMethod}{(string) must be either "fmm" or "natural".}
 #' \item{mergeTime}{(string) must be either "ref", "avg", "refStart" or "refEnd".}
 #' \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
+#' \item{fraction}{(integer) indicates which fraction to align.}
+#' \item{fractionPercent}{(integer) percentage number of peptides to align.}
 #' @seealso \code{\link{checkParams}, \link{alignTargetedRuns}}
 #' @examples
 #' params <- paramsDIAlignR()
 #' @export
 paramsDIAlignR <- function(){
-  params <- list( runType = "DIA_proteomics", maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
-                  context = "global", unalignedFDR = 0.01, alignedFDR = 0.05,
+  params <- list( runType = "DIA_proteomics", chromFile = "mzML",
+                  maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
+                  context = "global", unalignedFDR = 0.01, alignedFDR = 0.05, level = "Peptide",
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
                   recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,
-                  XICfilter = "sgolay", polyOrd = 4, kernelLen = 9,
-                  globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
+                  XICfilter = "sgolay", polyOrd = 4L, kernelLen = 11L,
+                  globalAlignment = "linear", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                   RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                   alignType = "hybrid", goFactor = 0.125, geFactor = 40,
                   cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
                   fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
-                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L, transitionIntensity = FALSE)
+                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L, transitionIntensity = FALSE,
+                  fraction = 1L, fractionPercent = 100L)
   params
 }
 
@@ -444,11 +466,11 @@ alignmentStats <- function(finalTbl, params){
 #' @keywords internal
 updateOnalignTargetedRuns <-  function(i){
   if(i < 5){
-    message(i, " precursors have been aligned.")
+    message(i, " peptides have been aligned.")
   } else if(i < 1000){
-    if(i %% 100 == 0) message(i, " precursors have been aligned.")
+    if(i %% 100 == 0) message(i, " peptides have been aligned.")
   } else {
-    if(i %% 1000 == 0) message(i, " precursors have been aligned.")
+    if(i %% 1000 == 0) message(i, " peptides have been aligned.")
   }
   invisible(NULL)
 }
@@ -490,4 +512,21 @@ checkOverlap <- function(x, y){
   overArch <- (y[2] - x[2]) >= 0 & (y[1] - x[1]) <= 0
   olap <- (leftOverlap | rightOverlap | overArch)
   olap
+}
+
+getPrecursorSubset <- function(precursors, params){
+  peptideIDs <- unique(precursors$peptide_id)
+  len = length(peptideIDs)
+  a = params[["fraction"]]
+  b = params[["fractionPercent"]]
+  pepStart <- (a-1)*floor(len*b*0.01)+1
+  pepEnd <- min(a*floor(len*b*0.01), len)
+  r <- rle(precursors$peptide_id)
+  if(a == 1) {
+    pepStart = 1
+  } else{
+    pepStart <- sum(r$lengths[1:(which(r$value == peptideIDs[pepStart])-1)], 1)
+  }
+  pepEnd <- sum(r$lengths[1:which(r$value== peptideIDs[pepEnd])])
+  c(pepStart, pepEnd)
 }

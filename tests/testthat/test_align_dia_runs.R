@@ -3,9 +3,12 @@ context("Align DIA runs")
 test_that("test_alignTargetedRuns",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["XICfilter"]] <- "none"
+  params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
-  expect_warning(
-    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
+  params[["chromFile"]] <- "sqMass"
+  expect_message(
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)
   )
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
@@ -23,8 +26,11 @@ test_that("test_alignTargetedRuns",{
   runs <- c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
   BiocParallel::register(BiocParallel::MulticoreParam())
+  params <- paramsDIAlignR()
   params[["batchSize"]] <- 10L
-  alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
+  params[["globalAlignment"]] <- "loess"
+  params[["context"]] <- "experiment-wide"
+  alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = runs, applyFun = BiocParallel::bplapply)
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
   expData <- read.table("test2.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
@@ -40,10 +46,11 @@ test_that("test_alignTargetedRuns",{
 
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["XICfilter"]] <- "none"
   params[["context"]] <- "experiment-wide"
   params[["transitionIntensity"]] <- TRUE
-  expect_warning(
-    alignTargetedRuns(dataPath = dataPath,  outFile = "temp.tsv", params = params, oswMerged = TRUE,
+  expect_message(
+    alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)
   )
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
@@ -68,7 +75,9 @@ test_that("test_getAlignObjs",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   analytes <- c(32L, 898L, 4618L)
   params <- paramsDIAlignR()
+  params[["globalAlignment"]] <- "loess"
   params[["kernelLen"]] <- 13L
+  params[["polyOrd"]] <- 4L
   params[["context"]] <- "experiment-wide"
   expect_warning(
     outData <- getAlignObjs(analytes, runs, dataPath = dataPath, refRun = refRun,
@@ -78,8 +87,10 @@ test_that("test_getAlignObjs",{
   expect_equal(outData[[2]][["4618"]][["run1_run2"]][[1]], expData, tolerance = 1e-05)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
-  expect_equal(outData[[2]][["4618"]][["run1_run2"]][["ref"]], XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], tolerance = 1e-05)
-  expect_equal(outData[[2]][["4618"]][["run1_run2"]][["eXp"]], XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], tolerance = 1e-05)
+  expect_equal(outData[[2]][["4618"]][["run1_run2"]][["ref"]],
+               lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix), tolerance = 1e-05)
+  expect_equal(outData[[2]][["4618"]][["run1_run2"]][["eXp"]],
+               lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix), tolerance = 1e-05)
   expData <- data.frame("leftWidth" = 5220.758, "RT" = 5238.35, "rightWidth" = 5261.723)
   expect_equal(as.data.frame(outData[[2]][["4618"]][["run1_run2"]][["peak"]]), expData, tolerance = 1e-05)
   expect_identical(outData[[2]][["32"]], NULL)
@@ -105,6 +116,7 @@ test_that("test_alignToRef",{
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
   RSE <- list()
   RSE[["run1_run2"]] <- 38.6594179136227/params$RSEdistFactor
+  globalFits <- lapply(globalFits, extractFit, params[["globalAlignment"]])
 
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   data(multipeptide_DIAlignR, package="DIAlignR")
@@ -113,7 +125,7 @@ test_that("test_alignToRef",{
   df <- multipeptide_DIAlignR[["14383"]]
   df$alignment_rank[2] <- 1L; df$m_score[3] <- 0.06
   XICs.ref <- list()
-  XICs.ref[["4618"]] <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+  XICs.ref[["4618"]] <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
   outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = 2L, analytes = 4618L, fileInfo, XICs.ref, params, prec2chromIndex,
              mzPntrs, df, globalFits, RSE)
   expect_equal(df[3,], outData[1,])
@@ -145,7 +157,7 @@ test_that("test_alignToRef",{
                tolerance = 1e-06)
 
   # Case 4
-  expect_warning(outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = c(1L), analytes = c(32L), fileInfo,
+  expect_message(outData <- alignToRef(eXp = "run2", ref = "run1", preIdx = c(1L), analytes = c(32L), fileInfo,
                         XICs.ref, params, prec2chromIndex, mzPntrs, df, globalFits, RSE))
 
 })
@@ -170,8 +182,10 @@ test_that("test_alignIthAnalyte",{
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
   RSE <- list()
   RSE[["run1_run2"]] <- RSE[["run1_run0"]] <- 38.6594179136227/params$RSEdistFactor
+  globalFits <- lapply(globalFits, extractFit, params[["globalAlignment"]])
+
   # Case 1
-  expect_warning(outData <- alignIthAnalyte(rownum = 1, peptideIDs, multipeptide, refRuns, precursors,
+  expect_message(outData <- alignIthAnalyte(rownum = 1, peptideIDs, multipeptide, refRuns, precursors,
                              prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE))
   # Case 2
   outData <- alignIthAnalyte(rownum = 2, peptideIDs, multipeptide, refRuns, precursors,

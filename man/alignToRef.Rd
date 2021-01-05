@@ -10,7 +10,7 @@ alignToRef(
   preIdx,
   analytes,
   fileInfo,
-  XICs.ref.s,
+  XICs.ref,
   params,
   prec2chromIndex,
   mzPntrs,
@@ -25,8 +25,6 @@ alignToRef(
 \item{ref}{(string) name of the reference run. Must be in the rownames of fileInfo.}
 
 \item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
-
-\item{XICs.ref.s}{(list of dataframes) Smoothed fragment-ion chromatograms of the analyte_chr from the reference run.}
 
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
@@ -43,6 +41,8 @@ chromatogramIndex: index of chromatogram in mzML file.}
 \item{RSE}{(list) Each element represents Residual Standard Error of corresponding fit in globalFits.}
 
 \item{analyte_chr}{(string) Precursor ID of the requested analyte.}
+
+\item{XICs.ref.s}{(list of dataframes) Smoothed fragment-ion chromatograms of the analyte_chr from the reference run.}
 }
 \value{
 (dataframe) aligned features of analyte_chr in eXp run.
