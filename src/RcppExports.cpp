@@ -196,6 +196,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// splineFillCpp
+NumericVector splineFillCpp(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& xout);
+RcppExport SEXP _DIAlignR_splineFillCpp(SEXP xSEXP, SEXP ySEXP, SEXP xoutSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type xout(xoutSEXP);
+    rcpp_result_gen = Rcpp::wrap(splineFillCpp(x, y, xout));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_getSeqSimMatCpp", (DL_FUNC) &_DIAlignR_getSeqSimMatCpp, 4},
@@ -209,6 +222,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_alignChromatogramsCpp", (DL_FUNC) &_DIAlignR_alignChromatogramsCpp, 20},
     {"_DIAlignR_doAlignmentCpp", (DL_FUNC) &_DIAlignR_doAlignmentCpp, 3},
     {"_DIAlignR_doAffineAlignmentCpp", (DL_FUNC) &_DIAlignR_doAffineAlignmentCpp, 4},
+    {"_DIAlignR_splineFillCpp", (DL_FUNC) &_DIAlignR_splineFillCpp, 3},
     {NULL, NULL, 0}
 };
 

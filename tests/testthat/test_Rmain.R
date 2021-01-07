@@ -242,3 +242,14 @@ test_that("test_doAffineAlignmentCpp",{
   expData <- c(10, 20, 18, 18, 18)
   expect_equal(outData@score, expData)
 })
+
+test_that("test_splineFillCpp",{
+  time <- seq(from = 3003.4, to = 3048, by = 3.4)
+  y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,
+        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
+  y[c(1,6)] <- NA_real_
+  idx <- !is.na(y)
+  outData <- splineFillCpp(time[idx], y[idx], time[!idx])
+  expData <- coredata(zoo::na.spline(zoo::zoo(y[idx], time[idx]), xout = time[!idx], method = "natural"))
+  expect_equal(outData, expData)
+})

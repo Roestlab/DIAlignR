@@ -16,6 +16,7 @@
 #include "DPosition.h"
 #include "SavitzkyGolayFilter.h"
 #include "miscell.h"
+#include "spline.h"
 using namespace Rcpp;
 using namespace DIAlign;
 using namespace AffineAlignment;
@@ -25,6 +26,7 @@ using namespace ConstrainMatrix;
 using namespace Utils;
 using namespace Traceback;
 using namespace PeakGroupIntensity;
+using namespace tk;
 //using namespace PeakIntegration;
 
 // Enable C++11 via this plugin (Rcpp 0.10.3 or later)
@@ -683,6 +685,31 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
   return(x);
 }
 
+
+//' Interpolate using spline
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2021) + MIT
+//' Date: 2021-01-06
+//' @param x (numeric) A numeric matrix with similarity values of two sequences or signals.
+//' @param y (numeric) Penalty for introducing first gap in alignment.
+//' @param xout (numeric) Penalty for introducing subsequent gaps in alignment.
+//' @examples
+//' time <- seq(from = 3003.4, to = 3048, by = 3.4)
+//' y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,
+//'        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
+//' y[c(1,6)] <- NA_real_
+//' idx <- !is.na(y)
+//' splineFillCpp(time[idx], y[idx], time[!idx])
+//' zoo::na.spline(zoo::zoo(y[idx], time[idx]), xout = time[!idx], method = "natural")
+//' @export
+// [[Rcpp::export]]
+NumericVector splineFillCpp(const std::vector<double>& x, const std::vector<double>& y,
+                         const std::vector<double>& xout){
+  std::vector<double> result = naturalSpline(x, y, xout);
+  return(Rcpp::wrap(result));
+}
 // gnu -> gcc -> g++ compiler
 // -I means include path. DNDEBUG includes debug symbols. Position-independent code (PIC): E.g. jumps would be generated as relative rather than absolute.
 // -02 : Maximum optimization. -W warnings, -L path to the library,

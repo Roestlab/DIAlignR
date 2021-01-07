@@ -384,3 +384,25 @@ doAffineAlignmentCpp <- function(sim, go, ge, OverlapAlignment) {
     .Call(`_DIAlignR_doAffineAlignmentCpp`, sim, go, ge, OverlapAlignment)
 }
 
+#' Interpolate using spline
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2021) + MIT
+#' Date: 2021-01-06
+#' @param x (numeric) A numeric matrix with similarity values of two sequences or signals.
+#' @param y (numeric) Penalty for introducing first gap in alignment.
+#' @param xout (numeric) Penalty for introducing subsequent gaps in alignment.
+#' @examples
+#' time <- seq(from = 3003.4, to = 3048, by = 3.4)
+#' y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,
+#'        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
+#' y[c(1,6)] <- NA_real_
+#' idx <- !is.na(y)
+#' splineFillCpp(time[idx], y[idx], time[!idx])
+#' zoo::na.spline(zoo::zoo(y[idx], time[idx]), xout = time[!idx], method = "natural")
+#' @export
+splineFillCpp <- function(x, y, xout) {
+    .Call(`_DIAlignR_splineFillCpp`, x, y, xout)
+}
+
