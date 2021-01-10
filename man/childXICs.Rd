@@ -32,8 +32,6 @@ childXICs(
 
 \item{splineMethod}{(string) must be either "fmm" or "natural".}
 
-\item{w.ref}{(numeric) Weight of the reference XIC. Must be between 0 and 1.}
-
 \item{mergeStrategy}{(string) must be either ref, avg, refStart or refEnd.}
 
 \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}

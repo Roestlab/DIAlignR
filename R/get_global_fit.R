@@ -159,7 +159,7 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
 #' \dontrun{
 #' Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #' maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
-#' getRSE(Loess.fit)
+#' getRSE(Loess.fit, "loess")
 #' }
 getRSE <- function(fit, globalAlignment){
   if(globalAlignment == "loess"){

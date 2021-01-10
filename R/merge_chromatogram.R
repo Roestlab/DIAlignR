@@ -78,7 +78,7 @@ childXICs <- function(XICs.ref, XICs.eXp, alignedIndices, method = "spline", pol
 #' plot(childXIC(XICs.ref[[1]], XICs.eXp[[1]], alignedIndices)[[1]], type = 'l')
 #' }
 childXIC <- function(XIC.ref, XIC.eXp, alignedIndices, method = "spline", polyOrd = 4,
-                      kernelLen = 9, splineMethod = "fmm", w.ref = 0.5, mergeStrategy = "avg", keepFlanks = TRUE){
+                      kernelLen = 9, splineMethod = "fmm", wRef = 0.5, mergeStrategy = "avg", keepFlanks = TRUE){
   # Impute missing intensities in chromatogram
   XIC.ref.imp <- alignedXIC(XIC.ref, alignedIndices[,"indexAligned.ref"], method, polyOrd, kernelLen, splineMethod)
   XIC.eXp.imp <- alignedXIC(XIC.eXp, alignedIndices[,"indexAligned.eXp"], method, polyOrd, kernelLen, splineMethod)
@@ -86,7 +86,7 @@ childXIC <- function(XIC.ref, XIC.eXp, alignedIndices, method = "spline", polyOr
   flank <- is.na(XIC.ref.imp[["time"]]) | is.na(XIC.eXp.imp[["time"]])
   skip <- flank | is.na(alignedIndices[,"indexAligned.ref"]) # Remove gaps from the reference
 
-  newXIC <- mergeXIC(XIC.ref.imp[!skip,], XIC.eXp.imp[!skip,], w.ref, mergeStrategy)
+  newXIC <- mergeXIC(XIC.ref.imp[!skip,], XIC.eXp.imp[!skip,], wRef, mergeStrategy)
   alignedChildTime <- rep(NA, nrow(alignedIndices))
   alignedChildTime[!skip] <- newXIC[["time"]]
 
@@ -228,7 +228,7 @@ addFlankToRight <- function(flankSeq, XIC, newXIC){
 #' Date: 2020-05-23
 #' @param XIC.ref (data-frame) extracted ion chromatogram from reference run. Must not contain missing values.
 #' @param XIC.eXp (data-frame) extracted ion chromatogram from experiment run. Must not contain missing values.
-#' @param w.ref (numeric) Weight of the reference XIC. Must be between 0 and 1.
+#' @param wRef (numeric) Weight of the reference XIC. Must be between 0 and 1.
 #' @param mergeStrategy (string) must be either ref, avg, refStart or refEnd.
 #' @seealso \code{\link{childXIC}, \link{alignedXIC}}
 #' @keywords internal
@@ -237,9 +237,9 @@ addFlankToRight <- function(flankSeq, XIC, newXIC){
 #' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 #' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["14299_QFNNTDIVLLEDFQK/3"]]
 #' \dontrun{
-#' plot(mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], w.ref = 0.5, mergeStrategy = "ref"), type = "l")
+#' plot(mergeXIC(XICs.ref[[1]], XICs.eXp[[1]], wRef = 0.5, mergeStrategy = "ref"), type = "l")
 #' }
-mergeXIC <- function(XIC.ref, XIC.eXp, w.ref, mergeStrategy){
+mergeXIC <- function(XIC.ref, XIC.eXp, wRef, mergeStrategy){
   # Recalculate time and intensity for merged chromatogram
   np <- nrow(XIC.ref)
   if(mergeStrategy == "ref"){
@@ -260,7 +260,7 @@ mergeXIC <- function(XIC.ref, XIC.eXp, w.ref, mergeStrategy){
   # Caveat: If chromatograms are not perfectly aligned, we may widen the peak.
   # TODO: Put weights on the intensity. Align child chromatogram to parent ones and see the fit.
   # If the fit is not good propagate the reference one.
-  intensity <- w.ref*XIC.ref[, 2] + (1.0 - w.ref)*XIC.eXp[, 2]
+  intensity <- wRef*XIC.ref[, 2] + (1.0 - wRef)*XIC.eXp[, 2]
   data.frame(time, intensity)
 }
 

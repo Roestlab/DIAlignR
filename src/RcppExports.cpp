@@ -98,7 +98,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // sgolayCpp
-NumericVector sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd);
+NumericMatrix sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd);
 RcppExport SEXP _DIAlignR_sgolayCpp(SEXP chromSEXP, SEXP kernelLenSEXP, SEXP polyOrdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -209,6 +209,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getChildXICpp
+List getChildXICpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd, std::string alignType, double adaptiveRT, std::string normalization, std::string simType, double B1p, double B2p, double goFactor, double geFactor, double cosAngleThresh, bool OverlapAlignment, double dotProdThresh, double gapQuantile, int kerLen, bool hardConstrain, double samples4gradient, double wRef, std::string splineMethod, std::string mergeStrategy, bool keepFlanks);
+RcppExport SEXP _DIAlignR_getChildXICpp(SEXP l1SEXP, SEXP l2SEXP, SEXP kernelLenSEXP, SEXP polyOrdSEXP, SEXP alignTypeSEXP, SEXP adaptiveRTSEXP, SEXP normalizationSEXP, SEXP simTypeSEXP, SEXP B1pSEXP, SEXP B2pSEXP, SEXP goFactorSEXP, SEXP geFactorSEXP, SEXP cosAngleThreshSEXP, SEXP OverlapAlignmentSEXP, SEXP dotProdThreshSEXP, SEXP gapQuantileSEXP, SEXP kerLenSEXP, SEXP hardConstrainSEXP, SEXP samples4gradientSEXP, SEXP wRefSEXP, SEXP splineMethodSEXP, SEXP mergeStrategySEXP, SEXP keepFlanksSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type l2(l2SEXP);
+    Rcpp::traits::input_parameter< int >::type kernelLen(kernelLenSEXP);
+    Rcpp::traits::input_parameter< int >::type polyOrd(polyOrdSEXP);
+    Rcpp::traits::input_parameter< std::string >::type alignType(alignTypeSEXP);
+    Rcpp::traits::input_parameter< double >::type adaptiveRT(adaptiveRTSEXP);
+    Rcpp::traits::input_parameter< std::string >::type normalization(normalizationSEXP);
+    Rcpp::traits::input_parameter< std::string >::type simType(simTypeSEXP);
+    Rcpp::traits::input_parameter< double >::type B1p(B1pSEXP);
+    Rcpp::traits::input_parameter< double >::type B2p(B2pSEXP);
+    Rcpp::traits::input_parameter< double >::type goFactor(goFactorSEXP);
+    Rcpp::traits::input_parameter< double >::type geFactor(geFactorSEXP);
+    Rcpp::traits::input_parameter< double >::type cosAngleThresh(cosAngleThreshSEXP);
+    Rcpp::traits::input_parameter< bool >::type OverlapAlignment(OverlapAlignmentSEXP);
+    Rcpp::traits::input_parameter< double >::type dotProdThresh(dotProdThreshSEXP);
+    Rcpp::traits::input_parameter< double >::type gapQuantile(gapQuantileSEXP);
+    Rcpp::traits::input_parameter< int >::type kerLen(kerLenSEXP);
+    Rcpp::traits::input_parameter< bool >::type hardConstrain(hardConstrainSEXP);
+    Rcpp::traits::input_parameter< double >::type samples4gradient(samples4gradientSEXP);
+    Rcpp::traits::input_parameter< double >::type wRef(wRefSEXP);
+    Rcpp::traits::input_parameter< std::string >::type splineMethod(splineMethodSEXP);
+    Rcpp::traits::input_parameter< std::string >::type mergeStrategy(mergeStrategySEXP);
+    Rcpp::traits::input_parameter< bool >::type keepFlanks(keepFlanksSEXP);
+    rcpp_result_gen = Rcpp::wrap(getChildXICpp(l1, l2, kernelLen, polyOrd, alignType, adaptiveRT, normalization, simType, B1p, B2p, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain, samples4gradient, wRef, splineMethod, mergeStrategy, keepFlanks));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_getSeqSimMatCpp", (DL_FUNC) &_DIAlignR_getSeqSimMatCpp, 4},
@@ -223,6 +256,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_doAlignmentCpp", (DL_FUNC) &_DIAlignR_doAlignmentCpp, 3},
     {"_DIAlignR_doAffineAlignmentCpp", (DL_FUNC) &_DIAlignR_doAffineAlignmentCpp, 4},
     {"_DIAlignR_splineFillCpp", (DL_FUNC) &_DIAlignR_splineFillCpp, 3},
+    {"_DIAlignR_getChildXICpp", (DL_FUNC) &_DIAlignR_getChildXICpp, 23},
     {NULL, NULL, 0}
 };
 

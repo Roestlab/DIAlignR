@@ -381,6 +381,9 @@ namespace{
       // interpolation
       interpol=((m_a[idx]*h + m_b[idx])*h + m_c[idx])*h + m_y[idx];
     }
+    if(interpol < 0){
+      interpol = 0.0;
+    }
     return interpol;
   }
 

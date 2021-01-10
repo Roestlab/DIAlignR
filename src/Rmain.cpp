@@ -287,7 +287,7 @@ NumericVector areaIntegrator(Rcpp::List l1, Rcpp::List l2, double left, double r
 //' xic <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
 //' @export
 // [[Rcpp::export]]
-NumericVector sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd){
+NumericMatrix sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd){
   SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
   sgolay.setCoeff();
   NumericVector v = chrom(_, 1);
@@ -336,7 +336,7 @@ NumericVector sgolayCpp(NumericMatrix chrom, int kernelLen, int polyOrd){
 //' XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
 //' B1p <- 4964.752
 //' B2p <- 5565.462
-//' indices <- getAlignedTimesCpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+//' time <- getAlignedTimesCpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
 //'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
 //'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
 //'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100)
@@ -710,6 +710,156 @@ NumericVector splineFillCpp(const std::vector<double>& x, const std::vector<doub
   std::vector<double> result = naturalSpline(x, y, xout);
   return(Rcpp::wrap(result));
 }
+
+
+//' Get child chromatogram from two parent chromatogram
+//'
+//' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+//' ORCID: 0000-0003-3500-8152
+//' License: (c) Author (2021) + MIT
+//' Date: 2021-01-08
+//' @inheritParams getAlignedTimesCpp
+//' @inheritParams childXIC
+//' @return (List) of chromatograms and their aligned time vectors.
+//' @examples
+//' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+//' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+//' XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+//' XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+//' B1p <- 4964.752
+//' B2p <- 5565.462
+//' chrom <- getChildXICpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+//'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+//'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+//'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
+//'  wRef = 0.5, keepFlanks= TRUE)
+//' @export
+// [[Rcpp::export]]
+List getChildXICpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd,
+                        std::string alignType, double adaptiveRT, std::string normalization,
+                        std::string simType, double B1p = 0.0, double B2p =0.0,
+                        double goFactor = 0.125, double geFactor = 40,
+                        double cosAngleThresh = 0.3, bool OverlapAlignment = true,
+                        double dotProdThresh = 0.96, double gapQuantile = 0.5, int kerLen = 9,
+                        bool hardConstrain = false, double samples4gradient = 100.0, double wRef = 0.5,
+                        std::string splineMethod = "natural", std::string mergeStrategy = "avg",
+                        bool keepFlanks = true){
+  std::vector<std::vector<double> > time1 = getTime(l1);
+  std::vector<std::vector<double> > intensity1 = getIntensity(l1);
+  std::vector<std::vector<double> > time2 = getTime(l2);
+  std::vector<std::vector<double> > intensity2 = getIntensity(l2);
+
+  // Smooth chromatograms
+  if(kernelLen != 0){
+    SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
+    sgolay.setCoeff();
+    for(int i = 0; i<intensity1.size(); i++){
+      sgolay.smoothChroms(intensity1[i]);
+      sgolay.smoothChroms(intensity2[i]);
+    }
+  }
+
+  // Make sure that time vector is same for all fragment-ions.
+  xicIntersect(time1, intensity1);
+  xicIntersect(time2, intensity2);
+
+  int len = time1[0].size();
+  double samplingTime = (time1[0][len-1] - time1[0][0])/(len-1);
+  int noBeef = ceil(adaptiveRT/samplingTime);
+
+  SimMatrix s = getSimilarityMatrix(intensity1, intensity2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
+  double gapPenalty = getGapPenalty(s, gapQuantile, simType);
+  if (alignType == "hybrid"){
+    SimMatrix MASK;
+    MASK.n_row = time1[0].size();
+    MASK.n_col = time2[0].size();
+    MASK.data.resize(MASK.n_row*MASK.n_col, 0.0);
+    double A1 = time1[0][0], A2 = time1[0][MASK.n_row-1];
+    double B1 = time2[0][0], B2 = time2[0][MASK.n_col-1];
+    if(B2p > B1p) calcNoBeefMask(MASK, A1, A2, B1, B2, B1p, B2p, noBeef, hardConstrain);
+    auto maxIt = max_element(std::begin(s.data), std::end(s.data));
+    double maxVal = *maxIt;
+    constrainSimilarity(s, MASK, -2.0*maxVal/samples4gradient);
+  }
+  AffineAlignObj obj(s.n_row+1, s.n_col+1); // Initializing C++ AffineAlignObj struct
+  doAffineAlignment(obj, s, gapPenalty*goFactor, gapPenalty*geFactor, OverlapAlignment); // Performs alignment on s matrix and returns AffineAlignObj struct
+  getAffineAlignedIndices(obj, 9); // Performs traceback and fills aligned indices in AffineAlignObj struct
+
+  // Linear interpolate time and spline-interpolate intensity to fill gaps.
+  std::vector<std::vector<double> > intensity1N = imputeChromatogram(intensity1, time1[0], obj.indexA_aligned);
+  std::vector<std::vector<double> > intensity2N = imputeChromatogram(intensity2, time2[0], obj.indexB_aligned);
+  std::vector<double> t1 = intensity1N.back();
+  std::vector<double> t2 = intensity2N.back();
+
+  // Remove flanking region. Remove indices that corresponds to a gap in reference signal.
+  std::vector<int> flank = getFlank(t1, t2);
+  std::vector<int> skip = getSkip(obj.indexA_aligned, flank);
+  std::vector<int> keep = getKeep(t1.size(), skip);
+  std::vector<double> t1NN(keep.size());
+  std::vector<double> t2NN(keep.size());
+  std::vector<std::vector<double> > intensity1NN(intensity1N.size()-1);
+  std::vector<std::vector<double> > intensity2NN(intensity2N.size()-1);
+  for(int i = 0; i < keep.size(); i++){
+    t1NN[i] = t1[keep[i]];
+    t2NN[i] = t2[keep[i]];
+  }
+  std::vector<double> temp(keep.size());
+  for(int j = 0; j <intensity1NN.size(); j++){
+    intensity1NN[j] = temp;
+    intensity2NN[j] = temp;
+    for(int i = 0; i < keep.size(); i++){
+      intensity1NN[j][i] = intensity1N[j][keep[i]];
+      intensity2NN[j][i] = intensity2N[j][keep[i]];
+    }
+  }
+
+  // Merge time and intensity to generate a child chromatogram.
+  mergeTime(t1NN, t2NN, mergeStrategy); // Updates t1NN
+  mergeIntensity(intensity1NN, intensity2NN, wRef); // Updates intensity1NN
+  std::vector<double> alignedChildTime(t1.size(), -1.0);
+  for(int i = 0; i < keep.size(); i++) alignedChildTime[keep[i]] = t1NN[i];
+
+  // Add flanking region to child chromatogram.
+  if(flank.size()!= 0 && keepFlanks){
+    std::vector<int> flank1 = getFlankN(t1, flank);
+    std::vector<int> flank2 = getFlankN(t2, flank);
+
+    // Add flanking sequence to left of the chromatogram and alignedChildTime.
+    if(flank1.size()!= 0 && flank1[0]==0){ // Use short-circuit logic
+      addFlankToLeft(t2, t1NN, alignedChildTime, intensity2N, intensity1NN, flank1);
+    } else if(flank2.size()!= 0 && flank2[0]==0){ // Use short-circuit logic
+      addFlankToLeft(t1, t1NN, alignedChildTime, intensity1N, intensity1NN, flank2);
+    }
+
+    // Add flanking sequence to right of the chromatogram and alignedChildTime.
+    if(flank1.size()!= 0 && flank.back() == flank1.back()){
+      addFlankToRight(t2, t1NN, alignedChildTime, intensity2N, intensity1NN, flank1);
+    } else if(flank2.size()!= 0 && flank.back() == flank2.back()){
+      addFlankToRight(t1, t1NN, alignedChildTime, intensity1N, intensity1NN, flank2);
+    }
+  }
+
+  // Organize as chromatogram
+  Rcpp::NumericVector t = Rcpp::wrap(t1NN);
+  List chrom(intensity1NN.size());
+  for (int i = 0; i < intensity1NN.size(); i++){
+    Rcpp::NumericVector v = wrap(intensity1NN[i]);
+    chrom[i] = Rcpp::cbind(t, v);
+  }
+
+  // Replace -1 with NA_real_
+  interpolateZero(alignedChildTime);
+  Rcpp::NumericVector A= Rcpp::wrap(t1);
+  Rcpp::NumericVector B= Rcpp::wrap(t2);
+  Rcpp::NumericVector C= Rcpp::wrap(alignedChildTime);
+  for(int i = 0; i<A.length(); i++){
+    A[i] = (A[i] < 0) ? NA_REAL : ::Rf_fround(A[i], 3);
+    B[i] = (B[i] < 0) ? NA_REAL : ::Rf_fround(B[i], 3);
+    C[i] = (C[i] < 0) ? NA_REAL : ::Rf_fround(C[i], 3);
+    }
+  return List::create(chrom, Rcpp::cbind(A, B, C));
+}
+
 // gnu -> gcc -> g++ compiler
 // -I means include path. DNDEBUG includes debug symbols. Position-independent code (PIC): E.g. jumps would be generated as relative rather than absolute.
 // -02 : Maximum optimization. -W warnings, -L path to the library,

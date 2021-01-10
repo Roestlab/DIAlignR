@@ -247,7 +247,7 @@ sgolayCpp <- function(chrom, kernelLen, polyOrd) {
 #' XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
 #' B1p <- 4964.752
 #' B2p <- 5565.462
-#' indices <- getAlignedTimesCpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+#' time <- getAlignedTimesCpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
 #'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
 #'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
 #'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100)
@@ -404,5 +404,31 @@ doAffineAlignmentCpp <- function(sim, go, ge, OverlapAlignment) {
 #' @export
 splineFillCpp <- function(x, y, xout) {
     .Call(`_DIAlignR_splineFillCpp`, x, y, xout)
+}
+
+#' Get child chromatogram from two parent chromatogram
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#' ORCID: 0000-0003-3500-8152
+#' License: (c) Author (2021) + MIT
+#' Date: 2021-01-08
+#' @inheritParams getAlignedTimesCpp
+#' @inheritParams childXIC
+#' @return (List) of chromatograms and their aligned time vectors.
+#' @examples
+#' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+#' XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+#' XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+#' B1p <- 4964.752
+#' B2p <- 5565.462
+#' chrom <- getChildXICpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+#'  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+#'  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+#'  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
+#'  wRef = 0.5, keepFlanks= TRUE)
+#' @export
+getChildXICpp <- function(l1, l2, kernelLen, polyOrd, alignType, adaptiveRT, normalization, simType, B1p = 0.0, B2p = 0.0, goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE, samples4gradient = 100.0, wRef = 0.5, splineMethod = "natural", mergeStrategy = "avg", keepFlanks = TRUE) {
+    .Call(`_DIAlignR_getChildXICpp`, l1, l2, kernelLen, polyOrd, alignType, adaptiveRT, normalization, simType, B1p, B2p, goFactor, geFactor, cosAngleThresh, OverlapAlignment, dotProdThresh, gapQuantile, kerLen, hardConstrain, samples4gradient, wRef, splineMethod, mergeStrategy, keepFlanks)
 }
 

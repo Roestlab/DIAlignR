@@ -347,10 +347,12 @@ getChildXICs <- function(runA, runB, fileInfo, features, mzPntrs, precursors, pr
   pair <- paste(runA, runB, sep = "_")
   globalFit1 <- getGlobalAlignment(features, runA, runB,
                                    params[["globalAlignment"]], params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
-  adaptiveRT1 <-  params[["RSEdistFactor"]]*getRSE(globalFit1)
+  adaptiveRT1 <-  params[["RSEdistFactor"]]*getRSE(globalFit1, params[["globalAlignment"]])
+  globalFit1 <- extractFit(globalFit1, params[["globalAlignment"]])
   globalFit2 <- getGlobalAlignment(features, runB, runA,
                                    params[["globalAlignment"]], params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]])
-  adaptiveRT2 <-  params[["RSEdistFactor"]]*getRSE(globalFit2)
+  adaptiveRT2 <-  params[["RSEdistFactor"]]*getRSE(globalFit2, params[["globalAlignment"]])
+  globalFit2 <- extractFit(globalFit2, params[["globalAlignment"]])
 
   #### Get merged XICs ####
   num_of_batch <- ceiling(length(peptides)/params[["batchSize"]])

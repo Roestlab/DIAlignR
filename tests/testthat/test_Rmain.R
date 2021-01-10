@@ -250,6 +250,28 @@ test_that("test_splineFillCpp",{
   y[c(1,6)] <- NA_real_
   idx <- !is.na(y)
   outData <- splineFillCpp(time[idx], y[idx], time[!idx])
-  expData <- coredata(zoo::na.spline(zoo::zoo(y[idx], time[idx]), xout = time[!idx], method = "natural"))
+  expData <- c(0.0, 5.8075496)
   expect_equal(outData, expData)
+})
+
+test_that("test_getChildXICpp", {
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+  XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  B1p <- 4964.752
+  B2p <- 5565.462
+  outData <- getChildXICpp(XICs.ref, XICs.eXp, 0, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+                         normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+                         goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+                         dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
+                         wRef = 0.5, keepFlanks= TRUE, splineMethod = "natural", mergeStrategy = "avg")
+  expect_identical(length(outData), 2L)
+  expect_identical(dim(outData[[1]][[6]]), c(177L, 2L))
+
+  data(masterXICs_DIAlignR, package="DIAlignR")
+  expData <- masterXICs_DIAlignR
+  for(i in 1:3) expect_equal(outData[[2]][,i], expData[[2]][, i+2])
+  for(i in 1:6) expect_equal(outData[[1]][[i]][,1], expData[[1]][[i]][,1])
+  for(i in 1:6) expect_equal(outData[[1]][[i]][,2], expData[[1]][[i]][,2])
 })
