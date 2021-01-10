@@ -763,6 +763,7 @@ List getChildXICpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd,
   xicIntersect(time1, intensity1);
   xicIntersect(time2, intensity2);
 
+  // Align chromatograms
   int len = time1[0].size();
   double samplingTime = (time1[0][len-1] - time1[0][0])/(len-1);
   int noBeef = ceil(adaptiveRT/samplingTime);
