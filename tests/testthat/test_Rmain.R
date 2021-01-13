@@ -275,3 +275,18 @@ test_that("test_getChildXICpp", {
   for(i in 1:6) expect_equal(outData[[1]][[i]][,1], expData[[1]][[i]][,1])
   for(i in 1:6) expect_equal(outData[[1]][[i]][,2], expData[[1]][[i]][,2])
 })
+
+test_that("test_otherChildXICpp", {
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+  XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  B1p <- 4964.752
+  B2p <- 5565.462
+  data(masterXICs_DIAlignR, package="DIAlignR")
+  expData <- masterXICs_DIAlignR
+  outData <- otherChildXICpp(XICs.ref, XICs.eXp, 0L, 4L, as.matrix(expData[[2]][, 3:5]),
+                  expData[[1]][[1]][,1], wRef = 0.5, splineMethod = "natural")
+  for(i in 1:6) expect_equal(outData[[i]][,1], expData[[1]][[i]][,1])
+  for(i in 1:6) expect_equal(outData[[i]][,2], expData[[1]][[i]][,2])
+})

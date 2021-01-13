@@ -93,7 +93,7 @@ XICs.ref <- lapply(XICs[["hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"]][
 XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
 B1p <- 4964.752
 B2p <- 5565.462
-chrom <- getChildXICpp(XICs.ref, XICs.eXp, 11, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+chrom <- getChildXICpp(XICs.ref, XICs.eXp, 11L, 4L, alignType = "hybrid", adaptiveRT = 77.82315,
  normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
  dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,

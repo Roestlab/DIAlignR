@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include "miscell.h"
+
 namespace DIAlign
 {
 void xicIntersect(std::vector<std::vector<double> > &time,
@@ -113,13 +114,13 @@ std::vector<std::vector<double>> imputeChromatogram(const std::vector<std::vecto
     }
   }
   std::vector<int> s1 = getNegIndices(tnew);
+
   // Fill missing values like zoo::na.approx
   interpolateZero(tnew);
   std::vector<int> s2 = getNegIndices(tnew);
   std::vector<int> middle;
   std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(),
                       std::inserter(middle, middle.end()));
-
   std::vector<double> xout(middle.size());
   for(int i =0; i< middle.size(); i++){
     xout[i] = tnew[middle[i]];
@@ -181,12 +182,12 @@ std::vector<int> getFlankN(const std::vector<double> & t, const std::vector<int>
   return flankN;
 }
 
-std::vector<int> getKeep(int length, std::vector<int> skip){
+std::vector<int> getKeep(const int length, const std::vector<int> & skip){
   std::vector<int> ivec(length);
   std::iota(ivec.begin(), ivec.end(), 0);
   std::vector<int> keep(length-skip.size());
   std::vector<int>::iterator it = std::set_difference(ivec.begin(), ivec.end(),
-                                                      skip.begin(), skip.end(), keep.begin());
+                                  skip.begin(), skip.end(), keep.begin());
   keep.resize(it-keep.begin());
   return keep;
 }
@@ -242,17 +243,20 @@ void addFlankToLeft(const std::vector<double> & t, std::vector<double> & tN, std
   for(int i = 0; i< intenN.size(); i++){
     intenN[i].insert(intenN[i].begin(), inten[i].begin(), inten[i].begin()+ length);
   }
+  flank.erase(flank.begin(), flank.begin()+length);
   return;
 }
 
 void addFlankToRight(const std::vector<double> & t, std::vector<double> & tN, std::vector<double> & tA,
                      const std::vector<std::vector<double>> & inten, std::vector<std::vector<double>> & intenN,
                     std::vector<int> & flank){
-  int flankStart;
+  int flankStart, eraseIdx;
   if(flank[0] != 0){
+    eraseIdx = 0;
     flankStart = flank[0];
   } else{
     auto it = std::adjacent_find(flank.begin(), flank.end(), [](int l, int r){return l+1<r;});
+    eraseIdx = std::distance(flank.begin(), it+1);
     flankStart = *(it+1);
   }
   int np = flank.back();
@@ -266,5 +270,92 @@ void addFlankToRight(const std::vector<double> & t, std::vector<double> & tN, st
   for(int i = 0; i< intenN.size(); i++){
     intenN[i].insert(intenN[i].end(), inten[i].begin()+flankStart, inten[i].begin()+np+1);
   }
+  flank.erase(flank.begin()+eraseIdx, flank.end());
+  return;
 }
+
+void addFlankToLeft1(const std::vector<std::vector<double>> & inten, std::vector<std::vector<double>> & intenN,
+                    std::vector<int> & flank){
+  auto it = std::adjacent_find(flank.begin(), flank.end(), [](int l, int r){return l+1<r;});
+  int length = (it == flank.end()) ? it-flank.begin() : it-flank.begin()+1;
+  for(int i = 0; i< intenN.size(); i++){
+    intenN[i].insert(intenN[i].begin(), inten[i].begin(), inten[i].begin()+ length);
+  }
+  flank.erase(flank.begin(), flank.begin()+length);
+  return;
+}
+
+void addFlankToRight1(const std::vector<std::vector<double>> & inten, std::vector<std::vector<double>> & intenN,
+                     std::vector<int> & flank){
+  int flankStart, eraseIdx;;
+  if(flank[0] != 0){
+    eraseIdx = 0;
+    flankStart = flank[0];
+  } else{
+    auto it = std::adjacent_find(flank.begin(), flank.end(), [](int l, int r){return l+1<r;});
+    eraseIdx = std::distance(flank.begin(), it+1);
+    flankStart = *(it+1);
+  }
+  int np = flank.back();
+  for(int i = 0; i< intenN.size(); i++){
+    intenN[i].insert(intenN[i].end(), inten[i].begin()+flankStart, inten[i].begin()+np+1);
+  }
+  flank.erase(flank.begin()+eraseIdx, flank.end());
+  return;
+}
+
+std::vector<int> getMatchingIdx(const std::vector<double> & tMain,
+                                const std::vector<double> & t){
+  // Collect matching indices of t in tMain
+  std::vector<int> tIndex(tMain.size(), -1);
+  for(int i =0, j=0; i< tMain.size(); i++){
+    double tM = tMain[i];
+    for(; j<t.size();){
+      if(std::abs(tM - t[j])< 0.01){
+        tIndex[i] = j;
+        j++;
+      }
+      if(tM - t[j] < 0.0) break;
+      ++j;
+    }
+  }
+  return tIndex;
+}
+
+std::vector<std::vector<double>> imputeChromatogram1(const std::vector<std::vector<double>> & A,
+                                                     const std::vector<int> & tIndex, const std::vector<double> & t,
+                                                     const std::vector<double> & tnew){
+  // Fill intensity for which there is a match as per tIndex.
+  std::vector<std::vector<double>> intensity(A.size());
+  for(int j = 0; j <A.size(); j++){
+    std::vector<double> temp(tnew.size(), -1);
+    for(int i = 0; i < temp.size(); i++){
+      if(tIndex[i] != -1) temp[i] = A[j][tIndex[i]];
+    }
+    intensity[j] = temp;
+  }
+
+  // Get time for which no match as per tIndex.
+  std::vector<double> doubleVec(tIndex.begin(), tIndex.end());
+  std::vector<int> s1 = getNegIndices(doubleVec);
+  std::vector<int> s2 = getNegIndices(tnew);
+  std::vector<int> middle;
+  std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(),
+                      std::inserter(middle, middle.end()));
+  std::vector<double> xout(middle.size());
+  for(int i =0; i< middle.size(); i++){
+    xout[i] = tnew[middle[i]];
+  }
+
+  // Interpolate intensity for each fragment.
+  for(int i =0; i < intensity.size(); i++){
+    std::vector<double> result = naturalSpline(t, A[i], xout);
+    for(int j=0; j<result.size(); j++){
+      intensity[i][middle[j]] = result[j];
+    }
+  }
+
+  return intensity;
+}
+
 }

@@ -242,6 +242,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// otherChildXICpp
+List otherChildXICpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd, NumericMatrix mat, std::vector<double> childTime, double wRef, std::string splineMethod);
+RcppExport SEXP _DIAlignR_otherChildXICpp(SEXP l1SEXP, SEXP l2SEXP, SEXP kernelLenSEXP, SEXP polyOrdSEXP, SEXP matSEXP, SEXP childTimeSEXP, SEXP wRefSEXP, SEXP splineMethodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type l2(l2SEXP);
+    Rcpp::traits::input_parameter< int >::type kernelLen(kernelLenSEXP);
+    Rcpp::traits::input_parameter< int >::type polyOrd(polyOrdSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type childTime(childTimeSEXP);
+    Rcpp::traits::input_parameter< double >::type wRef(wRefSEXP);
+    Rcpp::traits::input_parameter< std::string >::type splineMethod(splineMethodSEXP);
+    rcpp_result_gen = Rcpp::wrap(otherChildXICpp(l1, l2, kernelLen, polyOrd, mat, childTime, wRef, splineMethod));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_getSeqSimMatCpp", (DL_FUNC) &_DIAlignR_getSeqSimMatCpp, 4},
@@ -257,6 +275,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DIAlignR_doAffineAlignmentCpp", (DL_FUNC) &_DIAlignR_doAffineAlignmentCpp, 4},
     {"_DIAlignR_splineFillCpp", (DL_FUNC) &_DIAlignR_splineFillCpp, 3},
     {"_DIAlignR_getChildXICpp", (DL_FUNC) &_DIAlignR_getChildXICpp, 23},
+    {"_DIAlignR_otherChildXICpp", (DL_FUNC) &_DIAlignR_otherChildXICpp, 8},
     {NULL, NULL, 0}
 };
 
