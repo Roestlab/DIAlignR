@@ -94,12 +94,22 @@ splineFill <- function(chrom, method = "fmm"){
   data.frame(time, intensity)
 }
 
-
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2021) + GPL-3
+#' Date: 2021-01-04
 akimaFill <- function(chrom){
   time <- chrom[[1]]
   inten <- chrom[[2]]
   idx <- is.na(inten)
-  data.frame(time, "intensity" = akima::aspline(time[!idx], inten[!idx], time, method = "improved")[["y"]])
+  if(requireNamespace("akima", quietly = TRUE)){
+    chrom <- data.frame(time, "intensity" = akima::aspline(time[!idx], inten[!idx], time, method = "improved")[["y"]])
+  }  else {
+    stop("Please install the akima package to use this functionality")
+  }
+  return(chrom)
 }
 
 #' Fill missing values using linear interpolation

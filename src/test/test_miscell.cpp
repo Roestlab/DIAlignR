@@ -54,7 +54,7 @@ std::vector<double> getT2(){
   return t2;
 }
 }
-/*
+
 void test_xicIntersect(){
     std::vector< std::vector< double > > time;
     std::vector< std::vector< double > > intensity;
@@ -175,6 +175,7 @@ void test_addFlankToLeft(){
 
   addFlankToLeft(t, tN, tA, inten, intenN, flank);
 
+  std::vector<int> cmp_fk = {12, 13};
   std::vector<double> cmp_tN = {3006.6, 3010, 3013.4, 3016, 3020};
   std::vector<double> cmp_tA = {3006.6, 3010, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
   std::vector< std::vector< double > > cmp_arr;
@@ -189,6 +190,9 @@ void test_addFlankToLeft(){
 
   for (int j = 0; j < tA.size(); j++)
     ASSERT(std::abs(tA[j] - cmp_tA[j]) < 1e-06);
+
+  for (int j = 0; j < flank.size(); j++)
+    ASSERT( flank[j] == cmp_fk[j]);
 }
 
 void test_addFlankToRight(){
@@ -205,6 +209,7 @@ void test_addFlankToRight(){
 
   addFlankToRight(t, tN, tA, inten, intenN, flank);
 
+  std::vector<int> cmp_fk = {0, 1};
   std::vector<double> cmp_tN = {3013.4, 3016, 3020, 3023.4, 3026.8};
   std::vector<double> cmp_tA = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 3023.4, 3026.8};
   std::vector< std::vector< double > > cmp_arr;
@@ -219,20 +224,23 @@ void test_addFlankToRight(){
 
   for (int j = 0; j < tA.size(); j++)
     ASSERT(std::abs(tA[j] - cmp_tA[j]) < 1e-06);
+
+  for (int j = 0; j < flank.size(); j++)
+    ASSERT( flank[j] == cmp_fk[j]);
 }
- */
+
 #ifdef DIALIGN_USE_Rcpp
 int main_miscell(){
 #else
   int main(){
 #endif
-    // test_xicIntersect();
-    //test_interpolateZero();
+    test_xicIntersect();
+    test_interpolateZero();
     //test_getKeep();
     //test_getFlank();
-    //test_getFlankN();
-    //test_addFlankToLeft();
-    //test_addFlankToRight();
+    test_getFlankN();
+    test_addFlankToLeft();
+    test_addFlankToRight();
     std::cout << "test miscell successful" << std::endl;
     return 0;
   }

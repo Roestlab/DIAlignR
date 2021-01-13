@@ -27,7 +27,7 @@ Imports:
     RMSNumpress, Rcompression,
     Rcpp, RcppEigen
 Suggests:
-    knitr,
+    knitr, akima,
     lattice,
     latticeExtra,
     rmarkdown,
