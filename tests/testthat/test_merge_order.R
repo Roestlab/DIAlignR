@@ -30,8 +30,10 @@ test_that("test_traverseUp", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
   params[["keepFlanks"]] <- TRUE
-  params[["XICfilter"]] <- "none"
+  params[["XICfilter"]] <- "none"; params[["kernelLen"]] <- 0L
   params[["globalAlignmentFdr"]] <- 0.05
+  params[["globalAlignment"]] <- "loess"
+  params[["context"]] <- "experiment-wide"
   fileInfo <- getRunNames(dataPath = dataPath)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
   features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
@@ -57,6 +59,10 @@ test_that("test_traverseUp", {
                                         params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms))
   expect_equal(m, c("run1 + run2 = master1\n",
                     "Getting merged chromatograms for run master1\n",
+                    "Geting global alignment of run1 and run2,",
+                    " n = 150\n",
+                    "Geting global alignment of run2 and run1,",
+                    " n = 150\n",
                     "Getting merged features for run master1\n",
                     "Created a child run: master1\n",
                     "Created all master runs.\n"))
@@ -71,8 +77,8 @@ test_that("test_traverseUp", {
   expect_identical(fileInfo["master1", "runName"], "master1")
   expect_identical(prec2chromIndex$master1[,"transition_group_id"], 4618L)
   expect_identical(prec2chromIndex$master1[,"chromatogramIndex"][[1]], 1:6)
-  expect_equal(adaptiveRTs[["run1_run2"]], 77.82315, tolerance = 1e-04)
-  expect_equal(adaptiveRTs[["run2_run1"]], 70.4146, tolerance = 1e-04)
+  expect_equal(adaptiveRTs[["run1_run2"]], 77.0036, tolerance = 1e-04)
+  expect_equal(adaptiveRTs[["run2_run1"]], 76.25354, tolerance = 1e-04)
   expect_identical(refRuns[["master1"]][[1]], 1L)
   expect_identical(refRuns[["master1"]][[2]], "4618")
 
@@ -83,7 +89,7 @@ test_that("test_traverseUp", {
     expect_equal(outData[[i]][[2]], masterXICs_DIAlignR[[1]][[i]][[2]], tolerance = 1e-04)
   }
   outData <- readRDS(file.path(dataPath, "master1_av.rds"), refhook = NULL)
-  expect_equal(outData[[1]], masterXICs_DIAlignR[[2]], tolerance = 1e-04)
+  for(i in 1:3) expect_equal(outData[[1]][,i], masterXICs_DIAlignR[[2]][,i+2], tolerance = 1e-04)
   file.remove(file.path(dataPath, "master1_av.rds"))
   file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
 })
@@ -93,8 +99,9 @@ test_that("test_traverseDown", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
   params[["keepFlanks"]] <- TRUE
-  params[["XICfilter"]] <- "none"
+  params[["XICfilter"]] <- "none"; params[["kernelLen"]] <- 0L
   params[["globalAlignmentFdr"]] <- 0.05
+  params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
   fileInfo <- getRunNames(dataPath = dataPath)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
@@ -147,7 +154,7 @@ test_that("test_alignToMaster", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
   params[["keepFlanks"]] <- TRUE
-  params[["XICfilter"]] <- "none"
+  params[["XICfilter"]] <- "none"; params[["kernelLen"]] <- 0L
   params[["globalAlignmentFdr"]] <- 0.05
   fileInfo <- getRunNames(dataPath = dataPath)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))

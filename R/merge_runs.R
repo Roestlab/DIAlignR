@@ -209,12 +209,12 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
 #' }
 getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
   # Convert Ref features to childXIC
-  timeParent <- alignedVec[, c("tAligned.ref", "alignedChildTime")]
+  timeParent <- alignedVec[, c(1L, 3L)]
   colnames(timeParent) <- c("tAligned", "alignedChildTime")
   if(nrow(df.ref)!=0) df.ref <- trfrParentFeature(XICs, timeParent, df.ref, params)
 
   # Convert eXp features to childXIC
-  timeParent <-alignedVec[, c("tAligned.eXp", "alignedChildTime")]
+  timeParent <-alignedVec[, c(2L, 3L)]
   colnames(timeParent) <- c("tAligned", "alignedChildTime")
   if(nrow(df.eXp)!=0) df.eXp <- trfrParentFeature(XICs, timeParent, df.eXp, params)
 
@@ -388,6 +388,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     list(XICs.A, XICs.B)
   })
 
+  ##### Get child XICs for the batch from both runs #####
   cluster <- applyFun(strt:stp, function(rownum){
     peptide <- peptides[rownum]
     idx <- (rownum - (iBatch-1)*batchSize)
@@ -439,8 +440,6 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     B1p <- getPredict(globalFit, XICs.ref.pep[[1]][1,1], params[["globalAlignment"]])
     len <- nrow(XICs.ref.pep[[1]])
     B2p <- getPredict(globalFit, XICs.ref.pep[[1]][len,1], params[["globalAlignment"]])
-    B1p <- 4964.752
-    B2p <- 5565.462
     #### Merge chromatograms  ####
     merged_xics <- getChildXICpp(XICs.ref.pep, XICs.eXp.pep, params[["kernelLen"]], params[["polyOrd"]],
                   params[["alignType"]], adaptiveRT, params[["normalization"]],
@@ -454,12 +453,12 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     otherPrecs <- setdiff(analytes_chr, analyte_chr)
     if(length(otherPrecs) !=0){
       for(name in otherPrecs){
-        merged_xics[[1]][[name]] <- otherChildXICpp(XICs.ref[[a]], XICs.eXp[[a]], params[["kernelLen"]],
+        merged_xics[[1]][[name]] <- otherChildXICpp(XICs.ref[[name]], XICs.eXp[[name]], params[["kernelLen"]],
                   params[["polyOrd"]], merged_xics[[2]], merged_xics[[1]][[1]][[1]][,1],
                   wRef, params[["splineMethod"]])
       }
     }
-    merged_xics
+    merged_xics # 1st element has list of precursors. 2nd element has aligned time vectors.
   })
   cluster
 }

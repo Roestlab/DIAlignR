@@ -4,8 +4,10 @@ test_that("test_progAlignRuns", {
   skip_if_no_pyopenms()
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["kernelLen"]] <- 9L
   ropenms <- get_ropenms(condaEnv =  envName)
   params[["context"]] <- "experiment-wide"
+  params[["globalAlignment"]] <- "linear"
   BiocParallel::register(BiocParallel::MulticoreParam())
   for(fun in c(lapply, BiocParallel::bplapply)){
     expect_warning(progAlignRuns(dataPath, params = params, outFile = "temp.tsv", ropenms = ropenms, applyFun = fun))

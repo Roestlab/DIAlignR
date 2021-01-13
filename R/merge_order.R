@@ -231,6 +231,8 @@ traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIn
 #' }
 traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
                          adaptiveRTs, refRuns, params, applyFun = lapply){
+  if(params[["chromFile"]] =="mzML") fetchXIC = extractXIC_group
+  if(params[["chromFile"]] =="sqMass") fetchXIC = extractXIC_group2
   vertices <- getNodeIDs(tree)
   ord <- rev(tree$edge[,1])
   num_merge <- length(ord)/2
@@ -261,12 +263,9 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
         message("Skipping peptide ", peptide, " across all runs.")
         return(df)
       } else {
-        XICs <- lapply(chromIndices, function(iM) extractXIC_group(mz = mzPntrs[[master1]], chromIndices = iM))
-        XICs.s <- lapply(XICs, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                         polyOrd = params[["polyOrd"]])
-        names(XICs.s) <- names(XICs) <- as.character(analytes)
+        XICs <- lapply(chromIndices, function(iM) fetchXIC(mz = mzPntrs[[master1]], chromIndices = iM))
+        names(XICs) <- as.character(analytes)
       }
-      if(params[["smoothPeakArea"]]) XICs <- XICs.s
       df.ref <- setOtherPrecursors(df.ref, XICs, analytes, params)
     }
 
@@ -401,7 +400,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
         # Try to  set alignment rank without chromatogram
         return(df)
       } else {
-        tAligned <- alignedVec[, c(5L, 2+refRun[i])]
+        tAligned <- alignedVec[, c(3L, refRun[i])]
         colnames(tAligned) <- c("tAligned.ref", "tAligned.eXp")
       }
 
@@ -421,8 +420,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
 
       # Update alignment rank for the eXp.
       df.other <- df[df$run != eXp,]
-      tAligned <- list(tAligned[,1], tAligned[,2])
-      df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+      df.eXp <- setAlignmentRank(df, ref, eXp, tAligned[,c(1,2)], XICs.eXp, params, adaptiveRT)
       df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
       tibble::remove_rownames(dplyr::bind_rows(df.other, df.eXp))
     })
