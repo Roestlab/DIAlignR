@@ -585,6 +585,8 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, param
   globalFit <- globalFits[[pair]]
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
 
+  if(any(is.na(XICs.ref.pep)) || any(is.na(XICs.eXp.pep))) return(df.eXp) # Missing values in chromatogram
+
   tAligned <- tryCatch(expr = getAlignedTimesFast(XICs.ref.pep, XICs.eXp.pep, globalFit, adaptiveRT,
                                                   params),
              error = function(e){

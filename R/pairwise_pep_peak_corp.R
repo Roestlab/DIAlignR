@@ -267,7 +267,6 @@ getAlignedTimes <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT
 #' getAlignedTimesFast(XICs.ref, XICs.eXp, globalFit, adaptiveRT, params)
 #' @export
 getAlignedTimesFast <- function(XICs.ref, XICs.eXp, globalFit, adaptiveRT, params){
-  if(any(is.na(XICs.ref)) || any(is.na(XICs.eXp))) stop("Mising values in chromatogram")
   B1p <- getPredict(globalFit, XICs.ref[[1]][1,1], params[["globalAlignment"]])
   len <- nrow(XICs.ref[[1]])
   B2p <- getPredict(globalFit, XICs.ref[[1]][len,1], params[["globalAlignment"]])
