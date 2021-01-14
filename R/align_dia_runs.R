@@ -585,7 +585,11 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, param
   globalFit <- globalFits[[pair]]
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
 
-  if(any(is.na(XICs.ref.pep)) || any(is.na(XICs.eXp.pep))) return(df.eXp) # Missing values in chromatogram
+  if(any(sapply(seq_along(XICs.eXp.pep), function(i) any(is.na(XICs.eXp.pep[[i]]))))){
+    message("Missing values in the chromatogram of ", paste0(analytes, sep = " "), "in run ",
+             fileInfo[eXp, "runName"])
+    return(df.eXp) # Missing values in chromatogram
+  }
 
   tAligned <- tryCatch(expr = getAlignedTimesFast(XICs.ref.pep, XICs.eXp.pep, globalFit, adaptiveRT,
                                                   params),
