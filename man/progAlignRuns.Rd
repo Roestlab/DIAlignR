@@ -8,7 +8,7 @@ progAlignRuns(
   dataPath,
   params,
   outFile = "DIAlignR.tsv",
-  ropenms,
+  ropenms = NULL,
   oswMerged = TRUE,
   runs = NULL,
   newickTree = NULL,
@@ -22,7 +22,7 @@ progAlignRuns(
 
 \item{outFile}{(string) name of the output file.}
 
-\item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}.}
+\item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 

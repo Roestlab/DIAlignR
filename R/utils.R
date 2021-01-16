@@ -408,7 +408,7 @@ paramsDIAlignR <- function(){
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
                   fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
-                  keepFlanks = FALSE, w.ref = 0.5, batchSize = 1000L, transitionIntensity = FALSE,
+                  keepFlanks = FALSE, wRef = 0.5, batchSize = 1000L, transitionIntensity = FALSE,
                   fraction = 1L, fractionPercent = 100L)
   params
 }

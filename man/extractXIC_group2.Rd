@@ -15,6 +15,7 @@ extractXIC_group2(con, chromIndices)
 A list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 }
 \description{
+DATA_TYPE is one of 0 = mz, 1 = intensity, 2 = rt
 Extracts XICs using connection to sqMass file Each chromatogram represents a transition of precursor.
 }
 \examples{

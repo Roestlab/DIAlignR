@@ -1,17 +1,16 @@
 #' Get child chromatograms from parents
 #'
-#' @inheritParams childXIC
-#'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-23
+#' @inheritParams childXIC
 #' @param XICs.ref (list of data-frames) extracted ion chromatograms from reference run.
 #' @param XICs.eXp (list of data-frames) extracted ion chromatograms from experiment run.
 #' @return  (list) the first element is a list of chromatograms. The second element is aligned parent time-vectors.
-#' @seealso \code{\link{childXIC}, \link{mergeStrategy}}
+#' @seealso \code{\link{childXIC}, \link{mergeXIC}}
 #' @examples
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 #' data(alignObj_DIAlignR, package="DIAlignR")
@@ -25,12 +24,12 @@
 #' plotXICgroup(newXICs)
 #' @export
 childXICs <- function(XICs.ref, XICs.eXp, alignedIndices, method = "spline", polyOrd = 4,
-                     kernelLen = 9, splineMethod = "fmm", w.ref = 0.5, mergeStrategy = "avg", keepFlanks = TRUE){
+                     kernelLen = 9, splineMethod = "fmm", wRef = 0.5, mergeStrategy = "avg", keepFlanks = TRUE){
   child_xics <- vector(mode = "list", length = length(XICs.ref))
   alignedVec <- c()
   for(i in seq_along(child_xics)){
     output <- childXIC(XICs.ref[[i]], XICs.eXp[[i]], alignedIndices, method, polyOrd, kernelLen,
-             splineMethod, w.ref, mergeStrategy, keepFlanks)
+             splineMethod, wRef, mergeStrategy, keepFlanks)
     xic <- output[[1]]
     alignedVec <- output[[2]]
     colnames(xic) <- c("time", paste0("intensity", i))
@@ -52,15 +51,15 @@ childXICs <- function(XICs.ref, XICs.eXp, alignedIndices, method = "spline", pol
 #' are discarded while merging both chromatogram to obtain a child chromatogram.
 #'
 #' @inheritSection mergeXIC time-merging
-#' @inherit alignedXIC return
-#' @inheritParams alignedXIC
-#' @inheritParams mergeXIC
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-05-23
+#' @inherit alignedXIC return
+#' @inheritParams alignedXIC
+#' @inheritParams mergeXIC
 #' @param alignedIndices (data-frame) must have two columns "indexAligned.ref" and "indexAligned.eXp".
 #' @param keepFlanks (logical) TRUE: Flanking chromatogram is not removed.
 #' @return (list) the first element is chromatogram. The second element is aligned parent time-vectors.

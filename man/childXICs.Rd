@@ -12,7 +12,7 @@ childXICs(
   polyOrd = 4,
   kernelLen = 9,
   splineMethod = "fmm",
-  w.ref = 0.5,
+  wRef = 0.5,
   mergeStrategy = "avg",
   keepFlanks = TRUE
 )
@@ -31,6 +31,8 @@ childXICs(
 \item{kernelLen}{(integer) must be an odd integer.}
 
 \item{splineMethod}{(string) must be either "fmm" or "natural".}
+
+\item{wRef}{(numeric) Weight of the reference XIC. Must be between 0 and 1.}
 
 \item{mergeStrategy}{(string) must be either ref, avg, refStart or refEnd.}
 
@@ -55,7 +57,7 @@ plotXICgroup(XICs.ref)
 plotXICgroup(newXICs)
 }
 \seealso{
-\code{\link{childXIC}, \link{mergeStrategy}}
+\code{\link{childXIC}, \link{mergeXIC}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

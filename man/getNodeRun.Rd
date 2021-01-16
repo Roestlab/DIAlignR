@@ -50,7 +50,7 @@ chromatogramIndex: index of chromatogram in mzML file.}
 
 \item{refRuns}{(environment) an empty environment used to store data for downstream analysis.}
 
-\item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}.}
+\item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.}
 }
 \value{
 (None)

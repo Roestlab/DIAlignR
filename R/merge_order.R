@@ -263,7 +263,7 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
         message("Skipping peptide ", peptide, " across all runs.")
         return(df)
       } else {
-        XICs <- lapply(chromIndices, function(iM) fetchXIC(mz = mzPntrs[[master1]], chromIndices = iM))
+        XICs <- lapply(chromIndices, function(iM) fetchXIC(mzPntrs[[master1]], chromIndices = iM))
         names(XICs) <- as.character(analytes)
       }
       df.ref <- setOtherPrecursors(df.ref, XICs, analytes, params)
@@ -368,6 +368,10 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptide, prec2chromIndex,
                           mzPntrs, fileInfo, precursors, params, applyFun = lapply){
   peptideIDs <- unique(precursors$peptide_id)
+  if(params[["chromFile"]] =="sqMass") {
+    fetchXIC = extractXIC_group2
+  } else if(params[["chromFile"]] =="mzML"){
+    fetchXIC = extractXIC_group }
 
   # Aign each peptide to its parent
   num_of_batch <- ceiling(length(peptideIDs)/params[["batchSize"]])
@@ -384,7 +388,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
       chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][idx]
       nope <- any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))
       if(nope) return(NULL)
-      xics <- lapply(chromIndices, function(i1) mzR::chromatograms(mzPntrs[[eXp]], i1))
+      xics <- lapply(chromIndices, function(i1) fetchXIC(mzPntrs[[eXp]], i1))
       names(xics) <- as.character(analytes)
       xics
     })
@@ -410,12 +414,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
         warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[eXp, "runName"])
         message("Skipping peptide ", peptide, " across all runs.")
         return(df)
-      } else {
-        XICs.eXp.s <- lapply(XICs.eXp, smoothXICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]],
-                             polyOrd = params[["polyOrd"]])
-        names(XICs.eXp.s) <- names(XICs.eXp)
       }
-      if(params[["smoothPeakArea"]]) XICs.eXp <- XICs.eXp.s
       analytes <- as.integer(names(XICs.eXp))
 
       # Update alignment rank for the eXp.

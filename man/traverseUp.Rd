@@ -45,7 +45,7 @@ retention time, within which features with m-score below aligned FDR are conside
 
 \item{refRuns}{(environment) For each descendant-pair, the reference run is indicated by 1 or 2 for all the peptides.}
 
-\item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}.}
+\item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.}
 }
 \value{
 (None)

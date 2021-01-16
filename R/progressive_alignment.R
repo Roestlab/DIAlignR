@@ -16,7 +16,7 @@
 #' @inheritParams checkParams
 #' @param dataPath (string) path to mzml and osw directory.
 #' @param outFile (string) name of the output file.
-#' @param ropenms (pyopenms module) get this python module through \code{\link{get_ropenms}}.
+#' @param ropenms (pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param runs (string) names of mzml file without extension.
 #' @param newickTree (string) guidance tree in newick format. Look up \code{\link{getTree}}.
@@ -37,10 +37,13 @@
 #' file.remove(file.path(dataPath, "master.merged.osw"))
 #' }
 #' @export
-progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, oswMerged = TRUE,
+progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = NULL, oswMerged = TRUE,
                           runs = NULL, newickTree = NULL, applyFun = lapply){
+  if(params[["chromFile"]] == "mzML"){
+    if(is.null(ropenms)) stop("ropenms is required to write chrom.mzML files.")
+  }
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
-  fileInfo <- getRunNames(dataPath, oswMerged)
+  fileInfo <- getRunNames(dataPath, oswMerged, params)
   fileInfo <- updateFileInfo(fileInfo, runs)
   runs <- rownames(fileInfo)
   message("Following runs will be aligned:")
@@ -74,8 +77,7 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   #### Get the guidance tree. ####
   start_time <- Sys.time()
   if(is.null(newickTree)){
-    tree <- getTree(distMat)
-    # Check validity of tree: Names are run and master only.
+    tree <- getTree(distMat) # Check validity of tree: Names are run and master only.
   } else{
     tree <- ape::read.tree(text = newickTree)
   }
@@ -125,7 +127,10 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, o
   saveRDS(multipeptide, file = filename)
 
   #### Cleanup.  #######
-  rm(mzPntrs)
+  for(mz in names(mzPntrs)){
+    if(is(mzPntrs[[mz]])[1] == "SQLiteConnection") DBI::dbDisconnect(mzPntrs[[mz]])
+  }
+  rm(mzPntrs, prec2chromIndex, peptideScores, features)
 
   #### Write tables to the disk  #######
   finalTbl <- writeTables(fileInfo, multipeptide, precursors)

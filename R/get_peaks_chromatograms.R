@@ -31,6 +31,10 @@ extractXIC_group <- function(mz, chromIndices){
 
 #' Uncompress a Blob object
 #'
+#' compression is one of 0 = no, 1 = zlib, 2 = np-linear,
+#'  3 = np-slof, 4 = np-pic, 5 = np-linear + zlib,
+#'   6 = np-slof + zlib, 7 = np-pic + zlib
+#'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -41,6 +45,16 @@ extractXIC_group <- function(mz, chromIndices){
 #' @param x (Blob object)
 #' @param type (integer) must either be 5L or 6L to indicate linear and short logged float compression, respectively.
 #' @return A numeric vector. Uncompressed form of the Blob.
+#' @examples
+#' dataPath <- system.file("extdata", package = "DIAlignR")
+#' sqName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+#' con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
+#' df1 <- DBI::dbGetQuery(con, "SELECT CHROMATOGRAM_ID, COMPRESSION, DATA_TYPE, DATA FROM DATA WHERE CHROMATOGRAM_ID = 36;")
+#' DBI::dbDisconnect(con)
+#' \dontrun{
+#' time = uncompressVec(df1[["DATA"]][[1]], df1$COMPRESSION[[1]])
+#' intensity = uncompressVec(df1[["DATA"]][[2]], df1$COMPRESSION[[2]])
+#' }
 #' @keywords internal
 uncompressVec <- function(x, type){
   if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(Rcompression::uncompress(x, asText = FALSE))))
@@ -54,6 +68,7 @@ uncompressVec <- function(x, type){
 
 #' Extract XICs of chromIndices
 #'
+#' DATA_TYPE is one of 0 = mz, 1 = intensity, 2 = rt
 #' Extracts XICs using connection to sqMass file Each chromatogram represents a transition of precursor.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'

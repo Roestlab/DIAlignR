@@ -9,7 +9,7 @@ test_that("test_childXICs",{
   colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
   alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
   outData <- childXICs(XICs.ref, XICs.eXp, alignedIndices, method = "spline", splineMethod = "natural",
-                       w.ref = 0.5, mergeStrategy = "avg", keepFlanks = TRUE)
+                       wRef = 0.5, mergeStrategy = "avg", keepFlanks = TRUE)
 
   expect_identical(length(outData), 2L)
   expect_identical(dim(outData[[1]][[6]]), c(177L, 2L))

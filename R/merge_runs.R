@@ -10,6 +10,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-06-06
+#' @import RSQLite DBI
 #' @inherit getChildXICs params
 #' @inheritParams traverseUp
 #' @param mergeName (string) name of the node that is generated with merging of runA and runB.
@@ -131,26 +132,36 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   with(parent.frame(n = 1), features[[mergeName]] <- temp)
 
   ##### Write node mzML file #####
-  mzmlName <- file.path(dataPath, "mzml", paste0(mergeName, ".chrom.mzML"))
   mergedXICs <- unlist(mergedXICs, recursive = FALSE, use.names = FALSE)
-  createMZML(ropenms, mzmlName, mergedXICs, precursors$transition_ids)
+  if(params[["chromFile"]] =="mzML"){
+    fileName <- file.path(dataPath, "mzml", paste0(mergeName, ".chrom.mzML"))
+    createMZML(ropenms, fileName, mergedXICs, precursors$transition_ids)
+  } else if(params[["chromFile"]] =="sqMass"){
+    fileName <- file.path(dataPath, "mzml", paste0(mergeName, ".chrom.sqMass"))
+    createSqMass(fileName, mergedXICs, precursors$transition_ids)
+  }
 
   ##### Add node run to fileInfo #####
   row <- data.frame(runName = mergeName, spectraFile = NA_character_, spectraFileID = NA_character_,
-                    featureFile = NA_character_, chromatogramFile = mzmlName, row.names = mergeName)
+                    featureFile = NA_character_, chromatogramFile = fileName, row.names = mergeName)
   df <- dplyr::bind_rows(fileInfo, row)
   assign("temp", df, envir = parent.frame(n = 1))
   with(parent.frame(n = 1), fileInfo <- temp)
 
   ##### Add node run to mzPntrs #####
-  mzPntr <- mzR::openMSfile(mzmlName, backend = "pwiz")
+  if(params[["chromFile"]] =="mzML"){
+    mzPntr <- mzR::openMSfile(fileName, backend = "pwiz")
+    chromHead <- mzR::chromatogramHeader(mzPntr) #TODO: Make sure that chromatogramIndex is read as integer64
+  } else if(params[["chromFile"]] =="sqMass"){
+    mzPntr <- DBI::dbConnect(RSQLite::SQLite(), dbname = fileName)
+    chromHead <- readSqMassHeader(mzPntr)
+  }
   assign("temp", mzPntr, envir = parent.frame(n = 1))
   with(parent.frame(n = 1), mzPntrs[[mergeName]] <- temp)
 
   ##### Add node run to prec2chromIndex #####
   prec2transition <- dplyr::select(precursors, .data$transition_group_id, .data$transition_ids) %>%
     tidyr::unnest(.data$transition_ids) %>% as.data.frame()
-  chromHead <- mzR::chromatogramHeader(mzPntr) #TODO: Make sure that chromatogramIndex is read as integer64
   chromatogramIdAsInteger(chromHead) # Select only chromatogramId, chromatogramIndex
   df <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
   df <- df[match(precursors$transition_group_id, df$transition_group_id),]
