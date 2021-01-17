@@ -138,7 +138,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
     createMZML(ropenms, fileName, mergedXICs, precursors$transition_ids)
   } else if(params[["chromFile"]] =="sqMass"){
     fileName <- file.path(dataPath, "mzml", paste0(mergeName, ".chrom.sqMass"))
-    createSqMass(fileName, mergedXICs, precursors$transition_ids)
+    createSqMass(fileName, mergedXICs, precursors$transition_ids, params[["compress"]])
   }
 
   ##### Add node run to fileInfo #####

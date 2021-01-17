@@ -4,7 +4,7 @@
 \alias{createSqMass}
 \title{Create an sqMass file}
 \usage{
-createSqMass(filename, XICs, transitionIDs)
+createSqMass(filename, XICs, transitionIDs, compress)
 }
 \arguments{
 \item{filename}{(string) name of the mzML file to be written. Extension should be .chrom.sqMass.}
@@ -12,6 +12,8 @@ createSqMass(filename, XICs, transitionIDs)
 \item{XICs}{(list of list of data-frames) list of extracted ion chromatograms of all precursors.}
 
 \item{transitionIDs}{(list of integer) length must be the same as of XICs.}
+
+\item{compress}{(logical) if TRUE, time and intensity are compressed.}
 }
 \value{
 (None)
@@ -32,7 +34,7 @@ XICs <- list(XICs[[1]], XICs[[1]])
 nativeIds <- list(27706:27711, 1:6)
 sqName <- "testfile.chrom.sqMass"
 \dontrun{
-createSqMass(sqName, XICs, nativeIds)
+createSqMass(sqName, XICs, nativeIds, TRUE)
 con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
 XIC_group <- extractXIC_group2(con, 0:5)
 DBI::dbDisconnect(con)

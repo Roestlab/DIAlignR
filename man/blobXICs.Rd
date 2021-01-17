@@ -4,10 +4,12 @@
 \alias{blobXICs}
 \title{Format XICs to blob}
 \usage{
-blobXICs(XICs, nativeIds)
+blobXICs(XICs, nativeIds, compress = TRUE)
 }
 \arguments{
 \item{XICs}{(list) a list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.}
+
+\item{compress}{(logical) if TRUE, time and intensity are compressed.}
 
 \item{nativeId}{(integer) transition ID of the xic.}
 }
