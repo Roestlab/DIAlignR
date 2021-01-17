@@ -71,7 +71,7 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
   tmp <- tmp[order(names(tmp), decreasing = FALSE)]
   allIDs <- unique(unlist(tmp, recursive = FALSE, use.names = TRUE))
   allIDs <- sort(allIDs)
-  distMat <- length(allIDs) - crossprod(table(stack(tmp)))
+  distMat <- length(allIDs) - crossprod(table(utils::stack(tmp)))
   distMat <- stats::dist(distMat, method = "manhattan")
 
   #### Get the guidance tree. ####
