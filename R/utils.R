@@ -390,7 +390,7 @@ checkParams <- function(params){
 #' \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
 #' \item{fraction}{(integer) indicates which fraction to align.}
 #' \item{fractionPercent}{(integer) percentage number of peptides to align.}
-#' \item{compress}{(logical) if TRUE, time and intensity are compressed in generated sqMass file.}
+#' \item{lossy}{(logical) if TRUE, time and intensity are lossy-compressed in generated sqMass file.}
 #' @seealso \code{\link{checkParams}, \link{alignTargetedRuns}}
 #' @examples
 #' params <- paramsDIAlignR()
@@ -410,7 +410,7 @@ paramsDIAlignR <- function(){
                   hardConstrain = FALSE, samples4gradient = 100,
                   fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
                   keepFlanks = FALSE, wRef = 0.5, batchSize = 1000L, transitionIntensity = FALSE,
-                  fraction = 1L, fractionPercent = 100L, compress = TRUE)
+                  fraction = 1L, fractionPercent = 100L, lossy = TRUE)
   params
 }
 

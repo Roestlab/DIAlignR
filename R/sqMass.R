@@ -35,7 +35,7 @@
 #' file.remove(sqName)
 #' }
 #' @export
-createSqMass <- function(filename, XICs, transitionIDs, compress){
+createSqMass <- function(filename, XICs, transitionIDs, lossy){
   db = DBI::dbConnect(RSQLite::SQLite(), dbname=filename)
   con = DBI::dbConnect(RSQLite::SQLite(), dbname=":memory:")
 
@@ -48,7 +48,7 @@ createSqMass <- function(filename, XICs, transitionIDs, compress){
   # Convert XICs to compatible format for SQLite
   dfs <- lapply(seq_along(XICs), function(prec){
     if(is.null(XICs[[prec]])) return(NULL) # Skip empty XICs
-    blobXICs(XICs[[prec]], transitionIDs[[prec]], compress)
+    blobXICs(XICs[[prec]], transitionIDs[[prec]], lossy)
   })
   dfs <- dplyr::bind_rows(dfs)
   n1 <- (nrow(dfs)/2)
@@ -126,7 +126,7 @@ uncompressVec <- function(x, type){
 #' @import RMSNumpress
 #' @param XICs (list) a list of data-frames. Each data frame has elution time and intensity of fragment-ion XIC.
 #' @param nativeId (integer) transition ID of the xic.
-#' @param compress (logical) if TRUE, time and intensity are compressed.
+#' @param lossy (logical) if TRUE, time and intensity are lossy-compressed.
 #' @return (data.frame)
 #'
 #' @keywords internal
@@ -137,12 +137,12 @@ uncompressVec <- function(x, type){
 #' \dontrun{
 #' blobXICs(XICs, nativeIds)
 #' }
-blobXICs <- function(XICs, nativeIds, compress =TRUE){
+blobXICs <- function(XICs, nativeIds, lossy =TRUE){
   n1 <- length(XICs)
   # Iterate over each fragment-ion.
   df <- vapply(XICs, function(xic){
     v <- vector(mode = "list", length = 2L)
-    if(compress){
+    if(lossy){
       v[[1]] <- memCompress(RMSNumpress::encodeLinear(xic[,1], RMSNumpress::optimalLinearFixedPoint(xic[,1])), type = "gzip")
       v[[2]] <- memCompress(RMSNumpress::encodeSlof(xic[,2], RMSNumpress::optimalSlofFixedPoint(xic[,2])), type = "gzip")
     }else{
@@ -155,7 +155,7 @@ blobXICs <- function(XICs, nativeIds, compress =TRUE){
   colnames(df) <- "DATA"
   df$NATIVE_ID <- rep(as.character(nativeIds), times = 1, each = 2)
   df$DATA_TYPE <- rep(c(2L, 1L), n1) # Time, intensity
-  if(compress){
+  if(lossy){
     df$COMPRESSION <- rep(c(5L, 6L), n1)
   } else{
     df$COMPRESSION <- rep(c(1L, 1L), n1)

@@ -4,7 +4,7 @@
 \alias{createSqMass}
 \title{Create an sqMass file}
 \usage{
-createSqMass(filename, XICs, transitionIDs, compress)
+createSqMass(filename, XICs, transitionIDs, lossy)
 }
 \arguments{
 \item{filename}{(string) name of the mzML file to be written. Extension should be .chrom.sqMass.}
@@ -13,7 +13,7 @@ createSqMass(filename, XICs, transitionIDs, compress)
 
 \item{transitionIDs}{(list of integer) length must be the same as of XICs.}
 
-\item{compress}{(logical) if TRUE, time and intensity are compressed.}
+\item{lossy}{(logical) if TRUE, time and intensity are lossy-compressed.}
 }
 \value{
 (None)

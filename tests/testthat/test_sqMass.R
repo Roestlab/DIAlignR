@@ -5,7 +5,7 @@ test_that("test_createSqMass",{
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]]
   transitionIDs <- list(c(35L, 36L, 37L, 38L, 39L, 410L))
   filename <- "temp.chrom.sqMass"
-  createSqMass(filename, XICs, transitionIDs, compress = TRUE)
+  createSqMass(filename, XICs, transitionIDs, lossy = TRUE)
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = filename)
   outData <- extractXIC_group2(con, 0:5)
   DBI::dbDisconnect(con)
@@ -20,7 +20,7 @@ test_that("test_blobXICs",{
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]]
   nativeIds <- 27706:27711
-  outData <- blobXICs(XICs, nativeIds, compress = TRUE)
+  outData <- blobXICs(XICs, nativeIds, lossy = TRUE)
 
   for(i in seq(2,12,by = 2)){
     expect_equal(uncompressVec(outData[i-1,1][[1]], 5L), XICs[[i/2]][,1], tolerance = 1e-03)
@@ -31,7 +31,7 @@ test_that("test_blobXICs",{
   expect_identical(outData[,3], rep.int(c(2L, 1L), times = 6))
   expect_identical(outData[,4], rep.int(c(5L, 6L), times = 6))
 
-  outData <- blobXICs(XICs, nativeIds, compress = FALSE)
+  outData <- blobXICs(XICs, nativeIds, lossy = FALSE)
   for(i in seq(2,12,by = 2)){
     expect_equal(uncompressVec(outData[i-1,1][[1]], 1L), XICs[[i/2]][,1], tolerance = 1e-03)
     expect_equal(uncompressVec(outData[i,1][[1]], 1L), XICs[[i/2]][,2], tolerance = 1e-03)

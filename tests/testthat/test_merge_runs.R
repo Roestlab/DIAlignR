@@ -51,8 +51,8 @@ test_that("test_getNodeRun",{
   expect_is(mzPntrs[["temp"]], "mzRpwiz")
   expect_equal(features$temp[1,], childFeatures()[1,], tolerance = 1e-04)
   expect_equal(features$temp[c(2,3), c(1,3,4,8)],
-               data.frame(transition_group_id = c(9720L, 9719L), RT = 2594.85, intensity = c(20.94305, 14.62899),
-                          m_score = c(5.692077e-05, 1.041916e-03), row.names = c(2L, 3L)), tolerance = 1e-04)
+               data.frame(transition_group_id = c(9719L, 9720L), RT = 2594.85, intensity = c(14.62899, 20.94305),
+                          m_score = c(1.041916e-03, 5.692077e-05), row.names = c(2L, 3L)), tolerance = 1e-04)
   expect_identical(fileInfo["temp", "chromatogramFile"], file.path(".", "mzml", "temp.chrom.mzML"))
   expect_identical(fileInfo["temp", "runName"], "temp")
   expect_identical(prec2chromIndex$temp[,"transition_group_id"], c(32L, 4618L, 9719L, 9720L))
@@ -60,7 +60,7 @@ test_that("test_getNodeRun",{
   expect_equal(adaptiveRTs[["run1_run2"]], 77.0036, tolerance = 1e-04)
   expect_equal(adaptiveRTs[["run2_run1"]], 76.25354, tolerance = 1e-04)
   expect_identical(refRuns[["temp"]], data.frame("var1" = c(2L,1L,1L), "var2" = c("32","4618","9720")))
-  expect_equal(multipeptide[["9861"]][5:6, "m_score"], c(5.692077e-05, 1.041916e-03), tolerance = 1e-04)
+  expect_equal(multipeptide[["9861"]][5:6, "m_score"], c(1.041916e-03, 5.692077e-05), tolerance = 1e-04)
   expect_equal(peptideScores[["9861"]][4,"pvalue"], 5.603183e-05, tolerance = 1e-04)
   expect_equal(peptideScores[["14383"]][4,"pvalue"], 5.603183e-05, tolerance = 1e-04)
 
