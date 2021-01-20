@@ -36,13 +36,11 @@
 #' }
 #' @export
 createSqMass <- function(filename, XICs, transitionIDs, lossy){
-  db = DBI::dbConnect(RSQLite::SQLite(), dbname=filename)
-  con = DBI::dbConnect(RSQLite::SQLite(), dbname=":memory:")
-
-  query = "CREATE TABLE DATA(SPECTRUM_ID INT, CHROMATOGRAM_ID INT, COMPRESSION INT, DATA_TYPE INT, DATA BLOB NOT NULL);"
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname=":memory:")
+  query <- "CREATE TABLE DATA(SPECTRUM_ID INT, CHROMATOGRAM_ID INT, COMPRESSION INT, DATA_TYPE INT, DATA BLOB NOT NULL);"
   DBI::dbExecute(con, query)
   # chromatogram table
-  query = "CREATE TABLE CHROMATOGRAM(ID INT PRIMARY KEY NOT NULL, RUN_ID INT, NATIVE_ID TEXT NOT NULL);"
+  query <- "CREATE TABLE CHROMATOGRAM(ID INT PRIMARY KEY NOT NULL, RUN_ID INT, NATIVE_ID TEXT NOT NULL);"
   DBI::dbExecute(con, query)
 
   # Convert XICs to compatible format for SQLite
@@ -56,18 +54,19 @@ createSqMass <- function(filename, XICs, transitionIDs, lossy){
   dfs$CHROMATOGRAM_ID <- rep(seq(0, n1-1), each = 2L)
 
   df <- dfs[, c("SPECTRUM_ID", "CHROMATOGRAM_ID", "COMPRESSION", "DATA_TYPE", "DATA")]
-  DBI::dbWriteTable(conn=con, name="DATA", df, append=T, row.names = FALSE)
+  DBI::dbWriteTable(conn=con, name="DATA", df, append=TRUE, row.names = FALSE)
   idx <- seq.int(from = 1, to = 2*n1, by= 2)
   df <- dfs[idx,c("CHROMATOGRAM_ID", "NATIVE_ID")]
   df$RUN_ID <- 0L
   colnames(df)[1] <- "ID"
-  DBI::dbWriteTable(conn=con, name="CHROMATOGRAM", df, append=T, row.names = FALSE)
+  DBI::dbWriteTable(conn=con, name="CHROMATOGRAM", df, append=TRUE, row.names = FALSE)
   # Create indices.
   DBI::dbExecute(con, "CREATE INDEX data_chr_idx ON DATA(CHROMATOGRAM_ID);")
 
   # Store as sqMass
-  RSQLite::sqliteCopyDatabase(con, db)
-  DBI::dbDisconnect(db)
+  tryCatch(expr = {db <- DBI::dbConnect(RSQLite::SQLite(), dbname=filename)
+                   RSQLite::sqliteCopyDatabase(con, db)},
+           finally = DBI::dbDisconnect(db))
   DBI::dbDisconnect(con)
   invisible(NULL)
 }

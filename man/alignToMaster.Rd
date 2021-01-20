@@ -44,6 +44,8 @@ chromatogramIndex: index of chromatogram in mzML file.}
 \item{precursors}{(data-frame) atleast two columns transition_group_id and transition_ids are required.}
 
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (None)

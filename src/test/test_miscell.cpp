@@ -128,7 +128,7 @@ void test_getKeep(){
                            71,73,75,77,79,81,83,85,87,89,91,93,95,135,189,193,198,202,204};
   std::vector<int> keep = getKeep(205, x);
   std::vector<int> y = {18,19,20,21,22,23,24,25,26,27};
-  for (int i = 0; i < 11; i++){
+  for (int i = 0; i < 10; i++){
     ASSERT(keep[i] == y[i]);
   }
   ASSERT(keep.back() == 203);
@@ -140,7 +140,7 @@ void test_getFlank(){
   std::vector<int> flank = getFlank(t1, t2);
   std::vector<int> cmp_arr = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,204};
   for (int i = 0; i < cmp_arr.size(); i++){
-    ASSERT(flank[i] - cmp_arr[i]);
+    ASSERT(flank[i] == cmp_arr[i]);
   }
 }
 
@@ -236,8 +236,8 @@ int main_miscell(){
 #endif
     test_xicIntersect();
     test_interpolateZero();
-    //test_getKeep();
-    //test_getFlank();
+    test_getKeep();
+    test_getFlank();
     test_getFlankN();
     test_addFlankToLeft();
     test_addFlankToRight();

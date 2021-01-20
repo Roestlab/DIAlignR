@@ -29,6 +29,8 @@ progAlignRuns(
 \item{runs}{(string) names of mzml file without extension.}
 
 \item{newickTree}{(string) guidance tree in newick format. Look up \code{\link{getTree}}.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (None)

@@ -50,7 +50,14 @@ chromatogramIndex: index of chromatogram in mzML file.}
 
 \item{refRuns}{(environment) an empty environment used to store data for downstream analysis.}
 
+\item{multipeptide}{(environment) contains multiple data-frames that are collection of features
+associated with analytes. This is an output of \code{\link{getMultipeptide}}.}
+
+\item{peptideScores}{(list of data-frames) each dataframe has scores of a peptide across all runs.}
+
 \item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (None)

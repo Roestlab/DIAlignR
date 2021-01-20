@@ -89,7 +89,7 @@ splineFill <- function(chrom, method = "fmm"){
   time <- chrom[[1]]
   intensity <- chrom[[2]]
   idx <- which(is.na(intensity))
-  values <- na.spline(zoo(intensity, time), xout = time[idx], method = method, na.rm = F)
+  values <- na.spline(zoo(intensity, time), xout = time[idx], method = method, na.rm = FALSE)
   intensity[idx] <- coredata(values)
   data.frame(time, intensity)
 }
@@ -140,11 +140,11 @@ approxFill <- function(chrom){
   time <- chrom[[1]]
   intensity <- chrom[[2]]
   idx <- which(is.na(intensity))
-  values <- na.approx(zoo(intensity, time), xout = time[idx], na.rm = F)
+  values <- na.approx(zoo(intensity, time), xout = time[idx], na.rm = FALSE)
   intensity[idx] <- coredata(values)
   # Extrapolation is not available in R. Therefore use last observation carried forward.
   idx <- which(is.na(intensity))
-  values <- na.locf(zoo(intensity, time), xout = time[idx], na.rm = F)
+  values <- na.locf(zoo(intensity, time), xout = time[idx], na.rm = FALSE)
   intensity[idx] <- coredata(values)
   data.frame(time, intensity)
 }

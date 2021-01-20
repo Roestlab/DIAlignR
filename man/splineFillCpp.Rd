@@ -13,6 +13,9 @@ splineFillCpp(x, y, xout)
 
 \item{xout}{(numeric) Penalty for introducing subsequent gaps in alignment.}
 }
+\value{
+(numeric)
+}
 \description{
 Interpolate using spline
 }

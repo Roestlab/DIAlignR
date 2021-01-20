@@ -43,6 +43,8 @@ retention time, within which features with m-score below aligned FDR are conside
 
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
+
 \item{analytes}{(integer) this vector contains transition_group_id from precursors. It must be of
 the same length as of multipeptide.}
 }

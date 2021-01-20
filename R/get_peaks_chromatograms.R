@@ -21,7 +21,7 @@
 #' }
 extractXIC_group <- function(mz, chromIndices){
   XIC_group <- lapply(mzR::chromatograms(mz, chromIndices), as.matrix)
-  if (class(XIC_group) == "list" & length(XIC_group) > 1) {
+  if (is(XIC_group, "list") & length(XIC_group) > 1) {
     return( XIC_group )
   } else {
     return( list(XIC_group) ) # only one transition detected

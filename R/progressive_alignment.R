@@ -14,6 +14,7 @@
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-10
 #' @inheritParams checkParams
+#' @inheritParams alignTargetedRuns
 #' @param dataPath (string) path to mzml and osw directory.
 #' @param outFile (string) name of the output file.
 #' @param ropenms (pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.

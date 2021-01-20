@@ -37,7 +37,11 @@ chromatogramIndex: index of chromatogram in mzML file.}
 
 \item{refRun}{(integer) must be of the same length as of precursors. 1: reference is runA, 2: reference is runB.}
 
+\item{peptideScores}{(list of data-frames) each dataframe has scores of a peptide across all runs.}
+
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (list) has three elements. The first element has child XICs for all the precursors.

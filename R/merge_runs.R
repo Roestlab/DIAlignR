@@ -464,7 +464,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     otherPrecs <- setdiff(analytes_chr, analyte_chr)
     if(length(otherPrecs) !=0){
       for(name in otherPrecs){
-        merged_xics[[1]][[name]] <- otherChildXICpp(XICs.ref[[name]], XICs.eXp[[name]], params[["kernelLen"]],
+        merged_xics[[1]][[name]] <- otherChildXICpp(XICs.ref[[name]], XICs.eXp[[name]], 0L,
                   params[["polyOrd"]], merged_xics[[2]], merged_xics[[1]][[1]][[1]][,1],
                   wRef, params[["splineMethod"]])
       }

@@ -393,6 +393,7 @@ doAffineAlignmentCpp <- function(sim, go, ge, OverlapAlignment) {
 #' @param x (numeric) A numeric matrix with similarity values of two sequences or signals.
 #' @param y (numeric) Penalty for introducing first gap in alignment.
 #' @param xout (numeric) Penalty for introducing subsequent gaps in alignment.
+#' @return (numeric)
 #' @examples
 #' time <- seq(from = 3003.4, to = 3048, by = 3.4)
 #' y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,

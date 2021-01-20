@@ -23,7 +23,7 @@ Imports:
     ggplot2, RSQLite, DBI,
     ape, phangorn, pracma,
     RMSNumpress, Rcompression,
-    Rcpp, RcppEigen
+    Rcpp
 Suggests:
     knitr, akima,
     lattice, scales, gridExtra,

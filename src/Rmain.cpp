@@ -696,6 +696,7 @@ S4 doAffineAlignmentCpp(NumericMatrix sim, double go, double ge, bool OverlapAli
 //' @param x (numeric) A numeric matrix with similarity values of two sequences or signals.
 //' @param y (numeric) Penalty for introducing first gap in alignment.
 //' @param xout (numeric) Penalty for introducing subsequent gaps in alignment.
+//' @return (numeric)
 //' @examples
 //' time <- seq(from = 3003.4, to = 3048, by = 3.4)
 //' y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,
@@ -750,26 +751,28 @@ List getChildXICpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd,
   std::vector<std::vector<double> > time2 = getTime(l2);
   std::vector<std::vector<double> > intensity2 = getIntensity(l2);
 
+  // Make sure that time vector is same for all fragment-ions.
+  xicIntersect(time1, intensity1);
+  xicIntersect(time2, intensity2);
+
   // Smooth chromatograms
+  std::vector<std::vector<double> > intensity1s =intensity1;
+  std::vector<std::vector<double> > intensity2s =intensity2;
   if(kernelLen != 0){
     SavitzkyGolayFilter sgolay(kernelLen, polyOrd);
     sgolay.setCoeff();
     for(int i = 0; i<intensity1.size(); i++){
-      sgolay.smoothChroms(intensity1[i]);
-      sgolay.smoothChroms(intensity2[i]);
+      sgolay.smoothChroms(intensity1s[i]);
+      sgolay.smoothChroms(intensity2s[i]);
     }
   }
-
-  // Make sure that time vector is same for all fragment-ions.
-  xicIntersect(time1, intensity1);
-  xicIntersect(time2, intensity2);
 
   // Align chromatograms
   int len = time1[0].size();
   double samplingTime = (time1[0][len-1] - time1[0][0])/(len-1);
   int noBeef = ceil(adaptiveRT/samplingTime);
 
-  SimMatrix s = getSimilarityMatrix(intensity1, intensity2, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
+  SimMatrix s = getSimilarityMatrix(intensity1s, intensity2s, normalization, simType, cosAngleThresh, dotProdThresh, kerLen);
   double gapPenalty = getGapPenalty(s, gapQuantile, simType);
   if (alignType == "hybrid"){
     SimMatrix MASK;

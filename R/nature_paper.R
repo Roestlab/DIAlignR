@@ -67,7 +67,7 @@ progAlignRuns2 <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, 
   tmp <- tmp[order(names(tmp), decreasing = FALSE)]
   allIDs <- unique(unlist(tmp, recursive = FALSE, use.names = FALSE))
   allIDs <- sort(allIDs)
-  distMat <- length(allIDs) - crossprod(table(stack(tmp)))
+  distMat <- length(allIDs) - crossprod(table(utils::stack(tmp)))
   distMat <- stats::dist(distMat, method = "manhattan")
 
   #### Get the guidance tree. ####
@@ -138,22 +138,37 @@ progAlignRuns2 <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, 
 }
 
 
-# ids <- as.integer(scan(file = "data/ids.txt"))
-# params <- paramsDIAlignR()
-# params[["maxFdrQuery"]] <- 1.0
-# params[["maxPeptideFdr"]] <- 1.0
-# params[["kernelLen"]] <- 11
-# params$globalAlignmentFdr <- 0.001
-# params[["batchSize"]] <- 1000L
-# BiocParallel::register(BiocParallel::MulticoreParam(workers = 6, log = FALSE, threshold = "INFO", stop.on.error = TRUE))
-# DIAlignR:::alignTargetedRuns2(dataPath = ".", params = params, outFile = "te1.tsv", ids = ids, applyFun = BiocParallel::bplapply)
+#' Star alignment for few ids
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2021) + GPL-3
+#' Date: 2021-01-20
+#' @inheritParams progAlignRuns
+#' @return (None)
+#' @examples
+#' \dontrun{
+#' ids <- as.integer(scan(file = "data/ids.txt"))
+#' params <- paramsDIAlignR()
+#' params[["maxFdrQuery"]] <- 1.0
+#' params[["maxPeptideFdr"]] <- 1.0
+#' params[["kernelLen"]] <- 11L
+#' params$globalAlignmentFdr <- 0.001
+#' params[["batchSize"]] <- 1000L
+#' BiocParallel::register(BiocParallel::MulticoreParam(workers = 6, log = FALSE, threshold = "INFO", stop.on.error = TRUE))
+#' alignTargetedRuns2(dataPath = ".", params = params, outFile = "te1.tsv", ids = ids, applyFun = BiocParallel::bplapply)
+#' }
+#' @seealso \code{\link{alignTargetedRuns}}
+#' @keywords internal
 alignTargetedRuns2 <- function(dataPath, outFile = "DIAlignR.tsv", params, ids= NULL, oswMerged = TRUE, runs = NULL,
                               applyFun = lapply){
   #### Check if all parameters make sense.  #########
-  checkParams(params)
+  params <- checkParams(params)
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
-  fileInfo <- getRunNames(dataPath, oswMerged)
+  fileInfo <- getRunNames(dataPath, oswMerged, params)
   fileInfo <- updateFileInfo(fileInfo, runs)
   runs <- rownames(fileInfo)
   message("Following runs will be aligned:")
@@ -196,7 +211,11 @@ alignTargetedRuns2 <- function(dataPath, outFile = "DIAlignR.tsv", params, ids= 
 
   #### Convert features into multi-peptide #####
   message("Building multipeptide.")
-  multipeptide <- getMultipeptide(precursors, features, applyFun)
+  if(params[["transitionIntensity"]]){
+    multipeptide <- getMultipeptide2(precursors, features, applyFun)
+  } else{
+    multipeptide <- getMultipeptide(precursors, features, applyFun)
+  }
   message(length(multipeptide), " peptides are in the multipeptide.")
 
   #### Get reference run for each precursor ########
@@ -207,7 +226,8 @@ alignTargetedRuns2 <- function(dataPath, outFile = "DIAlignR.tsv", params, ids= 
   message("Calculating global alignments.")
   globalFits <- getGlobalFits(refRuns, features, fileInfo, params[["globalAlignment"]],
                               params[["globalAlignmentFdr"]], params[["globalAlignmentSpan"]], applyFun)
-  RSE <- applyFun(globalFits, getRSE)
+  RSE <- applyFun(globalFits, getRSE, params[["globalAlignment"]])
+  globalFits <- applyFun(globalFits, extractFit, params[["globalAlignment"]])
 
   # TODO: Check dimensions of multipeptide, PeptideIDs, precursors etc makes sense.
   #### Perform pairwise alignment ###########
@@ -220,13 +240,22 @@ alignTargetedRuns2 <- function(dataPath, outFile = "DIAlignR.tsv", params, ids= 
   names(multipeptide) <- as.character(peptideIDs)
 
   #### Cleanup.  #######
-  rm(mzPntrs)
+  for(mz in mzPntrs){
+    if(is(mz)[1] == "SQLiteConnection") DBI::dbDisconnect(mz)
+    if(is(mz)[1] == "mzRpwiz") rm(mz)
+  }
+  rm(prec2chromIndex, globalFits, refRuns, RSE)
+
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
   message("The execution time for alignment:")
   print(end_time - start_time)
 
   #### Write tables to the disk  #######
   finalTbl <- writeTables(fileInfo, multipeptide, precursors)
+  if(params[["transitionIntensity"]]){
+    finalTbl$intensity <- lapply(finalTbl$intensity,round, 3)
+    finalTbl$intensity <- sapply(finalTbl$intensity, function(x) paste(unlist(x), collapse=", "))
+  }
   utils::write.table(finalTbl, file = outFile, sep = "\t", row.names = FALSE, quote = FALSE)
   message("Retention time alignment across runs is done.")
   message(paste0(outFile, " file has been written."))
