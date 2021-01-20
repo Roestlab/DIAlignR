@@ -76,11 +76,11 @@ generateMasterXICs <- function(){
   alignedIndices <- cbind(alignObj_DIAlignR@indexA_aligned, alignObj_DIAlignR@indexB_aligned)
   colnames(alignedIndices) <- c("indexAligned.ref", "indexAligned.eXp")
   alignedIndices[, 1:2][alignedIndices[, 1:2] == 0] <- NA_integer_
-  newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices, method = "spline", splineMethod = "fmm",
+  newXICs <- childXICs(XICs.ref, XICs.eXp, alignedIndices, method = "spline", splineMethod = "natural",
                        mergeStrategy = "avg", keepFlanks = TRUE)
 
   masterXICs_DIAlignR <- newXICs
-  save(masterXICs_DIAlignR, file = "masterXICs_DIAlignR.rda", version = 2)
+  save(masterXICs_DIAlignR, file = "masterXICs_DIAlignR.rda", version = 2, compress = "xz")
 }
 
 generateMergedOsw <- function(){

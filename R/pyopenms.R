@@ -29,7 +29,7 @@
 addXIC <- function(ropenms, expriment, xic, nativeId){
   # Create new chromatogram
   chromatogram = ropenms$MSChromatogram()
-  chromatogram$set_peaks(list(xic[[1]], xic[[2]]))
+  chromatogram$set_peaks(list(xic[,1], xic[,2]))
   chromatogram$sortByPosition()
   chromatogram$setNativeID(as.character(nativeId))
   expriment$addChromatogram(chromatogram)
@@ -114,7 +114,6 @@ get_ropenms <- function(pythonPath = NULL, condaEnv = NULL, useConda=TRUE){
   message("Using pyopenms version ", ropenms$version$version)
   ropenms
 }
-
 
 notReady <- function(ropenms, dataPath, filename){
   mz = ropenms$OnDiscMSExperiment()

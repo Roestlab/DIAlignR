@@ -53,6 +53,7 @@ A list of parameters:
 \item{keepFlanks}{(logical) TRUE: Flanking chromatogram is not removed.}
 \item{fraction}{(integer) indicates which fraction to align.}
 \item{fractionPercent}{(integer) percentage number of peptides to align.}
+\item{lossy}{(logical) if TRUE, time and intensity are lossy-compressed in generated sqMass file.}
 }
 \description{
 Retention alignment requires OpenSWATH/pyProphet extracted features and chromatograms. This function provides

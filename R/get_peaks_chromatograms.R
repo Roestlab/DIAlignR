@@ -21,7 +21,7 @@
 #' }
 extractXIC_group <- function(mz, chromIndices){
   XIC_group <- lapply(mzR::chromatograms(mz, chromIndices), as.matrix)
-  if (class(XIC_group) == "list" & length(XIC_group) > 1) {
+  if (is(XIC_group, "list") & length(XIC_group) > 1) {
     return( XIC_group )
   } else {
     return( list(XIC_group) ) # only one transition detected
@@ -29,31 +29,9 @@ extractXIC_group <- function(mz, chromIndices){
 }
 
 
-#' Uncompress a Blob object
-#'
-#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-#'
-#' ORCID: 0000-0003-3500-8152
-#'
-#' License: (c) Author (2020) + GPL-3
-#' Date: 2020-12-13
-#' @import RMSNumpress Rcompression
-#' @param x (Blob object)
-#' @param type (integer) must either be 5L or 6L to indicate linear and short logged float compression, respectively.
-#' @return A numeric vector. Uncompressed form of the Blob.
-#' @keywords internal
-uncompressVec <- function(x, type){
-  if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(Rcompression::uncompress(x, asText = FALSE))))
-  if(type == 6L) return(RMSNumpress::decodeSlof(as.raw(Rcompression::uncompress(x, asText = FALSE))))
-  if(type == 1L) {
-    r <- as.raw(Rcompression::uncompress(x, asText = FALSE))
-    return(readBin(r, "numeric", length(r)/8, NA_real_, TRUE))
-  }
-  else stop("Compression = 1, 5, 6 are supported only.")
-}
-
 #' Extract XICs of chromIndices
 #'
+#' DATA_TYPE is one of 0 = mz, 1 = intensity, 2 = rt
 #' Extracts XICs using connection to sqMass file Each chromatogram represents a transition of precursor.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'

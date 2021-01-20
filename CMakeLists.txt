@@ -25,6 +25,7 @@ src/PeakIntegrator.cpp
 src/MSChromatogram.cpp
 src/ChromatogramPeak.cpp
 src/DPosition.cpp
+src/spline.cpp
 src/miscell.cpp
 )
 

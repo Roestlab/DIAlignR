@@ -128,6 +128,7 @@ getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
 #'  fitType = "linear", maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' @export
 getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlobal = 0.01, spanvalue = 0.1){
+  message("Geting global alignment of ", ref, " and ", eXp, ",", appendLF = FALSE)
   if(fitType == "loess"){
     fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrGlobal, spanvalue)
     N <- length(fit$x)
@@ -159,7 +160,7 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
 #' \dontrun{
 #' Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #' maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
-#' getRSE(Loess.fit)
+#' getRSE(Loess.fit, "loess")
 #' }
 getRSE <- function(fit, globalAlignment){
   if(globalAlignment == "loess"){
@@ -211,7 +212,6 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
   globalFits <- lapply(refs, function(ref){
     exps <- setdiff(rownames(fileInfo), ref)
     Fits <- applyFun(exps, function(eXp){
-      message("Geting global alignment of ", ref, " and ", eXp, ",", appendLF = FALSE)
       getGlobalAlignment(features, ref, eXp, globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
     })
     names(Fits) <- paste(ref, exps, sep = "_")

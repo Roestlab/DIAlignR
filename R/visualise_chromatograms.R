@@ -138,7 +138,6 @@ plotSingleAlignedChrom <- function(XIC_group, idx, peakAnnot = NULL){
 #' AlignObj is the output from getAlignObjs fucntion. This function prepares ggplot objects from AlignObj.
 #'
 #' @importFrom ggplot2 geom_vline xlab scale_y_continuous
-#' @importFrom scales scientific_format
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -179,7 +178,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
   t.ref <- XICs.ref[[1]][, "time"]
   t.eXp <- mapIdxToTime(XICs.eXp[[1]][, "time"], AlignedIndices[,"indexAligned.eXp"])
   ###################### Plot unaligned chromatogram ######################################
-  prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("ref time")
+  prefU <- plotXICgroup(XICs.ref) + scale_y_continuous(labels = scales::scientific_format(digits = 1)) + xlab("ref time")
   if(annotatePeak){
     prefU <- prefU +
       geom_vline(xintercept=refPeakLabel$RT[1], lty="dotted", size = 0.3) +
@@ -187,7 +186,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
       geom_vline(xintercept=refPeakLabel$rightWidth[1], lty="dashed", size = 0.1)
   }
 
-  peXpU <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp unaligned time")
+  peXpU <- plotXICgroup(XICs.eXp) + scale_y_continuous(labels = scales::scientific_format(digits = 1)) + xlab("eXp unaligned time")
   if(annotatePeak){
     peXpU <- peXpU +
       geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
@@ -197,7 +196,7 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 
   ###################### Plot aligned chromatogram ######################################
   peXpA <- plotSingleAlignedChrom(XICs.eXp, idx = AlignedIndices[,"indexAligned.eXp"]) +
-    scale_y_continuous(labels = scientific_format(digits = 1)) + xlab("eXp aligned index")
+    scale_y_continuous(labels = scales::scientific_format(digits = 1)) + xlab("eXp aligned index")
   if(annotatePeak){
     peXpA <- peXpA +
       geom_vline(xintercept=t.eXp[which.min(abs(t.ref - refPeakLabel$RT[1]))], lty="dotted", size = 0.3) +
@@ -214,7 +213,6 @@ getAlignedFigs <- function(AlignObj, XICs.ref, XICs.eXp, refPeakLabel,
 #' Plot aligned XICs group for a specific peptide.
 #' AlignObjOutput is the output from getAlignObjs fucntion.
 #'
-#' @importFrom gridExtra grid.arrange
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -261,13 +259,13 @@ plotAlignedAnalytes <- function(AlignObjOutput, plotType = "All", outFile = "Ali
       analyte <- names(AlignObjOutput[[2]])[i]
       figs <- getAlignedFigs(AlignObj, XICs.ref, XICs.eXp, refPeakLabel, annotatePeak)
       if(plotType == "onlyAligned"){
-        grid.arrange(figs[["prefU"]], figs[["peXpA"]], nrow=2, ncol=1,
+        gridExtra::grid.arrange(figs[["prefU"]], figs[["peXpA"]], nrow=2, ncol=1,
                      top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
       } else if(plotType == "onlyUnaligned"){
-        grid.arrange(figs[["prefU"]], figs[["peXpU"]], nrow=2, ncol=1,
+        gridExtra::grid.arrange(figs[["prefU"]], figs[["peXpU"]], nrow=2, ncol=1,
                      top = paste0(analyte,"\n", "ref: ", refRun, "\n", "eXp: ", eXpRun ))
       } else{
-        grid.arrange(figs[["prefU"]], figs[["peXpA"]], figs[["peXpU"]],
+        gridExtra::grid.arrange(figs[["prefU"]], figs[["peXpA"]], figs[["peXpU"]],
                      nrow=3, ncol=1, top = paste0(analyte,"\n", "ref: ", vec[[refRun]], "\n", "eXp: ", vec[[eXpRun]] ))
       }
     }
