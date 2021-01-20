@@ -469,7 +469,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
                   wRef, params[["splineMethod"]])
       }
     }
-    merged_xics[[1]] <- merged_xics[[1]][order(as.integer(names(merged_xics[[1]])))]
+    merged_xics[[1]] <- merged_xics[[1]][match(analytes_chr, names(merged_xics[[1]]))]
     merged_xics # 1st element has list of precursors. 2nd element has aligned time vectors.
   })
   cluster

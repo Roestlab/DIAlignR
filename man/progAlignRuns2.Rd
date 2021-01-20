@@ -2,16 +2,7 @@
 % Please edit documentation in R/nature_paper.R
 \name{progAlignRuns2}
 \alias{progAlignRuns2}
-\title{ids <- as.integer(scan(file = "data/ids.txt"))
-params <- paramsDIAlignR()
-params[["maxFdrQuery"]] <- 1.0
-params[["maxPeptideFdr"]] <- 1.0
-params[["kernelLen"]] <- 11
-params$batchSize <- 10000L
-params$globalAlignmentFdr <- 0.001
-BiocParallel::register(BiocParallel::MulticoreParam(workers = 6, log = FALSE, threshold = "INFO", stop.on.error = TRUE))
-ropenms <- get_ropenms(condaEnv = "TricEnvr")
-DIAlignR:::progAlignRuns2(dataPath = ".", params = params, outFile = "prog.tsv", ropenms = ropenms, ids = ids, applyFun = BiocParallel::bplapply)}
+\title{Progressive alignment for few ids}
 \usage{
 progAlignRuns2(
   dataPath,
@@ -25,7 +16,29 @@ progAlignRuns2(
   applyFun = lapply
 )
 }
+\arguments{
+\item{dataPath}{(string) path to mzml and osw directory.}
+
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
+
+\item{outFile}{(string) name of the output file.}
+
+\item{ropenms}{(pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.}
+
+\item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
+
+\item{runs}{(string) names of mzml file without extension.}
+
+\item{newickTree}{(string) guidance tree in newick format. Look up \code{\link{getTree}}.}
+}
+\value{
+(None)
+}
 \description{
+Progressive alignment for few ids
+}
+\examples{
+\dontrun{
 ids <- as.integer(scan(file = "data/ids.txt"))
 params <- paramsDIAlignR()
 params[["maxFdrQuery"]] <- 1.0
@@ -35,5 +48,18 @@ params$batchSize <- 10000L
 params$globalAlignmentFdr <- 0.001
 BiocParallel::register(BiocParallel::MulticoreParam(workers = 6, log = FALSE, threshold = "INFO", stop.on.error = TRUE))
 ropenms <- get_ropenms(condaEnv = "TricEnvr")
-DIAlignR:::progAlignRuns2(dataPath = ".", params = params, outFile = "prog.tsv", ropenms = ropenms, ids = ids, applyFun = BiocParallel::bplapply)
+progAlignRuns2(dataPath = ".", params = params, outFile = "prog.tsv", ropenms = ropenms, ids = ids, applyFun = BiocParallel::bplapply)
 }
+}
+\seealso{
+\code{\link{progAlignRuns}}
+}
+\author{
+Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+
+ORCID: 0000-0003-3500-8152
+
+License: (c) Author (2021) + GPL-3
+Date: 2021-01-20
+}
+\keyword{internal}

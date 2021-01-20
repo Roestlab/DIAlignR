@@ -1,3 +1,15 @@
+#' Progressive alignment for few ids
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2021) + GPL-3
+#' Date: 2021-01-20
+#' @inheritParams progAlignRuns
+#' @return (None)
+#' @examples
+#' \dontrun{
 #' ids <- as.integer(scan(file = "data/ids.txt"))
 #' params <- paramsDIAlignR()
 #' params[["maxFdrQuery"]] <- 1.0
@@ -7,7 +19,10 @@
 #' params$globalAlignmentFdr <- 0.001
 #' BiocParallel::register(BiocParallel::MulticoreParam(workers = 6, log = FALSE, threshold = "INFO", stop.on.error = TRUE))
 #' ropenms <- get_ropenms(condaEnv = "TricEnvr")
-#' DIAlignR:::progAlignRuns2(dataPath = ".", params = params, outFile = "prog.tsv", ropenms = ropenms, ids = ids, applyFun = BiocParallel::bplapply)
+#' progAlignRuns2(dataPath = ".", params = params, outFile = "prog.tsv", ropenms = ropenms, ids = ids, applyFun = BiocParallel::bplapply)
+#' }
+#' @seealso \code{\link{progAlignRuns}}
+#' @keywords internal
 progAlignRuns2 <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms, ids= NULL, oswMerged = TRUE,
                           runs = NULL, newickTree = NULL, applyFun = lapply){
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
