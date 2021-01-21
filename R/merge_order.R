@@ -395,7 +395,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
     })
 
     # Align each peptide in multipeptide to its parent
-    result <- lapply(strt:stp, function(i){
+    result <- applyFun(strt:stp, function(i){
       peptide <- peptideIDs[i]
       idx <- (i - (iBatch-1)*batchSize)
       alignedVec <- alignedVecs[[i]]
