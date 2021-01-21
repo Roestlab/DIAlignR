@@ -19,12 +19,14 @@ test_that("test_getNodeRun",{
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["keepFlanks"]] <- TRUE
   params[["XICfilter"]] <- "none";  params[["kernelLen"]] <- 0L
   params[["globalAlignment"]] <- "loess"
   params[["globalAlignmentFdr"]] <- 0.05
   params[["context"]] <- "experiment-wide"
-  fileInfo <- getRunNames(dataPath = dataPath)
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
   features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
 
@@ -119,7 +121,9 @@ test_that("test_trfrParentFeature",{
 
 test_that("test_getChildXICs",{
   dataPath <- system.file("extdata", package = "DIAlignR")
-  fileInfo <- getRunNames(dataPath = dataPath)
+  params <- paramsDIAlignR()
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath = dataPath, params = params)
   features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
   mzPntrs <- getMZMLpointers(fileInfo)
   precursors <- data.frame(transition_group_id = 4618L, peptide_id = 14383L,

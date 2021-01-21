@@ -164,7 +164,7 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
 #' }
 getRSE <- function(fit, globalAlignment){
   if(globalAlignment == "loess"){
-    lfun <- stats::approxfun(fit)
+    lfun <- stats::approxfun(fit, ties = mean)
     fitted <- lfun(fit$RT.ref)
     res <- fit$RT.eXp - fitted
   } else{
@@ -258,7 +258,7 @@ extractFit <- function(fit, globalAlignment){
   if(globalAlignment == "linear"){
     return(stats::coef(fit))
   }else{
-    return(stats::approxfun(fit[1:2]))
+    return(stats::approxfun(fit[1:2], ties = mean))
   }
 }
 

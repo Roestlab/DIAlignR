@@ -69,7 +69,9 @@ test_that("test_mergeOswAnalytes_ChromHeader", {
 
 test_that("test_getOswFiles", {
   dataPath <- system.file("extdata", package = "DIAlignR")
-  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  params <- paramsDIAlignR()
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE, params)
   mzPntrs <- getMZMLpointers(fileInfo)
   maxFdrQuery <- 0.05
   analyteFDR <- 0.01
@@ -115,7 +117,9 @@ test_that("test_getOswFiles", {
 
 test_that("test_getChromatogramIndices",{
   dataPath <- system.file("extdata", package = "DIAlignR")
-  fileInfo <- getRunNames(dataPath = dataPath)
+  params <- paramsDIAlignR()
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE, params)
   precursors <- getPrecursors(fileInfo, oswMerged = TRUE,
                               context = "experiment-wide", maxPeptideFdr = 1.00)
   mzPntrs <- getMZMLpointers(fileInfo)

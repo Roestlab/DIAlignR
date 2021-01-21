@@ -48,9 +48,11 @@ test_that("test_getRunNames", {
                                                  file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
-  expect_identical(getRunNames(dataPath = dataPath, oswMerged = TRUE), expOutput)
-  expect_error(getRunNames(dataPath = ".", oswMerged = TRUE), "No merged.osw file is found.")
-  expect_error(getRunNames(dataPath = ".", oswMerged = FALSE), "No .osw files are found.")
+  params <- paramsDIAlignR()
+  params[["chromFile"]] <- "mzML"
+  expect_identical(getRunNames(dataPath = dataPath, oswMerged = TRUE, params), expOutput)
+  expect_error(getRunNames(dataPath = ".", oswMerged = TRUE, params), "No merged.osw file is found.")
+  expect_error(getRunNames(dataPath = ".", oswMerged = FALSE, params), "No .osw files are found.")
 
   params <- paramsDIAlignR()
   params[["chromFile"]] <- "sqMass"

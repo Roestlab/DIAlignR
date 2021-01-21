@@ -30,8 +30,10 @@ test_that("test_getXICs4AlignObj", {
   runs <- c("run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
             "run0" =  "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt")
   analytes <- c(32L, 898L, 4618L)
+  params <- paramsDIAlignR()
+  params[["chromFile"]] <- "mzML"
 
-  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE, params)
   precursors <- getPrecursorByID(analytes,fileInfo)
   mzPntrs <- getMZMLpointers(fileInfo)
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
@@ -56,8 +58,10 @@ test_that("test_getXICs", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
             "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
+  params <- paramsDIAlignR()
+  params[["chromFile"]] <- "mzML"
   outData <- getXICs(analytes = 4618L, runs = runs, dataPath = dataPath,
-          maxFdrQuery = 1.0, runType = "DIA_proteomics", oswMerged = TRUE)
+          maxFdrQuery = 1.0, runType = "DIA_proteomics", oswMerged = TRUE, params)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
   expect_equal(outData[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]],

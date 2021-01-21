@@ -210,7 +210,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
   checkParams(params)
 
   ##### Get filenames from osw files and check if names are consistent between osw and mzML files. ######
-  filenames <- getRunNames(dataPath, oswMerged)
+  filenames <- getRunNames(dataPath, oswMerged, params)
   filenames <- updateFileInfo(filenames, runs)
   missingRun <- setdiff(runs, filenames$runName)
   if(length(missingRun) != 0){

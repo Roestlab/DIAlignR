@@ -3,6 +3,7 @@ context("Align DIA runs")
 test_that("test_alignTargetedRuns",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["XICfilter"]] <- "none"
   params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
@@ -27,9 +28,11 @@ test_that("test_alignTargetedRuns",{
             "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt")
   BiocParallel::register(BiocParallel::MulticoreParam())
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["batchSize"]] <- 10L
   params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
+  params[["chromFile"]] <- "mzML"
   alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = runs, applyFun = BiocParallel::bplapply)
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
@@ -46,9 +49,12 @@ test_that("test_alignTargetedRuns",{
 
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["XICfilter"]] <- "none"
   params[["context"]] <- "experiment-wide"
   params[["transitionIntensity"]] <- TRUE
+  params[["chromFile"]] <- "mzML"
+  params[["globalAlignment"]] <- "linear"
   expect_message(
     alignTargetedRuns(dataPath = dataPath,  outFile = "temp", params = params, oswMerged = TRUE,
                       runs = NULL, applyFun = lapply)
@@ -75,10 +81,12 @@ test_that("test_getAlignObjs",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   analytes <- c(32L, 898L, 4618L)
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["globalAlignment"]] <- "loess"
   params[["kernelLen"]] <- 13L
   params[["polyOrd"]] <- 4L
   params[["context"]] <- "experiment-wide"
+  params[["chromFile"]] <- "mzML"
   expect_warning(
     outData <- getAlignObjs(analytes, runs, dataPath = dataPath, refRun = refRun,
                oswMerged = TRUE, params = params, objType = "light")
@@ -100,11 +108,13 @@ test_that("test_getAlignObjs",{
 test_that("test_alignToRef",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["context"]] <- "experiment-wide"
   params$kernelLen <- 13L
+  params[["globalAlignment"]] <- "linear"
   params[["globalAlignmentFdr"]] <- 0.05
-
-  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE, params)
   precursors <- getPrecursors(fileInfo, oswMerged= TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
   precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
 
@@ -168,8 +178,9 @@ test_that("test_alignIthAnalyte",{
   params[["context"]] <- "experiment-wide"
   params$kernelLen <- 13L
   params[["globalAlignmentFdr"]] <- 0.05
-
-  fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
+  params[["chromFile"]] <- "mzML"
+  params[["maxPeptideFdr"]] <- 0.05
+  fileInfo <- getRunNames(dataPath, oswMerged = TRUE, params)
   precursors <- getPrecursors(fileInfo, oswMerged= TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
   precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
   peptideIDs <-  c(7040L, 14383L, 9861L)

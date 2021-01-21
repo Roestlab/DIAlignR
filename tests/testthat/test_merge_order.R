@@ -34,7 +34,8 @@ test_that("test_traverseUp", {
   params[["globalAlignmentFdr"]] <- 0.05
   params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
-  fileInfo <- getRunNames(dataPath = dataPath)
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
   features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
   precursors <- data.frame(transition_group_id = 4618L, peptide_id = 14383L,
@@ -55,9 +56,9 @@ test_that("test_traverseUp", {
   tree <- ape::read.tree(text = "(run1:7,run2:2)master1;")
   tree <- ape::reorder.phylo(tree, "postorder")
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
-  m <- capture_messages(multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
+  msg <- capture_messages(multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
                                         params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms))
-  expect_equal(m, c("run1 + run2 = master1\n",
+  expect_equal(msg, c("run1 + run2 = master1\n",
                     "Getting merged chromatograms for run master1\n",
                     "Geting global alignment of run1 and run2,",
                     " n = 150\n",
@@ -98,12 +99,14 @@ test_that("test_traverseDown", {
   skip_if_no_pyopenms()
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["keepFlanks"]] <- TRUE
   params[["XICfilter"]] <- "none"; params[["kernelLen"]] <- 0L
   params[["globalAlignmentFdr"]] <- 0.05
   params[["globalAlignment"]] <- "loess"
   params[["context"]] <- "experiment-wide"
-  fileInfo <- getRunNames(dataPath = dataPath)
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
   features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
   precursors <- getPrecursors(fileInfo, oswMerged = TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
@@ -156,7 +159,8 @@ test_that("test_alignToMaster", {
   params[["keepFlanks"]] <- TRUE
   params[["XICfilter"]] <- "none"; params[["kernelLen"]] <- 0L
   params[["globalAlignmentFdr"]] <- 0.05
-  fileInfo <- getRunNames(dataPath = dataPath)
+  params[["chromFile"]] <- "mzML"
+  fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
   features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
   precursors <- data.frame(transition_group_id = 4618L, peptide_id = 14383L,

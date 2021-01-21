@@ -8,14 +8,7 @@ recalculateIntensity(
   peakTable,
   dataPath = ".",
   oswMerged = TRUE,
-  XICfilter = "sgolay",
-  polyOrd = 4,
-  kernelLen = 9,
-  baseSubtraction = TRUE,
-  baselineType = "base_to_base",
-  integrationType = "intensity_sum",
-  fitEMG = FALSE,
-  smoothPeakArea = FALSE
+  params = paramsDIAlignR()
 )
 }
 \arguments{
@@ -25,23 +18,7 @@ recalculateIntensity(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{XICfilter}{(string) must be either sgolay, boxcar, gaussian, loess or none.}
-
-\item{polyOrd}{(integer) order of the polynomial to be fit in the kernel.}
-
-\item{kernelLen}{(integer) number of data-points to consider in the kernel.}
-
-\item{baseSubtraction}{(logical) TRUE: remove background from peak signal using estimated noise levels.}
-
-\item{baselineType}{(string) method to estimate the background of a peak contained in XICs. Must be
-from "base_to_base", "vertical_division_min", "vertical_division_max".}
-
-\item{integrationType}{(string) method to ompute the area of a peak contained in XICs. Must be
-from "intensity_sum", "trapezoid", "simpson".}
-
-\item{fitEMG}{(logical) enable/disable exponentially modified gaussian peak model fitting.}
-
-\item{smoothPeakArea}{(logical) FALSE: raw chromatograms will be used for quantification. TRUE: smoothed chromatograms will be used for quantification.}
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 }
 \value{
 (data-frame)

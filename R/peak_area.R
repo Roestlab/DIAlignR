@@ -65,19 +65,10 @@ newRow <- function(xics, left, right, RT, analyte, run, params){
 #' Date: 2020-05-28
 #'
 #' @importFrom magrittr %>%
+#' @inheritParams alignTargetedRuns
 #' @param peakTable (data-frame) usually an output of alignTargetedRuns. Must have these columns: run, precursor, leftWidth, rightWidth.
 #' @param dataPath (string) path to mzml and osw directory.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
-#' @param polyOrd (integer) order of the polynomial to be fit in the kernel.
-#' @param kernelLen (integer) number of data-points to consider in the kernel.
-#' @param baseSubtraction (logical) TRUE: remove background from peak signal using estimated noise levels.
-#' @param baselineType (string) method to estimate the background of a peak contained in XICs. Must be
-#'  from "base_to_base", "vertical_division_min", "vertical_division_max".
-#' @param integrationType (string) method to ompute the area of a peak contained in XICs. Must be
-#'  from "intensity_sum", "trapezoid", "simpson".
-#' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
-#' @param smoothPeakArea (logical) FALSE: raw chromatograms will be used for quantification. TRUE: smoothed chromatograms will be used for quantification.
 #' @return (data-frame)
 #' @seealso \code{\link{alignTargetedRuns}, \link{calculateIntensity}}
 #' @examples
@@ -90,13 +81,10 @@ newRow <- function(xics, left, right, RT, analyte, run, params){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' newTable <- recalculateIntensity(peakTable, dataPath)
 #' @export
-recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
-                                 XICfilter = "sgolay", polyOrd = 4, kernelLen = 9, baseSubtraction = TRUE,
-                                 baselineType = "base_to_base", integrationType = "intensity_sum",
-                                 fitEMG = FALSE, smoothPeakArea = FALSE){
+recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE, params = paramsDIAlignR()){
   runs <- unique(peakTable$run)
   analytes <- unique(peakTable$precursor)
-  fileInfo <- getRunNames(dataPath, oswMerged)
+  fileInfo <- getRunNames(dataPath, oswMerged, params)
   fileInfo <- updateFileInfo(fileInfo, runs)
 
   ######### Get Precursors from the query and respectve chromatogram indices. ######
@@ -126,15 +114,22 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE,
         message("Skipping ", analyte, " in ", fileInfo[run, "runName"], ".")
         next
       } else {
-        XICs <- extractXIC_group(mz = mzPntrs[[run]], chromIndices = chromIndices)
+        if(params[["chromFile"]] =="mzML") fetchXIC = extractXIC_group
+        if(params[["chromFile"]] =="sqMass") fetchXIC = extractXIC_group2
+        XICs <- fetchXIC(mzPntrs[[run]], chromIndices = chromIndices)
       }
-      if(smoothPeakArea){
-        XICs <- smoothXICs(XICs, type = XICfilter, kernelLen = kernelLen, polyOrd = polyOrd)
+      if(params[["smoothPeakArea"]]){
+        XICs <- smoothXICs(XICs, type = params[["XICfilter"]], kernelLen = params[["kernelLen"]], polyOrd = params[["polyOrd"]])
       }
-      area <- calculateIntensity(XICs, df[1, "leftWidth"], df[1, "rightWidth"],  integrationType = integrationType,
-                                 baselineType = baselineType, fitEMG = fitEMG, baseSubtraction = baseSubtraction)
+      area <- calculateIntensity(XICs, df[1, "leftWidth"], df[1, "rightWidth"],  integrationType = params[["integrationType"]],
+                                 baselineType = params[["baselineType"]], fitEMG = params[["fitEMG"]], baseSubtraction = params[["baseSubtraction"]])
       newArea[[run]][i] <- area
     }
+  }
+
+  for(mz in mzPntrs){
+    if(is(mz)[1] == "SQLiteConnection") DBI::dbDisconnect(mz)
+    if(is(mz)[1] == "mzRpwiz") rm(mz)
   }
 
   newArea <- as.data.frame(do.call(cbind, newArea))

@@ -4,6 +4,7 @@ test_that("test_progAlignRuns", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
   params[["kernelLen"]] <- 9L
+  params[["maxPeptideFdr"]] <- 0.05
   params[["context"]] <- "experiment-wide"
   params[["globalAlignment"]] <- "linear"
   BiocParallel::register(BiocParallel::MulticoreParam())
@@ -28,6 +29,7 @@ test_that("test_progAlignRuns", {
   skip_if_no_pyopenms()
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
+  params[["maxPeptideFdr"]] <- 0.05
   params[["kernelLen"]] <- 9L
   ropenms <- get_ropenms(condaEnv =  envName)
   params[["context"]] <- "experiment-wide"

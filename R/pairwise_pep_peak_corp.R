@@ -260,6 +260,7 @@ getAlignedTimes <- function(XICs.ref, XICs.eXp, globalFit, alignType, adaptiveRT
 #' XICs.ref <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]], as.matrix)
 #' XICs.eXp <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]], as.matrix)
 #' params <- paramsDIAlignR()
+#' params[["globalAlignment"]] <- "linear"
 #' globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run2", eXp = "run0",
 #'  fitType = params[["globalAlignment"]], maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' adaptiveRT <- 77.82315 #3.5*getRSE(globalFit, params[["globalAlignment"]])

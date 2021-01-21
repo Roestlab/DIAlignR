@@ -248,7 +248,7 @@ checkParams <- function(params){
   }
 
   if(params[["maxPeptideFdr"]] < 0 | params[["maxPeptideFdr"]] > 1){
-    stop("maxPeptideFdr must be between 0 and 1. Recommended value is 0.05")
+    stop("maxPeptideFdr must be between 0 and 1. Recommended value is 0.01")
   }
 
   if(!any(params[["XICfilter"]] %in% c("sgolay",  "boxcar", "gaussian", "loess", "none"))){
@@ -313,7 +313,7 @@ checkParams <- function(params){
   }
 
   if(params[["analyteFDR"]] < 0 | params[["analyteFDR"]] > 1){
-    # Find some logic for analyteFDR.
+    # Not used yet
   }
 
   if(params[["fractionPercent"]] < 1 | params[["fractionPercent"]] > 100){
@@ -396,21 +396,21 @@ checkParams <- function(params){
 #' params <- paramsDIAlignR()
 #' @export
 paramsDIAlignR <- function(){
-  params <- list( runType = "DIA_proteomics", chromFile = "mzML",
-                  maxFdrQuery = 0.05, maxPeptideFdr = 0.05, analyteFDR = 0.05,
+  params <- list( runType = "DIA_proteomics", chromFile = "sqMass",
+                  maxFdrQuery = 0.05, maxPeptideFdr = 0.01, analyteFDR = 0.01,
                   context = "global", unalignedFDR = 0.01, alignedFDR = 0.05, level = "Peptide",
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
                   recalIntensity = FALSE, fillMissing = TRUE, baseSubtraction = TRUE,
                   XICfilter = "sgolay", polyOrd = 4L, kernelLen = 11L,
-                  globalAlignment = "linear", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
+                  globalAlignment = "loess", globalAlignmentFdr = 0.01, globalAlignmentSpan = 0.1,
                   RSEdistFactor = 3.5, normalization = "mean", simMeasure = "dotProductMasked",
                   alignType = "hybrid", goFactor = 0.125, geFactor = 40,
                   cosAngleThresh = 0.3, OverlapAlignment = TRUE,
                   dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9,
                   hardConstrain = FALSE, samples4gradient = 100,
-                  fillMethod = "spline", splineMethod = "fmm", mergeTime = "avg", smoothPeakArea = FALSE,
-                  keepFlanks = FALSE, wRef = 0.5, batchSize = 1000L, transitionIntensity = FALSE,
-                  fraction = 1L, fractionPercent = 100L, lossy = TRUE)
+                  fillMethod = "spline", splineMethod = "natural", mergeTime = "avg", smoothPeakArea = FALSE,
+                  keepFlanks = TRUE, wRef = 0.5, batchSize = 1000L, transitionIntensity = FALSE,
+                  fraction = 1L, fractionPercent = 100L, lossy = FALSE)
   params
 }
 

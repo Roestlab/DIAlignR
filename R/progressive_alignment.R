@@ -43,6 +43,10 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
   if(params[["chromFile"]] == "mzML"){
     if(is.null(ropenms)) stop("ropenms is required to write chrom.mzML files.")
   }
+
+  #### Check if all parameters make sense.  #########
+  params <- checkParams(params)
+
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
   fileInfo <- getRunNames(dataPath, oswMerged, params)
   fileInfo <- updateFileInfo(fileInfo, runs)
