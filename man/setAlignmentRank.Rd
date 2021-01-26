@@ -41,8 +41,8 @@ XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0\%PlasmaBiolRe
 XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
 \dontrun{
 # Use getAlignedTimes() to get tAligned.
-alignObj <- DIAlignR:::testAlignObj()
-tAligned <- DIAlignR:::alignedTimes2(XICs.ref, XICs.eXp)
+alignObj <- testAlignObj()
+tAligned <- alignedTimes2(alignObj, XICs.ref, XICs.eXp)
 setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
 params, adaptiveRT = 38.66)
 }

@@ -331,7 +331,7 @@ void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<
   }
   // Take sqrt to get eucledian distance from the sum of squared-differences.
   // TODO std::ptr_fun<double, double> Why? Effectively calls std::pointer_to_unary_function<Arg,Result>(f)
-  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::ptr_fun<double, double>(sqrt));
+  std::transform(s.data.begin(), s.data.end(), s.data.begin(), [](double f){return sqrt(f);});
   // Convert distance into similarity.
   distToSim(s, 1.0, 1.0); // distance = Numerator/(offset + similarity)
 }
