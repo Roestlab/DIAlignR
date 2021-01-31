@@ -151,25 +151,25 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' }
 setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
   ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
-  if(any(df[run == eXp, m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
-    tempi <- df[run == eXp, .I[which.min(m_score)], by = run]$V1
-    df[tempi, alignment_rank := 1L]
-    return(invisible(NULL))
-  }
+  #if(any(df[run == eXp, m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
+  #  tempi <- df[run == eXp, .I[which.min(m_score)], by = run]$V1
+  #  df[tempi, alignment_rank := 1L]
+  #  return(invisible(NULL))
+  #}
 
   ##### No high quality feature, hence, alignment is needed. Map peak from ref to eXp #####
   # reference run.
-  refIdx <- df[run == ref & alignment_rank == 1, which = TRUE]
-  if(all(is.na(df[refIdx, m_score]))){
+  refIdx <- which(df$run == ref & df$alignment_rank == 1L)
+  if(all(is.na(.subset2(df, "m_score")[refIdx]))){
     refIdx <- refIdx[1]
   } else {
-    refIdx <- refIdx[which.min(df[refIdx, m_score])]
+    refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
   }
-  analyte <- df[refIdx, transition_group_id]
+  analyte <- .subset2(df, "transition_group_id")[[refIdx]]
   analyte_chr <- as.character(analyte)
-  refRT <- df[refIdx, RT]
-  leftRef <- df[refIdx, leftWidth]
-  rightRef <- df[refIdx, rightWidth]
+  refRT <- .subset2(df, "RT")[[refIdx]]
+  leftRef <- .subset2(df, "leftWidth")[[refIdx]]
+  rightRef <- .subset2(df, "rightWidth")[[refIdx]]
   # Experiment run.
   left <- tAligned[[2]][which.min(abs(tAligned[[1]] - leftRef))]
   right <- tAligned[[2]][which.min(abs(tAligned[[1]] - rightRef))]
@@ -181,12 +181,13 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
 
   ##### Find any feature present within adaptiveRT. #####
   pk <- c(left - adaptiveRT, right + adaptiveRT)
-  tempi <- df[run == eXp, which = TRUE]
-  idx <- sapply(tempi, function(i) checkOverlap(pk, c(df[i, leftWidth], df[i, rightWidth])))
+  tempi <- which(df$run == eXp)
+  idx <- sapply(tempi, function(i) checkOverlap(pk,
+            c(.subset2(df, "leftWidth")[[i]], .subset2(df, "rightWidth")[[i]])))
   idx <- tempi[which(idx)]
-  if(any(df[idx, m_score] <= params[["alignedFDR"]], na.rm = TRUE)){
-    idx <- df[idx, .I[which.min(m_score)], by = run]$V1
-    df[idx, "alignment_rank" := 1L]
+  if(any(.subset2(df, "m_score")[idx] <= params[["alignedFDR"]], na.rm = TRUE)){
+    idx <- idx[which.min(.subset2(df, "m_score")[idx])]
+    set(df, i = idx, "alignment_rank", 1L)
     return(invisible(NULL))
   }
 
