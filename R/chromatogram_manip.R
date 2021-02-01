@@ -30,7 +30,7 @@
 #' @return A dataframe with two columns.
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
-#' chrom <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
+#' chrom <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]][[1]]
 #' \dontrun{
 #' newChrom <- smoothSingleXIC(chrom, type = "sgolay", samplingTime = 3.42, kernelLen = 9,
 #'  polyOrd = 3)
@@ -39,25 +39,25 @@
 #'  \url{https://rafalab.github.io/dsbook/smoothing.html},
 #'  \url{https://github.com/SurajGupta/r-source/blob/master/src/library/stats/src/ksmooth.c}
 smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen = NULL, polyOrd = NULL){
-  time <- chromatogram[[1]]
+  time <- chromatogram[,1]
   if(type == "sgolay"){
-    intensity <- signal::sgolayfilt(chromatogram[[2]], p = polyOrd, n = kernelLen)
+    intensity <- signal::sgolayfilt(chromatogram[,2], p = polyOrd, n = kernelLen)
   } else if (type == "boxcar"){
-    intensity <- ksmooth(time, chromatogram[[2]], kernel = "box",
+    intensity <- ksmooth(time, chromatogram[,2], kernel = "box",
                          bandwidth = kernelLen*samplingTime, n.points = length(time))
     intensity <- intensity[["y"]]
   } else if (type == "gaussian"){
-    intensity <- ksmooth(time, chromatogram[[2]], kernel = "normal",
+    intensity <- ksmooth(time, chromatogram[,2], kernel = "normal",
                          bandwidth = kernelLen*samplingTime, n.points = length(time))
     intensity <- intensity[["y"]]
   } else if (type == "loess") {
     spanvalue <- kernelLen/length(time)
-    fit <- suppressWarnings(loess(chromatogram[[2]] ~ time, span = spanvalue, degree = polyOrd))
+    fit <- suppressWarnings(loess(chromatogram[,2] ~ time, span = spanvalue, degree = polyOrd))
     intensity <- predict(fit, time)
   } else {
-    intensity <- chromatogram[[2]]
+    intensity <- chromatogram[,2]
   }
-  data.frame(time, intensity)
+  cbind(time, intensity)
 }
 
 #' Smooth chromatogram signals from a list
@@ -82,16 +82,18 @@ smoothSingleXIC <- function(chromatogram, type, samplingTime = NULL, kernelLen =
 #' @return A list.
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
-#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]]
-#' \dontrun{
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]]
 #' newXICs <- smoothXICs(XICs, type = "sgolay", samplingTime = 3.42, kernelLen = 9,
 #'  polyOrd = 3)
-#' }
 #' @seealso \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},
 #'  \url{https://rafalab.github.io/dsbook/smoothing.html}
 #' @export
-smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = NULL, polyOrd = NULL){
-  newXICs <- lapply(XICs, smoothSingleXIC, type, samplingTime, kernelLen, polyOrd)
+smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = 9L, polyOrd = NULL){
+  if(kernelLen > nrow(XICs[[1]])) {
+    newXICs <- XICs
+  } else {
+    newXICs <- lapply(XICs, smoothSingleXIC, type, samplingTime, kernelLen, polyOrd)
+  }
   for(i in seq_along(newXICs)){
     colnames(newXICs[[i]]) <- c("time", paste0("intensity", i))
   }
@@ -116,14 +118,14 @@ smoothXICs <- function(XICs, type = "none", samplingTime = NULL, kernelLen = NUL
 #' @return A list.
 #' @examples
 #' data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
-#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]]
+#' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]]
 #' \dontrun{
 #' newXICs <- smoothXICs(XICs, len = 0.5)
 #' }
 trimXICs <- function(XICs, len = 1){
   newXICs <- XICs
   if (len != 1){
-    tp <- length(XICs[[1]][["time"]]) # Get the number of time-points
+    tp <- length(XICs[[1]][,1]) # Get the number of time-points
     leftIdx <- floor((tp/2) - (tp/2)*len)
     rightIdx <- ceiling((tp/2) + (tp/2)*len)
     indices <- seq(leftIdx, rightIdx, by =1)

@@ -8,7 +8,7 @@ smoothXICs(
   XICs,
   type = "none",
   samplingTime = NULL,
-  kernelLen = NULL,
+  kernelLen = 9L,
   polyOrd = NULL
 )
 }
@@ -35,11 +35,9 @@ to store the fit and slower than other smoothing methods.
 }
 \examples{
 data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
-XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]]
-\dontrun{
+XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]]
 newXICs <- smoothXICs(XICs, type = "sgolay", samplingTime = 3.42, kernelLen = 9,
  polyOrd = 3)
-}
 }
 \seealso{
 \url{https://terpconnect.umd.edu/~toh/spectrum/Smoothing.html},

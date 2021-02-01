@@ -4,7 +4,7 @@
 \alias{getRSE}
 \title{Calculates Residual Standard Error of the fit}
 \usage{
-getRSE(fit)
+getRSE(fit, globalAlignment)
 }
 \arguments{
 \item{fit}{(lm or loess) Linear or loess fit object between reference and experiment run.}
@@ -20,7 +20,7 @@ data(oswFiles_DIAlignR, package="DIAlignR")
 \dontrun{
 Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
-getRSE(Loess.fit)
+getRSE(Loess.fit, "loess")
 }
 }
 \seealso{

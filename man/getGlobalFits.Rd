@@ -10,7 +10,8 @@ getGlobalFits(
   fileInfo,
   globalAlignment,
   globalAlignmentFdr,
-  globalAlignmentSpan
+  globalAlignmentSpan,
+  applyFun = lapply
 )
 }
 \arguments{
@@ -36,9 +37,14 @@ Calculates all global alignment needed in refRun
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
 features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
-data("multipeptide_DIAlignR", package = "DIAlignR")
+precursors <- getPrecursors(fileInfo, TRUE, "DIA_proteomics", "experiment-wide", 0.01)
+precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+peptideIDs <- unique(precursors$peptide_id)
+peptideScores <- getPeptideScores(fileInfo, peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+names(peptideScores) <- as.character(peptideIDs)
 \dontrun{
-refRun <- getRefRun(multipeptide_DIAlignR)
+refRun <- getRefRun(peptideScores)
 fits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
 }
 }

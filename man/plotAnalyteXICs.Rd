@@ -53,6 +53,9 @@ run <- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"
 plotAnalyteXICs(analyte = 2474L, run, dataPath = dataPath, oswMerged = TRUE, XICfilter = "none")
 plotAnalyteXICs(analyte = 2474L, run, dataPath = dataPath, oswMerged = TRUE, XICfilter = "sgolay")
 }
+\seealso{
+\code{\link{plotXICgroup}}
+}
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 

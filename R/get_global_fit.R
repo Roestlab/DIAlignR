@@ -9,13 +9,12 @@
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom rlang .data
+#' @importFrom dplyr %>%
 #' @param oswFiles (list of data-frames) it is output from getFeatures function.
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param maxFdrGlobal (numeric) A numeric value between 0 and 1. Features should have m-score lower than this value for participation in LOESS fit.
 #' @param spanvalue (numeric) Spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
-#' @importFrom dplyr %>%
-#' @importFrom stats loess loess.control
 #' @return An object of class "loess".
 #' @seealso \code{\link{getLinearfit}, \link{getFeatures}}
 #' @keywords internal
@@ -26,17 +25,50 @@
 #'  maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' }
 getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
-  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
-  Loess.fit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT,
-                     span = spanvalue,
-                     control=loess.control(surface="direct"))
-  # direct surface allows to extrapolate outside of training data boundary while using predict.
-  Loess.fit
+  RUNS_RT <- getRTdf(oswFiles, ref, eXp, maxFdrGlobal)
+  fit <- stats::lowess(RUNS_RT$RT.ref, RUNS_RT$RT.eXp, f = spanvalue, iter =3)
+  fit$RT.ref <- RUNS_RT$RT.ref
+  fit$RT.eXp <- RUNS_RT$RT.eXp
+  fit
 }
+
+
+#' Modified loess for condition handling
+#'
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2020) + GPL-3
+#' Date: 2020-07-11
+#' @importFrom stats loess loess.control
+#' @param RUNS_RT (data-frame) must have three calumns: transition_group_id, RT.eXp, and RT.ref.
+#' @param spanvalue (numeric) spanvalue for LOESS fit. For targeted proteomics 0.1 could be used.
+#' @return An object of class "loess" or "lm".
+#' @seealso \code{\link{getLinearfit}, \link{getLOESSfit}}
+#' @keywords internal
+#' @examples
+#' df <- data.frame("transition_group_id" = 1:10, "RT.eXp" = 2:11, "RT.ref" = 10:19)
+#' \dontrun{
+#' dialignrLoess(df, 0.1)
+#' dialignrLoess(df[1:4,], 0.1)
+#' }
+dialignrLoess <- function(RUNS_RT, spanvalue){
+  # direct surface allows to extrapolate outside of training data boundary while using predict.
+  fit <- tryCatch(expr = loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = spanvalue,
+                               control=loess.control(surface="direct")),
+                  error = function(c) {
+                    print(c)
+                    message("\nError in loess. Using linear fit instead.")
+                    lm(RT.eXp ~ RT.ref, data = RUNS_RT)},
+                  warning = function(c) {
+                    print(c)
+                    message(paste0("\nWarning in loess, spanvalue is doubled to ", 2*spanvalue))
+                    dialignrLoess(RUNS_RT, 2*spanvalue)}
+  )
+  fit
+}
+
 
 #' Calculates linear fit between RT of two runs
 #'
@@ -64,14 +96,10 @@ getLOESSfit <- function(oswFiles, ref, eXp, maxFdrGlobal, spanvalue = 0.1){
 #'  maxFdrGlobal = 0.05)
 #' }
 getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
-  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
+  RUNS_RT <- getRTdf(oswFiles, ref, eXp, maxFdrGlobal)
   # For testing we want to avoid validation peptides getting used in the fit.
-  lm.fit <- lm(RT.eXp ~ RT.ref, data = RUNS_RT)
-  lm.fit
+  fit <- stats::.lm.fit(cbind(1, RUNS_RT$RT.ref), RUNS_RT$RT.eXp)
+  fit
 }
 
 
@@ -96,16 +124,20 @@ getLinearfit <- function(oswFiles, ref, eXp, maxFdrGlobal){
 #' @seealso \code{\link{getFeatures}}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' lm.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
+#' fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #'  fitType = "linear", maxFdrGlobal = 0.05, spanvalue = 0.1)
 #' @export
 getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlobal = 0.01, spanvalue = 0.1){
+  message("Geting global alignment of ", ref, " and ", eXp, ",", appendLF = FALSE)
   if(fitType == "loess"){
     fit <- getLOESSfit(oswFiles, ref, eXp, maxFdrGlobal, spanvalue)
+    N <- length(fit$x)
   }
   else{
     fit <- getLinearfit(oswFiles, ref, eXp, maxFdrGlobal)
+    N <- length(fit$residuals)
   }
+  message(" n = ", N)
   fit
 }
 
@@ -128,14 +160,17 @@ getGlobalAlignment <- function(oswFiles, ref, eXp, fitType = "linear", maxFdrGlo
 #' \dontrun{
 #' Loess.fit <- getGlobalAlignment(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2",
 #' maxFdrGlobal = 0.05, spanvalue = 0.1, fit = "loess")
-#' getRSE(Loess.fit)
+#' getRSE(Loess.fit, "loess")
 #' }
-getRSE <- function(fit){
-  if(is(fit, "loess")){
-    RSE <- fit[["s"]]
+getRSE <- function(fit, globalAlignment){
+  if(globalAlignment == "loess"){
+    lfun <- stats::approxfun(fit, ties = mean)
+    fitted <- lfun(fit$RT.ref)
+    res <- fit$RT.eXp - fitted
   } else{
-    RSE <- summary(fit)[["sigma"]]
+    res <- fit$residuals
   }
+  RSE <- sqrt(sum((res)^2)/(length(res)-2))
   RSE
 }
 
@@ -160,23 +195,77 @@ getRSE <- function(fit){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
 #' features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
-#' data("multipeptide_DIAlignR", package = "DIAlignR")
+#' precursors <- getPrecursors(fileInfo, TRUE, "DIA_proteomics", "experiment-wide", 0.01)
+#' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
+#' peptideIDs <- unique(precursors$peptide_id)
+#' peptideScores <- getPeptideScores(fileInfo, peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+#' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+#' names(peptideScores) <- as.character(peptideIDs)
 #' \dontrun{
-#' refRun <- getRefRun(multipeptide_DIAlignR)
+#' refRun <- getRefRun(peptideScores)
 #' fits <- getGlobalFits(refRun, features, fileInfo, "linear", 0.05, 0.1)
 #' }
 getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
-                          globalAlignmentFdr, globalAlignmentSpan){
-  globalFits <- list()
+                          globalAlignmentFdr, globalAlignmentSpan, applyFun = lapply){
   refs <- unique(refRun[["run"]])
-  for(ref in refs){
+  refs <- refs[!is.na(refs)]
+  globalFits <- lapply(refs, function(ref){
     exps <- setdiff(rownames(fileInfo), ref)
-    for(eXp in exps){
-      pair <- paste(ref, eXp, sep = "_")
-      globalFit <- getGlobalAlignment(features, ref, eXp,
-                                      globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
-      globalFits[[pair]] <- globalFit
-    }
-  }
+    Fits <- applyFun(exps, function(eXp){
+      getGlobalAlignment(features, ref, eXp, globalAlignment, globalAlignmentFdr, globalAlignmentSpan)
+    })
+    names(Fits) <- paste(ref, exps, sep = "_")
+    Fits
+  })
+  globalFits <- unlist(globalFits, recursive = FALSE)
   globalFits
+}
+
+#' Calculates global alignment between RT of two runs
+#'
+#' This function selects features from oswFiles which has m-score < maxFdrLoess. It fits linear/loess regression on these feature.
+#' Retention-time mapping is established from reference to experiment run.
+#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
+#'
+#' ORCID: 0000-0003-3500-8152
+#'
+#' License: (c) Author (2021) + GPL-3
+#' Date: 2019-03-01
+#' @importFrom dplyr %>%
+#' @inheritParams getGlobalAlignment
+#' @return A data-frame
+#' @seealso \code{\link{getGlobalAlignment}}
+#' @examples
+#' data(oswFiles_DIAlignR, package="DIAlignR")
+#' df <- getRTdf(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' @export
+getRTdf <- function(oswFiles, ref, eXp, maxFdrGlobal){
+  if(maxFdrGlobal > 1) stop("No common precursors found between ", ref, " and ", eXp)
+  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
+    dplyr::select(.data$transition_group_id, .data$RT)
+  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
+    dplyr::select(.data$transition_group_id, .data$RT)
+  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
+  if(nrow(RUNS_RT) < 2){
+    message("Increasing maxFdrGlobal 10 times")
+    RUNS_RT <- getRTdf(oswFiles, ref, eXp, 10*maxFdrGlobal)
+  }
+  RUNS_RT
+}
+
+
+extractFit <- function(fit, globalAlignment){
+  if(globalAlignment == "linear"){
+    return(stats::coef(fit))
+  }else{
+    return(stats::approxfun(fit[1:2], ties = mean))
+  }
+}
+
+getPredict <- function(fit, x, globalAlignment){
+  if(globalAlignment == "linear"){
+    return(sum(fit*c(1, x)))
+  } else{
+    return(fit(x))
+  }
 }

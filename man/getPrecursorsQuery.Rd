@@ -4,16 +4,19 @@
 \alias{getPrecursorsQuery}
 \title{Get precursor Info}
 \usage{
-getPrecursorsQuery(runType = "DIA_Proteomics")
+getPrecursorsQuery(runType = "DIA_Proteomics", level = "Peptide")
 }
 \arguments{
-\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
+
+\item{level}{(string) Apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 }
 \value{
 SQL query to be searched.
 }
 \description{
 For each precursor in the table respective transition ids are fetched.
+Order of transition is kept same as the order of their intensities in \code{\link{getTransitionsQuery}}.
 }
 \seealso{
 \code{\link{fetchPrecursorsInfo}}

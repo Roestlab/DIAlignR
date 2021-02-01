@@ -4,34 +4,46 @@
 \alias{getPrecursors}
 \title{Get precursors from all feature files}
 \usage{
-getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics")
+getPrecursors(
+  fileInfo,
+  oswMerged = TRUE,
+  runType = "DIA_Proteomics",
+  context = "global",
+  maxPeptideFdr = 0.05,
+  level = "Peptide"
+)
 }
 \arguments{
-\item{fileInfo}{(data-frame) Output of DIAlignR::getRunNames function.}
+\item{fileInfo}{(data-frame) Output of \code{\link{getRunNames}} function.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
 \item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
+
+\item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
+
+\item{maxPeptideFdr}{(numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
+
+\item{level}{(string) Apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 }
 \value{
 (data-frames) A data-frame having following columns:
 \item{transition_group_id}{(integer) a unique id for each precursor.}
-\item{transition_id}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 \item{peptide_id}{(integer) a unique id for each peptide. A peptide can have multiple precursors.}
 \item{sequence}{(string) amino-acid sequence of the precursor with possible modifications.}
 \item{charge}{(integer) charge on the precursor.}
 \item{group_label}{(string) TODO Figure it out.}
+\item{transition_ids}{(list) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 }
 \description{
 Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id and amino-acid sequences.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-\dontrun{
-precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics")
-dim(precursorsInfo) # 322  6
-}
+fileInfo <- getRunNames(dataPath = dataPath)
+precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics",
+context = "experiment-wide", maxPeptideFdr = 0.05)
+dim(precursorsInfo) # 234  6
 }
 \seealso{
 \code{\link{getRunNames}, \link{fetchPrecursorsInfo}}

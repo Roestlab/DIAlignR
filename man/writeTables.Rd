@@ -4,16 +4,16 @@
 \alias{writeTables}
 \title{Writes the output table post-alignment}
 \usage{
-writeTables(filename, fileInfo, multipeptide, precursors)
+writeTables(fileInfo, multipeptide, precursors)
 }
 \arguments{
-\item{filename}{(string) Name of the output file.}
-
 \item{fileInfo}{(data-frame) Output of getRunNames function.}
 
 \item{multipeptide}{(list of data-frames) Each element of the list is collection of features associated with a precursor.}
 
 \item{precursors}{(data-frame) for each transition_group_id, contains peptide sequence and charge.}
+
+\item{filename}{(string) Name of the output file.}
 }
 \value{
 An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
@@ -25,7 +25,7 @@ Selects all features from multipeptide with alignment rank = 1, and write them o
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
 \dontrun{
-writeTables("DIAlignR.csv", fileInfo, multipeptide, precursors)
+writeTables(fileInfo, multipeptide, precursors)
 }
 }
 \seealso{

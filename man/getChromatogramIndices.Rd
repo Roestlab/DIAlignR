@@ -4,7 +4,7 @@
 \alias{getChromatogramIndices}
 \title{Get chromatogram indices of precursors.}
 \usage{
-getChromatogramIndices(fileInfo, precursors, mzPntrs)
+getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun = lapply)
 }
 \arguments{
 \item{fileInfo}{(data-frame) Output of getRunNames function.}
@@ -12,11 +12,13 @@ getChromatogramIndices(fileInfo, precursors, mzPntrs)
 \item{precursors}{(data-frame) Atleast two columns transition_group_id and transition_ids are required.}
 
 \item{mzPntrs}{A list of mzRpwiz.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (list) A list of dataframes having following columns:
-\item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
-\item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
+\item{transition_group_id}{(string) it is PRECURSOR.ID from osw file.}
+\item{chromatogramIndex}{(integer) index of chromatogram in mzML file.}
 }
 \description{
 This function reads the header of chromatogram files. It then fetches chromatogram indices by matching transition_id(osw) with chromatogramID(mzml).
@@ -24,7 +26,7 @@ This function reads the header of chromatogram files. It then fetches chromatogr
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 mzPntrs <- getMZMLpointers(fileInfo)
 prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
 rm(mzPntrs)

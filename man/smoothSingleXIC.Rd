@@ -45,7 +45,7 @@ stats:::C_ksmooth
 }
 \examples{
 data("XIC_QFNNTDIVLLEDFQK_3_DIAlignR")
-chrom <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run0"]][["14299_QFNNTDIVLLEDFQK/3"]][[1]]
+chrom <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]][[1]]
 \dontrun{
 newChrom <- smoothSingleXIC(chrom, type = "sgolay", samplingTime = 3.42, kernelLen = 9,
  polyOrd = 3)

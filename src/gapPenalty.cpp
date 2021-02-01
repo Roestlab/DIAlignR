@@ -1,6 +1,6 @@
 #include "gapPenalty.h"
 
-namespace DIAlign 
+namespace DIAlign
 {
 double getGapPenalty(const SimMatrix& s, double gapQuantile, std::string SimType){
   double gapPenalty;
@@ -23,6 +23,6 @@ double getGapPenalty(const SimMatrix& s, double gapQuantile, std::string SimType
   {
     // Rcpp::Rcout << "getChromSimMat should have value from given choices only!" << std::endl;
   }
-  return gapPenalty;
+  return std::max(0.01, gapPenalty); // gapPenalty must be positive.
 }
 } // namespace DIAlign

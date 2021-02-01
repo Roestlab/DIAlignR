@@ -18,6 +18,7 @@ getAlignObj(
   OverlapAlignment,
   dotProdThresh,
   gapQuantile,
+  kerLen,
   hardConstrain,
   samples4gradient,
   objType = "light"
@@ -36,7 +37,7 @@ getAlignObj(
 
 \item{normalization}{(character) Must be selected from "mean", "l2".}
 
-\item{simType}{(string) Must be selected from dotProduct, cosineAngle,
+\item{simType}{(string) Must be selected from dotProduct, cosineAngle, crossCorrelation,
 cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 
 \item{goFactor}{(numeric) Penalty for introducing first gap in alignment. This value is multiplied by base gap-penalty.}
@@ -50,6 +51,8 @@ cosine2Angle, dotProductMasked, euclideanDist, covariance and correlation.}
 \item{dotProdThresh}{(numeric) In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.}
 
 \item{gapQuantile}{(numeric) Must be between 0 and 1. This is used to calculate base gap-penalty from similarity distribution.}
+
+\item{kerLen}{(integer) In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.}
 
 \item{hardConstrain}{(logical) If FALSE; indices farther from noBeef distance are filled with distance from linear fit line.}
 
@@ -69,14 +72,16 @@ Outputs AlignObj from an alignment of two XIC-groups
 \examples{
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
 data(oswFiles_DIAlignR, package="DIAlignR")
-XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
-XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
-globalFit <- getGlobalAlignment(oswFiles_DIAlignR, ref = "run1", eXp = "run2",
- maxFdrGlobal = 0.05, spanvalue = 0.1)
+run1 <- "hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt"
+run2 <- "hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt"
+XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]]
+XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]]
+RUNS_RT <- getRTdf(oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+globalFit <- loess(RT.eXp ~ RT.ref, data = RUNS_RT, span = 0.1, control=loess.control(surface="direct"))
 AlignObj <- getAlignObj(XICs.ref, XICs.eXp, globalFit, alignType = "hybrid", adaptiveRT = 77.82315,
  normalization = "mean", simType = "dotProductMasked", goFactor = 0.125,
   geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE, dotProdThresh = 0.96,
-  gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100, objType = "light")
+  gapQuantile = 0.5, kerLen = 9L, hardConstrain = FALSE, samples4gradient = 100, objType = "light")
 }
 \seealso{
 \code{\link{alignChromatogramsCpp}}

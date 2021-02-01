@@ -14,7 +14,7 @@ namespace PeakGroupIntensity
     *
     */
    std::vector<std::vector<double> > peakGroupArea(std::vector<std::vector<double> > position, std::vector<std::vector<double> > intensity,
-                        double left, double right, const std::string integrationType, const std::string baselineType, bool fitEMG);
+                        double left, double right, const std::string integrationType, const std::string baselineType, bool fitEMG, bool baseline_subtraction);
 } //namespace PeakGroupIntensity
 } // namespace DIAlign
 

@@ -14,11 +14,11 @@ getPrecursorByID(
 \arguments{
 \item{analytes}{(integer) a vector of integers.}
 
-\item{fileInfo}{(data-frame) output of getRunNames function.}
+\item{fileInfo}{(data-frame) Output of \code{\link{getRunNames}} function.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runType}{(string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 }
 \value{
 (data-frames) A data-frame having following columns:

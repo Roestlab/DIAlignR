@@ -4,12 +4,27 @@
 \alias{fetchPrecursorsInfo}
 \title{Get precursors from a feature file}
 \usage{
-fetchPrecursorsInfo(filename, runType = "DIA_Proteomics", selectIDs = NULL)
+fetchPrecursorsInfo(
+  filename,
+  runType = "DIA_Proteomics",
+  selectIDs = NULL,
+  context = "global",
+  maxPeptideFdr = 0.05,
+  level = "Peptide"
+)
 }
 \arguments{
 \item{filename}{(string) Should be from the RUN.FILENAME column from osw files.}
 
 \item{runType}{(string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
+
+\item{selectIDs}{(integer) a vector of integers.}
+
+\item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
+
+\item{maxPeptideFdr}{(numeric) A numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
+
+\item{level}{(string) Apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 }
 \value{
 (data-frames) Data-frame has following columns:
@@ -27,8 +42,8 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 dataPath <- system.file("extdata", package = "DIAlignR")
 filename <- paste0(dataPath,"/osw/merged.osw")
 \dontrun{
-precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_Proteomics")
-dim(precursorsInfo) # 303  6
+precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_Proteomics", context = "experiment-wide")
+dim(precursorsInfo) # 234  6
 }
 }
 \seealso{

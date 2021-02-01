@@ -49,7 +49,7 @@ Get a data-frame of analytes' transition_group_ids, their OpenSwath features, ch
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-filenames <- DIAlignR::getRunNames(dataPath = dataPath)
+filenames <- getRunNames(dataPath = dataPath)
 oswName <- paste0(dataPath,"/osw/merged.osw")
 \dontrun{
 analytesInfo <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,

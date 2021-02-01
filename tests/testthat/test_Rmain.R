@@ -73,7 +73,54 @@ test_that("test_constrainSimCpp",{
 test_that("test_getBaseGapPenaltyCpp",{
   sim <- matrix(c(-12, 1.0, 12, -2.3, -2, -2, 1.07, -2, 1.80,
                   2, 22, 42, -2, -1.5, -2, 10), 4, 4, byrow = FALSE)
-  expect_equal(getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5), -0.25)
+  expect_equal(getBaseGapPenaltyCpp(sim, "dotProductMasked", 0.5), 0.01)
+})
+
+test_that("test_sgolayCpp",{
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
+  outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 11L, polyOrd = 4L)
+  expData <- signal::sgolayfilt(XICs[[1]][,2], n = 11L, p = 4L)
+  expData[expData<0] <- 0
+  expect_equal(outData[,1], XICs[[1]][,1])
+  expect_equal(outData[,2], expData, tolerance = 1e-03)
+
+  outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 9L, polyOrd = 3L)
+  expData <- signal::sgolayfilt(XICs[[1]][,2], n = 9L, p = 3L)
+  expData[expData<0] <- 0
+  expect_equal(outData[,2], expData, tolerance = 1e-03)
+
+  outData <- sgolayCpp(as.matrix(XICs[[1]]), kernelLen = 7L, polyOrd = 4L)
+  expData <- signal::sgolayfilt(XICs[[1]][,2], n = 7L, p = 4L)
+  expData[expData<0] <- 0
+  expect_equal(outData[,2], expData, tolerance = 1e-03)
+})
+
+test_that("test_getAlignedTimesCpp",{
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  data(oswFiles_DIAlignR, package="DIAlignR")
+  run1 <- "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"
+  run2 <- "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"
+  XICs.ref <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run1]][["4618"]], as.matrix)
+  XICs.eXp <- lapply(XIC_QFNNTDIVLLEDFQK_3_DIAlignR[[run2]][["4618"]], as.matrix)
+  globalFit <- getLOESSfit(oswFiles_DIAlignR, ref = "run2", eXp = "run0", maxFdrGlobal = 0.05, spanvalue = 0.1)
+  tVec.ref <- XICs.ref[[1]][, "time"] # Extracting time component
+  tVec.eXp <- XICs.eXp[[1]][, "time"] # Extracting time component
+  len <- length(tVec.ref)
+  lfun <- stats::approxfun(globalFit)
+  B1p <- lfun(tVec.ref[1])
+  B2p <- lfun(tVec.ref[len])
+  outData <- getAlignedTimesCpp(XICs.ref, XICs.eXp, kernelLen = 0L, polyOrd = 4L, alignType = "hybrid",
+                  adaptiveRT = 77.82315, normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+                  goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+                  dotProdThresh = 0.96, gapQuantile = 0.5, kerLen = 9, hardConstrain = FALSE, samples4gradient = 100)
+
+  expect_equal(outData[1:3,1], c(4978.4, 4981.8, 4985.2), tolerance = 1e-03)
+  expect_equal(outData[1:3,2], c(NA_real_, NA_real_, NA_real_), tolerance = 1e-03)
+  expect_equal(outData[17:19,2], c(NA_real_, NA_real_, 4988.60), tolerance = 1e-03)
+  expect_equal(outData[174:176,1], c(5569.0, 5572.4, 5575.8), tolerance = 1e-03)
+  expect_equal(outData[174:176,2], c(5572.40, 5575.80, 5582.60), tolerance = 1e-03)
+  expect_identical(dim(outData), c(176L, 2L))
 })
 
 test_that("test_areaIntegrator",{
@@ -107,12 +154,16 @@ test_that("test_areaIntegrator",{
   left <- 2.472833334
   right <- 3.022891666
   outData <- areaIntegrator(list(time), list(intensity), left, right, integrationType = "intensity_sum",
-                                baselineType = "base_to_base", fitEMG = FALSE)
+                                baselineType = "base_to_base", fitEMG = FALSE, baseSubtraction = TRUE)
   expect_equal(outData, 6645331.33866)
 
   outData <- areaIntegrator(list(time, time), list(intensity, intensity), left, right, integrationType = "trapezoid",
-                                baselineType = "vertical_division_min", fitEMG = FALSE)
-  expect_equal(outData, 2*71063.59368, tolerance = 0.01)
+                                baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
+  expect_equal(outData, rep(71063.59368, 2), tolerance = 0.01)
+
+  outData <- areaIntegrator(list(time, time), list(intensity, intensity), right, left, integrationType = "trapezoid",
+                            baselineType = "vertical_division_min", fitEMG = FALSE, baseSubtraction = TRUE)
+  expect_identical(outData, NA_real_)
 })
 
 test_that("test_alignChromatogramsCpp",{
@@ -121,17 +172,18 @@ test_that("test_alignChromatogramsCpp",{
   data(oswFiles_DIAlignR, package="DIAlignR")
   oswFiles <- oswFiles_DIAlignR
   Loess.fit <- getLOESSfit(oswFiles, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05, spanvalue = 0.1)
-  XICs.ref <- XICs[["run1"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.ref <- XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   XICs.ref <- smoothXICs(XICs.ref, type = "sgolay", kernelLen = 13, polyOrd = 4)
-  XICs.eXp <- XICs[["run2"]][["14299_QFNNTDIVLLEDFQK/3"]]
+  XICs.eXp <- XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
   XICs.eXp <- smoothXICs(XICs.eXp, type = "sgolay", kernelLen = 13, polyOrd = 4)
-  tVec.ref <- XICs.ref[[1]][["time"]] # Extracting time component
-  tVec.eXp <- XICs.eXp[[1]][["time"]] # Extracting time component
-  B1p <- predict(Loess.fit, tVec.ref[1])
-  B2p <- predict(Loess.fit, tVec.ref[length(tVec.ref)])
+  tVec.ref <- XICs.ref[[1]][,"time"] # Extracting time component
+  tVec.eXp <- XICs.eXp[[1]][,"time"] # Extracting time component
+  lfun <- stats::approxfun(Loess.fit)
+  B1p <- lfun(tVec.ref[1])
+  B2p <- lfun(tVec.ref[length(tVec.ref)])
   noBeef <- 38.6594179136227/3.414
-  l1 <- lapply(XICs.ref, `[[`, 2)
-  l2 <- lapply(XICs.eXp, `[[`, 2)
+  l1 <- lapply(XICs.ref, `[`, i=, j =2)
+  l2 <- lapply(XICs.eXp, `[`, i=, j =2)
   outData <- alignChromatogramsCpp(l1, l2, alignType = "hybrid",
                                    tA = tVec.ref, tB = tVec.eXp, normalization = "mean", simType = "dotProductMasked",
                                    B1p = B1p, B2p = B2p, noBeef = noBeef,
@@ -141,6 +193,16 @@ test_that("test_alignChromatogramsCpp",{
                          samples4gradient = 100, objType = "light")
   expData <- testAlignObj()
   expect_equal(outData, expData, tolerance = 1e-03)
+
+  l1 <- list(rnorm(100), rnorm(101))
+  l2 <- list(rnorm(100), rnorm(100))
+  expect_error(alignChromatogramsCpp(l1, l2, alignType = "hybrid",
+                                   tA = 1:100, tB = 1:100, normalization = "mean", simType = "dotProductMasked",
+                                   B1p = 1, B2p = 90, noBeef = 10,
+                                   goFactor = 0.125, geFactor = 40,
+                                   cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+                                   dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE,
+                                   samples4gradient = 100, objType = "light"))
 })
 
 test_that("test_doAlignmentCpp",{
@@ -179,4 +241,52 @@ test_that("test_doAffineAlignmentCpp",{
   outData <- doAffineAlignmentCpp(s, 22, 7, TRUE)
   expData <- c(10, 20, 18, 18, 18)
   expect_equal(outData@score, expData)
+})
+
+test_that("test_splineFillCpp",{
+  time <- seq(from = 3003.4, to = 3048, by = 3.4)
+  y <- c(0.2050595, 0.8850070, 2.2068768, 3.7212677, 5.1652605, 5.8288915, 5.5446804,
+        4.5671360, 3.3213154, 1.9485889, 0.9520709, 0.3294218, 0.2009581, 0.1420923)
+  y[c(1,6)] <- NA_real_
+  idx <- !is.na(y)
+  outData <- splineFillCpp(time[idx], y[idx], time[!idx])
+  expData <- c(0.0, 5.8075496)
+  expect_equal(outData, expData)
+})
+
+test_that("test_getChildXICpp", {
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+  XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  B1p <- 4964.752
+  B2p <- 5565.462
+  outData <- getChildXICpp(XICs.ref, XICs.eXp, 0, 4, alignType = "hybrid", adaptiveRT = 77.82315,
+                         normalization = "mean", simType = "dotProductMasked", B1p = B1p, B2p = B2p,
+                         goFactor = 0.125, geFactor = 40, cosAngleThresh = 0.3, OverlapAlignment = TRUE,
+                         dotProdThresh = 0.96, gapQuantile = 0.5, hardConstrain = FALSE, samples4gradient = 100,
+                         wRef = 0.5, keepFlanks= TRUE, splineMethod = "natural", mergeStrategy = "avg")
+  expect_identical(length(outData), 2L)
+  expect_identical(dim(outData[[1]][[6]]), c(177L, 2L))
+
+  data(masterXICs_DIAlignR, package="DIAlignR")
+  expData <- masterXICs_DIAlignR
+  for(i in 1:3) expect_equal(outData[[2]][,i], expData[[2]][, i+2])
+  for(i in 1:6) expect_equal(outData[[1]][[i]][,1], expData[[1]][[i]][,1])
+  for(i in 1:6) expect_equal(outData[[1]][[i]][,2], expData[[1]][[i]][,2])
+})
+
+test_that("test_otherChildXICpp", {
+  data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
+  XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
+  XICs.ref <- lapply(XICs[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  XICs.eXp <- lapply(XICs[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]], as.matrix)
+  B1p <- 4964.752
+  B2p <- 5565.462
+  data(masterXICs_DIAlignR, package="DIAlignR")
+  expData <- masterXICs_DIAlignR
+  outData <- otherChildXICpp(XICs.ref, XICs.eXp, 0L, 4L, as.matrix(expData[[2]][, 3:5]),
+                  expData[[1]][[1]][,1], wRef = 0.5, splineMethod = "natural")
+  for(i in 1:6) expect_equal(outData[[i]][,1], expData[[1]][[i]][,1])
+  for(i in 1:6) expect_equal(outData[[i]][,2], expData[[1]][[i]][,2])
 })
