@@ -143,7 +143,7 @@ blobXICs <- function(XICs, nativeIds, lossy =TRUE){
     v <- vector(mode = "list", length = 2L)
     if(lossy){
       v[[1]] <- memCompress(RMSNumpress::encodeLinear(xic[,1], RMSNumpress::optimalLinearFixedPoint(xic[,1])), type = "gzip")
-      v[[2]] <- memCompress(RMSNumpress::encodeSlof(xic[,2], RMSNumpress::optimalSlofFixedPoint(xic[,2])-1), type = "gzip")
+      v[[2]] <- memCompress(RMSNumpress::encodeSlof(xic[,2], RMSNumpress::optimalSlofFixedPoint(xic[,2])), type = "gzip")
     }else{
       v[[1]] <- memCompress(writeBin(xic[,1], raw(), size = NA_real_), type = "gzip")
       v[[2]] <- memCompress(writeBin(xic[,2], raw(), size = NA_real_), type = "gzip")

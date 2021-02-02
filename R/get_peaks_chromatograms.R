@@ -56,14 +56,14 @@ extractXIC_group2 <- function(con, chromIndices){
   ids1 <- paste0(chromIndices, collapse = ", ")
   query <- paste0("SELECT CHROMATOGRAM_ID, COMPRESSION, DATA_TYPE, DATA
                  FROM DATA
-                 WHERE CHROMATOGRAM_ID IN (", ids1, ");", sep = "")
+                 WHERE CHROMATOGRAM_ID IN (", ids1, ")
+                 ORDER BY CHROMATOGRAM_ID ASC, DATA_TYPE DESC;", sep = "")
   results <- DBI::dbGetQuery(con, query)
-  XIC_group <- lapply(chromIndices, function(id){
-    df <- results[results$CHROMATOGRAM_ID == id, c(2,3,4)]
-    df1 <- df[df$DATA_TYPE == 2L, c(1,3)]
-    df2 <- df[df$DATA_TYPE == 1L, c(1,3)]
-    cbind("time" = uncompressVec(df1[["DATA"]][[1]], df1$COMPRESSION[[1]]),
-          "intensity" = uncompressVec(df2[["DATA"]][[1]], df2$COMPRESSION[[1]]))
+  XIC_group <- lapply(seq_along(chromIndices), function(i){
+    cbind("time" = uncompressVec(results[["DATA"]][[2*i-1]],
+                                 results$COMPRESSION[[2*i-1]]),
+          "intensity" = uncompressVec(results[["DATA"]][[2*i]],
+                                      results$COMPRESSION[[2*i]]))
   })
   XIC_group
 }
