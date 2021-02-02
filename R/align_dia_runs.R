@@ -45,10 +45,10 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   start_time <- Sys.time()
   precursors <- getPrecursors(fileInfo, oswMerged, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]], params[["level"]])
-  precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
   if(params[["fractionPercent"]] != 100L){
     idx <- getPrecursorSubset(precursors, params)
     precursors <- precursors[idx[1]:idx[2],]
+    data.table::setkeyv(precursors, c("peptide_id", "transition_group_id"))
     outFile <- paste(outFile, params[["fraction"]], params[["fractionPercent"]], sep = "_")
   }
   outFile <- paste0(outFile,".tsv")
@@ -60,9 +60,9 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   # Some peptides may not be found due to using a subset of runs. Appends NA for them.
   # This translates as "Chromatogram indices for peptide ID are missing in NA"
   start_time <- Sys.time()
-  peptideIDs <- unique(precursors$peptide_id)
+  peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
   peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
-  peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  peptideScores <- lapply(peptideIDs, function(pep) peptideScores[.(pep)])
   names(peptideScores) <- as.character(peptideIDs)
   end_time <- Sys.time()
   message("The execution time for fetching peptide scores:")
@@ -76,7 +76,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
     refRuns <- getRefRun(peptideScores, applyFun)
   } else{
     run <- rownames(fileInfo)[idx]
-    refRuns <- data.frame("peptide_id" = peptideIDs, "run" = run)
+    refRuns <- data.table("peptide_id" = peptideIDs, "run" = run, key = "peptide_id")
   }
   end_time <- Sys.time()
   message("The execution time for calculating a reference run:")
@@ -114,11 +114,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   #### Convert features into multi-peptide #####
   message("Building multipeptide.")
   start_time <- Sys.time()
-  if(params[["transitionIntensity"]]){
-    multipeptide <- getMultipeptide2(precursors, features, applyFun)
-  } else{
-    multipeptide <- getMultipeptide(precursors, features, applyFun)
-  }
+  multipeptide <- getMultipeptideExtra(precursors, features, applyFun)
   message(length(multipeptide), " peptides are in the multipeptide.")
   end_time <- Sys.time()
   message("The execution time for building multipeptide:")
@@ -141,10 +137,8 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   message("Performing reference-based alignment.")
   start_time <- Sys.time()
   num_of_batch <- ceiling(length(multipeptide)/params[["batchSize"]])
-  multipeptide <- lapply(1:num_of_batch, perBatch, peptideIDs, multipeptide, refRuns, precursors,
+  lapply(1:num_of_batch, perBatch, peptideIDs, multipeptide, refRuns, precursors,
                            prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, applyFun)
-  multipeptide <- unlist(multipeptide, recursive = FALSE)
-  names(multipeptide) <- as.character(peptideIDs)
 
   #### Cleanup.  #######
   for(mz in mzPntrs){
@@ -160,8 +154,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   #### Write tables to the disk  #######
   finalTbl <- writeTables(fileInfo, multipeptide, precursors)
   if(params[["transitionIntensity"]]){
-    finalTbl$intensity <- lapply(finalTbl$intensity,round, 3)
-    finalTbl$intensity <- sapply(finalTbl$intensity, function(x) paste(unlist(x), collapse=", "))
+    finalTbl[,intensity := sapply(intensity,function(x) paste(round(x, 3), collapse=", "))]
   }
   utils::write.table(finalTbl, file = outFile, sep = "\t", row.names = FALSE, quote = FALSE)
   message("Retention time alignment across runs is done.")
@@ -372,7 +365,7 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref, params, p
   if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
     message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
-    df.eXp <- df[df[["run"]] == eXp, ]
+    df.eXp <- df[run == eXp, ]
     return(df.eXp)
   } else {
     XICs.eXp <- lapply(chromIndices, function(i) extractXIC_group(mz = mzPntrs[[eXp]], chromIndices = i))
@@ -385,8 +378,7 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref, params, p
     XICs.ref.pep <- unlist(XICs.ref, recursive = FALSE, use.names = FALSE)
     XICs.eXp.pep <- unlist(XICs.eXp, recursive = FALSE, use.names = FALSE)
   } else {
-    temp <- df[df$run == ref, c("transition_group_id", "m_score")]
-    analyte_chr <- as.character(temp[which.min(temp$m_score), "transition_group_id"])
+    analyte_chr <- as.character(df[run == ref, ][which.min(m_score), transition_group_id])
     XICs.ref.pep <- XICs.ref[[analyte_chr]]
     XICs.eXp.pep <- XICs.eXp[[analyte_chr]]
   }
@@ -397,10 +389,10 @@ alignToRef <- function(eXp, ref, preIdx, analytes, fileInfo, XICs.ref, params, p
   adaptiveRT <- params[["RSEdistFactor"]]*RSE[[pair]]
   tAligned <- getAlignedTimesFast(XICs.ref.pep, XICs.eXp.pep, globalFit, adaptiveRT,
                                   params)
-  df.eXp <- setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
-  df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
-  if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
-  df.eXp
+  setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+  setOtherPrecursors(df, eXp, XICs.eXp, analytes, params)
+  if(params[["recalIntensity"]]) reIntensity(df, eXp, XICs.eXp, params)
+  df[run == eXp,]
 }
 
 #' Aligns an analyte across runs
@@ -439,11 +431,11 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   # print(rownum)
   peptide <- peptideIDs[rownum]
   df <- multipeptide[[rownum]]
-  ref <- refRuns[["run"]][rownum]
+  ref <- refRuns[.(peptide), run]
 
   ##### Get transition_group_id for that peptideID #####
-  idx <- which(precursors$peptide_id == peptide)
-  analytes <- precursors[idx, "transition_group_id"]
+  idx <- precursors[.(peptide), which = TRUE]
+  analytes <- precursors[idx, transition_group_id]
 
   ##### Get XIC_group from reference run. if missing, return unaligned features #####
   chromIndices <- prec2chromIndex[[ref]][["chromatogramIndex"]][idx]
@@ -457,18 +449,17 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
   }
 
   ##### Set alignment rank for all precrusors of the peptide in the reference run #####
-  refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
-  refIdx <- refIdx[which.min(df$m_score[refIdx])]
+  refIdx <- df[run == ref & peak_group_rank == 1, which = TRUE]
+  refIdx <- refIdx[which.min(df[refIdx, m_score])]
   if(length(refIdx)==0) {
     message("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
     message("Skipping peptide ", peptide, " across all runs.")
     return(df)
   }
-  df[["alignment_rank"]][refIdx] <- 1L
-  df.ref <- df[df$run == ref,]
-  df.ref <- setOtherPrecursors(df.ref, XICs.ref, analytes, params)
+  df[refIdx, "alignment_rank" := 1L]
+  setOtherPrecursors(df, ref, XICs.ref, analytes, params)
   # Update multipeptide reference intensity if recal is true
-  if(params[["recalIntensity"]]) df.ref <- reIntensity(df.ref, XICs.ref, params)
+  if(params[["recalIntensity"]]) reIntensity(df, ref, XICs.ref, params)
 
   ##### Align all runs to reference run and set their alignment rank #####
   exps <- setdiff(rownames(fileInfo), ref)
@@ -477,10 +468,9 @@ alignIthAnalyte <- function(rownum, peptideIDs, multipeptide, refRuns, precursor
 
   ##### Return the dataframe with alignment rank set to TRUE #####
   updateOnalignTargetedRuns(rownum)
-  newDF <- dplyr::bind_rows(df.ref, df.exps)
-  newDF
+  df.ref <- df[run == ref,]
+  newDF <- rbindlist(list(df.ref, rbindlist(df.exps)))
 }
-
 
 
 perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec2chromIndex,
@@ -490,14 +480,14 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
   message("Processing Batch ", iBatch)
   batchSize <- params[["batchSize"]]
   strt <- ((iBatch-1)*batchSize+1)
-  stp <- min((iBatch*batchSize), length(multipeptide))
+  stp <- min((iBatch*batchSize), length(peptideIDs))
   ##### Get XICs for the batch across all runs #####
   XICs <- lapply(strt:stp, function(rownum){
     ##### Get transition_group_id for that peptideID #####
-    idx <- which(precursors$peptide_id == peptideIDs[rownum])
-    analytes <- precursors[idx, "transition_group_id"]
+    idx <- precursors[.(peptideIDs[rownum]),  which = TRUE]
+    analytes <- precursors[idx, transition_group_id]
     xics <- lapply(names(mzPntrs), function(run){
-      chromIndices <- prec2chromIndex[[run]][["chromatogramIndex"]][idx]
+      chromIndices <- prec2chromIndex[[run]][idx, "chromatogramIndex"]
       if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))) return(NULL)
       temp <- lapply(chromIndices, function(i1) fetchXIC(mzPntrs[[run]], i1))
       names(temp) <- as.character(analytes)
@@ -507,65 +497,64 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
     xics
   })
 
-  mp <- applyFun(strt:stp, function(rownum){
+  # Get aligned multipeptide for the batch
+  applyFun(strt:stp, function(rownum){
     peptide <- peptideIDs[rownum]
-    df <- multipeptide[[rownum]]
-    ref <- refRuns[["run"]][rownum]
+    DT <- multipeptide[[rownum]]
+    ref <- refRuns[rownum, run]
 
     idx <- (rownum - (iBatch-1)*batchSize)
     XICs.ref <- XICs[[idx]][[ref]]
     if(is.null(XICs.ref)){
       message("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[ref, "runName"])
       message("Skipping peptide ", peptide, " across all runs.")
-      return(df)
+      return(DT)
     }
-
     ##### Set alignment rank for all precrusors of the peptide in the reference run #####
     analytes <- as.integer(names(XICs.ref))
-    refIdx <- which(df[["run"]] == ref & df[["peak_group_rank"]] == 1)
-    refIdx <- refIdx[which.min(df$m_score[refIdx])]
+    refIdx <- DT[run == ref & peak_group_rank == 1, .I[which.min(m_score)], keyby = run][,V1]
     if(length(refIdx)==0) {
       message("Features for peptide ", peptide, " is missing in ", fileInfo[ref, "runName"])
       message("Skipping peptide ", peptide, " across all runs.")
-      return(df)
+      return(invisible(NULL))
     }
-    df[["alignment_rank"]][refIdx] <- 1L
-    df.ref <- df[df$run == ref,]
-    df.ref <- setOtherPrecursors(df.ref, XICs.ref, analytes, params)
+    DT[refIdx, alignment_rank := 1L]
+    setOtherPrecursors(DT, ref, XICs.ref, analytes, params)
     # Update multipeptide reference intensity if recal is true
-    if(params[["recalIntensity"]]) df.ref <- reIntensity(df.ref, XICs.ref, params)
+    if(params[["recalIntensity"]]) reIntensity(DT, ref, XICs.ref, params)
 
     ##### Align all runs to reference run and set their alignment rank #####
     exps <- setdiff(rownames(fileInfo), ref)
-    df.exps <- lapply(exps, alignToRef2, ref, idx, analytes, fileInfo, XICs, XICs.ref, params,
-                      df, globalFits, RSE)
+    invisible(
+      lapply(exps, alignToRef2, ref, idx, analytes, fileInfo, XICs, XICs.ref, params,
+             DT, globalFits, RSE)
+    )
 
     ##### Return the dataframe with alignment rank set to TRUE #####
     updateOnalignTargetedRuns(rownum)
-    newDF <- dplyr::bind_rows(df.ref, df.exps)
-    newDF
+    invisible(NULL)
   })
-  mp
+  invisible(NULL)
 }
 
 
 alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, params,
                        df, globalFits, RSE){
-  df.eXp <- df[df[["run"]] == eXp, ]
+  # Get XIC_group from experiment run.
   XICs.eXp <- XICs[[idx]][[eXp]]
-  if(any(df.eXp[["m_score"]] < params[["unalignedFDR"]], na.rm = TRUE)){
-    idx <- which.min(df.eXp[["m_score"]])
-    df.eXp[["alignment_rank"]][idx] <- 1L
-    df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
-    if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
-    return(df.eXp)
+  if(any(df[run == eXp, m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
+    tempi <- df[run == eXp, .I[which.min(m_score)], by = run]$V1
+    df[tempi, alignment_rank := 1L]
+    setOtherPrecursors(df, eXp, XICs.eXp, analytes, params)
+    reIntensity2(df, eXp, XICs.eXp, params)
+    return(invisible(NULL))
   }
 
-  # Get XIC_group from experiment run. if missing, go to next run.
+  # if missing, go to next run.
   if(is.null(XICs.eXp)){
     message("Chromatogram indices for precursor ", analytes, " are missing in ", fileInfo[eXp, "runName"])
     message("Skipping precursor ", analytes, " in ", fileInfo[eXp, "runName"], ".")
-    return(df.eXp)
+    return(invisible(NULL))
   }
 
   # Select 1) all precursors OR 2) high quality precursor
@@ -574,8 +563,8 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, param
     XICs.ref.pep <- unlist(XICs.ref, recursive = FALSE, use.names = FALSE)
     XICs.eXp.pep <- unlist(XICs.eXp, recursive = FALSE, use.names = FALSE)
   } else {
-    temp <- df[df$run == ref, c("transition_group_id", "m_score")]
-    analyte_chr <- as.character(temp[which.min(temp$m_score), "transition_group_id"])
+    tempi <- df[run == ref, .I[which.min(m_score)], by = run]$V1
+    analyte_chr <- as.character(df[tempi, transition_group_id])
     XICs.ref.pep <- XICs.ref[[analyte_chr]]
     XICs.eXp.pep <- XICs.eXp[[analyte_chr]]
   }
@@ -597,16 +586,34 @@ alignToRef2 <- function(eXp, ref, idx, analytes, fileInfo, XICs, XICs.ref, param
              message("\nError in the alignment of ", paste0(analytes, sep = " "), "in runs ",
                      fileInfo[ref, "runName"], " and ", fileInfo[eXp, "runName"])
              warning(e)
-             return(df.eXp)
+             return(invisible(NULL))
            })
-  df.eXp <- tryCatch(expr = setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT),
+  tryCatch(expr = setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT),
              error = function(e){
              message("\nError in setting alignment rank of ", paste0(analytes, sep = " "), "in runs ",
                      fileInfo[eXp, "runName"], " and ", fileInfo[eXp, "runName"])
              warning(e)
-             return(df.eXp)
+             return(invisible(NULL))
            })
-  df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
-  if(params[["recalIntensity"]]) df.eXp <- reIntensity(df.eXp, XICs.eXp, params)
-  df.eXp
+  setOtherPrecursors(df, eXp, XICs.eXp, analytes, params)
+  if(params[["recalIntensity"]]) reIntensity(df, eXp, XICs.eXp, params)
+  invisible(NULL)
 }
+
+library(data.table)
+l = list(data.table(x = letters[1:3], y = 1),
+         data.table(x = letters[3:5], y = 2))
+function1 <- function(DT){
+  DT[x == "b", y := 10]
+  function2(DT)
+  invisible(NULL)
+}
+
+function2 <- function(DT){
+  DT[x == "c", y := 100]
+  invisible(NULL)
+}
+invisible(lapply(l, function(df) function1(df)))
+library(BiocParallel)
+BiocParallel::MulticoreParam()
+invisible(BiocParallel::bplapply(l, function(df) function1(df)))

@@ -128,14 +128,14 @@ test_that("test_getChromatogramIndices",{
   rm(mzPntrs)
 
   expData <- data.frame("transition_group_id" = c(9720L, 9723L),
-                        row.names = c(144L, 145L))
+                        row.names = c(148L, 260L))
   expData[1, "chromatogramIndex"][[1]] <- list(c(49L, 50L, 51L, 52L, 53L, 54L))
   expData[2, "chromatogramIndex"][[1]] <- list(rep(NA_integer_, 6))
-  expect_identical(expData, outData[["run2"]][144:145,])
+  expect_identical(expData, outData[["run2"]][c(148, 260),])
 
-  expData <- data.frame("transition_group_id" = c(470L, 1967L, 32L))
+  expData <- data.frame("transition_group_id" = c(6025L, 17186L, 17745L))
   expData[1, "chromatogramIndex"][[1]] <- list(rep(NA_integer_, 6))
-  expData[2, "chromatogramIndex"][[1]] <- list(c(13:18))
+  expData[2, "chromatogramIndex"][[1]] <- list(c(1:6))
   expData[3, "chromatogramIndex"][[1]] <- list(rep(NA_integer_, 6))
   expect_identical(expData, outData2[["run2"]])
 

@@ -4,11 +4,9 @@
 \alias{getRTdf}
 \title{Calculates global alignment between RT of two runs}
 \usage{
-getRTdf(oswFiles, ref, eXp, maxFdrGlobal)
+getRTdf(features, ref, eXp, maxFdrGlobal)
 }
 \arguments{
-\item{oswFiles}{(list of data-frames) it is output from getFeatures function.}
-
 \item{ref}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
 
 \item{eXp}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
