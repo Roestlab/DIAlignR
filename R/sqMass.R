@@ -84,7 +84,7 @@ createSqMass <- function(filename, XICs, transitionIDs, lossy){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-12-13
-#' @import RMSNumpress Rcompression
+#' @import RMSNumpress
 #' @param x (Blob object)
 #' @param type (integer) must either be 5L or 6L to indicate linear and short logged float compression, respectively.
 #' @return A numeric vector. Uncompressed form of the Blob.
@@ -100,10 +100,10 @@ createSqMass <- function(filename, XICs, transitionIDs, lossy){
 #' }
 #' @keywords internal
 uncompressVec <- function(x, type){
-  if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(Rcompression::uncompress(x, asText = FALSE))))
-  if(type == 6L) return(RMSNumpress::decodeSlof(as.raw(Rcompression::uncompress(x, asText = FALSE))))
+  if(type == 5L) return(RMSNumpress::decodeLinear(as.raw(memDecompress(x, type = "gzip"))))
+  if(type == 6L) return(RMSNumpress::decodeSlof(as.raw(memDecompress(x, type = "gzip"))))
   if(type == 1L) {
-    r <- as.raw(Rcompression::uncompress(x, asText = FALSE))
+    r <- as.raw(memDecompress(x, type = "gzip"))
     return(readBin(r, "numeric", length(r)/8, NA_real_, TRUE))
   }
   else stop("Compression = 1, 5, 6 are supported only.")
