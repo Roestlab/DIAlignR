@@ -9,6 +9,7 @@
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @importFrom dplyr %>%
+#' @import data.table
 #' @inheritParams checkParams
 #' @param dataPath (string) path to mzml and osw directory.
 #' @param outFile (string) name of the output file.
@@ -73,7 +74,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   idx <- which(fileInfo$runName == refRun)
   if(length(idx) == 0){
     message("Calculating reference run for each peptide.")
-    refRuns <- getRefRun(peptideScores, applyFun)
+    refRuns <- getRefRun(peptideScores)
   } else{
     run <- rownames(fileInfo)[idx]
     refRuns <- data.table("peptide_id" = peptideIDs, "run" = run, key = "peptide_id")

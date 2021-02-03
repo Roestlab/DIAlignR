@@ -174,11 +174,11 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 #' @seealso \code{\link{chromatogramIdAsInteger}, \link{mapPrecursorToChromIndices}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+#' fileInfo <- getRunNames(dataPath = dataPath)
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 #' mzPntrs <- getMZMLpointers(fileInfo)
 #' prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
-#' rm(mzPntrs)
+#' for(mz in mzPntrs) DBI::dbDisconnect(mz)
 #' @export
 getChromatogramIndices <- function(fileInfo, precursors, mzPntrs, applyFun=lapply){
   # Get precursor to transition mapping and unlist so that each row has one transition.
@@ -199,7 +199,7 @@ getChromatogramIndices <- function(fileInfo, precursors, mzPntrs, applyFun=lappl
     df <- df[match(precursors$transition_group_id, df$transition_group_id),]
     row.names(df) <- NULL
     message("Fetched chromatogram indices from ", fileInfo$chromatogramFile[i])
-    df
+    setDT(df)
   })
   names(prec2chromIndex) <- runs
   prec2chromIndex

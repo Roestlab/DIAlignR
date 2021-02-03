@@ -8,7 +8,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
-#' @importFrom data.table setkey rbindlist
+#' @importFrom data.table set data.table
 #' @inheritParams alignTargetedRuns
 #' @param peptideScores (list of data-frames) each dataframe has scores of a peptide across all runs.
 #' @return (dataframe) has two columns:
@@ -26,20 +26,17 @@
 #' getRefRun(peptidesInfo)
 #' @seealso \code{\link{getPeptideScores}}
 #' @export
-getRefRun <- function(peptideScores, applyFun = lapply){
-  DFs <- lapply(seq_along(peptideScores), function(i){
-    pep <- peptideScores[[i]]
-    idx <- pep[, which.min(pvalue)]
-    if(length(idx)==0) {
-      id <- as.integer(names(peptideScores)[i])
-      df <- data.table("peptide_id" = id, "run" = NA_character_)
-    } else{
-      df <- pep[idx, c("peptide_id", "run")]
-    }
-    df
-  })
-  DFs <- rbindlist(DFs, use.names=TRUE)
-  setkey(DFs, peptide_id)
+getRefRun <- function(peptideScores, applyFun=lapply){
+  DFs <- data.table("peptide_id" = as.integer(names(peptideScores)),
+             "run" = NA_character_ , key = "peptide_id")
+  invisible(
+    applyFun(seq_along(peptideScores), function(i){
+      DT <- peptideScores[[i]]
+      idx <- DT[, which.min(pvalue)]
+      if(length(idx)!=0) set(DFs, i, j = 2L, DT[[2]][[idx]])
+      invisible(NULL)
+    })
+  )
   DFs
 }
 
@@ -97,12 +94,12 @@ getMultipeptide <- function(precursors, features, applyFun=lapply){
 }
 
 getMultipeptideExtra <- function(precursors, features, applyFun=lapply){
-  peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
+  peptideIDs <- unique(precursors$peptide_id)
   runs <- names(features)
   num_run = length(features)
   multipeptide <- applyFun(seq_along(peptideIDs), function(i){
     # Get transition_group_id for a peptide
-    analytes <- precursors[.(peptideIDs[i]), transition_group_id]
+    analytes <- precursors[.(peptideIDs[i]), 1L][[1]]
     num_analytes <- length(analytes)
     newdf <- rbindlist(lapply(runs, function(run){
       df <- rbindlist(list(features[[run]][.(analytes), ],
@@ -499,13 +496,13 @@ checkOverlap <- function(x, y){
 #' @return Invisible NULL
 #' @keywords internal
 getPrecursorSubset <- function(precursors, params){
-  peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
+  peptideIDs <- unique(precursors$peptide_id)
   len = length(peptideIDs)
   a = params[["fraction"]]
   b = params[["fractionPercent"]]
   pepStart <- (a-1)*floor(len*b*0.01)+1
   pepEnd <- min(a*floor(len*b*0.01), len)
-  r <- rle(precursors[, peptide_id])
+  r <- rle(precursors$peptide_id)
   if(a == 1) {
     pepStart = 1
   } else{
