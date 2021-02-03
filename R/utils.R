@@ -21,7 +21,7 @@
 #'                                 context = "experiment-wide", maxPeptideFdr = 0.05)
 #' peptideIDs <- unique(precursorsInfo$peptide_id)
 #' peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)
-#' peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
+#' peptidesInfo <- lapply(peptideIDs, function(pep) peptidesInfo [.(pep),])
 #' names(peptidesInfo) <- as.character(peptideIDs)
 #' getRefRun(peptidesInfo)
 #' @seealso \code{\link{getPeptideScores}}
@@ -75,25 +75,6 @@ getRefRun <- function(peptideScores, applyFun=lapply){
 #' @seealso \code{\link{getPrecursors}, \link{getFeatures}}
 #' @export
 getMultipeptide <- function(precursors, features, applyFun=lapply){
-  peptideIDs <- precursors[, logical(1), keyby = peptide_id]$peptide_id
-  runs <- names(features)
-  multipeptide <- lapply(seq_along(peptideIDs), function(i){
-    # Get transition_group_id for a peptide
-    analytes <- precursors[.(peptideIDs[i]), transition_group_id]
-    newdf <- rbindlist(lapply(runs, function(run){
-      df <- features[[run]][.(analytes), ]
-      df[,"run" := run]
-      df
-    }), use.names=TRUE)
-    newdf[, "alignment_rank" := NA_integer_]
-    newdf
-  })
-  # Convert peptides as character. Add names to the multipeptide list.
-  names(multipeptide) <- as.character(peptideIDs)
-  multipeptide
-}
-
-getMultipeptideExtra <- function(precursors, features, applyFun=lapply){
   peptideIDs <- unique(precursors$peptide_id)
   runs <- names(features)
   num_run = length(features)
@@ -103,7 +84,7 @@ getMultipeptideExtra <- function(precursors, features, applyFun=lapply){
     num_analytes <- length(analytes)
     newdf <- rbindlist(lapply(runs, function(run){
       df <- rbindlist(list(features[[run]][.(analytes), ],
-                           dummyTbl(analytes)), use.names=TRUE)
+                           dummyTbl(analytes)), use.names=TRUE) # dummy for new features
       df[,`:=`("run" = run, "alignment_rank" = NA_integer_)]
       df
     }), use.names=TRUE)

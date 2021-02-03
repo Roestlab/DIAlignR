@@ -38,27 +38,16 @@ calculateIntensity <- function(XICs, left, right, integrationType, baselineType,
   sum(intensity, na.rm = FALSE)
 }
 
-newRow <- function(xics, left, right, RT, analyte, run, params){
+
+newRow <- function(df, xics, left, right, rt, analyte, Run, params){
   intensity <- calculateIntensity(xics, left, right, params[["integrationType"]], params[["baselineType"]],
                                   params[["fitEMG"]], params[["baseSubtraction"]], params[["transitionIntensity"]])
   intensity <- ifelse(params[["transitionIntensity"]], list(intensity), intensity)
-  row <- data.table("transition_group_id" = analyte, "feature_id" = bit64::NA_integer64_,
-                    "RT" = RT, "intensity"= intensity, "leftWidth" = left, "rightWidth" = right,
-                    "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = run,
-                    "alignment_rank" = 1L)
-  row
-}
-
-modifyRow <- function(df, xics, left, right, rt, analyte, Run, params){
-  intensity2 <- calculateIntensity(xics, left, right, params[["integrationType"]], params[["baselineType"]],
-                                  params[["fitEMG"]], params[["baseSubtraction"]], params[["transitionIntensity"]])
-  intensity2 <- ifelse(params[["transitionIntensity"]], list(intensity2), intensity2)
   idx <- which(df$run == Run & df$transition_group_id == analyte)
   idx <- idx[is.na(.subset2(df, "peak_group_rank")[idx])]
-  #idx <- df[run == Run & transition_group_id == analyte, .I[is.na(peak_group_rank)][1], by = run]$V1
+  # idx <- df[run == Run & transition_group_id == analyte, .I[is.na(peak_group_rank)][1], by = run]$V1
   if(length(idx) == 0) return(invisible(NULL))
-  df[idx, `:=`(RT = rt, intensity = intensity2,
-               leftWidth = left, rightWidth = right, alignment_rank = 1L)]
+  set(df, idx[1L], c(3L, 4L, 5L, 6L, 10L), list(rt, intensity, left, right, 1L))
   invisible(NULL)
 }
 

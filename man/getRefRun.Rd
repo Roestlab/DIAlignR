@@ -26,7 +26,7 @@ precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_prote
                                 context = "experiment-wide", maxPeptideFdr = 0.05)
 peptideIDs <- unique(precursorsInfo$peptide_id)
 peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)
-peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
+peptidesInfo <- lapply(peptideIDs, function(pep) peptidesInfo [.(pep),])
 names(peptidesInfo) <- as.character(peptideIDs)
 getRefRun(peptidesInfo)
 }

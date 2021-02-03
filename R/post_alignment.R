@@ -123,7 +123,7 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-13
-#' @importFrom bit64 NA_integer64_
+#' @importFrom data.table set
 #' @inheritParams alignToRef
 #' @inherit alignIthAnalyte return
 #' @param adaptiveRT (numeric) defines the window around the aligned retention time, within which
@@ -149,22 +149,9 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
 #' params, adaptiveRT = 38.66)
 #' }
-setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
-  ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
-  #if(any(df[run == eXp, m_score <= params[["unalignedFDR"]]], na.rm = TRUE)){
-  #  tempi <- df[run == eXp, .I[which.min(m_score)], by = run]$V1
-  #  df[tempi, alignment_rank := 1L]
-  #  return(invisible(NULL))
-  #}
-
-  ##### No high quality feature, hence, alignment is needed. Map peak from ref to eXp #####
+setAlignmentRank <- function(df, refIdx, eXp, tAligned, XICs, params, adaptiveRT){
+  ##### Map peak from ref to eXp #####
   # reference run.
-  refIdx <- which(df$run == ref & df$alignment_rank == 1L)
-  if(all(is.na(.subset2(df, "m_score")[refIdx]))){
-    refIdx <- refIdx[1]
-  } else {
-    refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
-  }
   analyte <- .subset2(df, "transition_group_id")[[refIdx]]
   analyte_chr <- as.character(analyte)
   refRT <- .subset2(df, "RT")[[refIdx]]
@@ -181,47 +168,49 @@ setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveR
 
   ##### Find any feature present within adaptiveRT. #####
   pk <- c(left - adaptiveRT, right + adaptiveRT)
-  tempi <- which(df$run == eXp)
-  idx <- sapply(tempi, function(i) checkOverlap(pk,
-            c(.subset2(df, "leftWidth")[[i]], .subset2(df, "rightWidth")[[i]])))
-  idx <- tempi[which(idx)]
-  if(any(.subset2(df, "m_score")[idx] <= params[["alignedFDR"]], na.rm = TRUE)){
-    idx <- idx[which.min(.subset2(df, "m_score")[idx])]
-    set(df, i = idx, "alignment_rank", 1L)
-    return(invisible(NULL))
+  tempi <- which(df$run == eXp & !is.na(df$RT))
+  if(length(tempi) != 0){
+    idx <- sapply(tempi, function(i) checkOverlap(pk,
+        c(.subset2(df, "leftWidth")[[i]], .subset2(df, "rightWidth")[[i]])))
+    idx <- tempi[which(idx)]
+    if(any(.subset2(df, "m_score")[idx] <= params[["alignedFDR"]], na.rm = TRUE)){
+      idx <- idx[which.min(.subset2(df, "m_score")[idx])]
+      set(df, i = idx, "alignment_rank", 1L)
+      return(invisible(NULL))
+    }
   }
 
   ##### Create a new feature. #####
   if(params[["fillMissing"]]){
-    modifyRow(df, XICs.eXp[[analyte_chr]], left, right, eXpRT, analyte, eXp, params)
+    newRow(df, XICs[[analyte_chr]], left, right, eXpRT, analyte, eXp, params)
   }
   invisible(NULL)
 }
 
 # df should have features from one run only.
-setOtherPrecursors <- function(df, Run, XICs, analytes, params){
-  refIdx <- df[run == Run & alignment_rank == 1, which = TRUE]
+setOtherPrecursors <- function(df, refIdx, XICs, analytes, params){
+  Run <- df[["run"]][[refIdx]]
   if(length(refIdx) == 0 | is.null(refIdx)) return(NULL)
 
-  precRef <- df[refIdx, transition_group_id]
-  pk <- c(df[refIdx, leftWidth], df[refIdx, rightWidth])
+  precRef <- df[refIdx, "transition_group_id"][[1]]
+  pk <- c(.subset2(df, "leftWidth")[refIdx], .subset2(df, "rightWidth")[refIdx])
 
   # If other precursors have overlapping feature then set their alignment rank to 1.
   for(analyte in setdiff(analytes, precRef)){
-    idx <- df[run == Run & transition_group_id == analyte, which = TRUE]
+    idx <- which(df[["run"]] == Run & df[["transition_group_id"]] == analyte)
     if(length(idx)!=0){
       idx <- idx[sapply(idx, function(i) {
-        sts <- checkOverlap(pk, c(df[i, leftWidth], df[i, rightWidth]))
+        sts <- checkOverlap(pk,  c(.subset2(df, "leftWidth")[i], .subset2(df, "rightWidth")[i]))
         ifelse(is.na(sts), FALSE, sts)
       } )]
     }
     if(length(idx)==0 & params[["fillMissing"]]){
       # Create a feature for missing precursor
       analyte_chr <- as.character(analyte)
-      modifyRow(df, XICs[[analyte_chr]], pk[1], pk[2], df[refIdx, RT], analyte, Run, params)
+      newRow(df, XICs[[analyte_chr]], pk[1], pk[2], .subset2(df, "RT")[refIdx], analyte, Run, params)
     } else{
-      idx <- idx[which.max(pmin(pk[2], df[idx, rightWidth]) - pmax(pk[1], df[idx, leftWidth]))]
-      df[idx, "alignment_rank" := 1L] # set alignment rank for already present feature
+      idx <- idx[which.max(pmin(pk[2], .subset2(df, "rightWidth")[idx]) - pmax(pk[1], .subset2(df, "leftWidth")[idx]))]
+      set(df, i = idx, 10L, 1L)  # set alignment rank (10L) for already present feature
     }
   }
   invisible(NULL)

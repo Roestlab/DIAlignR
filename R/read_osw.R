@@ -244,8 +244,6 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2019-04-06
-#' @importFrom magrittr %>%
-#' @import dplyr
 #' @inheritParams getPrecursors
 #' @param analytes (integer) a vector of integers.
 #' @return (data-frames) A data-frame having following columns:
@@ -345,7 +343,6 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-06
-#' @importFrom magrittr %>%
 #' @inheritParams alignTargetedRuns
 #' @param fileInfo (data-frame) output of \code{\link{getRunNames}} function.
 #' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
@@ -540,7 +537,7 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-11-15
-#' @importFrom data.table setnames setDT
+#' @importFrom data.table setnames setDT setcolorder
 #' @param filename (string) Path to the feature file.
 #' @param runID (string) id in RUN.ID column of the feature file.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
@@ -566,7 +563,7 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
 #' }
 fetchTransitionsFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = "DIA_proteomics"){
   # Establish a connection of SQLite file.
-  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = as.character(filename))
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = filename)
   # Generate a query.
   query <- getTransitionsQuery(runType)
   # Run query to get peptides, their coordinates and scores.
@@ -582,6 +579,8 @@ fetchTransitionsFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType
        , head(.SD, 1), by=.(transition_group_id, peak_group_rank),
        .SDcols = c("feature_id", "RT", "intensity2", "leftWidth", "rightWidth", "m_score")]
   setnames(transitionInfo, "intensity2", "intensity")
+  setcolorder(transitionInfo, c("transition_group_id", "feature_id", "RT", "intensity", "leftWidth",
+                                "rightWidth", "peak_group_rank", "m_score"))
   transitionInfo
 }
 
