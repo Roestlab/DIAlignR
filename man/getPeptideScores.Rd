@@ -40,7 +40,7 @@ fileInfo <- getRunNames(dataPath = dataPath)
 precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
 context = "experiment-wide", maxPeptideFdr = 0.05)
 peptidesInfo <- getPeptideScores(fileInfo, unique(precursorsInfo$peptide_id))
-dim(peptidesInfo) # 681 5
+dim(peptidesInfo) # 684 5
 }
 \seealso{
 \code{\link{getRunNames}, \link{fetchPeptidesInfo}}
