@@ -189,10 +189,10 @@ setAlignmentRank <- function(df, refIdx, eXp, tAligned, XICs, params, adaptiveRT
 
 # df should have features from one run only.
 setOtherPrecursors <- function(df, refIdx, XICs, analytes, params){
-  Run <- df[["run"]][[refIdx]]
+  Run <- .subset2(df, "run")[[refIdx]]
   if(length(refIdx) == 0 | is.null(refIdx)) return(NULL)
 
-  precRef <- df[refIdx, "transition_group_id"][[1]]
+  precRef <- .subset2(df, "transition_group_id")[[refIdx]]
   pk <- c(.subset2(df, "leftWidth")[refIdx], .subset2(df, "rightWidth")[refIdx])
 
   # If other precursors have overlapping feature then set their alignment rank to 1.
