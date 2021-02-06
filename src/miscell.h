@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
+#include <string>
 #include "spline.h"
 
 namespace DIAlign
