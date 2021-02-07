@@ -10,6 +10,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-06-06
+#' @importFrom data.table data.table
 #' @import RSQLite DBI
 #' @inherit getChildXICs params
 #' @inheritParams traverseUp
@@ -29,20 +30,20 @@
 #' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 #' peptideIDs <- unique(precursors$peptide_id)
 #' peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
-#' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+#' peptideScores <- lapply(peptideIDs, function(pep) {
+#'   x = peptideScores[.(pep)]
+#'   setkeyv(x, "run"); x})
 #' names(peptideScores) <- as.character(peptideIDs)
-#' peptideScores <- list2env(peptideScores)
 #' multipeptide <- getMultipeptide(precursors, features)
 #' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 #' mergeName <- "master"
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
 #' \dontrun{
-#' ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 #' multipeptide <- getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
-#'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
+#'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms = NULL)
 #' rm(mzPntrs)
-#' file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.mzML")))
+#' file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.sqMass")))
 #' file.remove(list.files(".", pattern = "*_av.rds", full.names = TRUE))
 #' }
 getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
@@ -54,17 +55,16 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   var2 <- rep(NA_integer_, length(peptides))
   for(i in seq_along(peptides)){
     peptide_chr <- as.character(peptides[i])
-    temp1 <- peptideScores[[peptide_chr]]
-    temp <- temp1[temp1$run %in% c(runA, runB),]
-    pvalA <- temp$pvalue[temp$run == runA]
-    pvalB <- temp$pvalue[temp$run == runB]
+    temp <- peptideScores[[peptide_chr]][.(c(runA, runB)),]
+    pvalA <- .subset2(x[.(runA)], "pvalue")
+    pvalB <- .subset2(x[.(runB)], "pvalue")
     if(length(pvalA)==0) pvalA <- 1
     if(length(pvalB)==0) pvalB <- 1
     var1[i] <- ifelse(pvalA > pvalB, 2L, 1L)
     if(nrow(temp) > 0){
-      newdf <- data.frame(peptide_id = as.integer(peptide_chr), run = mergeName, score = max(temp$score),
+      newdf <- data.table(peptide_id = as.integer(peptide_chr), run = mergeName, score = max(temp$score),
                           pvalue = min(temp$pvalue), qvalue = min(temp$qvalue))
-      peptideScores[[peptide_chr]] <- rbind(temp1, newdf)
+      peptideScores[[peptide_chr]] <- rbindlist(list(peptideScores[[peptide_chr]], newdf), use.names=TRUE)
     }
     temp <- multipeptide[[i]]
     temp <- temp[temp$run %in% c(runA, runB), c("transition_group_id", "m_score")]

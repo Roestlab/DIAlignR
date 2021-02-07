@@ -78,20 +78,20 @@ precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runTy
 precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 peptideIDs <- unique(precursors$peptide_id)
 peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
-peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+peptideScores <- lapply(peptideIDs, function(pep) {
+  x = peptideScores[.(pep)]
+  setkeyv(x, "run"); x})
 names(peptideScores) <- as.character(peptideIDs)
-peptideScores <- list2env(peptideScores)
 multipeptide <- getMultipeptide(precursors, features)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
 mergeName <- "master"
 adaptiveRTs <- new.env()
 refRuns <- new.env()
 \dontrun{
-ropenms <- get_ropenms(condaEnv = "envName", useConda=TRUE)
 multipeptide <- getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
- mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
+ mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms = NULL)
 rm(mzPntrs)
-file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.mzML")))
+file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.sqMass")))
 file.remove(list.files(".", pattern = "*_av.rds", full.names = TRUE))
 }
 }

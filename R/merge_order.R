@@ -172,7 +172,7 @@ traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIn
     runB <- names(vertices)[vertices == ord[i+1]]
     mergeName <- names(vertices)[vertices == ape::getMRCA(tree, c(ord[i], ord[i+1]))]
     message(runA, " + ", runB, " = ", mergeName)
-    multipeptide <- getNodeRun(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
+    getNodeRun(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
                precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms, applyFun)
   }
 
