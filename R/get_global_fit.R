@@ -241,8 +241,8 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
 #' @export
 getRTdf <- function(features, ref, eXp, maxFdrGlobal){
   if(maxFdrGlobal > 1) stop("No common precursors found between ", ref, " and ", eXp)
-  df.ref <-  features[[ref]][peak_group_rank == 1 & m_score <= maxFdrGlobal, .(transition_group_id, RT)]
-  df.eXp <-  features[[eXp]][peak_group_rank == 1 & m_score <= maxFdrGlobal, .(transition_group_id, RT)]
+  df.ref <-  features[[ref]][peak_group_rank == 1L & m_score <= maxFdrGlobal, .(transition_group_id, RT)]
+  df.eXp <-  features[[eXp]][peak_group_rank == 1L & m_score <= maxFdrGlobal, .(transition_group_id, RT)]
   RUNS_RT <- df.ref[df.eXp, on = .(transition_group_id), nomatch = 0]
   if(nrow(RUNS_RT) < 2){
     message("Increasing maxFdrGlobal 10 times")

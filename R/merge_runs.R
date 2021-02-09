@@ -10,7 +10,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-06-06
-#' @importFrom data.table data.table
+#' @importFrom data.table data.table set
 #' @import RSQLite DBI
 #' @inherit getChildXICs params
 #' @inheritParams traverseUp
@@ -30,13 +30,15 @@
 #' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 #' peptideIDs <- unique(precursors$peptide_id)
 #' peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
-#' peptideScores <- lapply(peptideIDs, function(pep) {
-#'   x = peptideScores[.(pep)]
+#'  masters <- paste("master", 1:(nrow(fileInfo)-1), sep = "")
+#' peptideScores <- lapply(peptideIDs, function(pep) {x <- peptideScores[.(pep)][,-c(1L)]
+#'   x <- rbindlist(list(x, data.table("run" = masters, "score" = NA_real_, "pvalue" = NA_real_,
+#'     "qvalue" = NA_real_)), use.names=TRUE)
 #'   setkeyv(x, "run"); x})
 #' names(peptideScores) <- as.character(peptideIDs)
 #' multipeptide <- getMultipeptide(precursors, features)
 #' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
-#' mergeName <- "master"
+#' mergeName <- "master1"
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
 #' \dontrun{
@@ -54,25 +56,23 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   var1 <- rep(NA_integer_, length(peptides))
   var2 <- rep(NA_integer_, length(peptides))
   for(i in seq_along(peptides)){
-    peptide_chr <- as.character(peptides[i])
-    temp <- peptideScores[[peptide_chr]][.(c(runA, runB)),]
-    pvalA <- .subset2(x[.(runA)], "pvalue")
-    pvalB <- .subset2(x[.(runB)], "pvalue")
-    if(length(pvalA)==0) pvalA <- 1
-    if(length(pvalB)==0) pvalB <- 1
+    temp <- peptideScores[[i]][.(c(runA, runB)),]
+    pvalA <- .subset2(temp, "pvalue")[[1]]
+    pvalB <- .subset2(temp, "pvalue")[[1]]
+    if(is.na(pvalA)) pvalA <- 1
+    if(is.na(pvalB)) pvalB <- 1
     var1[i] <- ifelse(pvalA > pvalB, 2L, 1L)
     if(nrow(temp) > 0){
-      newdf <- data.table(peptide_id = as.integer(peptide_chr), run = mergeName, score = max(temp$score),
-                          pvalue = min(temp$pvalue), qvalue = min(temp$qvalue))
-      peptideScores[[peptide_chr]] <- rbindlist(list(peptideScores[[peptide_chr]], newdf), use.names=TRUE)
+      idx <- which(peptideScores[[i]][["run"]] == mergeName)
+      set(peptideScores[[i]], idx, c(2L, 3L, 4L),
+          list(max(temp$score), min(temp$pvalue), min(temp$qvalue)))
     }
-    temp <- multipeptide[[i]]
-    temp <- temp[temp$run %in% c(runA, runB), c("transition_group_id", "m_score")]
+    temp <- multipeptide[[i]][.(c(runA, runB)),]
     idx <- which.min(temp$m_score)
     idx <- ifelse(length(idx)==0, 1, idx)
-    var2[i] <- temp[idx, "transition_group_id"]
+    var2[i] <- .subset2(temp, "transition_group_id")[[idx]]
   }
-  refRun <- data.frame("var1" = var1, "var2" = as.character(var2))
+  refRun <- data.table("var1" = var1, "var2" = as.character(var2))
 
   ##### Get childXICs #####
   message("Getting merged chromatograms for run ", mergeName)
@@ -88,13 +88,13 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   childFeatures <- applyFun(seq_along(peptides), function(i){
     analytes <- as.integer(names(mergedXICs[[i]]))
     alignedVec <- alignedVecs[[i]]
-    childFeature <- data.frame()
+    childFeature <- data.table()
     for(j in seq_along(mergedXICs[[i]])){
       if(is.null(mergedXICs[[i]][[j]])) next
       XICs <- mergedXICs[[i]][[j]]
       analyte <- analytes[j]
-      df.A <- dplyr::filter(features[[runA]], .data$transition_group_id == analyte)
-      df.B <- dplyr::filter(features[[runB]], .data$transition_group_id == analyte)
+      df.A <- features[[runA]][.(analyte),]
+      df.B <- features[[runB]][.(analyte),]
       if(refRun[i, 1] == 1L) {
         df.ref <- df.A
         df.eXp <- df.B
@@ -386,7 +386,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
   XICs <- lapply(strt:stp, function(rownum){
     ##### Get transition_group_id for that peptideID #####
     idx <- which(precursors$peptide_id == peptides[rownum])
-    analytes <- precursors[idx, "transition_group_id"]
+    analytes <- .subset2(precursors, "transition_group_id")[idx]
     ##### Get XIC_group from runA and runB. If missing, add NULL #####
     chromIndices.A <- prec2chromIndex[[runA]][["chromatogramIndex"]][idx]
     chromIndices.B <- prec2chromIndex[[runB]][["chromatogramIndex"]][idx]
@@ -438,7 +438,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
 
     ##### Select 1) all precursors OR 2) high quality precursor. #####
     analytes_chr <- names(XICs.A)
-    analyte_chr <- refRun[rownum, 2]
+    analyte_chr <- .subset2(refRun, 2L)[[rownum]]
     if(FALSE){
       # Turned off as precursor XICs have different time ranges.
       XICs.ref.pep <- unlist(XICs.ref, recursive = FALSE, use.names = FALSE)

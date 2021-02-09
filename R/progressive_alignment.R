@@ -13,6 +13,7 @@
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-10
+#' @importFrom data.table setkeyv
 #' @inheritParams checkParams
 #' @inheritParams alignTargetedRuns
 #' @param dataPath (string) path to mzml and osw directory.
@@ -63,7 +64,13 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
   #### Get Peptide scores, pvalue and qvalues. ######
   peptideIDs <- unique(precursors$peptide_id)
   peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged, params[["runType"]], params[["context"]])
-  peptideScores <- applyFun(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  masters <- paste("master", 1:(nrow(fileInfo)-1), sep = "")
+  peptideScores <- applyFun(peptideIDs, function(pep) {x <- peptideScores[.(pep)][,-c(1L)]
+    x <- rbindlist(list(x, data.table("run" = masters, "score" = NA_real_,
+                                 "pvalue" = NA_real_, "qvalue" = NA_real_)), use.names=TRUE)
+    setkeyv(x, "run")
+    x
+  })
   names(peptideScores) <- as.character(peptideIDs)
   peptideScores <- list2env(peptideScores, hash = TRUE)
 

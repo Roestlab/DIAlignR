@@ -78,13 +78,15 @@ precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runTy
 precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 peptideIDs <- unique(precursors$peptide_id)
 peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
-peptideScores <- lapply(peptideIDs, function(pep) {
-  x = peptideScores[.(pep)]
+ masters <- paste("master", 1:(nrow(fileInfo)-1), sep = "")
+peptideScores <- lapply(peptideIDs, function(pep) {x <- peptideScores[.(pep)][,-c(1L)]
+  x <- rbindlist(list(x, data.table("run" = masters, "score" = NA_real_, "pvalue" = NA_real_,
+    "qvalue" = NA_real_)), use.names=TRUE)
   setkeyv(x, "run"); x})
 names(peptideScores) <- as.character(peptideIDs)
 multipeptide <- getMultipeptide(precursors, features)
 prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
-mergeName <- "master"
+mergeName <- "master1"
 adaptiveRTs <- new.env()
 refRuns <- new.env()
 \dontrun{
