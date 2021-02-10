@@ -49,7 +49,7 @@ getRefRun <- function(peptideScores, applyFun=lapply){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
-#' @importFrom data.table rbindlist
+#' @importFrom data.table rbindlist set
 #' @importFrom bit64 NA_integer64_
 #' @inheritParams alignTargetedRuns
 #' @param precursors (data-frames) Contains precursors and associated transition IDs.
@@ -74,23 +74,47 @@ getRefRun <- function(peptideScores, applyFun=lapply){
 #' multipeptide[["9861"]]
 #' @seealso \code{\link{getPrecursors}, \link{getFeatures}}
 #' @export
-getMultipeptide <- function(precursors, features, applyFun=lapply){
+getMultipeptide <- function(precursors, features, applyFun=lapply, numMerge = 0L, startIdx = 0L){
   peptideIDs <- unique(precursors$peptide_id)
   runs <- names(features)
   num_run = length(features)
-  multipeptide <- applyFun(seq_along(peptideIDs), function(i){
-    # Get transition_group_id for a peptide
-    analytes <- precursors[.(peptideIDs[i]), 1L][[1]]
-    num_analytes <- length(analytes)
-    newdf <- rbindlist(lapply(runs, function(run){
-      df <- rbindlist(list(features[[run]][.(analytes), ],
-                           dummyTbl(analytes)), use.names=TRUE) # dummy for new features
-      df[,`:=`("run" = run, "alignment_rank" = NA_integer_)]
-      df
-    }), use.names=TRUE)
-    setkey(newdf, run)
-    newdf
-  })
+  if(numMerge == 0L){
+    multipeptide <- applyFun(seq_along(peptideIDs), function(i){
+      # Get transition_group_id for a peptide
+      analytes <- precursors[.(peptideIDs[i]), 1L][[1]]
+      num_analytes <- length(analytes)
+      newdf <- rbindlist(lapply(runs, function(run){
+        if(startIdx == 0L){
+          df <- rbindlist(list(features[[run]][.(analytes), ],
+                  dummyTbl(analytes)), use.names=TRUE) # dummy for new features
+        } else{
+          df <- features[[run]][.(analytes), ]
+        }
+        set(df, j = c("run", "alignment_rank"), value = list(run, NA_integer_))
+        df
+      }), use.names=TRUE)
+      setkey(newdf, run)
+      newdf
+    })
+  } else{
+    stpIdx <- startIdx + numMerge - 1
+    masters <- paste0("master", startIdx:stpIdx)
+    multipeptide <- applyFun(seq_along(peptideIDs), function(i){
+      # Get transition_group_id for a peptide
+      analytes <- precursors[.(peptideIDs[i]), 1L][[1]]
+      num_analytes <- length(analytes)
+      df1 <- lapply(runs, function(run){
+        df <- features[[run]][.(analytes), ]
+        df[,`:=`("run" = run, "alignment_rank" = NA_integer_)]
+        df
+      })
+      df2 <- dummyMerge(analytes, masters)
+      newdf <- rbindlist(list(rbindlist(df1, use.names=TRUE), df2), use.names=TRUE)
+      setkey(newdf, run)
+      newdf
+    })
+  }
+
   # Convert peptides as character. Add names to the multipeptide list.
   names(multipeptide) <- as.character(peptideIDs)
   multipeptide
@@ -100,7 +124,14 @@ dummyTbl <- function(analytes){
   data.table("transition_group_id" = analytes, "feature_id" = bit64::NA_integer64_,
              "RT" = NA_real_, "intensity" = NA_real_, "leftWidth" = NA_real_,
              "rightWidth" = NA_real_, "peak_group_rank" = NA_integer_, "m_score" = NA_real_)
-  }
+}
+
+dummyMerge <- function(analytes, masters){
+  data.table("transition_group_id" = rep(analytes, times = length(masters), each = 5L), "feature_id" = bit64::NA_integer64_,
+             "RT" = NA_real_, "intensity" = NA_real_, "leftWidth" = NA_real_,
+             "rightWidth" = NA_real_, "peak_group_rank" = NA_integer_, "m_score" = NA_real_,
+             "run" = rep(masters, each = 5L*length(analytes)), "alignment_rank" = NA_integer_)
+}
 
 #' Writes the output table post-alignment
 #'

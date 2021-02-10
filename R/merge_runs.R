@@ -24,20 +24,24 @@
 #' params <- paramsDIAlignR()
 #' fileInfo <- getRunNames(dataPath = dataPath)
 #' mzPntrs <- list2env(getMZMLpointers(fileInfo))
-#' features <- list2env(getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics"))
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
 #'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
 #' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 #' peptideIDs <- unique(precursors$peptide_id)
 #' peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
-#'  masters <- paste("master", 1:(nrow(fileInfo)-1), sep = "")
+#' masters <- paste("master", 1:(nrow(fileInfo)-1), sep = "")
 #' peptideScores <- lapply(peptideIDs, function(pep) {x <- peptideScores[.(pep)][,-c(1L)]
 #'   x <- rbindlist(list(x, data.table("run" = masters, "score" = NA_real_, "pvalue" = NA_real_,
 #'     "qvalue" = NA_real_)), use.names=TRUE)
 #'   setkeyv(x, "run"); x})
 #' names(peptideScores) <- as.character(peptideIDs)
-#' multipeptide <- getMultipeptide(precursors, features)
-#' prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+#' features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+#' masterFeatures <- dummyFeatures(precursors, nrow(fileInfo)-1, 1L)
+#' features <- do.call(c, list(features, masterFeatures))
+#' multipeptide <- getMultipeptide(precursors, features, numMerge = 0L, startIdx = 1L)
+#' prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
+#' masterChromIndex <- dummyChromIndex(precursors, nrow(fileInfo)-1, 1L)
+#' prec2chromIndex <- do.call(c, list(prec2chromIndex, masterChromIndex))
 #' mergeName <- "master1"
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
@@ -88,9 +92,8 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   childFeatures <- applyFun(seq_along(peptides), function(i){
     analytes <- as.integer(names(mergedXICs[[i]]))
     alignedVec <- alignedVecs[[i]]
-    childFeature <- data.table()
-    for(j in seq_along(mergedXICs[[i]])){
-      if(is.null(mergedXICs[[i]][[j]])) next
+    childFeature <- lapply(seq_along(mergedXICs[[i]]), function(j){
+      if(is.null(mergedXICs[[i]][[j]])) return(NULL)
       XICs <- mergedXICs[[i]][[j]]
       analyte <- analytes[j]
       df.A <- features[[runA]][.(analyte),]
@@ -102,11 +105,10 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
         df.ref <- df.B
         df.eXp <- df.A
       }
-      if((nrow(df.ref) + nrow(df.eXp)) == 0) next
-      rows <- getChildFeature(XICs, alignedVec, df.ref, df.eXp, params)
-      childFeature <- dplyr::bind_rows(childFeature, rows)
-    }
-    childFeature
+      if((nrow(df.ref) + nrow(df.eXp)) == 0) return(NULL)
+      getChildFeature(XICs, alignedVec, df.ref, df.eXp, params)
+    })
+    rbindlist(childFeature, use.names = FALSE)
   })
 
   ##### Add features to multipeptide #####
@@ -230,8 +232,8 @@ getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
   if(nrow(df.eXp)!=0) df.eXp <- trfrParentFeature(XICs, timeParent, df.eXp, params)
 
   # Assemble converted features. Pick non-overlapping features based on minimum m-score.
-  df <- dplyr::bind_rows(df.ref, df.eXp)
-  if(nrow(df) == 0) return(NULL)
+  df <- rbindlist(list(df.ref, df.eXp))
+  if(nrow(df) == 0L) return(NULL)
   df$child_pg_rank <- NA_integer_
   df$child_m_score <- df$m_score
 
@@ -249,7 +251,7 @@ getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
   }
   # First keep the peak based on m-score
   df$peak_group_rank <- df$child_pg_rank
-  df <- df[order(df$peak_group_rank), -c(9,10)]
+  df <- df[order(df$peak_group_rank), -c(9L, 10L)]
   rownames(df) <- NULL
   df
 }

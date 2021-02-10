@@ -378,6 +378,21 @@ getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"
   features
 }
 
+
+dummyFeatures <- function(precursors, numMerge = 0L, startIdx = 1L){
+  stpIdx <- startIdx + numMerge - 1
+  masters <- paste0("master", startIdx:stpIdx)
+  transition_group_ids <- .subset2(precursors, "transition_group_id")
+  df <- data.table("transition_group_id" = rep(transition_group_ids, each = 5L),
+             "feature_id" = bit64::NA_integer64_, "RT" = NA_real_, "intensity" = NA_real_,
+             "leftWidth" = NA_real_, "rightWidth" = NA_real_, "peak_group_rank" = NA_integer_,
+             "m_score" = NA_real_, key = "transition_group_id")
+
+  features <- lapply(masters, function(run) df)
+  names(features) <- masters
+  features
+}
+
 #' Get scores of all peptides
 #'
 #' Return a scores, pvalues, and qvalues for all peptides from the osw file.

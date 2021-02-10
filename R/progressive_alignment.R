@@ -76,6 +76,8 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
   features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]], applyFun)
+  masterFeatures <- dummyFeatures(precursors, nrow(fileInfo)-1, 1L)
+  features <- do.call(c, list(features, masterFeatures))
 
   ##### Get distances among runs based on the number of high-quality features. #####
   tmp <- applyFun(features, function(df)
@@ -101,7 +103,7 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
 
   #### Get chromatogram Indices of precursors across all runs. ############
   message("Collecting chromatogram indices for all precursors.")
-  prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun), hash = TRUE)
+  prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun)
 
   #### Convert features into multi-peptide #####
   start_time <- Sys.time()
