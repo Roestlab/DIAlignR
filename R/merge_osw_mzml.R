@@ -209,9 +209,10 @@ dummyChromIndex <- function(precursors, numMerge = 0L, startIdx = 1L){
   stpIdx <- startIdx + numMerge - 1
   masters <- paste0("master", startIdx:stpIdx)
   transition_group_ids <- .subset2(precursors, "transition_group_id")
-  df <- data.table("transition_group_id" = transition_group_ids,
-                   "chromatogramIndex" = list(c(NA_integer_, NA_integer_)))
-  prec2chromIndex <- lapply(masters, function(run) df)
+  prec2chromIndex <- lapply(masters, function(run) {
+    data.table("transition_group_id" = transition_group_ids,
+               "chromatogramIndex" = list(c(NA_integer_, NA_integer_)))
+  })
   names(prec2chromIndex) <- masters
   prec2chromIndex
 }

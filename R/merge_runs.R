@@ -46,7 +46,7 @@
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
 #' \dontrun{
-#' multipeptide <- getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
+#' getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
 #'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms = NULL)
 #' rm(mzPntrs)
 #' file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.sqMass")))
@@ -62,7 +62,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   for(i in seq_along(peptides)){
     temp <- peptideScores[[i]][.(c(runA, runB)),]
     pvalA <- .subset2(temp, "pvalue")[[1]]
-    pvalB <- .subset2(temp, "pvalue")[[1]]
+    pvalB <- .subset2(temp, "pvalue")[[2]]
     if(is.na(pvalA)) pvalA <- 1
     if(is.na(pvalB)) pvalB <- 1
     var1[i] <- ifelse(pvalA > pvalB, 2L, 1L)
@@ -89,7 +89,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   ##### Get merged features, calculate intensities, left width, right width, m-score. #####
   # we can also run pyopenms feature finder on new chromatogram.
   message("Getting merged features for run ", mergeName)
-  childFeatures <- applyFun(seq_along(peptides), function(i){
+  childFeatures <- lapply(seq_along(peptides), function(i){
     analytes <- as.integer(names(mergedXICs[[i]]))
     alignedVec <- alignedVecs[[i]]
     childFeature <- lapply(seq_along(mergedXICs[[i]]), function(j){
@@ -97,7 +97,9 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
       XICs <- mergedXICs[[i]][[j]]
       analyte <- analytes[j]
       df.A <- features[[runA]][.(analyte),]
+      df.A <- df.A[!is.na(df.A$intensity)]
       df.B <- features[[runB]][.(analyte),]
+      df.B <- df.B[!is.na(df.B$intensity)]
       if(refRun[i, 1] == 1L) {
         df.ref <- df.A
         df.eXp <- df.B
@@ -112,26 +114,29 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   })
 
   ##### Add features to multipeptide #####
-  newMP <- applyFun(seq_along(peptides), function(i){
+  invisible(lapply(seq_along(peptides), function(i){
     peptide_chr <- as.character(peptides[i])
     temp <- multipeptide[[i]]
+    rowIdx <- which(temp[["run"]] == mergeName)
     df <- childFeatures[[i]]
-    if(nrow(df) == 0) df <- data.frame("transition_group_id" = temp$transition_group_id[1],
-                                       "feature_id" = bit64::NA_integer64_,
-                                       "RT" = NA_real_, "intensity" = NA_real_,
-                                       "leftWidth" = NA_real_, "rightWidth" = NA_real_,
-                                       "peak_group_rank" = NA_integer_, "m_score" = NA_real_, stringsAsFactors = FALSE)
-    df$run <- mergeName
-    df$alignment_rank <- NA_integer_
-    dplyr::bind_rows(temp, df)
+    j = nrow(df)
+    cols <- c("transition_group_id", "feature_id", "RT", "intensity", "leftWidth", "rightWidth", "peak_group_rank", "m_score")
+    if(j != 0L){
+      j = min(j, length(rowIdx))
+      for(k in 1:j) set(temp, rowIdx[k], cols, df[k,])
+    }
+    invisible(NULL)
   })
-  names(newMP) <- names(multipeptide)
+  )
 
   rm(temp)
   ##### Add node features #####
-  childFeatures <- dplyr::bind_rows(childFeatures)
-  assign("temp", childFeatures, envir = parent.frame(n = 1))
-  with(parent.frame(n = 1), features[[mergeName]] <- temp)
+  childFeatures <- rbindlist(childFeatures)
+  N <- nrow(childFeatures)
+  for(i in seq_along(childFeatures)){
+    set(features[[mergeName]], 1:N, i, childFeatures[[i]])
+  }
+  setkeyv(features[[mergeName]], "transition_group_id")
 
   ##### Write node mzML file #####
   mergedXICs <- unlist(mergedXICs, recursive = FALSE, use.names = FALSE)
@@ -167,8 +172,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   chromatogramIdAsInteger(chromHead) # Select only chromatogramId, chromatogramIndex
   df <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
   df <- df[match(precursors$transition_group_id, df$transition_group_id),]
-  assign("temp", df, envir = parent.frame(n = 1))
-  with(parent.frame(n = 1), prec2chromIndex[[mergeName]] <- temp)
+  set(prec2chromIndex[[mergeName]], NULL,"chromatogramIndex",  df[["chromatogramIndex"]])
 
   ##### Write AlignedVecs #####
   filename <- file.path(dataPath, paste0(mergeName, "_av.rds"))
@@ -185,7 +189,7 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
 
   ##### Done #####
   message("Created a child run: ", mergeName)
-  newMP
+  invisible(NULL)
 }
 
 
@@ -224,16 +228,16 @@ getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
   # Convert Ref features to childXIC
   timeParent <- alignedVec[, c(1L, 3L)]
   colnames(timeParent) <- c("tAligned", "alignedChildTime")
-  if(nrow(df.ref)!=0) df.ref <- trfrParentFeature(XICs, timeParent, df.ref, params)
+  if(!all(is.na(df.ref$peak_group_rank))) df.ref <- trfrParentFeature(XICs, timeParent, df.ref, params)
 
   # Convert eXp features to childXIC
   timeParent <-alignedVec[, c(2L, 3L)]
   colnames(timeParent) <- c("tAligned", "alignedChildTime")
-  if(nrow(df.eXp)!=0) df.eXp <- trfrParentFeature(XICs, timeParent, df.eXp, params)
+  if(!all(is.na(df.eXp$peak_group_rank))) df.eXp <- trfrParentFeature(XICs, timeParent, df.eXp, params)
 
   # Assemble converted features. Pick non-overlapping features based on minimum m-score.
   df <- rbindlist(list(df.ref, df.eXp))
-  if(nrow(df) == 0L) return(NULL)
+  if(all(is.na(df$peak_group_rank))) return(NULL)
   df$child_pg_rank <- NA_integer_
   df$child_m_score <- df$m_score
 
@@ -255,7 +259,6 @@ getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
   rownames(df) <- NULL
   df
 }
-
 
 #' Transform features to child time-domain
 #'
@@ -408,7 +411,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     if(is.null(XICs[[idx]])){
       warning("Chromatogram indices for ", peptide, " are missing.")
       message("Skipping peptide ", peptide, ".")
-      analytes <- precursors[precursors$peptide_id == peptide, "transition_group_id"]
+      analytes <- precursors[.(peptide), "transition_group_id"][[1]]
       return(list(vector(mode = "list", length = length(analytes)), NULL))
     } else {
       XICs.A <- XICs[[idx]][[1]]

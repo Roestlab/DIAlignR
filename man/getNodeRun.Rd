@@ -86,13 +86,15 @@ names(peptideScores) <- as.character(peptideIDs)
 features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
 masterFeatures <- dummyFeatures(precursors, nrow(fileInfo)-1, 1L)
 features <- do.call(c, list(features, masterFeatures))
-multipeptide <- getMultipeptide(precursors, features, numMerge = 0L, startIdx = 0L)
-prec2chromIndex <- list2env(getChromatogramIndices(fileInfo, precursors, mzPntrs))
+multipeptide <- getMultipeptide(precursors, features, numMerge = 0L, startIdx = 1L)
+prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
+masterChromIndex <- dummyChromIndex(precursors, nrow(fileInfo)-1, 1L)
+prec2chromIndex <- do.call(c, list(prec2chromIndex, masterChromIndex))
 mergeName <- "master1"
 adaptiveRTs <- new.env()
 refRuns <- new.env()
 \dontrun{
-multipeptide <- getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
+getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms = NULL)
 rm(mzPntrs)
 file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.sqMass")))

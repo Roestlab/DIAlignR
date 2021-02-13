@@ -24,16 +24,16 @@ test_that("test_getMultipeptide", {
   outData <- getMultipeptide(precursors, features)
 
   expData <- data.table("transition_group_id" = rep(c(9719L, 9720L),3),
-                        "feature_id" = bit64::as.integer64(c(NA, "7742456255764097691", "6462000664077079508", "5135268764240690321", NA, "298844719207353347")),
-                        "RT" = c(NA_real_, 2541.83, 2586.12, 2585.61, NA_real_, 2607.05),
-                        "intensity" = c(NA_real_, 34.7208, 26.2182, 52.9595, NA_real_, 33.5961),
-                        "leftWidth" = c(NA_real_, 2526.555, 2571.738, 2564.094, NA_real_, 2591.431),
-                        "rightWidth" = c(NA_real_, 2560.693, 2609.288, 2605.060, NA_real_, 2625.569),
-                        "peak_group_rank" = c(NA_integer_, 1L, 1L, 1L, NA_integer_, 1L),
-                        "m_score" = c(NA_real_, 5.692077e-05, 1.041916e-03, 5.692077e-05, NA_real_, 2.005418e-04),
-                        "run" = rep(c("run0", "run1", "run2"), each = 2),
+                        "feature_id" = bit64::as.integer64(c(NA, "7742456255764097691", NA, NA, "6462000664077079508", "5135268764240690321", NA, NA, NA, "298844719207353347", NA, NA)),
+                        "RT" = c(NA_real_, 2541.83, NA_real_, NA_real_, 2586.12, 2585.61, NA_real_, NA_real_, NA_real_, 2607.05, NA_real_, NA_real_),
+                        "intensity" = c(NA_real_, 34.7208, NA_real_, NA_real_, 26.2182, 52.9595, NA_real_, NA_real_, NA_real_, 33.5961, NA_real_, NA_real_),
+                        "leftWidth" = c(NA_real_, 2526.555, NA_real_, NA_real_, 2571.738, 2564.094, NA_real_, NA_real_, NA_real_, 2591.431, NA_real_, NA_real_),
+                        "rightWidth" = c(NA_real_, 2560.693, NA_real_, NA_real_, 2609.288, 2605.060, NA_real_, NA_real_, NA_real_, 2625.569, NA_real_, NA_real_),
+                        "peak_group_rank" = c(NA_integer_, 1L, NA_integer_, NA_integer_, 1L, 1L, NA_integer_, NA_integer_, NA_integer_, 1L, NA_integer_, NA_integer_),
+                        "m_score" = c(NA_real_, 5.692077e-05, NA_real_, NA_real_, 1.041916e-03, 5.692077e-05, NA_real_, NA_real_, NA_real_, 2.005418e-04, NA_real_, NA_real_),
+                        "run" = rep(c("run0", "run1", "run2"), each = 4),
                         "alignment_rank" = c(rep(NA_integer_,6)),
-                        key = NULL)
+                        key = "run")
   expect_identical(length(outData), 229L)
   expect_equal(outData[[110]], expData, tolerance = 1e-04)
   expect_equal(outData[["9861"]], expData, tolerance = 1e-03)
@@ -54,7 +54,7 @@ test_that("test_writeTables", {
   outData <- writeTables(fileInfo, multipeptide, precursors)
   expect_identical(nrow(outData), 500L)
 
-  multipeptide[["7040"]][1:2, alignment_rank:= 1L]
+  multipeptide[["7040"]][c(1,3), alignment_rank:= 1L]
   multipeptide[["3200"]][, alignment_rank:= 1L]
   outData <- writeTables(fileInfo, multipeptide, precursors)
 

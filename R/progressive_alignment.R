@@ -59,7 +59,6 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
   # Get all the precursor IDs, transition IDs, Peptide IDs, Peptide Sequence Modified, Charge.
   precursors <- getPrecursors(fileInfo, oswMerged, runType = params[["runType"]],
                               context = params[["context"]], maxPeptideFdr = params[["maxPeptideFdr"]])
-  precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 
   #### Get Peptide scores, pvalue and qvalues. ######
   peptideIDs <- unique(precursors$peptide_id)
@@ -72,16 +71,13 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
     x
   })
   names(peptideScores) <- as.character(peptideIDs)
-  peptideScores <- list2env(peptideScores, hash = TRUE)
 
   #### Get OpenSWATH peak-groups and their retention times. ##########
   features <- getFeatures(fileInfo, params[["maxFdrQuery"]], params[["runType"]], applyFun)
-  masterFeatures <- dummyFeatures(precursors, nrow(fileInfo)-1, 1L)
-  features <- do.call(c, list(features, masterFeatures))
 
   ##### Get distances among runs based on the number of high-quality features. #####
   tmp <- applyFun(features, function(df)
-       df[df[["m_score"]] <= params[["analyteFDR"]] & df[["peak_group_rank"]] == 1, "transition_group_id"])
+       df[df[["m_score"]] <= params[["analyteFDR"]] & df[["peak_group_rank"]] == 1, "transition_group_id"][[1]])
   tmp <- tmp[order(names(tmp), decreasing = FALSE)]
   allIDs <- unique(unlist(tmp, recursive = FALSE, use.names = TRUE))
   allIDs <- sort(allIDs)
@@ -104,11 +100,15 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
   #### Get chromatogram Indices of precursors across all runs. ############
   message("Collecting chromatogram indices for all precursors.")
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun)
+  masterChromIndex <- dummyChromIndex(precursors, nrow(fileInfo)-1, 1L)
+  prec2chromIndex <- do.call(c, list(prec2chromIndex, masterChromIndex))
 
   #### Convert features into multi-peptide #####
+  masterFeatures <- dummyFeatures(precursors, nrow(fileInfo)-1, 1L)
+  features <- do.call(c, list(features, masterFeatures))
   start_time <- Sys.time()
   message("Building multipeptide.")
-  multipeptide <- getMultipeptide(precursors, features, applyFun)
+  multipeptide <- getMultipeptide(precursors, features, applyFun, numMerge = 0L, startIdx = 1L)
   end_time <- Sys.time()
   message("The execution time for building multipeptide:")
   print(end_time - start_time)
@@ -117,11 +117,10 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
   #### Get all the child runs through hybrid alignment. ####
   adaptiveRTs <- new.env(hash = TRUE)
   refRuns <- new.env(hash = TRUE)
-  features <- list2env(features, hash = TRUE)
 
   # Traverse up the tree
   start_time <- Sys.time()
-  multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
+  traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
              params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms, applyFun)
   end_time <- Sys.time() # Report the execution time for hybrid alignment step.
   message("The execution time for creating a master run by alignment:")
@@ -129,8 +128,8 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
 
   #### Map Ids from the master1 run to all parents. ####
   start_time <- Sys.time()
-  multipeptide <- traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs,
-                                precursors, adaptiveRTs, refRuns, params, applyFun)
+  traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs,
+               precursors, adaptiveRTs, refRuns, params, applyFun)
   end_time <- Sys.time()
   message("The execution time for transfering peaks from root to runs:")
   print(end_time - start_time)

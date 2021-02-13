@@ -49,7 +49,7 @@ getRefRun <- function(peptideScores, applyFun=lapply){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-08
-#' @importFrom data.table rbindlist set
+#' @importFrom data.table rbindlist set setkeyv
 #' @importFrom bit64 NA_integer64_
 #' @inheritParams alignTargetedRuns
 #' @param precursors (data-frames) Contains precursors and associated transition IDs.
@@ -84,16 +84,12 @@ getMultipeptide <- function(precursors, features, applyFun=lapply, numMerge = 0L
       analytes <- precursors[.(peptideIDs[i]), 1L][[1]]
       num_analytes <- length(analytes)
       newdf <- rbindlist(lapply(runs, function(run){
-        if(startIdx == 0L){
-          df <- rbindlist(list(features[[run]][.(analytes), ],
-                  dummyTbl(analytes)), use.names=TRUE) # dummy for new features
-        } else{
-          df <- features[[run]][.(analytes), ]
-        }
+        df <- rbindlist(list(features[[run]][.(analytes), ],
+                             dummyTbl(analytes)), use.names=TRUE) # dummy for new features
         set(df, j = c("run", "alignment_rank"), value = list(run, NA_integer_))
         df
       }), use.names=TRUE)
-      setkey(newdf, run)
+      setkeyv(newdf, "run")
       newdf
     })
   } else{
@@ -110,7 +106,7 @@ getMultipeptide <- function(precursors, features, applyFun=lapply, numMerge = 0L
       })
       df2 <- dummyMerge(analytes, masters)
       newdf <- rbindlist(list(rbindlist(df1, use.names=TRUE), df2), use.names=TRUE)
-      setkey(newdf, run)
+      setkeyv(newdf, "run")
       newdf
     })
   }

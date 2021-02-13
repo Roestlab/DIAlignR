@@ -36,6 +36,7 @@
 #' }
 #' @export
 createSqMass <- function(filename, XICs, transitionIDs, lossy){
+  if(length(XICs) != length(transitionIDs)) stop("NativeIDs should be of the same length of XICs.")
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname=":memory:")
   query <- "CREATE TABLE DATA(SPECTRUM_ID INT, CHROMATOGRAM_ID INT, COMPRESSION INT, DATA_TYPE INT, DATA BLOB NOT NULL);"
   DBI::dbExecute(con, query)

@@ -40,6 +40,7 @@ test_that("test_setAlignmentRank", {
   params <- paramsDIAlignR()
   adaptiveRT <- 38.66
   df <- data.table::data.table(multipeptide_DIAlignR[["14383"]])
+  setkeyv(df, "run")
   df[2, alignment_rank := 1L]
   XICs.ref <- XICs.eXp <- list()
   XICs.ref[["4618"]] <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]

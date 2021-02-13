@@ -179,7 +179,7 @@ traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIn
   assign("temp", fileInfo, envir = parent.frame(n = 1))
   with(parent.frame(n = 1), fileInfo <- temp)
   message("Created all master runs.")
-  multipeptide
+  invisible(NULL)
 }
 
 
@@ -242,19 +242,18 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
   # set alignment rank for the master1 run.
   master1 <- names(vertices)[vertices == ord[1]]
   peptideIDs <- unique(precursors$peptide_id)
-  newMP <- lapply(seq_along(peptideIDs), function(i){
+  invisible(lapply(seq_along(peptideIDs), function(i){
     ##### Set alignment rank in the master1 #####
     peptide <- peptideIDs[i]
     df <- multipeptide[[i]]
-    df.other <- df[df$run != master1,]
-    df.ref <- df[df$run == master1,]
-    refIdx <- which(df.ref[["peak_group_rank"]] == 1)
-    refIdx <- refIdx[which.min(df.ref$m_score[refIdx])]
-    df.ref[["alignment_rank"]][refIdx] <- 1L
+    indices <- which(df$run == master1)
+    refIdx <- indices[which(.subset2(df, "peak_group_rank")[indices] == 1L)]
+    refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
+    set(df, refIdx, 10L, 1L)
 
     ##### Set alignment rank for other precursors #####
-    idx <- which(precursors$peptide_id == peptide)
-    analytes <- precursors[idx, "transition_group_id"]
+    idx <- precursors[.(peptide), which = TRUE]
+    analytes <- .subset2(precursors, "transition_group_id")[idx]
 
     if(length(analytes)>1){
       ##### Get XIC_group from reference run. if missing, return unaligned features #####
@@ -262,18 +261,14 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
       if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
         warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[master1, "runName"])
         message("Skipping peptide ", peptide, " across all runs.")
-        return(df)
+        return(NULL)
       } else {
         XICs <- lapply(chromIndices, function(iM) fetchXIC(mzPntrs[[master1]], chromIndices = iM))
         names(XICs) <- as.character(analytes)
       }
-      df.ref <- setOtherPrecursors(df.ref, XICs, analytes, params)
+      setOtherPrecursors(df, refIdx, XICs, analytes, params)
     }
-
-    ##### Add the new dataframe to the multipeptide #####
-    dplyr::bind_rows(df.ref, df.other)
-  })
-  names(newMP) <- names(multipeptide)
+  }))
 
   # Traverse from root to leaf node.
   for(i in junctions){
@@ -291,19 +286,19 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
                       adaptiveRTs[[paste(runB, runA, sep = "_")]])
 
     # Map master to runA
-    refA <- refRuns[[master]][,1]
-    newMP <- alignToMaster(master, runA, alignedVecs, refA, adaptiveRT, newMP,
-                           prec2chromIndex, mzPntrs, fileInfo, precursors, params, applyFun)
+    refA <- refRuns[[master]][,1L][[1]]
+    alignToMaster(master, runA, alignedVecs, refA, adaptiveRT, multipeptide,
+                  prec2chromIndex, mzPntrs, fileInfo, precursors, params, applyFun)
 
     # Map master to runB
     refB <- as.integer(!(refA-1))+1L
-    newMP <- alignToMaster(master, runB, alignedVecs, refB, adaptiveRT, newMP,
-                           prec2chromIndex, mzPntrs, fileInfo, precursors, params, applyFun)
+    alignToMaster(master, runB, alignedVecs, refB, adaptiveRT, multipeptide,
+                  prec2chromIndex, mzPntrs, fileInfo, precursors, params, applyFun)
   }
 
   # Done
   message("master1 run has been propagated to all parents.")
-  newMP
+  invisible(NULL)
 }
 
 
@@ -376,7 +371,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
 
   # Aign each peptide to its parent
   num_of_batch <- ceiling(length(peptideIDs)/params[["batchSize"]])
-  mp <- lapply(1:num_of_batch, function(iBatch){
+  invisible(lapply(1:num_of_batch, function(iBatch){
     batchSize <- params[["batchSize"]]
     strt <- ((iBatch-1)*batchSize+1)
     stp <- min((iBatch*batchSize), length(multipeptide))
@@ -384,7 +379,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
     XICs <- lapply(strt:stp, function(rownum){
       ##### Get transition_group_id for that peptideID #####
       idx <- which(precursors$peptide_id == peptideIDs[rownum])
-      analytes <- precursors[idx, "transition_group_id"]
+      analytes <- precursors[idx, "transition_group_id"][[1]]
       ##### Get XIC_group from runA and runB. If missing, add NULL #####
       chromIndices <- prec2chromIndex[[eXp]][["chromatogramIndex"]][idx]
       nope <- any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))
@@ -395,15 +390,19 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
     })
 
     # Align each peptide in multipeptide to its parent
-    result <- applyFun(strt:stp, function(i){
+    invisible(lapply(strt:stp, function(i){
       peptide <- peptideIDs[i]
       idx <- (i - (iBatch-1)*batchSize)
       alignedVec <- alignedVecs[[i]]
       df <- multipeptide[[i]]
+      eXpIdx <- which(df[["run"]] == eXp)
+      indices <- which(df$run == ref)
+      refIdx <- indices[which(.subset2(df, 10L)[indices] == 1L)]
+      refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
 
       if(is.null(alignedVec)){
         # Try to  set alignment rank without chromatogram
-        return(df)
+        return(NULL)
       } else {
         tAligned <- alignedVec[, c(3L, refRun[i])]
         colnames(tAligned) <- c("tAligned.ref", "tAligned.eXp")
@@ -414,20 +413,18 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
       if(is.null(XICs.eXp)){
         warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[eXp, "runName"])
         message("Skipping peptide ", peptide, " across all runs.")
-        return(df)
+        return(NULL)
       }
       analytes <- as.integer(names(XICs.eXp))
 
       # Update alignment rank for the eXp.
-      df.other <- df[df$run != eXp,]
-      df.eXp <- setAlignmentRank(df, ref, eXp, tAligned[,c(1,2)], XICs.eXp, params, adaptiveRT)
-      df.eXp <- setOtherPrecursors(df.eXp, XICs.eXp, analytes, params)
-      tibble::remove_rownames(dplyr::bind_rows(df.other, df.eXp))
-    })
-    result
-  })
-  mp <- unlist(mp, recursive = FALSE)
-  names(mp) <- names(multipeptide)
+      setAlignmentRank(df, refIdx, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+      tempi <- eXpIdx[which(df$alignment_rank[eXpIdx] == 1L)]
+      setOtherPrecursors(df, tempi, XICs.eXp, analytes, params)
+      invisible(NULL)
+    }))
+    invisible(NULL)
+  }))
   message(eXp, " has been aligned to ", ref, ".")
-  mp
+  invisible(NULL)
 }

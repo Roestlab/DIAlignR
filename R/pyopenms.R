@@ -67,6 +67,7 @@ addXIC <- function(ropenms, expriment, xic, nativeId){
 #' }
 #' @export
 createMZML <- function(ropenms, filename, XICs, transitionIDs){
+  if(length(XICs) != length(transitionIDs)) stop("NativeIDs should be of the same length of XICs.")
   expriment = ropenms$MSExperiment()
   # Iterate over each precursor.
   for(prec in seq_along(XICs)){
