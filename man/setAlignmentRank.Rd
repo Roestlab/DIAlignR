@@ -32,7 +32,7 @@ XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10\%PlasmaBiolR
 # Use getAlignedTimes() to get tAligned.
 alignObj <- testAlignObj()
 tAligned <- alignedTimes2(alignObj, XICs.ref, XICs.eXp)
-setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
+setAlignmentRank(df, refIdx = 3L, eXp = "run2", tAligned, XICs.eXp,
 params, adaptiveRT = 38.66)
 }
 }

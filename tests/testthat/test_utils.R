@@ -55,7 +55,7 @@ test_that("test_writeTables", {
   expect_identical(nrow(outData), 500L)
 
   multipeptide[["7040"]][c(1,3), alignment_rank:= 1L]
-  multipeptide[["3200"]][, alignment_rank:= 1L]
+  multipeptide[["3200"]][c(1,3, 5), alignment_rank:= 1L]
   outData <- writeTables(fileInfo, multipeptide, precursors)
 
   expect_identical(dim(outData), c(501L, 14L))

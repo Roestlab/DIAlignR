@@ -204,21 +204,19 @@ test_that("test_fetchTransitionsFromRun",{
                          "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
                          row.names = c("run0", "run1", "run2"),
                          stringsAsFactors=FALSE)
-  fileInfo$featureFile <- as.factor(fileInfo$featureFile)
   outData <- fetchTransitionsFromRun(fileInfo$featureFile[1], runID = "125704171604355508", maxFdrQuery = 0.05, runType = "DIA_proteomics")
-  expData <- data.table("transition_group_id" = 32L, "peak_group_rank" = 1L,
+  expData <- data.table("transition_group_id" = 32L,
                         "feature_id" = bit64::as.integer64(484069199212214166),
                         "RT" = 6528.23, "intensity" = list(c(10.232500, 0.133768, 9.743950, 0.987916, 4.298210, 1.363980)),
-                        "leftWidth" = 6518.602, "rightWidth" = 6535.67,
+                        "leftWidth" = 6518.602, "rightWidth" = 6535.67, "peak_group_rank" = 1L,
                         "m_score" = 0.0264475, key = c("transition_group_id", "peak_group_rank"))
   expect_equal(outData[1,], expData, tolerance = 1e-04)
   expect_identical(dim(outData), c(211L, 8L))
 
   outData <- fetchTransitionsFromRun(fileInfo$featureFile[2], runID = "6752973645981403097", maxFdrQuery = 0.01, runType = "DIA_proteomics")
-  expData <- data.table("transition_group_id" = 19954L, "peak_group_rank" = 3L,
-                        "feature_id" = bit64::as.integer64(3189052421957813097),
+  expData <- data.table("transition_group_id" = 19954L, "feature_id" = bit64::as.integer64(3189052421957813097),
                         "RT" = 5226.47, "intensity" = list(c(41.11890, 19.45290, 12.51970, 11.41050, 8.10003, 12.34190)),
-                        "leftWidth" = 5215.051, "rightWidth" = 5228.706,
+                        "leftWidth" = 5215.051, "rightWidth" = 5228.706, "peak_group_rank" = 3L,
                         "m_score" = 0.0009634075, key = c("transition_group_id", "peak_group_rank"))
   expect_equal(outData[192,], expData, tolerance = 1e-04)
   expect_identical(dim(outData), c(192L, 8L))
@@ -230,7 +228,6 @@ test_that("test_getTransitions",{
                          "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
                          row.names = c("run0", "run1", "run2"),
                          stringsAsFactors=FALSE)
-  fileInfo$featureFile <- as.factor(fileInfo$featureFile)
   outData <- getTransitions(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   expect_identical(length(outData), 3L)
   expect_identical(dim(outData[["run1"]]), c(227L, 8L))

@@ -146,7 +146,7 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' # Use getAlignedTimes() to get tAligned.
 #' alignObj <- testAlignObj()
 #' tAligned <- alignedTimes2(alignObj, XICs.ref, XICs.eXp)
-#' setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
+#' setAlignmentRank(df, refIdx = 3L, eXp = "run2", tAligned, XICs.eXp,
 #' params, adaptiveRT = 38.66)
 #' }
 setAlignmentRank <- function(df, refIdx, eXp, tAligned, XICs, params, adaptiveRT){
