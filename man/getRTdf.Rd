@@ -7,6 +7,8 @@
 getRTdf(features, ref, eXp, maxFdrGlobal)
 }
 \arguments{
+\item{features}{(list of data-frames) it is output from getFeatures function.}
+
 \item{ref}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
 
 \item{eXp}{(string) Must be a combination of "run" and an iteger e.g. "run2".}
@@ -22,7 +24,7 @@ Retention-time mapping is established from reference to experiment run.
 }
 \examples{
 data(oswFiles_DIAlignR, package="DIAlignR")
-df <- getRTdf(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+df <- getRTdf(features = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
 }
 \seealso{
 \code{\link{getGlobalAlignment}}

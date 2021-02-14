@@ -18,15 +18,16 @@
 #' @param adaptiveRTs (environment) an empty environment used to store data for downstream analysis.
 #' @param refRuns (environment) an empty environment used to store data for downstream analysis.
 #' @return (None)
+#' @keywords internal
 #' @seealso \code{\link{childXICs}, \link{getChildXICs}, \link{traverseUp}}
 #' @examples
+#' library(data.table)
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' params <- paramsDIAlignR()
 #' fileInfo <- getRunNames(dataPath = dataPath)
 #' mzPntrs <- list2env(getMZMLpointers(fileInfo))
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
 #'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
-#' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 #' peptideIDs <- unique(precursors$peptide_id)
 #' peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
 #' masters <- paste("master", 1:(nrow(fileInfo)-1), sep = "")
@@ -36,6 +37,7 @@
 #'   setkeyv(x, "run"); x})
 #' names(peptideScores) <- as.character(peptideIDs)
 #' features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+#' \dontrun{
 #' masterFeatures <- dummyFeatures(precursors, nrow(fileInfo)-1, 1L)
 #' features <- do.call(c, list(features, masterFeatures))
 #' multipeptide <- getMultipeptide(precursors, features, numMerge = 0L, startIdx = 1L)
@@ -45,13 +47,12 @@
 #' mergeName <- "master1"
 #' adaptiveRTs <- new.env()
 #' refRuns <- new.env()
-#' \dontrun{
 #' getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
 #'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms = NULL)
-#' rm(mzPntrs)
 #' file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.sqMass")))
 #' file.remove(list.files(".", pattern = "*_av.rds", full.names = TRUE))
 #' }
+#' rm(mzPntrs)
 getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
                        precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms, applyFun = lapply){
   peptides <- unique(precursors$peptide_id)

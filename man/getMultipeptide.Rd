@@ -18,6 +18,10 @@ getMultipeptide(
 \item{features}{(list of data-frames) Contains features and their properties identified in each run.}
 
 \item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
+
+\item{numMerge}{(integer) number of merged runs. Should be 0 for star alignment.}
+
+\item{startIdx}{(integer) suffix for merged runs' name.}
 }
 \value{
 (list) of dataframes having following columns:

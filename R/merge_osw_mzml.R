@@ -1,13 +1,13 @@
 #' Merge dataframes from OSW and mzML files
 #'
 #' Merges dataframes on transition_id(OSW) = chromatogramId(mzML).
-#' @importFrom dplyr %>%
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
+#' @importFrom dplyr %>%
 #' @importFrom rlang .data
 #' @param oswAnalytes (dataframe) This is an output of getOswFiles.
 #' @param chromHead (dataframe) This has two columns: chromatogramId and chromatogramIndex with integer values.

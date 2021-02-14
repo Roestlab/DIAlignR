@@ -46,7 +46,7 @@ chromatogramIndex: index of chromatogram in mzML file.}
 \item{rownum}{(integer) represnts the index of the multipepetide to be aligned.}
 }
 \value{
-(dataframe) a collection of aligned features for a peptide( = peptideIDs[rownum]).
+invisible NULL
 }
 \description{
 For the ith analyte in multipeptide, this function aligns all runs to the reference run. The result is

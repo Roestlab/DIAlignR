@@ -54,6 +54,8 @@ getRefRun <- function(peptideScores, applyFun=lapply){
 #' @inheritParams alignTargetedRuns
 #' @param precursors (data-frames) Contains precursors and associated transition IDs.
 #' @param features (list of data-frames) Contains features and their properties identified in each run.
+#' @param numMerge (integer) number of merged runs. Should be 0 for star alignment.
+#' @param startIdx (integer) suffix for merged runs' name.
 #' @return (list) of dataframes having following columns:
 #' \item{transition_group_id}{(integer) a unique id for each precursor.}
 #' \item{run}{(string) run identifier.}
@@ -81,10 +83,10 @@ getMultipeptide <- function(precursors, features, applyFun=lapply, numMerge = 0L
   if(numMerge == 0L){
     multipeptide <- applyFun(seq_along(peptideIDs), function(i){
       # Get transition_group_id for a peptide
-      analytes <- precursors[.(peptideIDs[i]), 1L][[1]]
+      analytes <- precursors[list(peptideIDs[i]), 1L][[1]]
       num_analytes <- length(analytes)
       newdf <- rbindlist(lapply(runs, function(run){
-        df <- rbindlist(list(features[[run]][.(analytes), ],
+        df <- rbindlist(list(features[[run]][list(analytes), ],
                              dummyTbl(analytes)), use.names=TRUE) # dummy for new features
         set(df, j = c("run", "alignment_rank"), value = list(run, NA_integer_))
         df
@@ -97,10 +99,10 @@ getMultipeptide <- function(precursors, features, applyFun=lapply, numMerge = 0L
     masters <- paste0("master", startIdx:stpIdx)
     multipeptide <- applyFun(seq_along(peptideIDs), function(i){
       # Get transition_group_id for a peptide
-      analytes <- precursors[.(peptideIDs[i]), 1L][[1]]
+      analytes <- precursors[list(peptideIDs[i]), 1L][[1]]
       num_analytes <- length(analytes)
       df1 <- lapply(runs, function(run){
-        df <- features[[run]][.(analytes), ]
+        df <- features[[run]][list(analytes), ]
         df[,`:=`("run" = run, "alignment_rank" = NA_integer_)]
         df
       })
@@ -138,7 +140,6 @@ dummyMerge <- function(analytes, masters){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-14
-#' @importFrom rlang .data
 #' @importFrom data.table rbindlist setnames setorder setcolorder set
 #' @param filename (string) Name of the output file.
 #' @param fileInfo (data-frame) Output of getRunNames function.

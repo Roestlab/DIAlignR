@@ -130,7 +130,6 @@ getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FAL
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-04
 #' @importFrom data.table setDT
-#' @importFrom rlang .data
 #' @inheritParams getPrecursors
 #' @param filename (string) Should be from the RUN.FILENAME column from osw files.
 #' @param runType (string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
@@ -244,6 +243,7 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics"
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2019-04-06
+#' @importFrom data.table .N
 #' @inheritParams getPrecursors
 #' @param analytes (integer) a vector of integers.
 #' @return (data-frames) A data-frame having following columns:
@@ -552,7 +552,7 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-11-15
-#' @importFrom data.table setnames setDT setcolorder
+#' @importFrom data.table setnames setDT setcolorder .SD ":="
 #' @param filename (string) Path to the feature file.
 #' @param runID (string) id in RUN.ID column of the feature file.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
@@ -590,7 +590,7 @@ fetchTransitionsFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType
   setDT(transitionInfo)
   transitionInfo <- transitionInfo[, `:=`(intensity2 = list(intensity)),
                                    keyby = .(transition_group_id, peak_group_rank)][
-       ,intensity:=NULL][
+       ,intensity := NULL][
        , head(.SD, 1), by=.(transition_group_id, peak_group_rank),
        .SDcols = c("feature_id", "RT", "intensity2", "leftWidth", "rightWidth", "m_score")]
   setnames(transitionInfo, "intensity2", "intensity")

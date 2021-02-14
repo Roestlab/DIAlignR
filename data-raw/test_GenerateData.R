@@ -5,7 +5,9 @@ context("Generate test data")
 generateDIAlignRdata <- function(){
   dataPath <- system.file("extdata", package = "DIAlignR")
   oswMerged <- TRUE
-  filenames <- getRunNames(dataPath, oswMerged)
+  params <- paramsDIAlignR()
+  params[["chromFile"]] <- "mzML"
+  filenames <- getRunNames(dataPath, oswMerged, params)
   oswFiles_DIAlignR <- getFeatures(filenames, maxFdrQuery = 0.05, runType = "DIA_proteomics")
   save(oswFiles_DIAlignR, file = "oswFiles_DIAlignR.rda", version = 2, compress = "xz", compression_level = 9)
 

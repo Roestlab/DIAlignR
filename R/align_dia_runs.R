@@ -364,7 +364,7 @@ getAlignObjs <- function(analytes, runs, dataPath = ".", refRun = NULL, oswMerge
 #' @param mzPntrs (list) a list of mzRpwiz.
 #' @param globalFits (list) each element is either of class lm or loess. This is an output of \code{\link{getGlobalFits}}.
 #' @param RSE (list) Each element represents Residual Standard Error of corresponding fit in globalFits.
-#' @return (dataframe) a collection of aligned features for a peptide( = peptideIDs[rownum]).
+#' @return invisible NULL
 #' @seealso \code{\link{alignTargetedRuns}, \link{alignToRef}, \link{getAlignedTimes}, \link{getMultipeptide}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
@@ -424,7 +424,7 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
     ##### Align all runs to reference run and set their alignment rank #####
     exps <- setdiff(rownames(fileInfo), ref)
     invisible(
-      lapply(exps, alignToRef2, ref, idx, refIdx, fileInfo, XICs, XICs.ref, params,
+      lapply(exps, alignToRef, ref, idx, refIdx, fileInfo, XICs, XICs.ref, params,
              DT, globalFits, RSE)
     )
 
@@ -447,17 +447,17 @@ perBatch <- function(iBatch, peptideIDs, multipeptide, refRuns, precursors, prec
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-26
 #' @keywords internal
-#' @inheritParams alignIthAnalyte
+#' @inheritParams perBatch
+#' @inherit perBatch return
 #' @param eXp (string) name of the run to be aligned to reference run. Must be in the rownames of fileInfo.
 #' @param ref (string) name of the reference run. Must be in the rownames of fileInfo.
 #' @param analyte_chr (string) Precursor ID of the requested analyte.
 #' @param XICs.ref.s (list of dataframes) Smoothed fragment-ion chromatograms of the analyte_chr from the reference run.
 #' @param df (dataframe) a collection of features related to analyte_chr.
-#' @return (dataframe) aligned features of analyte_chr in eXp run.
-#' @seealso \code{\link{alignTargetedRuns}, \link{alignIthAnalyte}, \link{setAlignmentRank}, \link{getMultipeptide}}
+#' @seealso \code{\link{alignTargetedRuns}, \link{perBatch}, \link{setAlignmentRank}, \link{getMultipeptide}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-alignToRef2 <- function(eXp, ref, idx, refIdx, fileInfo, XICs, XICs.ref, params,
+alignToRef <- function(eXp, ref, idx, refIdx, fileInfo, XICs, XICs.ref, params,
                        df, globalFits, RSE){
   # Get XIC_group from experiment run.
   XICs.eXp <- XICs[[idx]][[eXp]]

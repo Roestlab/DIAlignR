@@ -142,15 +142,15 @@ test_that("test_getChromatogramIndices",{
   precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 1.00)
   mzPntrs <- getMZMLpointers(fileInfo)
   outData <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
-  outData2 <- getChromatogramIndices(fileInfo, precursors[c(3,25,1),], mzPntrs)
+  outData2 <- getChromatogramIndices(fileInfo, precursors[c(103,108,168),], mzPntrs)
   for(mz in mzPntrs) DBI::dbDisconnect(mz)
 
   expData <- data.table("transition_group_id" = c(9720L, 9723L),
                         "chromatogramIndex" = list(c(48L, 49L, 50L, 51L, 52L, 53L), rep(NA_integer_, 6)))
-  expect_identical(expData, outData[["run2"]][144:145,])
+  expect_identical(expData, outData[["run2"]][c(148L, 260L),])
 
-  expData <- data.table("transition_group_id" = c(470L, 1967L, 32L),
-                        "chromatogramIndex" = list(rep(NA_integer_, 6), c(12:17), rep(NA_integer_, 6)))
+  expData <- data.table("transition_group_id" = c(1967L, 32L, 470L),
+                        "chromatogramIndex" = list(c(12:17), rep(NA_integer_, 6), rep(NA_integer_, 6)))
   expect_identical(expData, outData2[["run2"]])
 
 })

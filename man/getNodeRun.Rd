@@ -68,13 +68,13 @@ at dataPath/mzml. For each precursor aligned parent time-vectors and correspondi
 are also calculated and written as *_av.rda at dataPath.
 }
 \examples{
+library(data.table)
 dataPath <- system.file("extdata", package = "DIAlignR")
 params <- paramsDIAlignR()
 fileInfo <- getRunNames(dataPath = dataPath)
 mzPntrs <- list2env(getMZMLpointers(fileInfo))
 precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
-precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 peptideIDs <- unique(precursors$peptide_id)
 peptideScores <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, params[["runType"]], params[["context"]])
 masters <- paste("master", 1:(nrow(fileInfo)-1), sep = "")
@@ -84,6 +84,7 @@ peptideScores <- lapply(peptideIDs, function(pep) {x <- peptideScores[.(pep)][,-
   setkeyv(x, "run"); x})
 names(peptideScores) <- as.character(peptideIDs)
 features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+\dontrun{
 masterFeatures <- dummyFeatures(precursors, nrow(fileInfo)-1, 1L)
 features <- do.call(c, list(features, masterFeatures))
 multipeptide <- getMultipeptide(precursors, features, numMerge = 0L, startIdx = 1L)
@@ -93,13 +94,12 @@ prec2chromIndex <- do.call(c, list(prec2chromIndex, masterChromIndex))
 mergeName <- "master1"
 adaptiveRTs <- new.env()
 refRuns <- new.env()
-\dontrun{
 getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms = NULL)
-rm(mzPntrs)
 file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.sqMass")))
 file.remove(list.files(".", pattern = "*_av.rds", full.names = TRUE))
 }
+rm(mzPntrs)
 }
 \seealso{
 \code{\link{childXICs}, \link{getChildXICs}, \link{traverseUp}}
@@ -112,3 +112,4 @@ ORCID: 0000-0003-3500-8152
 License: (c) Author (2020) + GPL-3
 Date: 2020-06-06
 }
+\keyword{internal}

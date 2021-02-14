@@ -140,10 +140,10 @@ recalculateIntensity <- function(peakTable, dataPath = ".", oswMerged = TRUE, pa
 reIntensity <- function(df, Run, XICs, params){
   idx <- df[run == Run & alignment_rank == 1, which = TRUE]
   for(i in idx){
-    analyte_chr <- as.character(df[i, transition_group_id])
-    area <- calculateIntensity(XICs[[analyte_chr]], df[i, leftWidth], df[i, rightWidth],
+    analyte_chr <- as.character(.subset2(df, "transition_group_id")[[i]])
+    area <- calculateIntensity(XICs[[analyte_chr]], .subset2(df, "leftWidth")[[i]], .subset2(df, "rightWidth")[[i]],
                                params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
-    df[i, intensity := area]
+    data.table::set(df, i, "intensity", area)
   }
   invisible(NULL)
 }

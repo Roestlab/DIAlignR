@@ -315,7 +315,6 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-19
-#' @import tibble
 #' @inherit alignToMaster params
 #' @inheritParams traverseDown
 #' @inheritParams getChildXICs

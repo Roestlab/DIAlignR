@@ -7,13 +7,22 @@
 setAlignmentRank(df, refIdx, eXp, tAligned, XICs, params, adaptiveRT)
 }
 \arguments{
+\item{df}{(dataframe) a collection of features related to analyte_chr.}
+
+\item{eXp}{(string) name of the run to be aligned to reference run. Must be in the rownames of fileInfo.}
+
 \item{tAligned}{(list) the first element corresponds to the aligned reference time,
 the second element is the aligned experiment time.}
+
+\item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
 \item{adaptiveRT}{(numeric) defines the window around the aligned retention time, within which
 features with m-score below aligned FDR are considered for quantification.}
 
 \item{XICs.eXp}{(list) list of extracted ion chromatograms from experiment run.}
+}
+\value{
+invisible NULL
 }
 \description{
 Picks the top feature in run by comparing m-score to unaligned FDR and aligned FDR.
