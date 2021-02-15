@@ -87,7 +87,7 @@ getMultipeptide <- function(precursors, features, applyFun=lapply, numMerge = 0L
       num_analytes <- length(analytes)
       newdf <- rbindlist(lapply(runs, function(run){
         df <- rbindlist(list(features[[run]][list(analytes), ],
-                             dummyTbl(analytes)), use.names=TRUE) # dummy for new features
+                  dummyTbl(analytes)), use.names=TRUE) # dummy for new features
         set(df, j = c("run", "alignment_rank"), value = list(run, NA_integer_))
         df
       }), use.names=TRUE)

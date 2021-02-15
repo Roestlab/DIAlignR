@@ -3,13 +3,13 @@ context("Merge two runs")
 childFeatures <- function(){
   df <- data.table(transition_group_id = 4618L,
                    feature_id = bit64::as.integer64(c("7675762503084486466", "8133647188324775335", "436075290410024368",
-                                                      "1709365655702457288", "7174847956052480089", "8455234228721846034")),
-                   RT = c(5237.8, 5282.2, 5393.2, 5514.4, 5155.9, 4997.2),
-                   intensity = c(229.707813, 0.9945442, 29.670797, 2.622945, 4.2806256, 24.580870),
-                   leftWidth = c(5217.35, 5278.8, 5365.9, 5497.3, 5137.975, 4980.1),
-                   rightWidth = c(5261.7, 5302.7, 5420.5, 5521.2, 5171.25, 5019.4),
-                   peak_group_rank = c(1L, 2L, 3L, 4L, 5L, 6L),
-                   m_score = c(5.692e-05, 5.039e-02, 0.201, 0.33, 0.36201, 0.36669),
+                                                      "1709365655702457288", "7174847956052480089")),
+                   RT = c(5237.8, 5282.2, 5393.2, 5514.4, 5155.9),
+                   intensity = c(229.707813, 0.9945442, 29.670797, 2.622945, 4.2806256),
+                   leftWidth = c(5217.35, 5278.8, 5365.9, 5497.3, 5137.975),
+                   rightWidth = c(5261.7, 5302.7, 5420.5, 5521.2, 5171.25),
+                   peak_group_rank = c(1L, 2L, 3L, 4L, 5L),
+                   m_score = c(5.692e-05, 5.039e-02, 0.201, 0.33, 0.36201),
                    key = "transition_group_id")
   df
 }
@@ -74,7 +74,6 @@ test_that("test_getNodeRun",{
   expect_equal(peptideScores[["9861"]][2,"pvalue"][[1]], 5.603183e-05, tolerance = 1e-04)
   expect_equal(peptideScores[["14383"]][2,"pvalue"][[1]], 5.603183e-05, tolerance = 1e-04)
 
-
   #data(masterXICs_DIAlignR, package="DIAlignR")
   #outData <- mzR::chromatograms(mzR::openMSfile(file.path(".", "mzml", "master2.chrom.mzML"), backend = "pwiz"))
   for(i in 1:6){
@@ -95,13 +94,14 @@ test_that("test_getChildFeature",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath = dataPath)
   features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
-  df.ref <- features$run1[features$run1$transition_group_id == 4618L, ]
-  df.eXp <- features$run2[features$run2$transition_group_id == 4618L, ]
-  outData <- getChildFeature(newXICs[[1]], newXICs[[2]][,3:5], df.ref, df.eXp, params)
-
-  df <- childFeatures()
-  setkey(df, NULL)
-  expect_equal(outData, df, tolerance = 1e-04)
+  df.ref <- features[["run1"]]
+  i.ref <- df.ref[.(4618L), which = TRUE]
+  df.eXp <- features[["run2"]]
+  i.eXp <- df.eXp[.(4618L), which = TRUE]
+  outData <- getChildFeature(newXICs[[1]], newXICs[[2]][,3:5], df.ref, df.eXp,
+                             i.ref, i.eXp, params)
+  df <- as.data.frame(childFeatures())
+  expect_equal(outData, df, tolerance = 1e-03)
 })
 
 test_that("test_trfrParentFeature",{
@@ -118,13 +118,12 @@ test_that("test_trfrParentFeature",{
                    rightWidth = c(5261.723, 5422.168, 5524.584, 5046.651, 5077.375),
                    peak_group_rank = c(1L, 2L, 3L, 4L, 5L),
                    m_score = c(5.692e-05, 0.201, 0.33, 0.367, 0.368))
-  outData <- trfrParentFeature(newXICs[[1]], timeParent, df, params)
-  df[,3:6] <- list(c(5237.8, 5393.2, 5514.4, 4997.2, 5026.2),
+  outData <- trfrParentFeature(newXICs[[1]], timeParent, df, 1:5, params)
+  eXpData <- matrix(c(c(5237.8, 5393.2, 5514.4, 4997.2, 5026.2),
                    c(229.707813, 29.670797, 2.622945, 24.580870, 15.672424),
                    c(5217.35, 5365.9, 5497.3, 4980.1, 5010.8),
-                   c(5261.7, 5420.5, 5521.2, 5019.4, 5048.4))
-  expect_equal(outData, df, tolerance = 1e-04)
-
+                   c(5261.7, 5420.5, 5521.2, 5019.4, 5048.4)), ncol = 4L)
+  expect_equal(outData[,1:4], eXpData, tolerance = 1e-04)
   #TODO: Think about a test where missing value may occur
 })
 
@@ -140,6 +139,8 @@ test_that("test_getChildXICs",{
                            group_label = "14299_QFNNTDIVLLEDFQK/3",
                            transition_ids	= I(list(27706:27711)))
   peptideScores <- getPeptideScores(fileInfo, peptides = 14383L, TRUE, "DIA_proteomics", "experiment-wide")
+  peptideScores <- lapply(14383L, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
+  names(peptideScores) <- as.character(14383L)
 
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
   refRun <- data.frame(2, "4618")

@@ -61,20 +61,23 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   var1 <- rep(NA_integer_, length(peptides))
   var2 <- rep(NA_integer_, length(peptides))
   for(i in seq_along(peptides)){
-    temp <- peptideScores[[i]][.(c(runA, runB)),]
-    pvalA <- .subset2(temp, "pvalue")[[1]]
-    pvalB <- .subset2(temp, "pvalue")[[2]]
+    temp <- peptideScores[[i]]
+    iA <- which(temp[["run"]] == runA)
+    pvalA <- ifelse(length(iA) == 0, NA_real_, .subset2(temp, "pvalue")[[iA]])
+    iB <- which(temp[["run"]] == runB)
+    pvalB <- ifelse(length(iB) == 0, NA_real_, .subset2(temp, "pvalue")[[iB]])
     if(is.na(pvalA)) pvalA <- 1
     if(is.na(pvalB)) pvalB <- 1
     var1[i] <- ifelse(pvalA > pvalB, 2L, 1L)
-    if(nrow(temp) > 0){
-      idx <- which(peptideScores[[i]][["run"]] == mergeName)
-      set(peptideScores[[i]], idx, c(2L, 3L, 4L),
-          list(max(temp$score), min(temp$pvalue), min(temp$qvalue)))
-    }
-    temp <- multipeptide[[i]][.(c(runA, runB)),]
-    idx <- which.min(temp$m_score)
-    idx <- ifelse(length(idx)==0, 1, idx)
+    idx <- which(temp[["run"]] == mergeName)
+    set(temp, idx, c(2L, 3L, 4L),
+        list(max(temp$score[c(iA, iB)]),
+             min(temp$pvalue[c(iA, iB)]), min(temp$qvalue[c(iA, iB)])))
+    temp <- multipeptide[[i]]
+    iA <- which(temp[["run"]] == runA)
+    iB <- which(temp[["run"]] == runB)
+    idx <- which.min(.subset2(temp, "m_score")[c(iA, iB)])
+    idx <- ifelse(length(idx)==0, 1, c(iA, iB)[idx])
     var2[i] <- .subset2(temp, "transition_group_id")[[idx]]
   }
   refRun <- data.table("var1" = var1, "var2" = as.character(var2))
@@ -97,19 +100,23 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
       if(is.null(mergedXICs[[i]][[j]])) return(NULL)
       XICs <- mergedXICs[[i]][[j]]
       analyte <- analytes[j]
-      df.A <- features[[runA]][.(analyte),]
-      df.A <- df.A[!is.na(df.A$intensity)]
-      df.B <- features[[runB]][.(analyte),]
-      df.B <- df.B[!is.na(df.B$intensity)]
-      if(refRun[i, 1] == 1L) {
-        df.ref <- df.A
-        df.eXp <- df.B
+      idxA <- which(features[[runA]][["transition_group_id"]] == analyte)
+      idxA <- idxA[!is.na(.subset2(features[[runA]], "RT")[idxA])]
+      idxB <- which(features[[runB]][["transition_group_id"]] == analyte)
+      idxB <- idxB[!is.na(.subset2(features[[runB]], "RT")[idxB])]
+      if(.subset2(refRun, 1L)[[i]] == 1L) {
+        df.ref <- features[[runA]]
+        i.ref <- idxA
+        i.eXp <- idxB
+        df.eXp <- features[[runB]]
       } else{
-        df.ref <- df.B
-        df.eXp <- df.A
+        df.ref <- features[[runB]]
+        i.ref <- idxB
+        i.eXp <- idxA
+        df.eXp <- features[[runA]]
       }
-      if((nrow(df.ref) + nrow(df.eXp)) == 0) return(NULL)
-      getChildFeature(XICs, alignedVec, df.ref, df.eXp, params)
+      if((length(i.ref) + length(i.eXp)) == 0) return(NULL)
+      getChildFeature(XICs, alignedVec, df.ref, df.eXp, i.ref, i.eXp, params)
     })
     rbindlist(childFeature, use.names = FALSE)
   })
@@ -225,40 +232,37 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
 #' \dontrun{
 #' getChildFeature(newXICs[[1]], newXICs[[2]], df.ref, df.eXp, params)
 #' }
-getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
-  # Convert Ref features to childXIC
-  timeParent <- alignedVec[, c(1L, 3L)]
-  colnames(timeParent) <- c("tAligned", "alignedChildTime")
-  if(!all(is.na(df.ref$peak_group_rank))) df.ref <- trfrParentFeature(XICs, timeParent, df.ref, params)
-
-  # Convert eXp features to childXIC
-  timeParent <-alignedVec[, c(2L, 3L)]
-  colnames(timeParent) <- c("tAligned", "alignedChildTime")
-  if(!all(is.na(df.eXp$peak_group_rank))) df.eXp <- trfrParentFeature(XICs, timeParent, df.eXp, params)
-
-  # Assemble converted features. Pick non-overlapping features based on minimum m-score.
-  df <- rbindlist(list(df.ref, df.eXp))
-  if(all(is.na(df$peak_group_rank))) return(NULL)
-  df$child_pg_rank <- NA_integer_
-  df$child_m_score <- df$m_score
+getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, i.ref, i.eXp, params){
+  # Find top five features from both runs combined
+  # RT intensity left right m-score
+  f <- rbind(trfrParentFeature(XICs, alignedVec[, c(1L, 3L)], df.ref, i.ref, params),
+             trfrParentFeature(XICs, alignedVec[, c(2L, 3L)], df.eXp, i.eXp, params))
+  fid <- c(.subset2(df.ref, "feature_id")[i.ref], .subset2(df.eXp, "feature_id")[i.eXp])
+  peak_rank <- rep(NA_integer_, nrow(f)) # peak-rank
+  mutate_score <- f[, 5L]
+  mutate_score[is.na(f[, 4L])] <- NA_real_
 
   r <- 0L
-  while (any(is.na(df$child_pg_rank))) {
-    idx <- which.min(df$child_m_score)
+  while(any(is.na(peak_rank))  & r < 5L) {
+    idx <- which.min(mutate_score)
     r <- r+1L
-    df$child_pg_rank[idx] <- r
-    df$child_m_score[idx] <- NA_real_
-    pk <- c(df$leftWidth[idx], df$rightWidth[idx])
+    mutate_score[idx] <- NA_real_
+    peak_rank[idx] <- r
+    pk <- c(f[idx, 3L], f[idx, 4L])
     # Remove other peaks that have conflicting boundaries
-    rmv <- sapply(1:nrow(df), function(i) checkOverlap(pk, c(df$leftWidth[i], df$rightWidth[i])))
+    rmv <- sapply(1:nrow(f), function(i) checkOverlap(pk, c(f[i, 3L], f[i, 4L])))
     rmv[idx] <- FALSE
-    df <- df[!rmv,]
+    mutate_score[rmv] <- NA_real_
   }
-  # First keep the peak based on m-score
-  df$peak_group_rank <- df$child_pg_rank
-  df <- df[order(df$peak_group_rank), -c(9L, 10L)]
-  rownames(df) <- NULL
-  df
+
+  # Create data.frame from these top five features
+  analyte <- ifelse(length(i.ref) !=0, .subset2(df.ref, 1L)[i.ref[1]], .subset2(df.eXp, 1L)[i.eXp[1]])
+  o <- order(peak_rank, na.last = NA)
+  f <- as.data.frame(f[o,, drop = FALSE])
+  colnames(f) <- c("RT", "intensity", "leftWidth", "rightWidth", "m_score")
+  f <- cbind(data.frame("transition_group_id" = analyte, "feature_id" = fid[o]),
+             f, "peak_group_rank" = peak_rank[o])
+  f[,c(1:6, 8L, 7L)]
 }
 
 #' Transform features to child time-domain
@@ -292,29 +296,26 @@ getChildFeature <- function(XICs, alignedVec, df.ref, df.eXp, params){
 #' \dontrun{
 #' trfrParentFeature(newXICs[[1]], timeParent, df, params)
 #' }
-trfrParentFeature <- function(XICs, timeParent, df, params){
+trfrParentFeature <- function(XICs, timeParent, df, i, params){
+  if(length(i) == 0L) return (NULL)
   # Transform the left boundary
-  idx <- sapply(df$leftWidth, function(t) which.min(abs(timeParent[, "tAligned"] - t)))
-  peak.left <- timeParent[idx, "alignedChildTime"]
-  df$leftWidth <- peak.left
+  idx <- sapply(.subset2(df, "leftWidth")[i], function(t) which.min(abs(timeParent[, 1L] - t)))
+  left <- timeParent[idx, 2L]
 
   # Transform the right boundary
-  idx <- sapply(df$rightWidth, function(t) which.min(abs(timeParent[, "tAligned"] - t)))
-  peak.right <- timeParent[idx, "alignedChildTime"]
-  df$rightWidth <- peak.right
+  idx <- sapply(.subset2(df, "rightWidth")[i], function(t) which.min(abs(timeParent[, 1L] - t)))
+  right <- timeParent[idx, 2L]
 
   # Transform the retention time
-  idx <- sapply(df$RT, function(t) which.min(abs(timeParent[, "tAligned"] - t)))
-  peak.RT <- timeParent[idx, "alignedChildTime"]
-  df$RT <- peak.RT
+  idx <- sapply(.subset2(df, "RT")[i], function(t) which.min(abs(timeParent[, 1L] - t)))
+  RT <- timeParent[idx, 2L]
 
   # Calculate peak area
-  area <- sapply(1:nrow(df), function(i) calculateIntensity(XICs, df$leftWidth[i], df$rightWidth[i],
+  area <- sapply(seq_along(i), function(j) calculateIntensity(XICs, left[j], right[j],
                   params[["integrationType"]], params[["baselineType"]],
-                  params[["fitEMG"]], params[["baseSubtraction"]]))
-  df$intensity <- area
-  # If feature is outside of XICs we will get missing values
-  df[!(is.na(df$leftWidth) | is.na(df$rightWidth) | is.na(df$intensity)),]
+                  FALSE, params[["baseSubtraction"]]))
+
+  matrix(c(RT, area, left, right, .subset2(df, "m_score")[i]), ncol = 5L)
 }
 
 #' Develop child XICs for precursors
@@ -420,7 +421,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     }
 
     ##### Calculate the weights of XICs from runA and runB #####
-    temp <- peptideScores[[as.character(peptide)]]
+    temp <- peptideScores[[rownum]]
     pA <- temp$pvalue[temp$run == runA]
     pB <- temp$pvalue[temp$run == runB]
     wA <- ifelse(length(pA)==0, 0.3, -log10(pA))
@@ -428,7 +429,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     wA <- wA/(wA + wB)
 
     ##### Decide the reference run from runA and runB. #####
-    if(refRun[rownum, 1] == 1L){
+    if(.subset2(refRun, 1L)[[rownum]] == 1L){
       XICs.ref <- XICs.A
       XICs.eXp <- XICs.B
       globalFit <- globalFit1
