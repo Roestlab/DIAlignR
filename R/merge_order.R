@@ -395,28 +395,34 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
       alignedVec <- alignedVecs[[i]]
       df <- multipeptide[[i]]
       eXpIdx <- which(df[["run"]] == eXp)
-      indices <- which(df$run == ref)
-      refIdx <- indices[which(.subset2(df, 10L)[indices] == 1L)]
-      refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
-
-      if(is.null(alignedVec)){
-        # Try to  set alignment rank without chromatogram
-        return(NULL)
-      } else {
-        tAligned <- alignedVec[, c(3L, refRun[i])]
-        colnames(tAligned) <- c("tAligned.ref", "tAligned.eXp")
-      }
-
       ##### Get XIC_group from reference run. if missing, return unaligned features #####
       XICs.eXp <- XICs[[idx]]
+      analytes <- as.integer(names(XICs.eXp))
+
+      ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
+      if(any(.subset2(df, "m_score")[eXpIdx] <=  params[["unalignedFDR"]], na.rm = TRUE)){
+        tempi <- eXpIdx[which.min(df$m_score[eXpIdx])]
+        set(df, tempi, 10L, 1L)
+        if(is.null(XICs.eXp)) return(invisible(NULL))
+        setOtherPrecursors(df, tempi, XICs.eXp, analytes, params)
+        return(invisible(NULL))
+      }
+
       if(is.null(XICs.eXp)){
         warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[eXp, "runName"])
         message("Skipping peptide ", peptide, " across all runs.")
-        return(NULL)
+        return(invisible(NULL))
       }
-      analytes <- as.integer(names(XICs.eXp))
 
+      if(is.null(alignedVec)){
+        return(NULL) # Try to  set alignment rank without chromatogram
+      }
       # Update alignment rank for the eXp.
+      tAligned <- alignedVec[, c(3L, refRun[i])]
+      indices <- which(df$run == ref)
+      refIdx <- indices[which(.subset2(df, 10L)[indices] == 1L)]
+      refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
+      if(length(refIdx == 0L)) return(invisible(NULL))
       setAlignmentRank(df, refIdx, eXp, tAligned, XICs.eXp, params, adaptiveRT)
       tempi <- eXpIdx[which(df$alignment_rank[eXpIdx] == 1L)]
       setOtherPrecursors(df, tempi, XICs.eXp, analytes, params)

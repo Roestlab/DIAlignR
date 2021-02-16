@@ -70,9 +70,10 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
     if(is.na(pvalB)) pvalB <- 1
     var1[i] <- ifelse(pvalA > pvalB, 2L, 1L)
     idx <- which(temp[["run"]] == mergeName)
-    set(temp, idx, c(2L, 3L, 4L),
-        list(max(temp$score[c(iA, iB)]),
-             min(temp$pvalue[c(iA, iB)]), min(temp$qvalue[c(iA, iB)])))
+    if(length(iA)+length(iB) > 0){
+      set(temp, idx, c(2L, 3L, 4L),
+          list(max(temp$score[c(iA, iB)]),
+               min(temp$pvalue[c(iA, iB)]), min(temp$qvalue[c(iA, iB)])))}
     temp <- multipeptide[[i]]
     iA <- which(temp[["run"]] == runA)
     iB <- which(temp[["run"]] == runB)
@@ -458,6 +459,11 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     B1p <- getPredict(globalFit, XICs.ref.pep[[1]][1,1], params[["globalAlignment"]])
     len <- nrow(XICs.ref.pep[[1]])
     B2p <- getPredict(globalFit, XICs.ref.pep[[1]][len,1], params[["globalAlignment"]])
+    if(is.na(B1p) || is.na(B2p)){
+      B1p <- XICs.eXp.pep[[1]][1,1]
+      B2p <- XICs.eXp.pep[[1]][nrow(XICs.eXp.pep[[1]]),1]
+    }
+
     #### Merge chromatograms  ####
     merged_xics <- getChildXICpp(XICs.ref.pep, XICs.eXp.pep, params[["kernelLen"]], params[["polyOrd"]],
                   params[["alignType"]], adaptiveRT, params[["normalization"]],
@@ -466,6 +472,7 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
                   params[["dotProdThresh"]], params[["gapQuantile"]], params[["kerLen"]],
                   params[["hardConstrain"]], params[["samples4gradient"]], wRef,
                   params[["splineMethod"]], params[["mergeTime"]], params[["keepFlanks"]])
+    if(is.null(merged_xics[[1]])) return(list(vector(mode = "list", length = length(analytes_chr)), NULL))
     merged_xics[[1]] <- list(merged_xics[[1]])
     names(merged_xics[[1]]) <- analyte_chr
     otherPrecs <- setdiff(analytes_chr, analyte_chr)
