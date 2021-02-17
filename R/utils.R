@@ -164,9 +164,16 @@ writeTables <- function(fileInfo, multipeptide, precursors){
 
   #### Get a dataframe of all analytes with alignment rank = 1 ###########
   finalTbl <- lapply(seq_along(peptides), function(i){
-    idx <- multipeptide[[i]][alignment_rank == 1L & run %in% runs, which = TRUE]
-    if(length(idx) == 0) idx <- multipeptide[[i]][peak_group_rank == 1L & run %in% runs, which = TRUE]
-    multipeptide[[i]][idx,]
+    indices <- rep(NA_integer_, length(runs))
+    df <- multipeptide[[i]]
+    idx <- unlist(lapply(runs, function(run){
+      j <- which(df[["run"]] == run)
+      idx <- j[df$alignment_rank[j]  == 1L]
+      if(all(is.na(idx))) idx <- j[df$peak_group_rank[j] == 1L]
+      idx
+    }))
+    idx <- idx[!is.na(idx)]
+    df[idx,]
   })
   finalTbl <- rbindlist(finalTbl)
   finalTbl[,run := runName[match(finalTbl$run, runs)]]
