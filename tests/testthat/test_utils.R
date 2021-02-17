@@ -58,7 +58,7 @@ test_that("test_writeTables", {
   multipeptide[["3200"]][c(1,3, 5), alignment_rank:= 1L]
   outData <- writeTables(fileInfo, multipeptide, precursors)
 
-  expect_identical(dim(outData), c(501L, 14L))
+  expect_identical(dim(outData), c(502L, 14L))
   expData <- data.table(peptide_id = c(3200L, 7040L), precursor = c(523L, 32L),
                         run = fileInfo$runName[1:2], RT = c(1529.54, NA_real_),
                         intensity = c(13.5686, NA_real_), leftWidth = c(1512.653,NA_real_), rightWidth= c(1546.791,NA_real_),

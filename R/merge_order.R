@@ -408,21 +408,22 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
         return(invisible(NULL))
       }
 
+      if(is.null(alignedVec)){
+        return(invisible(NULL)) # Try to  set alignment rank without chromatogram
+      }
+
       if(is.null(XICs.eXp)){
         warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[eXp, "runName"])
         message("Skipping peptide ", peptide, " across all runs.")
         return(invisible(NULL))
       }
 
-      if(is.null(alignedVec)){
-        return(NULL) # Try to  set alignment rank without chromatogram
-      }
       # Update alignment rank for the eXp.
       tAligned <- alignedVec[, c(3L, refRun[i])]
       indices <- which(df$run == ref)
       refIdx <- indices[which(.subset2(df, 10L)[indices] == 1L)]
       refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
-      if(length(refIdx == 0L)) return(invisible(NULL))
+      if(length(refIdx) == 0L) return(invisible(NULL))
       setAlignmentRank(df, refIdx, eXp, tAligned, XICs.eXp, params, adaptiveRT)
       tempi <- eXpIdx[which(df$alignment_rank[eXpIdx] == 1L)]
       setOtherPrecursors(df, tempi, XICs.eXp, analytes, params)
