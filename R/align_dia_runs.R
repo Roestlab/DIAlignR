@@ -139,7 +139,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
   num_of_batch <- ceiling(length(multipeptide)/params[["batchSize"]])
   invisible(
     lapply(1:num_of_batch, perBatch, peptideIDs, multipeptide, refRuns, precursors,
-           prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, applyFun)
+           prec2chromIndex, fileInfo, mzPntrs, params, globalFits, RSE, lapply)
   )
 
   #### Cleanup.  #######
