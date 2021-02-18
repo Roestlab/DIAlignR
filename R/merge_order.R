@@ -260,7 +260,7 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
       chromIndices <- prec2chromIndex[[master1]][["chromatogramIndex"]][idx]
       if(any(is.na(unlist(chromIndices))) | is.null(unlist(chromIndices))){
         warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[master1, "runName"])
-        message("Skipping peptide ", peptide, " across all runs.")
+        message("Skipping peptide ", peptide, " in ", master1)
         return(NULL)
       } else {
         XICs <- lapply(chromIndices, function(iM) fetchXIC(mzPntrs[[master1]], chromIndices = iM))
@@ -414,7 +414,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
 
       if(is.null(XICs.eXp)){
         warning("Chromatogram indices for peptide ", peptide, " are missing in ", fileInfo[eXp, "runName"])
-        message("Skipping peptide ", peptide, " across all runs.")
+        message("Skipping peptide ", peptide, " in ", eXp)
         return(invisible(NULL))
       }
 
