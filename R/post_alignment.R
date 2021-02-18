@@ -213,7 +213,7 @@ setOtherPrecursors <- function(df, XICs, analytes, params){
     if(length(idx)!=0){
       idx <- idx[sapply(idx, function(i) checkOverlap(pk, c(df$leftWidth[i], df$rightWidth[i])))]
     }
-    if(length(idx)==0 & params[["fillMissing"]]){
+    if((length(idx)==0 | all(is.na(idx))) & params[["fillMissing"]]){
       # Create a feature for missing precursor
       analyte_chr <- as.character(analyte)
       row <- newRow(XICs[[analyte_chr]], pk[1], pk[2], df$RT[refIdx], analyte, run, params)
