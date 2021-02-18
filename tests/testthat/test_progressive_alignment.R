@@ -24,6 +24,8 @@ test_that("test_progAlignRuns", {
   file.remove("temp.tsv")
   file.remove(file.path(dataPath, "master.merged.osw"))
   file.remove(file.path(dataPath, "multipeptide.rds"))
+  file.remove(file.path(dataPath, "refRuns.rds"))
+  file.remove(file.path(dataPath, "adaptiveRTs.rds"))
   file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
   file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.sqMass$", full.names = TRUE))
   skip_if_no_pyopenms()
@@ -52,6 +54,8 @@ test_that("test_progAlignRuns", {
     file.remove("temp.tsv")
     file.remove(file.path(dataPath, "master.merged.osw"))
     file.remove(file.path(dataPath, "multipeptide.rds"))
+    file.remove(file.path(dataPath, "refRuns.rds"))
+    file.remove(file.path(dataPath, "adaptiveRTs.rds"))
     file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
     file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
   }

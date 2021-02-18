@@ -55,6 +55,8 @@ file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 # Removing temporarily created master chromatograms
 file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
 file.remove(file.path(dataPath, "multipeptide.rds"))
+file.remove(file.path(dataPath, "refRuns.rds"))
+file.remove(file.path(dataPath, "adaptiveRTs.rds"))
 file.remove(file.path(dataPath, "master.merged.osw"))
 }
 }

@@ -35,6 +35,8 @@
 #' # Removing temporarily created master chromatograms
 #' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
 #' file.remove(file.path(dataPath, "multipeptide.rds"))
+#' file.remove(file.path(dataPath, "refRuns.rds"))
+#' file.remove(file.path(dataPath, "adaptiveRTs.rds"))
 #' file.remove(file.path(dataPath, "master.merged.osw"))
 #' }
 #' @export
@@ -128,8 +130,9 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
 
   #### Save features and add master runs to osw #####
   addMasterToOSW(dataPath, tree$node.label, oswMerged)
-  filename <- file.path(dataPath, "multipeptide.rds")
-  saveRDS(multipeptide, file = filename)
+  saveRDS(multipeptide, file = file.path(dataPath, "multipeptide.rds"))
+  saveRDS(refRuns, file = file.path(dataPath, "refRuns.rds"))
+  saveRDS(adaptiveRTs, file = file.path(dataPath, "adaptiveRTs.rds"))
 
   #### Cleanup.  #######
   for(mz in names(mzPntrs)){
