@@ -422,8 +422,13 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
       tAligned <- alignedVec[, c(3L, refRun[i])]
       indices <- which(df$run == ref)
       refIdx <- indices[which(.subset2(df, 10L)[indices] == 1L)]
-      refIdx <- refIdx[which.min(.subset2(df, "m_score")[refIdx])]
       if(length(refIdx) == 0L) return(invisible(NULL))
+      ss <- .subset2(df, "m_score")[refIdx]
+      if(all(is.na(ss))){
+        refIdx <- refIdx[1]
+      } else{
+        refIdx <- refIdx[which.min(ss)]
+      }
       setAlignmentRank(df, refIdx, eXp, tAligned, XICs.eXp, params, adaptiveRT)
       tempi <- eXpIdx[which(df$alignment_rank[eXpIdx] == 1L)]
       setOtherPrecursors(df, tempi, XICs.eXp, analytes, params)
