@@ -9,7 +9,7 @@ test_that("test_progAlignRuns", {
   params[["globalAlignment"]] <- "linear"
   BiocParallel::register(BiocParallel::MulticoreParam())
   params[["chromFile"]] <- "sqMass"
-  expect_warning(progAlignRuns(dataPath, params = params, outFile = "temp.tsv", ropenms = NULL, applyFun = BiocParallel::bplapply))
+  expect_warning(progAlignRuns(dataPath, params = params, outFile = "temp", ropenms = NULL, applyFun = BiocParallel::bplapply))
   outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
   expData <- read.table("test3.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
   expect_identical(dim(outData), dim(expData))
@@ -23,9 +23,7 @@ test_that("test_progAlignRuns", {
   }
   file.remove("temp.tsv")
   file.remove(file.path(dataPath, "master.merged.osw"))
-  file.remove(file.path(dataPath, "multipeptide.rds"))
-  file.remove(file.path(dataPath, "refRuns.rds"))
-  file.remove(file.path(dataPath, "adaptiveRTs.rds"))
+  file.remove(file.path(dataPath, "temp.temp.RData"))
   file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
   file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.sqMass$", full.names = TRUE))
   skip_if_no_pyopenms()
@@ -39,7 +37,7 @@ test_that("test_progAlignRuns", {
   BiocParallel::register(BiocParallel::MulticoreParam())
   params[["chromFile"]] <- "mzML"
   for(fun in c(lapply, BiocParallel::bplapply)){
-    expect_warning(progAlignRuns(dataPath, params = params, outFile = "temp.tsv", ropenms = ropenms, applyFun = fun))
+    expect_warning(progAlignRuns(dataPath, params = params, outFile = "temp", ropenms = ropenms, applyFun = fun))
     outData <- read.table("temp.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
     expData <- read.table("test3.tsv", stringsAsFactors = FALSE, sep = "\t", header = TRUE)
     expect_identical(dim(outData), dim(expData))
@@ -53,9 +51,7 @@ test_that("test_progAlignRuns", {
     }
     file.remove("temp.tsv")
     file.remove(file.path(dataPath, "master.merged.osw"))
-    file.remove(file.path(dataPath, "multipeptide.rds"))
-    file.remove(file.path(dataPath, "refRuns.rds"))
-    file.remove(file.path(dataPath, "adaptiveRTs.rds"))
+    file.remove(file.path(dataPath, "temp.temp.RData"))
     file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
     file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
   }
