@@ -72,8 +72,8 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
     idx <- which(temp[["run"]] == mergeName)
     if(length(iA)+length(iB) > 0){
       set(temp, idx, c(2L, 3L, 4L),
-          list(max(temp$score[c(iA, iB)]),
-               min(temp$pvalue[c(iA, iB)]), min(temp$qvalue[c(iA, iB)])))}
+          list(max(temp$score[c(iA, iB)], na.rm = TRUE),
+               min(temp$pvalue[c(iA, iB)], na.rm = TRUE), min(temp$qvalue[c(iA, iB)], na.rm = TRUE)))}
     temp <- multipeptide[[i]]
     iA <- which(temp[["run"]] == runA)
     iB <- which(temp[["run"]] == runB)
