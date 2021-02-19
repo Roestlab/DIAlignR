@@ -425,8 +425,8 @@ parFUN1 <- function(iBatch, runA, runB, peptides, precursors, prec2chromIndex, m
     temp <- peptideScores[[rownum]]
     pA <- temp$pvalue[temp$run == runA]
     pB <- temp$pvalue[temp$run == runB]
-    wA <- ifelse(length(pA)==0, 0.3, -log10(pA))
-    wB <- ifelse(length(pB)==0, 0.3, -log10(pB))
+    wA <- ifelse(length(pA) == 0 || is.na(pA), 0.3, -log10(pA)) # || allows short-circuit
+    wB <- ifelse(length(pB) == 0 || is.na(pB), 0.3, -log10(pB)) # || allows short-circuit
     wA <- wA/(wA + wB)
 
     ##### Decide the reference run from runA and runB. #####

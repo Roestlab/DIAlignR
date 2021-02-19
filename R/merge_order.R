@@ -431,6 +431,7 @@ alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptid
       }
       setAlignmentRank(df, refIdx, eXp, tAligned, XICs.eXp, params, adaptiveRT)
       tempi <- eXpIdx[which(df$alignment_rank[eXpIdx] == 1L)]
+      if(length(tempi) == 0L) return(invisible(NULL))
       setOtherPrecursors(df, tempi, XICs.eXp, analytes, params)
       invisible(NULL)
     }))
