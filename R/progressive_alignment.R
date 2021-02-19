@@ -1,6 +1,6 @@
 #' Peptide quantification through progressive alignment
 #'
-#' This function expects osw and mzml directories at dataPath. It first reads osw files and fetches
+#' This function expects osw and xics directories at dataPath. It first reads osw files and fetches
 #'  chromatogram indices for each analyte. To perform alignment, first a crude guide-tree is built which
 #'  can also be provided with newickTree parameter. As we traverse from the leaf-nodes to the root node,
 #'  runs are aligned pairwise. The root node is named master1 that has average of all fragment ion chromatograms
@@ -15,11 +15,11 @@
 #' Date: 2020-07-10
 #' @inheritParams checkParams
 #' @inheritParams alignTargetedRuns
-#' @param dataPath (string) path to mzml and osw directory.
+#' @param dataPath (string) path to xics and osw directory.
 #' @param outFile (string) name of the output file.
 #' @param ropenms (pyopenms module) get this python module through \code{\link{get_ropenms}}. Required only for chrom.mzML files.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param runs (string) names of mzml file without extension.
+#' @param runs (string) names of xics file without extension.
 #' @param newickTree (string) guidance tree in newick format. Look up \code{\link{getTree}}.
 #' @return (None)
 #' @seealso \code{\link{alignTargetedRuns}}
@@ -33,7 +33,7 @@
 #' # Removing aligned vectors
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 #' # Removing temporarily created master chromatograms
-#' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
+#' file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
 #' file.remove(file.path(dataPath, "test3.temp.RData"))
 #' file.remove(file.path(dataPath, "master.merged.osw"))
 #' }

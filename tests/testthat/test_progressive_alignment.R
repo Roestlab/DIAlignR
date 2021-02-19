@@ -25,7 +25,7 @@ test_that("test_progAlignRuns", {
   file.remove(file.path(dataPath, "master.merged.osw"))
   file.remove(file.path(dataPath, "temp.temp.RData"))
   file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
-  file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.sqMass$", full.names = TRUE))
+  file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\.chrom\\.sqMass$", full.names = TRUE))
   skip_if_no_pyopenms()
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
@@ -53,6 +53,6 @@ test_that("test_progAlignRuns", {
     file.remove(file.path(dataPath, "master.merged.osw"))
     file.remove(file.path(dataPath, "temp.temp.RData"))
     file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
-    file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
+    file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
   }
 })

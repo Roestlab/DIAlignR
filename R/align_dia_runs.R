@@ -1,6 +1,6 @@
 #' Outputs intensities for each analyte from aligned Targeted-MS runs
 #'
-#' This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.
+#' This function expects osw and xics directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.
 #' It then align XICs of its reference XICs. Best peak, which has lowest m-score, about the aligned retention time is picked for quantification.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
@@ -10,10 +10,10 @@
 #' Date: 2019-12-14
 #' @importFrom dplyr %>%
 #' @inheritParams checkParams
-#' @param dataPath (string) path to mzml and osw directory.
+#' @param dataPath (string) path to xics and osw directory.
 #' @param outFile (string) name of the output file.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
-#' @param runs (a vector of string) names of mzml file without extension.
+#' @param runs (a vector of string) names of xics file without extension.
 #' @param refRun (string) reference for alignment. If no run is provided, m-score is used to select reference run.
 #' @param applyFun (function) value must be either lapply or BiocParallel::bplapply.
 #' @return An output table with following columns: precursor, run, intensity, RT, leftWidth, rightWidth,
@@ -173,7 +173,7 @@ alignTargetedRuns <- function(dataPath, outFile = "DIAlignR", params = paramsDIA
 
 #' AlignObj for analytes between a pair of runs
 #'
-#' This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each requested analyte.
+#' This function expects osw and xics directories at dataPath. It first reads osw files and fetches chromatogram indices for each requested analyte.
 #' It then align XICs of each analyte to its reference XICs. AlignObj is returned which contains aligned indices and cumulative score along the alignment path.
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'

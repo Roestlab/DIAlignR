@@ -55,7 +55,7 @@ addXIC <- function(ropenms, expriment, xic, nativeId){
 #' @seealso \code{\link{get_ropenms}, \link{addXIC}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+#' filename <- paste0(dataPath, "/xics/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
 #' XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]]
 #' nativeIds <- list(27706:27711)
@@ -117,7 +117,7 @@ get_ropenms <- function(pythonPath = NULL, condaEnv = NULL, useConda=TRUE){
 
 notReady <- function(ropenms, dataPath, filename){
   mz = ropenms$OnDiscMSExperiment()
-  #filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+  #filename <- paste0(dataPath, "/xics/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
   mz$openFile(filename)
   meta_data <- mz$getMetaData()
   header <- meta_data$getChromatograms()

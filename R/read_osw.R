@@ -68,7 +68,7 @@ fetchAnalytesInfo <- function(oswName, maxFdrQuery, oswMerged,
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
-#' @param dataPath (char) path to mzml and osw directory.
+#' @param dataPath (char) path to xics and osw directory.
 #' @param filenames (data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
 #' To get filenames use \code{\link{getRunNames}} function.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.

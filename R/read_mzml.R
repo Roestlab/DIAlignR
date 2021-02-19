@@ -7,7 +7,7 @@
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
-#' @param mzmlName (char) path to mzml file.
+#' @param mzmlName (char) path to xics file.
 #' @return (A data-frame) It has 10 columns. The two important columns are:
 #' \item{chromatogramId}{(integer) Fragment-ion ID that matches with transition ID in osw file.}
 #' \item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
@@ -15,7 +15,7 @@
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' mzmlName <-paste0(dataPath,"/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+#' mzmlName <-paste0(dataPath,"/xics/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' \dontrun{
 #' chromHead <- readChromatogramHeader(mzmlName = mzmlName)
 #' }
@@ -40,7 +40,7 @@ readMzMLHeader <- function(mzmlName){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-12-25
-#' @param mzmlName (char) path to mzml file.
+#' @param mzmlName (char) path to xics file.
 #' @return (A data-frame) It has 10 columns. The two important columns are:
 #' \item{chromatogramId}{(integer) Fragment-ion ID that matches with transition ID in osw file.}
 #' \item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
@@ -48,7 +48,7 @@ readMzMLHeader <- function(mzmlName){
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' sqName <-paste0(dataPath,"/mzml/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+#' sqName <-paste0(dataPath,"/xics/hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
 #' \dontrun{
 #' chromHead <- readChromatogramHeader(sqName)
 #' }

@@ -153,7 +153,7 @@ test_that("test_alignToRef",{
 
   # Case 3
   chromIndices <- prec2chromIndex[["run1"]][c(3,4), "chromatogramIndex"]
-  mz <- mzR::openMSfile(file.path(dataPath, "mzml","hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
+  mz <- mzR::openMSfile(file.path(dataPath, "xics","hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
   XICs.ref <- lapply(chromIndices, function(i) extractXIC_group(mz, chromIndices = i))
   names(XICs.ref) <- c("9719", "9720")
   df <- multipeptide_DIAlignR[["9861"]]

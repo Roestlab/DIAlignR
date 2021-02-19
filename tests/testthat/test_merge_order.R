@@ -74,7 +74,7 @@ test_that("test_traverseUp", {
                     feature_id = bit64::as.integer64(7675762503084486466),
                     RT = 5237.8, intensity = 229.707813, leftWidth = 5217.35, rightWidth = 5261.7,
                     peak_group_rank = 1L, m_score = 5.692e-05), tolerance = 1e-04)
-  expect_identical(fileInfo["master1", "chromatogramFile"], file.path(dataPath, "mzml", "master1.chrom.mzML"))
+  expect_identical(fileInfo["master1", "chromatogramFile"], file.path(dataPath, "xics", "master1.chrom.mzML"))
   expect_identical(fileInfo["master1", "runName"], "master1")
   expect_identical(prec2chromIndex$master1[,"transition_group_id"], 4618L)
   expect_identical(prec2chromIndex$master1[,"chromatogramIndex"][[1]], 1:6)
@@ -84,7 +84,7 @@ test_that("test_traverseUp", {
   expect_identical(refRuns[["master1"]][[2]], "4618")
 
   data(masterXICs_DIAlignR, package="DIAlignR")
-  outData <- mzR::chromatograms(mzR::openMSfile(file.path(dataPath, "mzml", "master1.chrom.mzML"), backend = "pwiz"))
+  outData <- mzR::chromatograms(mzR::openMSfile(file.path(dataPath, "xics", "master1.chrom.mzML"), backend = "pwiz"))
   for(i in seq_along(outData)){
     expect_equal(outData[[i]][[1]], masterXICs_DIAlignR[[1]][[i]][[1]], tolerance = 1e-04)
     expect_equal(outData[[i]][[2]], masterXICs_DIAlignR[[1]][[i]][[2]], tolerance = 1e-04)
@@ -92,7 +92,7 @@ test_that("test_traverseUp", {
   outData <- readRDS(file.path(dataPath, "master1_av.rds"), refhook = NULL)
   for(i in 1:3) expect_equal(outData[[1]][,i], masterXICs_DIAlignR[[2]][,i+2], tolerance = 1e-04)
   file.remove(file.path(dataPath, "master1_av.rds"))
-  file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
+  file.remove(file.path(dataPath, "xics", "master1.chrom.mzML"))
 })
 
 test_that("test_traverseDown", {
@@ -149,7 +149,7 @@ test_that("test_traverseDown", {
   df3 <- df3[c(5,1,2,3,4), ]; row.names(df3) <- NULL
   expect_equal(multipeptide[["7040"]], df3, check.attributes = FALSE)
   file.remove(file.path(dataPath, "master1_av.rds"))
-  file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
+  file.remove(file.path(dataPath, "xics", "master1.chrom.mzML"))
 })
 
 test_that("test_alignToMaster", {
@@ -201,5 +201,5 @@ test_that("test_alignToMaster", {
   expect_equal(newMP[["14383"]], df2)
 
   file.remove(file.path(dataPath, "master1_av.rds"))
-  file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
+  file.remove(file.path(dataPath, "xics", "master1.chrom.mzML"))
 })

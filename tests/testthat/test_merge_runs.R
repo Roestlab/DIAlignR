@@ -15,7 +15,7 @@ childFeatures <- function(){
 
 test_that("test_getNodeRun",{
   skip_if_no_pyopenms()
-  dir.create("mzml")
+  dir.create("xics")
   ropenms <- get_ropenms(condaEnv = envName, useConda=TRUE)
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()
@@ -55,7 +55,7 @@ test_that("test_getNodeRun",{
   expect_equal(features$temp[c(2,3), c(1,3,4,8)],
                data.frame(transition_group_id = c(9719L, 9720L), RT = 2594.85, intensity = c(14.62899, 20.94305),
                           m_score = c(1.041916e-03, 5.692077e-05), row.names = c(2L, 3L)), tolerance = 1e-04)
-  expect_identical(fileInfo["temp", "chromatogramFile"], file.path(".", "mzml", "temp.chrom.mzML"))
+  expect_identical(fileInfo["temp", "chromatogramFile"], file.path(".", "xics", "temp.chrom.mzML"))
   expect_identical(fileInfo["temp", "runName"], "temp")
   expect_identical(prec2chromIndex$temp[,"transition_group_id"], c(32L, 4618L, 9719L, 9720L))
   expect_identical(prec2chromIndex$temp[,"chromatogramIndex"], list(rep(NA_integer_, 6), 1:6, 7:12, 13:18))
@@ -68,7 +68,7 @@ test_that("test_getNodeRun",{
 
 
   data(masterXICs_DIAlignR, package="DIAlignR")
-  outData <- mzR::chromatograms(mzR::openMSfile(file.path(".", "mzml", "temp.chrom.mzML"), backend = "pwiz"))
+  outData <- mzR::chromatograms(mzR::openMSfile(file.path(".", "xics", "temp.chrom.mzML"), backend = "pwiz"))
   for(i in 1:6){
     expect_equal(outData[[i]][[1]], masterXICs_DIAlignR[[1]][[i]][[1]], tolerance = 1e-04)
     expect_equal(outData[[i]][[2]], masterXICs_DIAlignR[[1]][[i]][[2]], tolerance = 1e-04)
@@ -76,8 +76,8 @@ test_that("test_getNodeRun",{
   outData <- readRDS("temp_av.rds", refhook = NULL)
   for(i in 1:3) expect_equal(outData[[2]][,i], masterXICs_DIAlignR[[2]][,i+2], tolerance = 1e-04)
   file.remove("temp_av.rds")
-  file.remove(file.path("mzml", "temp.chrom.mzML"))
-  unlink("mzml", recursive = TRUE)
+  file.remove(file.path("xics", "temp.chrom.mzML"))
+  unlink("xics", recursive = TRUE)
 })
 
 test_that("test_getChildFeature",{

@@ -6,7 +6,7 @@
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
-#' @param dataPath (char) path to mzml and osw directory.
+#' @param dataPath (char) path to xics and osw directory.
 #' @param pattern (char) must be either *.osw or *merged.osw .
 #' @return A dataframe with three columns:
 #' \item{spectraFile}{(string) as mentioned in RUN table of osw files.}
@@ -68,7 +68,7 @@ filenamesFromOSW <- function(dataPath, pattern){
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
-#' @param dataPath (char) Path to mzml and osw directory.
+#' @param dataPath (char) Path to xics and osw directory.
 #' @return  A dataframe with two columns:
 #' \item{runName}{(string) contain respective mzML names without extension.}
 #' \item{chromatogramFile}{(string) Path to the chromatogram file.}
@@ -84,7 +84,7 @@ filenamesFromMZML <- function(dataPath, chromFile){
   temp <- list.files(path = file.path(dataPath, "xics"), pattern=p)
   message(length(temp), " ", sub("\\$","",p), " files are found.")
   mzMLfiles <- vapply(temp, function(x) sub(p,"", x), "", USE.NAMES = FALSE)
-  output <- data.frame("runName" = mzMLfiles, "chromatogramFile" = file.path(dataPath, "mzml", temp))
+  output <- data.frame("runName" = mzMLfiles, "chromatogramFile" = file.path(dataPath, "xics", temp))
   output[["chromatogramFile"]] <- as.character(output[["chromatogramFile"]]) # Convert from factor to character.
   output[["runName"]] <- as.character(output[["runName"]]) # Convert from factor to character.
   output
@@ -102,7 +102,7 @@ filenamesFromMZML <- function(dataPath, chromFile){
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
 #' @inheritParams checkParams
-#' @param dataPath (char) Path to mzml and osw directory.
+#' @param dataPath (char) Path to xics and osw directory.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @return (dataframe) it has five columns:
 #' \item{spectraFile}{(string) as mentioned in RUN table of osw files.}
@@ -121,7 +121,7 @@ getRunNames <- function(dataPath, oswMerged = TRUE, params = paramsDIAlignR()){
   } else{
     filenames <- filenamesFromOSW(dataPath, pattern = "*merged.osw$")
   }
-  # Get names of mzml files.
+  # Get names of xics files.
   nameCutPattern = "(.*)(/)(.*)" # regex expression to fetch mzML file name from RUN.FILENAME columns of osw files.
   runs <- vapply(filenames[["spectraFile"]], function(x) gsub(nameCutPattern, replacement = "\\3", x), "")
   fileExtn <- strsplit(runs[[1]], "\\.")[[1]][2]
@@ -132,7 +132,7 @@ getRunNames <- function(dataPath, oswMerged = TRUE, params = paramsDIAlignR()){
   # Check if osw files have corresponding mzML file.
   runs <- intersect(filenames[["runName"]], mzMLfiles[["runName"]])
   if(length(runs) != length(filenames[["runName"]])){
-    cat("Following files did not have their counterpart in mzml directory\n")
+    cat("Following files did not have their counterpart in xics directory\n")
     print(setdiff(filenames[["runName"]], mzMLfiles[["runName"]]))
   }
   if(length(runs) == 0){

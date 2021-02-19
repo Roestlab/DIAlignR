@@ -30,8 +30,8 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 
 #' Get list of peptides and their chromatogram indices.
 #'
-#' This function reads all osw and mzml files in the directories at dataPath. It selects analytes which has associated features with m-score < maxFdrQuery.
-#' For these analytes it fetches chromatogram indices by matching transition_id(osw) with chromatogramID(mzml).
+#' This function reads all osw and xics files in the directories at dataPath. It selects analytes which has associated features with m-score < maxFdrQuery.
+#' For these analytes it fetches chromatogram indices by matching transition_id(osw) with chromatogramID(xics).
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
@@ -39,7 +39,7 @@ mergeOswAnalytes_ChromHeader <- function(oswAnalytes, chromHead, analyteFDR =  1
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
 #' @importFrom rlang .data
-#' @param dataPath (char) path to mzml and osw directory.
+#' @param dataPath (char) path to xics and osw directory.
 #' @param filenames (data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
 #' To get filenames use DIAlignR::getRunNames function.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
@@ -155,7 +155,7 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 
 #' Get chromatogram indices of precursors.
 #'
-#' This function reads the header of chromatogram files. It then fetches chromatogram indices by matching transition_id(osw) with chromatogramID(mzml).
+#' This function reads the header of chromatogram files. It then fetches chromatogram indices by matching transition_id(osw) with chromatogramID(xics).
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152

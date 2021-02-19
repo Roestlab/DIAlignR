@@ -13,7 +13,7 @@
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+#' mzmlName<-paste0(dataPath,"/xics/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 #' mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 #' chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
 #' \dontrun{
@@ -45,7 +45,7 @@ extractXIC_group <- function(mz, chromIndices){
 #' @keywords internal
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' sqName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+#' sqName <- paste0(dataPath,"/xics/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
 #' chromIndices <- c(36L, 37L, 38L, 39L, 40L, 41L)
 #' \dontrun{
 #' con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
@@ -165,7 +165,7 @@ getXICs4AlignObj <- function(mzPntrs, fileInfo, runs, prec2chromIndex, analytes)
 #' @inheritParams checkParams
 #' @param analytes (integer) a vector of precursor IDs.
 #' @param runs (vector of string) names of mzML files without extension.
-#' @param dataPath (string) Path to mzml and osw directory.
+#' @param dataPath (string) Path to xics and osw directory.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param runType (char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
