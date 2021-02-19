@@ -81,7 +81,7 @@ filenamesFromOSW <- function(dataPath, pattern){
 filenamesFromMZML <- function(dataPath, chromFile){
   if(chromFile == "mzML") p <- ".chrom.mzML$"
   if(chromFile == "sqMass") p <- ".chrom.sqMass$"
-  temp <- list.files(path = file.path(dataPath, "mzml"), pattern=p)
+  temp <- list.files(path = file.path(dataPath, "xics"), pattern=p)
   message(length(temp), " ", sub("\\$","",p), " files are found.")
   mzMLfiles <- vapply(temp, function(x) sub(p,"", x), "", USE.NAMES = FALSE)
   output <- data.frame("runName" = mzMLfiles, "chromatogramFile" = file.path(dataPath, "mzml", temp))
