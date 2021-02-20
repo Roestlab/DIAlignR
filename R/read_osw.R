@@ -430,12 +430,12 @@ fetchPeptidesInfo <- function(oswName, runType, context){
 
   # Run query to get peptides, their scores and pvalues.
   peptidesInfo <- tryCatch(expr = {output <- DBI::dbSendQuery(con, statement = query)
-                     DBI::dbBind(output, list("CONTEXT"=context))
+                  if(runType != "DIA_Metabolomics") DBI::dbBind(output, list("CONTEXT"=context))
                      DBI::dbFetch(output)},
               finally = {DBI::dbClearResult(output)
                          DBI::dbDisconnect(con)})
 
-  peptidesInfo
+  peptidesInfo[,c("peptide_id", "run", "score", "pvalue", "qvalue")]
 }
 
 #' Get scores of all peptides

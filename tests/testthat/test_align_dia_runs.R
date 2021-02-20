@@ -119,11 +119,10 @@ test_that("test_alignTargetedRuns_metabolomics",{
   params[["context"]] <- "experiment-wide"
   params[["runType"]] <- "DIA_Metabolomics"
   params[["chromFile"]] <- "mzML"
-  expect_warning(
-    alignTargetedRuns(dataPath = dataPath,  outFile = "temp_metabo.csv", params = params,
-                      oswMerged = TRUE, runs = NULL, applyFun = lapply) )
-  outData <- read.table("temp_metabo.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
-  expData <- read.table("test_metabo.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
+  alignTargetedRuns(dataPath = dataPath,  outFile = "temp_metabo", params = params,
+                      oswMerged = TRUE, runs = NULL, applyFun = lapply)
+  outData <- read.table("temp_metabo.tsv", sep = "\t", header = TRUE)
+  expData <- read.table("test_metabo.tsv", sep = "\t", header = TRUE)
   expect_identical(dim(outData), dim(expData))
   expect_identical(colnames(outData), colnames(expData))
   expect_identical(outData[["peptide"]], expData[["peptide"]])
@@ -131,7 +130,7 @@ test_that("test_alignTargetedRuns_metabolomics",{
   for(i in 1:13){
     expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
   }
-  file.remove("temp_metabo.csv")
+  file.remove("temp_metabo.tsv")
 })
 
 test_that("test_alignToRef",{

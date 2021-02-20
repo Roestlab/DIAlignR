@@ -197,9 +197,9 @@ writeTables <- function(fileInfo, multipeptide, precursors){
   colnames(finalTbl)[1] <- c("precursor")
   finalTbl$feature_id <- as.character(finalTbl$feature_id)
   finalTbl <- dplyr::arrange(finalTbl, .data$peptide_id, .data$precursor, .data$run)
-  finalTbl <- dplyr::select(finalTbl, .data$peptide_id, .data$precursor, .data$run, .data$RT, .data$intensity,
+  finalTbl <- dplyr::relocate(finalTbl, .data$peptide_id, .data$precursor, .data$run, .data$RT, .data$intensity,
                             .data$leftWidth, .data$rightWidth, .data$peak_group_rank, .data$m_score,
-                            .data$alignment_rank, .data$feature_id, .data$sequence, .data$charge, .data$group_label)
+                            .data$alignment_rank, .data$feature_id)
   finalTbl
 }
 

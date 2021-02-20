@@ -5,7 +5,7 @@ test_that("test_getRefRun", {
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
   precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 1.00)
   peptideIDs <- unique(precursors$peptide_id)
-  peptidesInfo <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, runType = "DIA_proteomics", context = "experiment-wide")
+  peptidesInfo <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, runType = "DIA_Proteomics", context = "experiment-wide")
   peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
   names(peptidesInfo) <- as.character(peptideIDs)
   outData <- getRefRun(peptidesInfo)

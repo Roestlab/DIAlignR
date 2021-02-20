@@ -261,6 +261,7 @@ getPrecursorsQuery <- function(runType = "DIA_Proteomics", level = "Peptide")
       INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN PRECURSOR_COMPOUND_MAPPING ON PRECURSOR_COMPOUND_MAPPING.PRECURSOR_ID = PRECURSOR.ID
       INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID
+      WHERE PRECURSOR.DECOY = 0
       ORDER BY peptide_id, transition_group_id, transition_id;"
   }
   query
@@ -307,6 +308,7 @@ getFeaturesQuery <- function(runType = "DIA_Proteomics") #is the same call for b
     ORDER BY transition_group_id, peak_group_rank;"
   } else if (runType == "DIA_Metabolomics") {
       query <- "SELECT PRECURSOR.ID AS transition_group_id,
+         FEATURE.ID AS feature_id,
          FEATURE.EXP_RT AS RT,
          FEATURE_MS2.AREA_INTENSITY AS intensity,
          FEATURE.LEFT_WIDTH AS leftWidth,
@@ -389,13 +391,27 @@ getPrecursorsQueryID <- function(analytes, runType = "DIA_Proteomics"){
 #' @seealso \code{\link{getPeptideScores}}
 #' @keywords internal
 getPeptideQuery <- function(runType = "DIA_Proteomics"){
-  query <- "SELECT DISTINCT SCORE_PEPTIDE.PEPTIDE_ID AS peptide_id,
+  if(runType == "DIA_Proteomics"){
+    query <- "SELECT DISTINCT SCORE_PEPTIDE.PEPTIDE_ID AS peptide_id,
   SCORE_PEPTIDE.RUN_ID AS run,
   SCORE_PEPTIDE.SCORE AS score,
   SCORE_PEPTIDE.PVALUE AS pvalue,
   SCORE_PEPTIDE.QVALUE AS qvalue
   FROM SCORE_PEPTIDE
   WHERE SCORE_PEPTIDE.CONTEXT = $CONTEXT;"
+  } else if(runType == "DIA_Metabolomics"){
+    query <- "SELECT DISTINCT COMPOUND.ID AS peptide_id,
+  MIN(SCORE_MS2.QVALUE) AS minV,
+  FEATURE.RUN_ID AS run,
+  SCORE_MS2.SCORE AS score,
+  SCORE_MS2.PVALUE AS pvalue,
+  SCORE_MS2.QVALUE AS qvalue
+  FROM SCORE_MS2
+  INNER JOIN FEATURE ON FEATURE.ID = SCORE_MS2.FEATURE_ID
+  INNER JOIN PRECURSOR_COMPOUND_MAPPING ON PRECURSOR_COMPOUND_MAPPING.PRECURSOR_ID = FEATURE.PRECURSOR_ID
+  INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID
+  GROUP BY peptide_id, run;"
+  }
   query
 }
 
