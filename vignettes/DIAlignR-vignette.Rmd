@@ -68,10 +68,10 @@ pyprophet score --in=merged.osw --classifier=XGBoost --level=ms2 --xeval_num_ite
 pyprophet peptide --in=merged.osw --context=experiment-wide
 ```
 
-|   Congrats! Now we have raw chromatogram files and associated scored features in merged.osw files. Move all .chrom.mzML files in `mzml` directory and merged.osw file in `osw` directory. The parent folder is given as `dataPath` to DIAlignR functions.
+|   Congrats! Now we have raw chromatogram files and associated scored features in merged.osw files. Move all .chrom.mzML files in `xics` directory and merged.osw file in `osw` directory. The parent folder is given as `dataPath` to DIAlignR functions.
 
 ## Performing alignment on DIA runs
-`alignTargetedRuns` function aligns Proteomics or Metabolomics DIA runs. It expects two directories "osw" and "mzml" at `dataPath`. It outputs an intensity table where rows specify each analyte and columns specify runs. Use parameter `saveFiles = TRUE` to have aligned retetion time and intensities saved in the current directory.
+`alignTargetedRuns` function aligns Proteomics or Metabolomics DIA runs. It expects two directories "osw" and "xics" at `dataPath`. It outputs an intensity table where rows specify each analyte and columns specify runs. Use parameter `saveFiles = TRUE` to have aligned retetion time and intensities saved in the current directory.
 
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
@@ -86,7 +86,7 @@ alignTargetedRuns(dataPath = dataPath, outFile = "test.csv", runs = NULL, oswMer
 
 ## Investigating alignment of analytes
 
-For getting alignment object which has aligned indices of XICs `getAlignObjs` function can be used. Like previous function, it expects two directories "osw" and "mzml" at `dataPath`. It performs alignment for exactly two runs. In case of `refRun` is not provided, m-score from osw files is used to select reference run.
+For getting alignment object which has aligned indices of XICs `getAlignObjs` function can be used. Like previous function, it expects two directories "osw" and "xics" at `dataPath`. It performs alignment for exactly two runs. In case of `refRun` is not provided, m-score from osw files is used to select reference run.
 ```{r, message=FALSE}
 runs <- c("hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
           "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")

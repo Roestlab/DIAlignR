@@ -22,7 +22,7 @@ import math
 def getRunNames(dataPath, oswFiles, mzmlFiles):
 	runs = []
 	oswdataPath = os.path.join(dataPath, 'osw')
-	mzmldataPath = os.path.join(dataPath, 'mzml')
+	mzmldataPath = os.path.join(dataPath, 'xics')
 	for root, dirs, files in os.walk(oswdataPath):
 		for file in files:
 			if file.endswith(".osw"):
@@ -108,7 +108,7 @@ def extractXIC_group(mz, chromIndices):
 
 def main():
 	parser = ArgumentParser(description='Align XICs of precursors across multiple Targeted-MS runs and outputs quantitative data matrix.', formatter_class=RawTextHelpFormatter)
-	parser.add_argument('-in1', '--in_dataPath', metavar = '', help="location of parent directory of osw and mzml files.\n",  type = Path, default = None, required = True)
+	parser.add_argument('-in1', '--in_dataPath', metavar = '', help="location of parent directory of osw and xics files.\n",  type = Path, default = None, required = True)
 	parser.add_argument('-in2', '--alignType' , metavar = 'hybrid', type = str, nargs = 1, default = 'hybrid', required = False, choices=['hybrid', 'local', 'global'], help = 'Type of retention time alignment.\n')
 	parser.add_argument('--maxFdrQuery' , metavar = '0.05', type = float, nargs = 1, default = 0.05, required = False, help = 'Type of retention time alignment.\n')
 	parser.add_argument('--maxFdrLoess' , metavar = '0.01', type = float, nargs = 1, default = 0.01, required = False, help = 'Type of retention time alignment.\n')
@@ -177,7 +177,7 @@ def main():
 		df = pd.DataFrame(rows, columns=['transition_group_id', 'filename', 'RT', 'delta_rt',
 		 'assay_RT', 'Intensity', 'leftWidth', 'rightWidth', 'peak_group_rank', 'm_score', 'transition_id'])
 		# Get ChromatogramID (native) and ChromatogramIndex
-		mzml_db = os.path.join(curPath, 'mzml', run + '.chrom.mzML')
+		mzml_db = os.path.join(curPath, 'xics', run + '.chrom.mzML')
 		mz = OnDiscMSExperiment()
 		mz.openFile(mzml_db)
 		meta_data = mz.getMetaData()
@@ -209,7 +209,7 @@ def main():
 	p.update({b'frame_length': args.SgolayFiltLen, b'polynomial_order': args.SgolayFiltOrd})
 	filter.setParameters(p)
 	for run in mzPntrs.keys():
-		mzml_db = os.path.join(curPath, 'mzml', run + '.chrom.mzML')
+		mzml_db = os.path.join(curPath, 'xics', run + '.chrom.mzML')
 		mz = OnDiscMSExperiment()
 		mz.openFile(mzml_db)
 		#filter.filterExperiment(mz)

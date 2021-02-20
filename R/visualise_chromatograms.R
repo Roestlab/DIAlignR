@@ -51,8 +51,8 @@ plotXICgroup <- function(XIC_group, peakAnnot = NULL, Title =NULL){
 #' Date: 2019-12-13
 #'
 #' @param analyte (integer) an analyte is a PRECURSOR.ID from the osw file.
-#' @param run (string) Name of a mzml file without extension.
-#' @param dataPath (string) path to mzml and osw directory.
+#' @param run (string) Name of a xics file without extension.
+#' @param dataPath (string) path to xics and osw directory.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
 #' @param XICfilter (string) must be either sgolay, boxcar, gaussian, loess or none.
 #' @param polyOrd (integer) order of the polynomial to be fit in the kernel.

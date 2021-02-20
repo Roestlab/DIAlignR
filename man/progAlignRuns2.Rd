@@ -17,7 +17,7 @@ progAlignRuns2(
 )
 }
 \arguments{
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
@@ -27,7 +27,7 @@ progAlignRuns2(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runs}{(string) names of mzml file without extension.}
+\item{runs}{(string) names of xics file without extension.}
 
 \item{newickTree}{(string) guidance tree in newick format. Look up \code{\link{getTree}}.}
 

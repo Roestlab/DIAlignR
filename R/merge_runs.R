@@ -1,7 +1,7 @@
 #' Create a child run from two parent runs
 #'
 #' Get merged features and merged chromatograms from parent runs. Chromatograms are written on the disk
-#' at dataPath/mzml. For each precursor aligned parent time-vectors and corresponding child time-vector
+#' at dataPath/xics. For each precursor aligned parent time-vectors and corresponding child time-vector
 #' are also calculated and written as *_av.rda at dataPath.
 #'
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
@@ -42,7 +42,7 @@
 #' multipeptide <- getNodeRun(runA = "run2", runB = "run0", mergeName = mergeName, dataPath = ".", fileInfo, features,
 #'  mzPntrs, prec2chromIndex, precursors, params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms)
 #' rm(mzPntrs)
-#' file.remove(file.path(".", "mzml", paste0(mergeName, ".chrom.mzML")))
+#' file.remove(file.path(".", "xics", paste0(mergeName, ".chrom.mzML")))
 #' file.remove(list.files(".", pattern = "*_av.rds", full.names = TRUE))
 #' }
 getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPntrs, prec2chromIndex,
@@ -134,10 +134,10 @@ getNodeRun <- function(runA, runB, mergeName, dataPath, fileInfo, features, mzPn
   ##### Write node mzML file #####
   mergedXICs <- unlist(mergedXICs, recursive = FALSE, use.names = FALSE)
   if(params[["chromFile"]] =="mzML"){
-    fileName <- file.path(dataPath, "mzml", paste0(mergeName, ".chrom.mzML"))
+    fileName <- file.path(dataPath, "xics", paste0(mergeName, ".chrom.mzML"))
     createMZML(ropenms, fileName, mergedXICs, precursors$transition_ids)
   } else if(params[["chromFile"]] =="sqMass"){
-    fileName <- file.path(dataPath, "mzml", paste0(mergeName, ".chrom.sqMass"))
+    fileName <- file.path(dataPath, "xics", paste0(mergeName, ".chrom.sqMass"))
     createSqMass(fileName, mergedXICs, precursors$transition_ids, params[["lossy"]])
   }
 

@@ -21,9 +21,9 @@ plotAnalyteXICs(
 \arguments{
 \item{analyte}{(integer) an analyte is a PRECURSOR.ID from the osw file.}
 
-\item{run}{(string) Name of a mzml file without extension.}
+\item{run}{(string) Name of a xics file without extension.}
 
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 

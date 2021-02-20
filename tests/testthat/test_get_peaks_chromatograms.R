@@ -1,7 +1,7 @@
 context("get_peak_chromatograms")
 
 test_that("test_extractXIC_group", {
-  mzmlName <- file.path(system.file("extdata", package = "DIAlignR"), "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+  mzmlName <- file.path(system.file("extdata", package = "DIAlignR"), "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
   mz <- mzR::openMSfile(filename = mzmlName, backend = "pwiz")
   chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
   outData <- extractXIC_group(mz, chromIndices)
@@ -13,7 +13,7 @@ test_that("test_extractXIC_group", {
 })
 
 test_that("test_extractXIC_group2", {
-  sqName <- file.path(system.file("extdata", package = "DIAlignR"), "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+  sqName <- file.path(system.file("extdata", package = "DIAlignR"), "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
   chromIndices <- c(36L, 37L, 38L, 39L, 40L, 41L)
   outData <- extractXIC_group2(con, chromIndices)

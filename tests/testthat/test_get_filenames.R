@@ -18,18 +18,18 @@ test_that("test_filenamesFromMZML", {
   expOutput <- data.frame("runName" = c("hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
                                  "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
                                "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"),
-                 "chromatogramFile" = c(file.path(dataPath, "mzml", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML"),
-                                        file.path(dataPath, "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"),
-                                        file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
+                 "chromatogramFile" = c(file.path(dataPath, "xics", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML"),
+                                        file.path(dataPath, "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"),
+                                        file.path(dataPath, "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
                  stringsAsFactors=FALSE)
   expect_identical(filenamesFromMZML(dataPath = dataPath, "mzML"), expOutput)
   expect_message(filenamesFromMZML(dataPath = ".", "mzML"), "0 .chrom.mzML files are found.")
   expect_identical(names(filenamesFromMZML(dataPath = ".", "mzML")), c("runName", "chromatogramFile"))
   expect_identical(nrow(filenamesFromMZML(dataPath = ".", "mzML")), 0L)
 
-  expOutput <- c(file.path(dataPath, "mzml", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.sqMass"),
-                 file.path(dataPath, "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"),
-                 file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"))
+  expOutput <- c(file.path(dataPath, "xics", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.sqMass"),
+                 file.path(dataPath, "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"),
+                 file.path(dataPath, "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"))
   expect_identical(filenamesFromMZML(dataPath = dataPath, "sqMass")[["chromatogramFile"]], expOutput)
 })
 
@@ -43,9 +43,9 @@ test_that("test_getRunNames", {
                                          "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
                           "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
                           "featureFile" = file.path(dataPath, "osw", "merged.osw"),
-                          "chromatogramFile" = c(file.path(dataPath, "mzml", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML"),
-                                                 file.path(dataPath, "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"),
-                                                 file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
+                          "chromatogramFile" = c(file.path(dataPath, "xics", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML"),
+                                                 file.path(dataPath, "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"),
+                                                 file.path(dataPath, "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
   params <- paramsDIAlignR()
@@ -66,9 +66,9 @@ test_that("test_getRunNames", {
                                             "data/raw/hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.mzML.gz"),
                           "spectraFileID" = c("125704171604355508", "6752973645981403097", "2234664662238281994"),
                           "featureFile" = file.path(dataPath, "osw", "merged.osw"),
-                          "chromatogramFile" = c(file.path(dataPath, "mzml", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.sqMass"),
-                                                 file.path(dataPath, "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"),
-                                                 file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")),
+                          "chromatogramFile" = c(file.path(dataPath, "xics", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.sqMass"),
+                                                 file.path(dataPath, "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"),
+                                                 file.path(dataPath, "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")),
                           row.names = c("run0", "run1", "run2"),
                           stringsAsFactors=FALSE)
   expect_identical(outDATA, expOutput)

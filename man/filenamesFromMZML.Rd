@@ -7,7 +7,7 @@
 filenamesFromMZML(dataPath, chromFile)
 }
 \arguments{
-\item{dataPath}{(char) Path to mzml and osw directory.}
+\item{dataPath}{(char) Path to xics and osw directory.}
 }
 \value{
 A dataframe with two columns:

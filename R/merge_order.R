@@ -100,7 +100,7 @@ getNodeIDs <- function(tree){
 #' @description {
 #' While traversing from leaf to root node, at each node a master run is created.
 #' Merged features and merged chromatograms from parent runs are estimated. Chromatograms are written on the disk
-#' at dataPath/mzml. For each precursor aligned parent time-vectors and corresponding child time-vector
+#' at dataPath/xics. For each precursor aligned parent time-vectors and corresponding child time-vector
 #' are also calculated and written as *_av.rds at dataPath.
 #'
 #'     Accesors to the new files are added to fileInfo, mzPntrs and prec2chromIndex. Features, reference
@@ -157,7 +157,7 @@ getNodeIDs <- function(tree){
 #' rm(mzPntrs)
 #' # Cleanup
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
-#' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
+#' file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
 #' }
 traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIndex, precursors,
                        params, adaptiveRTs, refRuns, multipeptide, peptideScores, ropenms, applyFun = lapply){
@@ -228,7 +228,7 @@ traverseUp <- function(tree, dataPath, fileInfo, features, mzPntrs, prec2chromIn
 #' # Cleanup
 #' rm(mzPntrs)
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
-#' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
+#' file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
 #' }
 traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex, mzPntrs, precursors,
                          adaptiveRTs, refRuns, params, applyFun = lapply){
@@ -364,7 +364,7 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 #' # Cleanup
 #' rm(mzPntrs)
 #' file.remove(file.path(dataPath, "master1_av.rds"))
-#' file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
+#' file.remove(file.path(dataPath, "xics", "master1.chrom.mzML"))
 #' }
 alignToMaster <- function(ref, eXp, alignedVecs, refRun, adaptiveRT, multipeptide, prec2chromIndex,
                           mzPntrs, fileInfo, precursors, params, applyFun = lapply){

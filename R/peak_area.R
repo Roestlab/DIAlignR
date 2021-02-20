@@ -67,7 +67,7 @@ newRow <- function(xics, left, right, RT, analyte, run, params){
 #' @importFrom magrittr %>%
 #' @inheritParams alignTargetedRuns
 #' @param peakTable (data-frame) usually an output of alignTargetedRuns. Must have these columns: run, precursor, leftWidth, rightWidth.
-#' @param dataPath (string) path to mzml and osw directory.
+#' @param dataPath (string) path to xics and osw directory.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @return (data-frame)
 #' @seealso \code{\link{alignTargetedRuns}, \link{calculateIntensity}}

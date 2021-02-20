@@ -124,7 +124,7 @@ test_that("test_setOtherPrecursors", {
   expect_equal(outData, df[3,])
 
   dataPath <- system.file("extdata", package = "DIAlignR")
-  mz <- mzR::openMSfile(file.path(dataPath, "mzml","hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
+  mz <- mzR::openMSfile(file.path(dataPath, "xics","hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
   df <- multipeptide_DIAlignR[["9861"]]
   chromIndices <- list(c(43, 44, 45, 46, 47, 48), c(49, 50, 51, 52, 53, 54))
   XICs.eXp <- lapply(chromIndices, function(i) extractXIC_group(mz, chromIndices = i))
@@ -162,7 +162,7 @@ test_that("test_reIntensity", {
   expect_equal(outData[1,"intensity"], 211.3709, tolerance = 1e-05)
 
   dataPath <- system.file("extdata", package = "DIAlignR")
-  mz <- mzR::openMSfile(file.path(dataPath, "mzml","hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
+  mz <- mzR::openMSfile(file.path(dataPath, "xics","hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
   df <- multipeptide_DIAlignR[["9861"]]
   chromIndices <- list(c(43, 44, 45, 46, 47, 48), c(49, 50, 51, 52, 53, 54))
   XICs.eXp <- lapply(chromIndices, function(i) extractXIC_group(mz, chromIndices = i))
@@ -176,7 +176,7 @@ test_that("test_reIntensity", {
   outData <- reIntensity(df.eXp, XICs.eXp, params)
   expect_equal(outData[1,"intensity"], 24.50702, tolerance = 1e-05)
 
-  mz <- mzR::openMSfile(file.path(dataPath, "mzml","hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
+  mz <- mzR::openMSfile(file.path(dataPath, "xics","hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"))
   XICs.ref <- lapply(chromIndices, function(i) extractXIC_group(mz, chromIndices = i))
   names(XICs.ref) <- c("9719", "9720")
 

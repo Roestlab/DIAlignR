@@ -16,7 +16,7 @@ progAlignRuns(
 )
 }
 \arguments{
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
@@ -26,7 +26,7 @@ progAlignRuns(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runs}{(string) names of mzml file without extension.}
+\item{runs}{(string) names of xics file without extension.}
 
 \item{newickTree}{(string) guidance tree in newick format. Look up \code{\link{getTree}}.}
 
@@ -36,7 +36,7 @@ progAlignRuns(
 (None)
 }
 \description{
-This function expects osw and mzml directories at dataPath. It first reads osw files and fetches
+This function expects osw and xics directories at dataPath. It first reads osw files and fetches
  chromatogram indices for each analyte. To perform alignment, first a crude guide-tree is built which
  can also be provided with newickTree parameter. As we traverse from the leaf-nodes to the root node,
  runs are aligned pairwise. The root node is named master1 that has average of all fragment ion chromatograms
@@ -53,7 +53,7 @@ progAlignRuns(dataPath, params = params, outFile = "test3", ropenms = ropenms)
 # Removing aligned vectors
 file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 # Removing temporarily created master chromatograms
-file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
+file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
 file.remove(file.path(dataPath, "test3.temp.RData"))
 file.remove(file.path(dataPath, "master.merged.osw"))
 }

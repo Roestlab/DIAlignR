@@ -21,7 +21,7 @@ traverseDown(
 \arguments{
 \item{tree}{(phylo) a phylogenetic tree.}
 
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
 
@@ -84,7 +84,7 @@ multipeptide <- traverseDown(tree, dataPath, fileInfo, multipeptide, prec2chromI
 # Cleanup
 rm(mzPntrs)
 file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
-file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
+file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
 }
 }
 \seealso{

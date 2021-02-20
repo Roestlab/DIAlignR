@@ -1,7 +1,7 @@
-context("Read mzml files.")
+context("Read xic files.")
 
 test_that("test_readMzMLHeader",{
-  mzmlName <- file.path(system.file("extdata", package = "DIAlignR"), "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+  mzmlName <- file.path(system.file("extdata", package = "DIAlignR"), "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
   expOutput <- data.frame("chromatogramId" = c("103114", "103115", "103116"),
                           "chromatogramIndex" = c(1L,2L,3L),
                           "polarity" = c(-1L,-1L,-1L),
@@ -21,7 +21,7 @@ test_that("test_readMzMLHeader",{
 })
 
 test_that("test_readSqMassHeader",{
-  sqName <- file.path(system.file("extdata", package = "DIAlignR"), "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+  sqName <- file.path(system.file("extdata", package = "DIAlignR"), "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
   expOutput <- data.frame("chromatogramId" = c("103114", "103115", "103116"),
                           "chromatogramIndex" = c(0L,1L,2L),
                           stringsAsFactors=FALSE)
@@ -32,9 +32,9 @@ test_that("test_readSqMassHeader",{
 
 test_that("test_getMZMLpointers",{
   dataPath <- system.file("extdata", package = "DIAlignR")
-  fileInfo <- data.frame("chromatogramFile" = c(file.path(dataPath, "mzml", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML"),
-                                    file.path(dataPath, "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"),
-                                    file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
+  fileInfo <- data.frame("chromatogramFile" = c(file.path(dataPath, "xics", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.mzML"),
+                                    file.path(dataPath, "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML"),
+                                    file.path(dataPath, "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")),
              row.names = c("run0", "run1", "run2"),
              stringsAsFactors=FALSE)
   outData <- getMZMLpointers(fileInfo)
@@ -42,9 +42,9 @@ test_that("test_getMZMLpointers",{
   expect_is(outData[["run1"]], "mzRpwiz")
   expect_is(outData[["run2"]], "mzRpwiz")
 
-  fileInfo <- data.frame("chromatogramFile" = c(file.path(dataPath, "mzml", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.sqMass"),
-                                                file.path(dataPath, "mzml", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"),
-                                                file.path(dataPath, "mzml", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")),
+  fileInfo <- data.frame("chromatogramFile" = c(file.path(dataPath, "xics", "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt.chrom.sqMass"),
+                                                file.path(dataPath, "xics", "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass"),
+                                                file.path(dataPath, "xics", "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")),
               row.names = c("run0", "run1", "run2"),
               stringsAsFactors=FALSE)
   outData <- getMZMLpointers(fileInfo)

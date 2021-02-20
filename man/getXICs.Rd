@@ -19,7 +19,7 @@ getXICs(
 
 \item{runs}{(vector of string) names of mzML files without extension.}
 
-\item{dataPath}{(string) Path to mzml and osw directory.}
+\item{dataPath}{(string) Path to xics and osw directory.}
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 

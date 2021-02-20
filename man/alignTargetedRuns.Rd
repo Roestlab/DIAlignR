@@ -15,7 +15,7 @@ alignTargetedRuns(
 )
 }
 \arguments{
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{outFile}{(string) name of the output file.}
 
@@ -23,7 +23,7 @@ alignTargetedRuns(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runs}{(a vector of string) names of mzml file without extension.}
+\item{runs}{(a vector of string) names of xics file without extension.}
 
 \item{refRun}{(string) reference for alignment. If no run is provided, m-score is used to select reference run.}
 
@@ -34,7 +34,7 @@ An output table with following columns: precursor, run, intensity, RT, leftWidth
  peak_group_rank, m_score, alignment_rank, peptide_id, sequence, charge, group_label.
 }
 \description{
-This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.
+This function expects osw and xics directories at dataPath. It first reads osw files and fetches chromatogram indices for each analyte.
 It then align XICs of its reference XICs. Best peak, which has lowest m-score, about the aligned retention time is picked for quantification.
 }
 \examples{

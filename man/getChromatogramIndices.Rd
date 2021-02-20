@@ -21,7 +21,7 @@ getChromatogramIndices(fileInfo, precursors, mzPntrs, applyFun = lapply)
 \item{chromatogramIndex}{(integer) index of chromatogram in mzML file.}
 }
 \description{
-This function reads the header of chromatogram files. It then fetches chromatogram indices by matching transition_id(osw) with chromatogramID(mzml).
+This function reads the header of chromatogram files. It then fetches chromatogram indices by matching transition_id(osw) with chromatogramID(xics).
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")

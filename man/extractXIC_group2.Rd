@@ -20,7 +20,7 @@ Extracts XICs using connection to sqMass file Each chromatogram represents a tra
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-sqName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+sqName <- paste0(dataPath,"/xics/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
 chromIndices <- c(36L, 37L, 38L, 39L, 40L, 41L)
 \dontrun{
 con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
