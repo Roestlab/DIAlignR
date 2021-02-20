@@ -4,12 +4,14 @@
 \alias{getMultipeptide}
 \title{Get multipeptides}
 \usage{
-getMultipeptide(precursors, features)
+getMultipeptide(precursors, features, applyFun = lapply)
 }
 \arguments{
 \item{precursors}{(data-frames) Contains precursors and associated transition IDs.}
 
 \item{features}{(list of data-frames) Contains features and their properties identified in each run.}
+
+\item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
 \value{
 (list) of dataframes having following columns:
@@ -24,14 +26,15 @@ getMultipeptide(precursors, features)
 \item{alignment_rank}{(integer) rank of each feature post-alignment.}
 }
 \description{
-Each element of the multipeptide is a collection of features associated with a precursor.
+Each element of the multipeptide is a collection of features associated with a peptide.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
 multipeptide <- getMultipeptide(precursors, features)
+multipeptide[["9861"]]
 }
 \seealso{
 \code{\link{getPrecursors}, \link{getFeatures}}

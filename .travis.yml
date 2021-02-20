@@ -1,7 +1,16 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: R
-r: bioc-devel
+language: r
+cache: packages
+
+r:
+  - release
+  - devel
+  - bioc-release
+
+before_install:
+  - Rscript -e 'remotes::install_github("omegahat/Rcompression")'
+
 warnings_are_errors: false
 
 r_build_args: --no-build-vignettes --no-manual

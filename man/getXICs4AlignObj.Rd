@@ -29,6 +29,8 @@ dataPath <- system.file("extdata", package = "DIAlignR")
 runs <- c("hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt",
           "hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt")
 analytes <- c(32L, 898L, 2474L)
+params <- paramsDIAlignR()
+params[["chromFile"]] <- "mzML"
 fileInfo <- getRunNames(dataPath = dataPath)
 fileInfo <- updateFileInfo(fileInfo, runs)
 precursors <- getPrecursorByID(analytes,fileInfo)

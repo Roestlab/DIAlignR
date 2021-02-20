@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <cmath>
 
-namespace DIAlign 
+namespace DIAlign
 {
 
-namespace SimilarityMatrix 
+namespace SimilarityMatrix
 {
 
 double meanVecOfVec(const std::vector<std::vector<double> >& vov){
@@ -106,8 +106,28 @@ std::vector<std::vector<double>> divideVecOfVec(const std::vector<std::vector<do
   std::vector<std::vector<double>> result;
   result = d;
   // TODO: Need to understand how does transform work.
-  for (auto& v : result) std::transform(v.begin(), v.end(), v.begin(), std::bind(std::divides<double>(), std::placeholders::_1, num));
+  for (auto& v : result) std::transform(v.begin(), v.end(), v.begin(), std::bind(std::divides<double>(), std::placeholders::_1, num + 1e-08));
   return result;
+}
+
+void ElemWiseSumXcorr(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s, int halfKer){
+  DIALIGN_PRECONDITION(s.n_row == d1.size(), "Data vector size (vector 1) needs to equal matrix dimension");
+  DIALIGN_PRECONDITION(s.n_col == d2.size(), "Data vector size (vector 2) needs to equal matrix dimension");
+  int nrow = d1.size();
+  int ncol = d2.size();
+  for (int i = 0; i < nrow; i++){
+    for(int j = 0; j < ncol; j++){
+      double count = 0.0, sum = 0.0;
+      for(int temp = -halfKer; temp < halfKer+1; ++temp){
+        int row = i + temp;
+        int col = j + temp;
+        if(row < 0 || col < 0 || row >= nrow || col >=ncol) continue;
+        count += 1.0;
+        sum += d1[row]*d2[col]; // summing product of vectors across fragment-ions.
+      }
+      s.data[i*ncol + j] += sum/count; // normalizing cross-correlation.
+    }
+  }
 }
 
 void ElemWiseSumOuterProd(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s){
@@ -157,6 +177,32 @@ void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double
     for(int j = 0; j < ncol; j++){
       s.data[i*ncol + j] += d1[i]*d2[j]/((d1_mag[i]+1e-06)*(d2_mag[j]+1e-06)); // Summing outer product of vectors across fragment-ions.
     }
+  }
+}
+
+void SumXcorr(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s, int kerLen){
+  DIALIGN_PRECONDITION(!d1.empty(), "Vector of vectors cannot be empty");
+  DIALIGN_PRECONDITION(d1.size() == d2.size(), "Number of fragments needs to be equal");
+  DIALIGN_PRECONDITION(s.data.size() == s.n_col * s.n_row , "Similarity matrix length needs to be consistent");
+  DIALIGN_PRECONDITION(s.n_row == d1[0].size(), "Data vector size (vector 1) needs to equal matrix dimension (row)");
+  DIALIGN_PRECONDITION(s.n_col == d2[0].size(), "Data vector size (vector 2) needs to equal matrix dimension (column)");
+  std::vector<std::vector<double>> d1_new, d2_new;
+  if(Normalization == "mean"){
+    // Mean normalize each vector of vector.
+    d1_new = meanNormalizeVecOfVec(d1);
+    d2_new = meanNormalizeVecOfVec(d2);
+  } else if(Normalization == "L2"){
+    // L2 normalize each vector of vector.
+    d1_new = L2NormalizeVecOfVec(d1);
+    d2_new = L2NormalizeVecOfVec(d2);
+  } else {
+    d1_new = d1;
+    d2_new = d2;
+  }
+  // Calculate outer dot-product for each fragment-ion and sum element-wise
+  int n_frag = d1.size();
+  for (int fragIon = 0; fragIon < n_frag; fragIon++){
+    ElemWiseSumXcorr(d1_new[fragIon], d2_new[fragIon], s, (kerLen-1)/2);
   }
 }
 
@@ -285,9 +331,9 @@ void SumOuterEucl(const std::vector<std::vector<double>>& d1, const std::vector<
   }
   // Take sqrt to get eucledian distance from the sum of squared-differences.
   // TODO std::ptr_fun<double, double> Why? Effectively calls std::pointer_to_unary_function<Arg,Result>(f)
-  std::transform(s.data.begin(), s.data.end(), s.data.begin(), std::ptr_fun<double, double>(sqrt));
+  std::transform(s.data.begin(), s.data.end(), s.data.begin(), [](double f){return sqrt(f);});
   // Convert distance into similarity.
-  distToSim(s, 1.0, 1.0); // similarity = Numerator/(offset + distance)
+  distToSim(s, 1.0, 1.0); // distance = Numerator/(offset + similarity)
 }
 
 void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s){
@@ -323,7 +369,7 @@ void SumOuterCosine(const std::vector<std::vector<double>>& d1, const std::vecto
 
 SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, \
                               const std::string Normalization, const std::string SimType, double cosAngleThresh, \
-                              double dotProdThresh){
+                              double dotProdThresh, int kerLen){
   SimMatrix s;
   s.n_row = d1[0].size();
   s.n_col = d2[0].size();
@@ -386,6 +432,8 @@ SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const 
     SumOuterCov(d1, d2, Normalization, s);
   else if(SimType == "correlation")
     SumOuterCorr(d1, d2, Normalization, s);
+  else if(SimType == "crossCorrelation")
+    SumXcorr(d1, d2, Normalization, s, kerLen);
   else{
     // Rcpp::Rcout << "getChromSimMat should have value from given choices only!" << std::endl;
   }

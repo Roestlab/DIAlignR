@@ -1,9 +1,8 @@
 #include "constrainMat.h"
 
-
-namespace DIAlign 
+namespace DIAlign
 {
-namespace ConstrainMatrix 
+namespace ConstrainMatrix
 {
 
 // TODO Use ascii art

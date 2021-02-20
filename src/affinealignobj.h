@@ -110,8 +110,8 @@ public:
   {
     if (ROW_SIZE -1 > signalA_capacity || COL_SIZE -1 > signalB_capacity)
     {
-      std::cout << "Error: cannot reset an object beyond capacity" << std::endl;
-      std::cout << ROW_SIZE << " vs " << signalA_capacity << std::endl;
+      //std::cout << "Error: cannot reset an object beyond capacity" << std::endl;
+      //std::cout << ROW_SIZE << " vs " << signalA_capacity << std::endl;
       throw 1;
     }
 

@@ -54,13 +54,16 @@ namespace SimilarityMatrix
   void clamp(std::vector<double>& vec, double minValue, double maxValue);
 
   /// Returns a vector of vector with values divided by the output of meanVecOfVec().
-    std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d);
+  std::vector<std::vector<double>> meanNormalizeVecOfVec(const std::vector<std::vector<double>>& d);
 
   /// Returns a vector of vector with values divided by the output of eucLenVecOfVec().
   std::vector<std::vector<double>> L2NormalizeVecOfVec(const std::vector<std::vector<double>>& d);
 
   /// Returns a vector of vector with values divided by num.
   std::vector<std::vector<double>> divideVecOfVec(const std::vector<std::vector<double>>& vov, double num);
+
+  /// Adds cross-correlation of a kernel(-+ halfLen) between d1 and d2 in similarity matrix s.
+  void ElemWiseSumXcorr(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s, int halfKer);
 
   /// Adds outer prodict of d1 and d2 in similarity matrix s.
   void ElemWiseSumOuterProd(const std::vector<double>& d1, const std::vector<double>& d2, SimMatrix& s);
@@ -73,6 +76,9 @@ namespace SimilarityMatrix
 
   /// Adds outer prodict of cosAng(d1,d2) in similarity matrix s.
   void ElemWiseOuterCosine(const std::vector<double>& d1, const std::vector<double>& d2, const std::vector<double>& d1_mag, const std::vector<double>& d2_mag, SimMatrix& s);
+
+  /// Given Normalization modifies d1 and d2, and subsequently sums ElemWiseSumXcorr() of d1 vectors with d2 vectors (d1 and d2 must be of same length).
+  void SumXcorr(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s, int kerLen);
 
   /// Given Normalization modifies d1 and d2, and subsequently sums ElemWiseSumOuterProd() of d1 vectors with d2 vectors (d1 and d2 must be of same length).
   void SumOuterProd(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2, const std::string Normalization, SimMatrix& s);
@@ -97,10 +103,13 @@ namespace SimilarityMatrix
   /// @param d1 corresponds to signal A. Must be of same size of d2.
   /// @param d2 corresponds to signal B. Must be of same size of d1.
   /// @param Normalization Must be from "mean", "L2", "None".
-  /// @param SimType Must be from "dotProductMasked", "dotProduct", "cosineAngle", "cosine2Angle", "euclideanDist", "covariance", "correlation".
+  /// @param SimType Must be from "dotProductMasked", "dotProduct", "cosineAngle", "cosine2Angle", "euclideanDist", "covariance", "correlation", "crossCorrelation".
+  /// @param cosAngleThresh In simType = dotProductMasked mode, angular similarity should be higher than cosAngleThresh otherwise similarity is forced to zero.
+  /// @param dotProdThresh In simType = dotProductMasked mode, values in similarity matrix higher than dotProdThresh quantile are checked for angular similarity.
+  /// @param kerLen In simType = crossCorrelation, length of the kernel used to sum similarity score. Must be an odd number.
   SimMatrix getSimilarityMatrix(const std::vector<std::vector<double>>& d1, const std::vector<std::vector<double>>& d2,
                                 const std::string Normalization, const std::string SimType, double cosAngleThresh,
-                                double dotProdThresh);
+                                double dotProdThresh, int kerLen);
 
 } // namespace SimilarityMatrix
 } // namespace DIAlign

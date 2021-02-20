@@ -3,72 +3,89 @@ context("Utility functions")
 test_that("test_getRefRun", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-  precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
-  features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
-  allIDs <- unique(unlist(lapply(features, `[[`, "transition_group_id"),
-                          recursive = FALSE, use.names = FALSE))
-  precursors <- precursors[precursors[["transition_group_id"]] %in% allIDs, ]
-  multipeptide <- getMultipeptide(precursors, features)
-  outData <- getRefRun(multipeptide)
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 1.00)
+  peptideIDs <- unique(precursors$peptide_id)
+  peptidesInfo <- getPeptideScores(fileInfo, peptideIDs, oswMerged = TRUE, runType = "DIA_Proteomics", context = "experiment-wide")
+  peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
+  names(peptidesInfo) <- as.character(peptideIDs)
+  outData <- getRefRun(peptidesInfo)
 
-  expData <- data.frame("transition_group_id" = c(32L, 470L),
-                        "run" = c("run0","run0"),
+  expData <- data.frame("peptide_id" = c(7040L, 4170L),
+                        "run" = c("run0","run2"),
                         stringsAsFactors = FALSE)
-  expect_identical(dim(outData), c(199L, 2L))
+  expect_identical(dim(outData), c(297L, 2L))
   expect_identical(outData[1:2,], expData)
 })
 
 test_that("test_getMultipeptide", {
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-  precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide", maxPeptideFdr = 0.05)
   features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
   outData <- getMultipeptide(precursors, features)
 
-  expData <- data.frame("transition_group_id" = 9723L,
-                        "run" = c("run0", "run1", "run2"),
-                        "RT" = c(NA_real_, 4057.14, NA_real_),
-                        "intensity" = c(NA_real_, 36.1802, NA_real_),
-                        "leftWidth" = c(NA_real_, 4049.51, NA_real_),
-                        "rightWidth" = c(NA_real_, 4083.649, NA_real_),
-                        "peak_group_rank" = c(NA_integer_, 1L, NA_integer_),
-                        "m_score" = c(NA_real_, 0.03737512, NA_real_),
-                        "alignment_rank" = c(rep(NA_integer_,3)),
+  expData <- data.frame("transition_group_id" = c(9720L, 9719L, 9720L, 9720L),
+                        "feature_id" = bit64::as.integer64(c("7742456255764097691", "6462000664077079508", "5135268764240690321", "298844719207353347")),
+                        "RT" = c(2541.83, 2586.12, 2585.61, 2607.05),
+                        "intensity" = c(34.7208, 26.2182, 52.9595, 33.5961),
+                        "leftWidth" = c(2526.555, 2571.738, 2564.094, 2591.431),
+                        "rightWidth" = c(2560.693, 2609.288, 2605.060, 2625.569),
+                        "peak_group_rank" = c(1L),
+                        "m_score" = c(5.692077e-05, 1.041916e-03, 5.692077e-05, 2.005418e-04),
+                        "run" = c("run0", "run1", "run1", "run2"),
+                        "alignment_rank" = c(rep(NA_integer_,4)),
                         stringsAsFactors = FALSE)
-  expect_identical(length(outData), 322L)
-  expect_equal(outData[[150]], expData, tolerance = 1e-04)
-  expect_equal(outData[["9723"]], expData, tolerance = 1e-04)
+  expect_identical(length(outData), 229L)
+  expect_equal(outData[[108]], expData, tolerance = 1e-04)
+  expect_equal(outData[["9861"]], expData, tolerance = 1e-03)
 })
 
 test_that("test_writeTables", {
   # To check if the two files are same, we can use tools::md5sum(). However, this will
   # not tell us which value is different.
 
-  refAnalytes <- c("14299_QFNNTDIVLLEDFQK/3", "13597_VVAGGELFKESVVVNDK/3")
-  runs <- c("run0" = "hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt",
-           "run1" = "hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt",
-           "run2" = "hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt")
-  filename <- "temp.csv"
-  intensityTbl <-  list(c(157.864, 310.010, 255.496), c(NA, 30.1907, 34.6354))
-  rtTbl <-  list(c(5222.12, 5238.35, 5240.79), c(NA, 3658.39, 3701.29))
-  lwTbl <-  list(c(5203.6821289, 5220.7578125, 5217.3608398), c(NA, 3657.1279297, 3674.2170410))
-  rwTbl <-  list(c(5248.0629883, 5261.7231445, 5275.3950195), c(NA, 3701.5061035, 3715.1831055))
-
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
-  data(multipeptide_DIAlignR, package="DIAlignR")
-  precursors_DIAlignR <- getPrecursors(fileInfo, oswMerged = TRUE)
-  outData <- writeTables("temp.csv", fileInfo, multipeptide_DIAlignR, precursors_DIAlignR)
+  # data(multipeptide_DIAlignR, package="DIAlignR")
+  precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
+  features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
+  allIDs <- unique(unlist(lapply(features, function(df) df[df[["m_score"]] <= 0.05,
+                          "transition_group_id"]),
+                          recursive = FALSE, use.names = FALSE))
+  precursors <- precursors[precursors[["transition_group_id"]] %in% allIDs, ]
+  multipeptide <- getMultipeptide(precursors, features)
+  outData <- writeTables(fileInfo, multipeptide, precursors)
+  expect_identical(nrow(outData), 500L)
 
-  outData <- read.table("temp.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
-  expData <- read.table("test.csv", stringsAsFactors = FALSE, sep = ",", header = TRUE)
-  expect_identical(dim(outData), dim(expData))
-  expect_identical(colnames(outData), colnames(expData))
-  expect_identical(outData[["peptide"]], expData[["peptide"]])
-  expect_identical(outData[["run"]], expData[["run"]])
-  # Not checking intensity and other scores as alignment is not yet done.
-  for(i in 10:13){
-    expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
-  }
-  file.remove("temp.csv")
+  multipeptide[["7040"]]$alignment_rank[1:2] <- 1L
+  multipeptide[["3200"]]$alignment_rank <- 1L
+  outData <- writeTables(fileInfo, multipeptide, precursors)
+
+  expect_identical(dim(outData), c(501L, 14L))
+  expData <- data.frame(peptide_id = c(3200L, 7040L), precursor = c(523L, 32L),
+                        run = fileInfo$runName[1:2], RT = c(1529.54, NA_real_),
+                        intensity = c(13.5686, NA_real_), leftWidth = c(1512.653,NA_real_), rightWidth= c(1546.791,NA_real_),
+                        peak_group_rank = c(1L, NA_integer_), m_score = c(0.01440752, NA_real_), alignment_rank = 1L,
+                        feature_id = c("2382660248384924660", NA_character_), sequence = c("DVDQYPR", "GNNSVYMNNFLNLILQNER"),
+                        charge = c(2L, 3L), group_label = c("10483_DVDQYPR/2", "10030_GNNSVYMNNFLNLILQNER/3"), row.names = c(82L, 167L))
+  expect_equal(outData[c(82,167),], expData, tolerance = 1e-05)
+})
+
+test_that("test_checkParams", {
+})
+
+test_that("test_paramsDIAlignR", {
+})
+
+test_that("test_alignmentStats", {
+})
+
+
+test_that("test_checkOverlap",{
+  expect_true(checkOverlap(c(1.1, 3.1), c(2.1, 3.1)))
+  expect_true(checkOverlap(c(1.1, 3.1), c(3.1, 4.1)))
+  expect_true(checkOverlap(c(1.1, 3.1), c(2.1, 2.5)))
+  expect_true(checkOverlap(c(1.1, 3.1), c(0.1, 9.1)))
+  expect_false(checkOverlap(c(1.1, 3.1), c(3.2, 7.1)))
+
 })

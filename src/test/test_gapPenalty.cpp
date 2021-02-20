@@ -39,7 +39,7 @@ void test_getGapPenalty(){
   ASSERT(std::abs(gP80 -  3.804172) < 1e-6);
   ASSERT(std::abs(gCA75 -  0.95) < 1e-6);
   ASSERT(std::abs(gC2A70 - 0.95) < 1e-6);
-  ASSERT(std::abs(gED20 -  -2.091367) < 1e-6);
+  ASSERT(std::abs(gED20 -  0.01) < 1e-6);
   ASSERT(std::abs(gCOV90 - 6.101456) < 1e-6);
   ASSERT(std::abs(gCOR95 - 6.46986) < 1e-6);
   // TODO How to check this case?
@@ -55,13 +55,13 @@ void test_getGapPenalty(){
   gCOR95 = getGapPenalty(s, 0.95, "correlation");
   gNONE50 = getGapPenalty(s, 0.5, "NONE");
 
-  ASSERT(std::abs(gPM70 - 0.0) < 1e-6);
-  ASSERT(std::abs(gP80 - 0.0) < 1e-6);
+  ASSERT(std::abs(gPM70 - 0.01) < 1e-6);
+  ASSERT(std::abs(gP80 - 0.01) < 1e-6);
   ASSERT(std::abs(gCA75 - 0.95) < 1e-6);
   ASSERT(std::abs(gC2A70 - 0.95) < 1e-6);
-  ASSERT(std::abs(gED20 - 0.0) < 1e-6);
-  ASSERT(std::abs(gCOV90 - 0.0) < 1e-6);
-  ASSERT(std::abs(gCOR95 - 0.0) < 1e-6);
+  ASSERT(std::abs(gED20 - 0.01) < 1e-6);
+  ASSERT(std::abs(gCOV90 - 0.01) < 1e-6);
+  ASSERT(std::abs(gCOR95 - 0.01) < 1e-6);
   // TODO How to check this case?
   //ASSERT(std::abs(gNONE50 - 0.0) < 1e-6);
 
@@ -92,11 +92,11 @@ void test_getGapPenalty(){
   gCOR95 = getGapPenalty(s, 0.95, "correlation");
   gNONE50 = getGapPenalty(s, 0.5, "NONE");
 
-  ASSERT(std::abs(gPM70 - 0.0) < 1e-6);
-  ASSERT(std::abs(gP80 - 0.000474114) < 1e-6);
+  ASSERT(std::abs(gPM70 - 0.01) < 1e-6);
+  ASSERT(std::abs(gP80 - 0.01) < 1e-6);
   ASSERT(std::abs(gCA75 - 0.95) < 1e-6);
   ASSERT(std::abs(gC2A70 - 0.95) < 1e-6);
-  ASSERT(std::abs(gED20 - 0.0) < 1e-6);
+  ASSERT(std::abs(gED20 - 0.01) < 1e-6);
   ASSERT(std::abs(gCOV90 - 0.3622603) < 1e-6);
   ASSERT(std::abs(gCOR95 - 1.8472916) < 1e-6);
   // TODO How to check this case?

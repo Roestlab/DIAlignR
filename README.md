@@ -28,6 +28,9 @@ cd src
 doxygen doc/Doxyfile
 ```
 
+# Installing Rcompression
+`devtools::install_github("omegahat/Rcompression")`
+
 # Citation
 If you use the provided algorithms or the package, please cite our paper:
 

@@ -162,39 +162,46 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-07
+#' @inheritParams alignTargetedRuns
 #' @importFrom rlang .data
 #' @param fileInfo (data-frame) Output of getRunNames function.
 #' @param precursors (data-frame) Atleast two columns transition_group_id and transition_ids are required.
 #' @param mzPntrs A list of mzRpwiz.
 #' @return (list) A list of dataframes having following columns:
-#' \item{transition_group_id}{(string) it is either fetched from PRECURSOR.GROUP_LABEL or a combination of PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
-#' \item{chromatogramIndex}{(integer) Index of chromatogram in mzML file.}
+#' \item{transition_group_id}{(string) it is PRECURSOR.ID from osw file.}
+#' \item{chromatogramIndex}{(integer) index of chromatogram in mzML file.}
 #'
 #' @seealso \code{\link{chromatogramIdAsInteger}, \link{mapPrecursorToChromIndices}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE)
+#' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 #' mzPntrs <- getMZMLpointers(fileInfo)
 #' prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
 #' rm(mzPntrs)
 #' @export
-getChromatogramIndices <- function(fileInfo, precursors, mzPntrs){
+getChromatogramIndices <- function(fileInfo, precursors, mzPntrs, applyFun=lapply){
   # Get precursor to transition mapping and unlist so that each row has one transition.
   prec2transition <- dplyr::select(precursors, .data$transition_group_id, .data$transition_ids) %>%
     tidyr::unnest(.data$transition_ids) %>% as.data.frame()
-
   # For each precursor get associated chromatogram Indices
-  prec2chromIndex <- vector(mode = "list", length = nrow(fileInfo))
   runs <- rownames(fileInfo)
-  for(i in seq_along(prec2chromIndex)){
+  prec2chromIndex <- applyFun(seq_along(runs), function(i){
+    mz <- mzPntrs[[runs[i]]]
     # Get chromatogram indices from the header file.
-    chromHead <- mzR::chromatogramHeader(mzPntrs[[runs[i]]]) #TODO: Make sure that chromatogramIndex is read as integer64
+    if(is(mz)[1] == "SQLiteConnection"){chromHead <- readSqMassHeader(mz)}
+    if(is(mz)[1] == "mzRpwiz"){
+      chromHead <- mzR::chromatogramHeader(mz) #TODO: Make sure that chromatogramIndex is read as integer64
+    }
+    chromHead <- chromHead[grepl("^[[:digit:]]+$", chromHead[,1]),]
     chromatogramIdAsInteger(chromHead) # Select only chromatogramId, chromatogramIndex
-    prec2chromIndex[[i]] <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
+    df <- mapPrecursorToChromIndices(prec2transition, chromHead) # Get chromatogram Index for each precursor.
+    df <- df[match(precursors$transition_group_id, df$transition_group_id),]
+    row.names(df) <- NULL
     message("Fetched chromatogram indices from ", fileInfo$chromatogramFile[i])
-  }
-  names(prec2chromIndex) <- rownames(fileInfo)
+    df
+  })
+  names(prec2chromIndex) <- runs
   prec2chromIndex
 }
 

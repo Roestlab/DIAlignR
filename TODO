@@ -1,46 +1,11 @@
-Item 1 : Kernel based similarity
+Item 1 : Kernel based similarity https://abibuilder.informatik.uni-tuebingen.de/archive/openms/Documentation/nightly/html/classOpenSwath_1_1MRMScoring.html
 Item 2 : Gap penalty zero case
-Item 4 : Multiple parameterised query SQL.
-Item 5 : BigMemory package and parallel processing package
-Item 8 : Divide by 64 nodes
-Item 9 : Read about FDR stuff.
-Item 10 : Manual annotation: Fully supervised.
-Item 11 : Multi-threading for each alignment.
-Item 12 : Information content after alignment, Feature mapping.
-Item 13 : MSnExp from MSnbase for fast-access. Accessing using C++, however MSDataFile function (https://github.com/sneumann/mzR/blob/master/src/pwiz/data/msdata/MSDataFile.hpp) is slow for some reason.
-Item 14 : Look into rOpenSci, software peer-review. https://ropensci.org/software-review/ . https://devguide.ropensci.org/
-Item 15 : Remove pipes, they are slow. Fix x-axis in plot of aligned chromatogram
-Item 18 : Plot retention time distribution. Score disctibution of alignment.
-Item 19: Number of points in area integration
-Item 20: Use MS1 in alignment.
-Item 21: Remove index from example data.
-Item 22: Change Traceback to lower-case.
-Item 23: Add similarity matrices of same multipeptide.
-Item 29: Travis for all three.  https://github.com/tidyverse/dplyr/blob/master/.github/workflows/R-CMD-check.yaml
-
-# Change all times to reference time. We can not output Retention times then.
-# Store XICs for the precursor
-# Store aligned times.
-# Get alignment rank for each feature. Add new feature if not present.
-# Map retention time of all features from eXp to ref.
-# Map reference peak boundaries from ref to eXp.
-
-Fix sampling time in Smoothing.
-Make sure ID matches in multipeptide and prec2ChromIndices.
-smooth chromatogram and area calculation in vignette.
-Param sanity check.
-param silent in DPosition and chromatogramPeak
-documentation of DIAlignPy
-
-  If loess fails, resort to linear alignment.
-Align only those where FDr is > 0.05, true false in refRun
-Alignment rank = 1 and fdr < 0.01
-Alignment rank = 1 and fdr > 0.01 and < 0.05 (precursor and run)
-Add test for visualization.
-parallelize execution (fetching chromatograms) over multiple threads.
-Update reference only once. Look for wider chromatogram if aligned peak is outside.
-Implement for alignType = "local" and "hybrid"
-Make decoy == 0 in getFeaturesQuery
-Convert from csv to tsv.
-Add featureID as well.
-Implement a function to requantify across all runs.
+Item 3 : Look into rOpenSci, software peer-review. https://ropensci.org/software-review/ . https://devguide.ropensci.org/
+Item 4 : Plot retention time distribution.
+Item 5: Use MS1 in alignment.
+Item 6: Change Traceback to lower-case.
+Item 7: Param silent in DPosition and chromatogramPeak.
+Item 8: Implement for alignType = "local" and "hybrid"
+Item 9: Implement a function to requantify across all runs.
+Item 10: Normalization of runs within mastermap
+Item 11: Rename properly: rooted tree/ unrooted tree

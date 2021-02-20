@@ -6,9 +6,13 @@
 #include "simpleFcn.h"
 using namespace Rcpp;
 
-namespace DIAlign 
+namespace DIAlign
 {
 std::vector<std::vector<double> > list2VecOfVec (Rcpp::List l);
+
+std::vector<std::vector<double> > getTime(Rcpp::List l);
+
+std::vector<std::vector<double> > getIntensity(Rcpp::List l);
 
 void printVecOfVec(Rcpp::List l);
 
