@@ -16,7 +16,7 @@
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- getRunNames(dataPath = dataPath)
-#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics",
 #'                                 context = "experiment-wide", maxPeptideFdr = 0.05)
 #' peptideIDs <- unique(precursorsInfo$peptide_id)
 #' peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)

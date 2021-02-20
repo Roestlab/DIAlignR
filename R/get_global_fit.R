@@ -195,10 +195,10 @@ getRSE <- function(fit, globalAlignment){
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- getRunNames(dataPath, oswMerged = TRUE)
 #' features <- getFeatures(fileInfo, maxFdrQuery = 0.05)
-#' precursors <- getPrecursors(fileInfo, TRUE, "DIA_proteomics", "experiment-wide", 0.01)
+#' precursors <- getPrecursors(fileInfo, TRUE, "DIA_Proteomics", "experiment-wide", 0.01)
 #' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 #' peptideIDs <- unique(precursors$peptide_id)
-#' peptideScores <- getPeptideScores(fileInfo, peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+#' peptideScores <- getPeptideScores(fileInfo, peptideIDs, TRUE, "DIA_Proteomics", "experiment-wide")
 #' peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
 #' names(peptideScores) <- as.character(peptideIDs)
 #' \dontrun{

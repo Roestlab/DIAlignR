@@ -31,7 +31,7 @@ colnames(timeParent) <- c("tAligned", "alignedChildTime")
 params <- paramsDIAlignR()
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_Proteomics")
 df <- features$run1[features$run1$transition_group_id == 4618L, ]
 \dontrun{
 trfrParentFeature(newXICs[[1]], timeParent, df, params)
