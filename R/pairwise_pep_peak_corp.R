@@ -271,6 +271,10 @@ getAlignedTimesFast <- function(XICs.ref, XICs.eXp, globalFit, adaptiveRT, param
   B1p <- getPredict(globalFit, XICs.ref[[1]][1,1], params[["globalAlignment"]])
   len <- nrow(XICs.ref[[1]])
   B2p <- getPredict(globalFit, XICs.ref[[1]][len,1], params[["globalAlignment"]])
+  if(is.na(B1p) || is.na(B2p)){
+    B1p <- XICs.eXp[[1]][1,1]
+    B2p <- XICs.eXp[[1]][nrow(XICs.eXp[[1]]),1]
+  }
   tAligned <- getAlignedTimesCpp(XICs.ref, XICs.eXp, params[["kernelLen"]], params[["polyOrd"]], params[["alignType"]],
                      adaptiveRT, params[["normalization"]], params[["simMeasure"]],
                      B1p = B1p, B2p = B2p, params[["goFactor"]], params[["geFactor"]], params[["cosAngleThresh"]],
