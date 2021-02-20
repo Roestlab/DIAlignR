@@ -7,7 +7,7 @@
 getRunNames(dataPath, oswMerged = TRUE, params = paramsDIAlignR())
 }
 \arguments{
-\item{dataPath}{(char) Path to mzml and osw directory.}
+\item{dataPath}{(char) Path to xics and osw directory.}
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 

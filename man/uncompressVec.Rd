@@ -21,7 +21,7 @@ compression is one of 0 = no, 1 = zlib, 2 = np-linear,
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-sqName <- paste0(dataPath,"/mzml/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
+sqName <- paste0(dataPath,"/xics/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.sqMass")
 con <- DBI::dbConnect(RSQLite::SQLite(), dbname = sqName)
 df1 <- DBI::dbGetQuery(con, "SELECT CHROMATOGRAM_ID, COMPRESSION, DATA_TYPE, DATA FROM DATA WHERE CHROMATOGRAM_ID = 36;")
 DBI::dbDisconnect(con)

@@ -15,7 +15,7 @@ alignTargetedRuns2(
 )
 }
 \arguments{
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{outFile}{(string) name of the output file.}
 
@@ -23,7 +23,7 @@ alignTargetedRuns2(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runs}{(string) names of mzml file without extension.}
+\item{runs}{(string) names of xics file without extension.}
 
 \item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }

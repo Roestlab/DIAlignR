@@ -19,7 +19,7 @@ Extracts XICs using mz object. Each chromatogram represents a transition of prec
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-mzmlName<-paste0(dataPath,"/mzml/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+mzmlName<-paste0(dataPath,"/xics/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 mz <- mzR::openMSfile(mzmlName, backend = "pwiz")
 chromIndices <- c(37L, 38L, 39L, 40L, 41L, 42L)
 \dontrun{

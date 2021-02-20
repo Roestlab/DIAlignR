@@ -23,7 +23,7 @@ Writes an mzML file having chromatograms and their native IDs.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-filename <- paste0(dataPath, "/mzml/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+filename <- paste0(dataPath, "/xics/hroest_K120809_Strep10\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR)
 XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120808_Strep10\%PlasmaBiolRepl1_R03_SW_filt"]]
 nativeIds <- list(27706:27711)

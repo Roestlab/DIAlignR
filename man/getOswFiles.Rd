@@ -31,7 +31,7 @@ FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE fr
 
 \item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.}
 
-\item{dataPath}{(char) path to mzml and osw directory.}
+\item{dataPath}{(char) path to xics and osw directory.}
 
 \item{filenames}{(data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
 To get filenames use DIAlignR::getRunNames function.}
@@ -51,8 +51,8 @@ To get filenames use DIAlignR::getRunNames function.}
 \item{transition_ids}{(integer) fragment-ion ID associated with transition_group_id. This is matched with chromatogram ID in mzML file.}
 }
 \description{
-This function reads all osw and mzml files in the directories at dataPath. It selects analytes which has associated features with m-score < maxFdrQuery.
-For these analytes it fetches chromatogram indices by matching transition_id(osw) with chromatogramID(mzml).
+This function reads all osw and xics files in the directories at dataPath. It selects analytes which has associated features with m-score < maxFdrQuery.
+For these analytes it fetches chromatogram indices by matching transition_id(osw) with chromatogramID(xics).
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")

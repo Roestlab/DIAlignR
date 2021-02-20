@@ -17,9 +17,9 @@ getAlignObjs(
 \arguments{
 \item{analytes}{(vector of integers) transition_group_ids for which features are to be extracted.}
 
-\item{runs}{(a vector of string) names of mzml file without extension.}
+\item{runs}{(a vector of string) names of xics file without extension.}
 
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{refRun}{(string) reference for alignment. If no run is provided, m-score is used to select reference run.}
 
@@ -36,7 +36,7 @@ A list of fileInfo and AlignObjs. Each AlignObj is an S4 object. Three most-impo
 \item{score}{(numeric) cumulative score of alignment.}
 }
 \description{
-This function expects osw and mzml directories at dataPath. It first reads osw files and fetches chromatogram indices for each requested analyte.
+This function expects osw and xics directories at dataPath. It first reads osw files and fetches chromatogram indices for each requested analyte.
 It then align XICs of each analyte to its reference XICs. AlignObj is returned which contains aligned indices and cumulative score along the alignment path.
 }
 \examples{

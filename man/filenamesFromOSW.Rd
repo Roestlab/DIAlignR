@@ -7,7 +7,7 @@
 filenamesFromOSW(dataPath, pattern)
 }
 \arguments{
-\item{dataPath}{(char) path to mzml and osw directory.}
+\item{dataPath}{(char) path to xics and osw directory.}
 
 \item{pattern}{(char) must be either *.osw or *merged.osw .}
 }

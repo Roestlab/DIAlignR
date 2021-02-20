@@ -90,7 +90,7 @@ multipeptide <- alignToMaster(ref = "master1", eXp = "run1", alignedVecs, refRun
 # Cleanup
 rm(mzPntrs)
 file.remove(file.path(dataPath, "master1_av.rds"))
-file.remove(file.path(dataPath, "mzml", "master1.chrom.mzML"))
+file.remove(file.path(dataPath, "xics", "master1.chrom.mzML"))
 }
 }
 \seealso{

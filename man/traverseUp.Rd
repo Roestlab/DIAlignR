@@ -24,7 +24,7 @@ traverseUp(
 \arguments{
 \item{tree}{(phylo) a phylogenetic tree.}
 
-\item{dataPath}{(string) path to mzml and osw directory.}
+\item{dataPath}{(string) path to xics and osw directory.}
 
 \item{fileInfo}{(data-frame) output of \code{\link{getRunNames}}.}
 
@@ -61,7 +61,7 @@ associated with analytes. This is an output of \code{\link{getMultipeptide}}.}
 {
 While traversing from leaf to root node, at each node a master run is created.
 Merged features and merged chromatograms from parent runs are estimated. Chromatograms are written on the disk
-at dataPath/mzml. For each precursor aligned parent time-vectors and corresponding child time-vector
+at dataPath/xics. For each precursor aligned parent time-vectors and corresponding child time-vector
 are also calculated and written as *_av.rds at dataPath.
 
     Accesors to the new files are added to fileInfo, mzPntrs and prec2chromIndex. Features, reference
@@ -95,7 +95,7 @@ multipeptide <- traverseUp(tree, dataPath, fileInfo, features, mzPntrs, prec2chr
 rm(mzPntrs)
 # Cleanup
 file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
-file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
+file.remove(list.files(file.path(dataPath, "xics"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
 }
 }
 \seealso{

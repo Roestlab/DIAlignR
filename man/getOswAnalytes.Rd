@@ -22,7 +22,7 @@ FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE fr
 
 \item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
 
-\item{dataPath}{(char) path to mzml and osw directory.}
+\item{dataPath}{(char) path to xics and osw directory.}
 
 \item{filenames}{(data-frame) column "filename" contains RUN table from osw files. column "runs" contain respective mzML names without extension.
 To get filenames use \code{\link{getRunNames}} function.}

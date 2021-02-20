@@ -7,7 +7,7 @@
 readMzMLHeader(mzmlName)
 }
 \arguments{
-\item{mzmlName}{(char) path to mzml file.}
+\item{mzmlName}{(char) path to xics file.}
 }
 \value{
 (A data-frame) It has 10 columns. The two important columns are:
@@ -19,7 +19,7 @@ Get a table of chromatogram indices and respective transition IDs.
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-mzmlName <-paste0(dataPath,"/mzml/hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
+mzmlName <-paste0(dataPath,"/xics/hroest_K120809_Strep0\%PlasmaBiolRepl2_R04_SW_filt.chrom.mzML")
 \dontrun{
 chromHead <- readChromatogramHeader(mzmlName = mzmlName)
 }
