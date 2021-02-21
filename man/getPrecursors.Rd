@@ -7,7 +7,7 @@
 getPrecursors(
   fileInfo,
   oswMerged = TRUE,
-  runType = "DIA_proteomics",
+  runType = "DIA_Proteomics",
   context = "global",
   maxPeptideFdr = 0.05,
   level = "Peptide"
@@ -18,7 +18,7 @@ getPrecursors(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
 
@@ -41,7 +41,7 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath = dataPath)
-precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics",
 context = "experiment-wide", maxPeptideFdr = 0.05)
 dim(precursorsInfo) # 234  6
 }

@@ -7,7 +7,7 @@
 getPrecursorsQuery(runType = "DIA_Proteomics", level = "Peptide")
 }
 \arguments{
-\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{level}{(string) Apply maxPeptideFDR on Protein as well if specified as "Protein". Default: "Peptide".}
 }

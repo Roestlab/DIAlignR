@@ -8,7 +8,7 @@ fetchFeaturesFromRun(
   filename,
   runID,
   maxFdrQuery = 1,
-  runType = "DIA_proteomics"
+  runType = "DIA_Proteomics"
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ fetchFeaturesFromRun(
 
 \item{maxFdrQuery}{(numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 }
 \value{
 (data-frames) Data-frame has following columns:

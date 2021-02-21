@@ -58,8 +58,8 @@ dataPath <- system.file("extdata", package = "DIAlignR")
 params <- paramsDIAlignR()
 fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
 mzPntrs <- getMZMLpointers(fileInfo)
-features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
-precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_Proteomics")
+precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics",
  context = "experiment-wide", maxPeptideFdr = 0.05)
 precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)
 peptideIDs <- unique(precursors$peptide_id)

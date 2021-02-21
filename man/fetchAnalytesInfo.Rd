@@ -10,7 +10,7 @@ fetchAnalytesInfo(
   oswMerged,
   analytes,
   filename,
-  runType,
+  runType = "DIA_Proteomics",
   analyteInGroupLabel = FALSE
 )
 }
@@ -25,7 +25,7 @@ fetchAnalytesInfo(
 
 \item{filename}{(data-frame) Should be from the RUN.FILENAME column from osw files.}
 
-\item{runType}{(char) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{analyteInGroupLabel}{(logical) TRUE for getting analytes as PRECURSOR.GROUP_LABEL from osw file.
 FALSE for fetching analytes as PEPTIDE.MODIFIED_SEQUENCE and PRECURSOR.CHARGE from osw file.}
@@ -54,10 +54,10 @@ oswName <- paste0(dataPath,"/osw/merged.osw")
 \dontrun{
 analytesInfo <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
  analytes = c("19051_KLIVTSEGC[160]FK/2"), filename = filenames$filename[2],
-  runType = "DIA_proteomics", analyteInGroupLabel = TRUE)
+  runType = "DIA_Proteomics", analyteInGroupLabel = TRUE)
 analytesInfo <- fetchAnalytesInfo(oswName, maxFdrQuery = 0.05, oswMerged = TRUE,
  analytes = c("IHFLSPVRPFTLTPGDEEESFIQLITPVR_3"), filename = filenames$filename[3],
-  runType = "DIA_proteomics", analyteInGroupLabel = FALSE)
+  runType = "DIA_Proteomics", analyteInGroupLabel = FALSE)
 }
 }
 \seealso{

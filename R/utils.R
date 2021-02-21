@@ -16,7 +16,7 @@
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
 #' fileInfo <- getRunNames(dataPath = dataPath)
-#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+#' precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics",
 #'                                 context = "experiment-wide", maxPeptideFdr = 0.05)
 #' peptideIDs <- unique(precursorsInfo$peptide_id)
 #' peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)
@@ -197,9 +197,9 @@ writeTables <- function(fileInfo, multipeptide, precursors){
   colnames(finalTbl)[1] <- c("precursor")
   finalTbl$feature_id <- as.character(finalTbl$feature_id)
   finalTbl <- dplyr::arrange(finalTbl, .data$peptide_id, .data$precursor, .data$run)
-  finalTbl <- dplyr::select(finalTbl, .data$peptide_id, .data$precursor, .data$run, .data$RT, .data$intensity,
+  finalTbl <- dplyr::relocate(finalTbl, .data$peptide_id, .data$precursor, .data$run, .data$RT, .data$intensity,
                             .data$leftWidth, .data$rightWidth, .data$peak_group_rank, .data$m_score,
-                            .data$alignment_rank, .data$feature_id, .data$sequence, .data$charge, .data$group_label)
+                            .data$alignment_rank, .data$feature_id)
   finalTbl
 }
 
@@ -345,7 +345,7 @@ checkParams <- function(params){
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-11
 #' @return A list of parameters:
-#' \item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+#' \item{runType}{(string) must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 #' \item{chromFile}{(string) must either be "mzML" or "sqMass".}
 #' \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_MS2.QVALUE less than itself.}
 #' \item{maxPeptideFdr}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}
@@ -396,7 +396,7 @@ checkParams <- function(params){
 #' params <- paramsDIAlignR()
 #' @export
 paramsDIAlignR <- function(){
-  params <- list( runType = "DIA_proteomics", chromFile = "sqMass",
+  params <- list( runType = "DIA_Proteomics", chromFile = "sqMass",
                   maxFdrQuery = 0.05, maxPeptideFdr = 0.01, analyteFDR = 0.01,
                   context = "global", unalignedFDR = 0.01, alignedFDR = 0.05, level = "Peptide",
                   integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,

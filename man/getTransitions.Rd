@@ -7,7 +7,7 @@
 getTransitions(
   fileInfo,
   maxFdrQuery = 0.05,
-  runType = "DIA_proteomics",
+  runType = "DIA_Proteomics",
   applyFun = lapply
 )
 }
@@ -16,7 +16,7 @@ getTransitions(
 
 \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.}
 
-\item{runType}{(char) yhis must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) yhis must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{applyFun}{(function) value must be either lapply or BiocParallel::bplapply.}
 }
@@ -36,7 +36,7 @@ Get a list of data-frame of OpenSwath features that contains retention time, int
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath = dataPath)
-transitions <- getTransitions(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+transitions <- getTransitions(fileInfo, maxFdrQuery = 1.00, runType = "DIA_Proteomics")
 dim(transitions[[2]]) # 938  8
 }
 \seealso{

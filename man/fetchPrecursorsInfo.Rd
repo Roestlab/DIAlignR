@@ -6,7 +6,7 @@
 \usage{
 fetchPrecursorsInfo(
   filename,
-  runType,
+  runType = "DIA_Proteomics",
   selectIDs = NULL,
   context = "global",
   maxPeptideFdr = 0.05,
@@ -16,7 +16,7 @@ fetchPrecursorsInfo(
 \arguments{
 \item{filename}{(string) Should be from the RUN.FILENAME column from osw files.}
 
-\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{selectIDs}{(integer) a vector of integers.}
 
@@ -42,7 +42,7 @@ Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id an
 dataPath <- system.file("extdata", package = "DIAlignR")
 filename <- paste0(dataPath,"/osw/merged.osw")
 \dontrun{
-precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_proteomics", context = "experiment-wide")
+precursorsInfo <- fetchPrecursorsInfo(filename, runType = "DIA_Proteomics", context = "experiment-wide")
 dim(precursorsInfo) # 234  6
 }
 }

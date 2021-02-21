@@ -61,7 +61,7 @@ test_that("test_getXICs", {
   params <- paramsDIAlignR()
   params[["chromFile"]] <- "mzML"
   outData <- getXICs(analytes = 4618L, runs = runs, dataPath = dataPath,
-          maxFdrQuery = 1.0, runType = "DIA_proteomics", oswMerged = TRUE, params)
+          maxFdrQuery = 1.0, runType = "DIA_Proteomics", oswMerged = TRUE, params)
   data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
   XICs <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR
   expect_equal(outData[["hroest_K120808_Strep10%PlasmaBiolRepl1_R03_SW_filt"]][["4618"]],

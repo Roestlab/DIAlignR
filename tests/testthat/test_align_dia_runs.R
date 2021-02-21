@@ -105,6 +105,34 @@ test_that("test_getAlignObjs",{
   expect_identical(outData[[2]][["898"]], NULL)
 })
 
+test_that("test_alignTargetedRuns_metabolomics",{
+  dataPath <- system.file("metabo", package = "DIAlignR")
+  params <- paramsDIAlignR()
+  params[["maxFdrQuery"]] <- 0.05
+  params[["unalignedFDR"]] <- 0.05
+  params[["alignedFDR"]] <- 0.05
+  params[["analyteFDR"]] <- 1.0
+  params[["maxPeptideFdr"]] <- 0.05
+  params[["kernelLen"]] <- 9L
+  params[["globalAlignment"]] <- "linear"
+  params[["globalAlignmentFdr"]] <- 0.05
+  params[["context"]] <- "experiment-wide"
+  params[["runType"]] <- "DIA_Metabolomics"
+  params[["chromFile"]] <- "mzML"
+  alignTargetedRuns(dataPath = dataPath,  outFile = "temp_metabo", params = params,
+                      oswMerged = TRUE, runs = NULL, applyFun = lapply)
+  outData <- read.table("temp_metabo.tsv", sep = "\t", header = TRUE)
+  expData <- read.table("test_metabo.tsv", sep = "\t", header = TRUE)
+  expect_identical(dim(outData), dim(expData))
+  expect_identical(colnames(outData), colnames(expData))
+  expect_identical(outData[["peptide"]], expData[["peptide"]])
+  expect_identical(outData[["run"]], expData[["run"]])
+  for(i in 1:13){
+    expect_equal(outData[[i]], expData[[i]], tolerance = 1e-04)
+  }
+  file.remove("temp_metabo.tsv")
+})
+
 test_that("test_alignToRef",{
   dataPath <- system.file("extdata", package = "DIAlignR")
   params <- paramsDIAlignR()

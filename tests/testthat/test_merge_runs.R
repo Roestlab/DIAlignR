@@ -28,12 +28,12 @@ test_that("test_getNodeRun",{
   params[["chromFile"]] <- "mzML"
   fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
-  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
+  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics"))
 
   precursors <- getPrecursors(fileInfo, oswMerged = TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
   precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
   peptideIDs <-  c(7040L, 14383L, 9861L)
-  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_Proteomics", "experiment-wide")
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
 
@@ -86,7 +86,7 @@ test_that("test_getChildFeature",{
   params <- paramsDIAlignR()
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath = dataPath)
-  features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+  features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_Proteomics")
   df.ref <- features$run1[features$run1$transition_group_id == 4618L, ]
   df.eXp <- features$run2[features$run2$transition_group_id == 4618L, ]
   outData <- getChildFeature(newXICs[[1]], newXICs[[2]][,3:5], df.ref, df.eXp, params)
@@ -124,13 +124,13 @@ test_that("test_getChildXICs",{
   params <- paramsDIAlignR()
   params[["chromFile"]] <- "mzML"
   fileInfo <- getRunNames(dataPath = dataPath, params = params)
-  features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+  features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_Proteomics")
   mzPntrs <- getMZMLpointers(fileInfo)
   precursors <- data.frame(transition_group_id = 4618L, peptide_id = 14383L,
                            sequence = "QFNNTDIVLLEDFQK", charge = 3L,
                            group_label = "14299_QFNNTDIVLLEDFQK/3",
                            transition_ids	= I(list(27706:27711)))
-  peptideScores <- getPeptideScores(fileInfo, peptides = 14383L, TRUE, "DIA_proteomics", "experiment-wide")
+  peptideScores <- getPeptideScores(fileInfo, peptides = 14383L, TRUE, "DIA_Proteomics", "experiment-wide")
 
   prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
   refRun <- data.frame(2, "4618")

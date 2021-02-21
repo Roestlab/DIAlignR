@@ -337,7 +337,7 @@ traverseDown <- function(tree, dataPath, fileInfo, multipeptide, prec2chromIndex
 #' params <- paramsDIAlignR()
 #' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
 #' mzPntrs <- list2env(getMZMLpointers(fileInfo))
-#' features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
+#' features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics"))
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, runType = params[["runType"]],
 #'  context = "experiment-wide", maxPeptideFdr = params[["maxPeptideFdr"]])
 #' precursors <- dplyr::arrange(precursors, .data$peptide_id, .data$transition_group_id)

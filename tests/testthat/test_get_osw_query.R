@@ -50,44 +50,44 @@ test_that("test_getPrecursorsQuery",{
 test_that("test_getFeaturesQuery",{
   outData <- getFeaturesQuery(runType = "DIA_Proteomics")
   expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
-  FEATURE.ID AS feature_id,
-  FEATURE.EXP_RT AS RT,
-  FEATURE_MS2.AREA_INTENSITY AS intensity,
-  FEATURE.LEFT_WIDTH AS leftWidth,
-  FEATURE.RIGHT_WIDTH AS rightWidth,
-  SCORE_MS2.RANK AS peak_group_rank,
-  SCORE_MS2.QVALUE AS m_score
-  FROM PRECURSOR
-  INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
-  INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
-  LEFT JOIN (
-      SELECT FEATURE_ID, AREA_INTENSITY
-      FROM FEATURE_MS2
-  ) AS FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
-  INNER JOIN (
-      SELECT FEATURE_ID, RANK, QVALUE
-      FROM SCORE_MS2
-      WHERE SCORE_MS2.QVALUE < $FDR
-      ) AS SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
-  WHERE PRECURSOR.DECOY = 0 AND RUN.ID = $runID
-  ORDER BY transition_group_id, peak_group_rank;"
+    FEATURE.ID AS feature_id,
+    FEATURE.EXP_RT AS RT,
+    FEATURE_MS2.AREA_INTENSITY AS intensity,
+    FEATURE.LEFT_WIDTH AS leftWidth,
+    FEATURE.RIGHT_WIDTH AS rightWidth,
+    SCORE_MS2.RANK AS peak_group_rank,
+    SCORE_MS2.QVALUE AS m_score
+    FROM PRECURSOR
+    INNER JOIN FEATURE ON FEATURE.PRECURSOR_ID = PRECURSOR.ID
+    INNER JOIN RUN ON RUN.ID = FEATURE.RUN_ID
+    LEFT JOIN (
+        SELECT FEATURE_ID, AREA_INTENSITY
+        FROM FEATURE_MS2
+    ) AS FEATURE_MS2 ON FEATURE_MS2.FEATURE_ID = FEATURE.ID
+    INNER JOIN (
+        SELECT FEATURE_ID, RANK, QVALUE
+        FROM SCORE_MS2
+        WHERE SCORE_MS2.QVALUE < $FDR
+        ) AS SCORE_MS2 ON SCORE_MS2.FEATURE_ID = FEATURE.ID
+    WHERE PRECURSOR.DECOY = 0 AND RUN.ID = $runID
+    ORDER BY transition_group_id, peak_group_rank;"
   expect_identical(outData, expOutput)
 })
 
 test_that("test_getPrecursorsQueryID",{
   outData <- getPrecursorsQueryID(c(32L, 43L), runType = "DIA_Proteomics")
   expOutput <- "SELECT PRECURSOR.ID AS transition_group_id,
-      TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
-      PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
-      PEPTIDE.MODIFIED_SEQUENCE AS sequence,
-      PRECURSOR.CHARGE AS charge,
-      PRECURSOR.GROUP_LABEL AS group_label
-      FROM PRECURSOR
-      INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
-      INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
-      INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
-      WHERE  transition_group_id IN ('32','43')
-      ORDER BY peptide_id, transition_group_id, transition_id;"
+                  TRANSITION_PRECURSOR_MAPPING.TRANSITION_ID AS transition_id,
+                  PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID AS peptide_id,
+                  PEPTIDE.MODIFIED_SEQUENCE AS sequence,
+                  PRECURSOR.CHARGE AS charge,
+                  PRECURSOR.GROUP_LABEL AS group_label
+                  FROM PRECURSOR
+                  INNER JOIN TRANSITION_PRECURSOR_MAPPING ON TRANSITION_PRECURSOR_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+                  INNER JOIN PRECURSOR_PEPTIDE_MAPPING ON PRECURSOR_PEPTIDE_MAPPING.PRECURSOR_ID = PRECURSOR.ID
+                  INNER JOIN PEPTIDE ON PRECURSOR_PEPTIDE_MAPPING.PEPTIDE_ID = PEPTIDE.ID
+                  WHERE  transition_group_id IN ('32','43')
+                  ORDER BY peptide_id, transition_group_id, transition_id;"
   expect_identical(outData, expOutput)
 })
 

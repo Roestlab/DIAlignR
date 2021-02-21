@@ -37,13 +37,13 @@ test_that("test_traverseUp", {
   params[["chromFile"]] <- "mzML"
   fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
-  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
+  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics"))
   precursors <- data.frame(transition_group_id = 4618L, peptide_id = 14383L,
                            sequence = "QFNNTDIVLLEDFQK", charge = 3L,
                            group_label = "14299_QFNNTDIVLLEDFQK/3",
                            transition_ids	= I(list(27706:27711)))
   peptideIDs <- 14383L
-  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_Proteomics", "experiment-wide")
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
   peptideScores <- list2env(peptideScores)
@@ -108,11 +108,11 @@ test_that("test_traverseDown", {
   params[["chromFile"]] <- "mzML"
   fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
-  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
+  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics"))
   precursors <- getPrecursors(fileInfo, oswMerged = TRUE, params[["runType"]], params[["context"]], params[["maxPeptideFdr"]])
   precursors <- precursors[precursors$peptide_id %in% c("7040", "9861", "14383"),]
   peptideIDs <-  c(7040L, 14383L, 9861L)
-  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_Proteomics", "experiment-wide")
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
   peptideScores <- list2env(peptideScores)
@@ -162,13 +162,13 @@ test_that("test_alignToMaster", {
   params[["chromFile"]] <- "mzML"
   fileInfo <- getRunNames(dataPath = dataPath, params = params)
   mzPntrs <- list2env(getMZMLpointers(fileInfo))
-  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics"))
+  features <- list2env(getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics"))
   precursors <- data.frame(transition_group_id = 4618L, peptide_id = 14383L,
                            sequence = "QFNNTDIVLLEDFQK", charge = 3L,
                            group_label = "14299_QFNNTDIVLLEDFQK/3",
                            transition_ids	= I(list(27706:27711)))
   peptideIDs <- 14383
-  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_proteomics", "experiment-wide")
+  peptideScores <- getPeptideScores(fileInfo, peptides = peptideIDs, TRUE, "DIA_Proteomics", "experiment-wide")
   peptideScores <- lapply(peptideIDs, function(pep) dplyr::filter(peptideScores, .data$peptide_id == pep))
   names(peptideScores) <- as.character(peptideIDs)
 

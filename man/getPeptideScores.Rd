@@ -8,7 +8,7 @@ getPeptideScores(
   fileInfo,
   peptides,
   oswMerged = TRUE,
-  runType = "DIA_proteomics",
+  runType = "DIA_Proteomics",
   context = "global"
 )
 }
@@ -19,7 +19,7 @@ getPeptideScores(
 
 \item{oswMerged}{(logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.}
 
-\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
 }
@@ -37,7 +37,7 @@ Get a list of dataframes that contains peptide scores, pvalues, and qvalues acro
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath = dataPath)
-precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_proteomics",
+precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics",
 context = "experiment-wide", maxPeptideFdr = 0.05)
 peptidesInfo <- getPeptideScores(fileInfo, unique(precursorsInfo$peptide_id))
 dim(peptidesInfo) # 684 5

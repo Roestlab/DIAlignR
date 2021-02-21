@@ -8,7 +8,7 @@ paramsDIAlignR()
 }
 \value{
 A list of parameters:
-\item{runType}{(string) must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(string) must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 \item{chromFile}{(string) must either be "mzML" or "sqMass".}
 \item{maxFdrQuery}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_MS2.QVALUE less than itself.}
 \item{maxPeptideFdr}{(numeric) a numeric value between 0 and 1. It is used to filter peptides from osw file which have SCORE_PEPTIDE.QVALUE less than itself.}

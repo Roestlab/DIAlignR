@@ -11,7 +11,7 @@ test_that("test_analytesFromFeatures",{
                           stringsAsFactors=FALSE)
   dataPath <- system.file("extdata", package = "DIAlignR")
   fileInfo <- getRunNames(dataPath = dataPath)
-  oswFiles <- getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_proteomics")
+  oswFiles <- getFeatures(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics")
 
   outData <- analytesFromFeatures(oswFiles, analyteFDR = 0.01, commonAnalytes = TRUE)
   expect_identical(length(outData), 138L)

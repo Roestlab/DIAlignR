@@ -9,7 +9,7 @@ fetchPeptidesInfo2(oswName, runType, context, runID)
 \arguments{
 \item{oswName}{(char) path to the osw file.}
 
-\item{runType}{(string) This must be one of the strings "DIA_proteomics", "DIA_Metabolomics".}
+\item{runType}{(char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".}
 
 \item{context}{(string) Context used in pyprophet peptide. Must be either "run-specific", "experiment-wide", or "global".}
 }
@@ -29,7 +29,7 @@ dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- getRunNames(dataPath = dataPath)
 oswName <- fileInfo[["featureFile"]][1]
 \dontrun{
-precursorsInfo <- fetchPeptidesInfo(fileInfo, runType = "DIA_proteomics", context = "experiment-wide")
+precursorsInfo <- fetchPeptidesInfo(fileInfo, runType = "DIA_Proteomics", context = "experiment-wide")
 }
 }
 \seealso{

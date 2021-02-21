@@ -31,7 +31,7 @@ newXICs <- masterXICs_DIAlignR
 params <- paramsDIAlignR()
 dataPath <- system.file("extdata", package = "DIAlignR")
 fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
-features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_proteomics")
+features <- getFeatures(fileInfo, maxFdrQuery = 1.00, runType = "DIA_Proteomics")
 df.ref <- features$run1[features$run1$transition_group_id == 4618L, ]
 df.eXp <- features$run2[features$run2$transition_group_id == 4618L, ]
 \dontrun{
