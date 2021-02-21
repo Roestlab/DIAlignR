@@ -46,7 +46,7 @@ script1 <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), o
   end_time <- Sys.time()
   message("The execution time for calculating global alignment:")
   print(end_time - start_time)
-  save(features, globalFits, RSE, file = file.path(dataPath, paste0(outFile, "script1.RData", sep = "_")))
+  save(features, globalFits, RSE, file = file.path(dataPath, paste0(outFile, "_script1.RData")))
   print("script1 is done.")
 }
 
@@ -74,7 +74,7 @@ script1 <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), o
 #' @export
 script2 <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), oswMerged = TRUE,
                     runs = NULL, refRun = NULL, applyFun = lapply){
-  load(file = file.path(dataPath, paste0(outFile, "script1.RData", sep = "_")))
+  load(file = file.path(dataPath, paste0(outFile, "_script1.RData")))
   #### Check if all parameters make sense.  #########
   params <- checkParams(params)
 

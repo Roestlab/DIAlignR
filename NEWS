@@ -1,4 +1,4 @@
-CHANGES IN VERSION 1.3.16 (February 21, 2021)
+CHANGES IN VERSION 1.3.17 (February 21, 2021)
 ------------------------
 + Using data.table instead of data.frame for modify-in-place
 + Added support for metabolomics DIA alignment
