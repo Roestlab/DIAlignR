@@ -118,7 +118,6 @@ getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FAL
 }
 
 
-
 #' Get precursors from a feature file
 #'
 #' Get a data-frame of analytes' transition_group_id, transition_ids, peptide_id and amino-acid sequences.
@@ -129,8 +128,7 @@ getOswAnalytes <- function(fileInfo, oswMerged = TRUE, analyteInGroupLabel = FAL
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-04
-#' @importFrom magrittr %>%
-#' @importFrom rlang .data
+#' @importFrom data.table setDT
 #' @inheritParams getPrecursors
 #' @param filename (string) Should be from the RUN.FILENAME column from osw files.
 #' @param runType (string) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
@@ -165,29 +163,17 @@ fetchPrecursorsInfo <- function(filename, runType = "DIA_Proteomics", selectIDs 
     query <- getPrecursorsQueryID(selectIDs, runType)
   }
 
-  if (runType == "DIA_Proteomics")
-  {
   # Run query to get peptides, their coordinates and scores.
   precursorsInfo <- tryCatch(expr = { output <- DBI::dbSendQuery(con, statement = query)
-                                        if(all) {DBI::dbBind(output, list("CONTEXT"=context, "FDR"=maxPeptideFdr))}
+                     if(all && runType != "DIA_Metabolomics") {DBI::dbBind(output, list("CONTEXT"=context, "FDR"=maxPeptideFdr))}
                                         DBI::dbFetch(output)},
                              finally = {DBI::dbClearResult(output)
                              DBI::dbDisconnect(con)})
-  # Each precursor has only one row. tidyr::nest creates a tibble object that is twice as heavy to regular list.
-  precursorsInfo <- dplyr::group_by(precursorsInfo, .data$transition_group_id, .data$peptide_id, .data$sequence, .data$charge, .data$group_label) %>%
-    dplyr::summarise(transition_ids = base::list(.data$transition_id)) %>% dplyr::ungroup() %>% as.data.frame()
-  }
-  else if (runType == "DIA_Metabolomics")
-  {
-    # Run query to get compounds, their coordinates and scores.
-  precursorsInfo <- tryCatch(expr = { output <- DBI::dbSendQuery(con, statement = query)
-                                        DBI::dbFetch(output)},
-                           finally = {DBI::dbClearResult(output)
-                             DBI::dbDisconnect(con)})
-  # Each precursor has only one row. tidyr::nest creates a tibble object that is twice as heavy to regular list.
-  precursorsInfo <- dplyr::group_by(precursorsInfo, .data$transition_group_id, .data$peptide_id, .data$sum_formula, .data$compound_name, .data$adducts, .data$charge, .data$group_label) %>%
-    dplyr::summarise(transition_ids = base::list(.data$transition_id)) %>% dplyr::ungroup() %>% as.data.frame()
-  }
+  # Each precursor has only one row.
+  setDT(precursorsInfo)
+  precursorsInfo[, `:=`(transition_ids = list(transition_id)),
+                 by = .(transition_group_id)][, transition_id := NULL]
+  precursorsInfo <- unique(precursorsInfo, by = c("transition_group_id"))
   precursorsInfo
 }
 
@@ -201,7 +187,7 @@ fetchPrecursorsInfo <- function(filename, runType = "DIA_Proteomics", selectIDs 
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-06
-#' @importFrom magrittr %>%
+#' @importFrom data.table data.table setkeyv
 #' @param fileInfo (data-frame) Output of \code{\link{getRunNames}} function.
 #' @param oswMerged (logical) TRUE for experiment-wide FDR and FALSE for run-specific FDR by pyprophet.
 #' @param runType (char) This must be one of the strings "DIA_Proteomics", "DIA_Metabolomics".
@@ -234,17 +220,15 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics"
     # Iterate over each file and collect precursor information
     oswName <- fileInfo[["featureFile"]][[1]]
     precursors <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
-    #precursors <- data.frame()
-    #ids <- integer()
     #for(i in 1:nrow(fileInfo)){
-    #  oswName <- fileInfo[["featureFile"]][[i]]
-    #  temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
-    #  idx <- !(temp$transition_group_id %in% ids)
-    #  precursors <- rbind(precursors, temp[idx,])
-    #  ids <- precursors$transition_group_id
-    # }
+      #oswName <- fileInfo[["featureFile"]][[i]]
+      #temp <- fetchPrecursorsInfo(oswName, runType, NULL, context, maxPeptideFdr, level)
+      #temp <- temp[!precursors, on = .(transition_group_id)] # Anti-join
+      #precursors <- rbind(precursors, temp, use.names = FALSE)
+    #}
   }
-  message(paste0(nrow(precursors), " precursors are found."))
+  setkeyv(precursors, c("peptide_id", "transition_group_id"))
+  message(precursors[,.N], " precursors are found.")
   precursors
 }
 
@@ -259,8 +243,7 @@ getPrecursors <- function(fileInfo, oswMerged = TRUE, runType = "DIA_Proteomics"
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2019-04-06
-#' @importFrom magrittr %>%
-#' @import dplyr
+#' @importFrom data.table .N
 #' @inheritParams getPrecursors
 #' @param analytes (integer) a vector of integers.
 #' @return (data-frames) A data-frame having following columns:
@@ -284,15 +267,18 @@ getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DI
     precursors <- fetchPrecursorsInfo(oswName, runType, analytes, maxPeptideFdr = 1.00)
   } else {
     # Iterate over each file and collect precursor information
-    precursors <- data.frame("transition_group_id" = integer())
+    precursors <- data.table("transition_group_id" = integer(), "transition_id"= integer(), "peptide_id" = integer(),
+                             "sequence" = character(), "charge" = integer(), "group_label" = character(),
+                             "transition_ids" = list())
     for(i in 1:nrow(fileInfo)){
       oswName <- fileInfo[["featureFile"]][[i]]
-      temp <- fetchPrecursorsInfo(oswName, runType, analytes, maxPeptideFdr = 1.00)
-      idx <- !(temp$transition_group_id %in% precursors$transition_group_id)
-      precursors <- dplyr::bind_rows(precursors, temp[idx,])
+      temp <- fetchPrecursorsInfo2(oswName, runType, analytes, maxPeptideFdr = 1.00)
+      temp <- temp[!precursors, on = .(transition_group_id)] # Anti-join
+      precursors <- rbind(precursors, temp, use.names = FALSE)
     }
   }
-  message(paste0(nrow(precursors), " precursors are found."))
+  setkeyv(precursors, c("peptide_id", "transition_group_id"))
+  message(precursors[,.N], " precursors are found.")
   precursors
 }
 
@@ -307,7 +293,7 @@ getPrecursorByID <- function(analytes, fileInfo, oswMerged = TRUE, runType = "DI
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-04
-#' @importFrom magrittr %>%
+#' @importFrom data.table setDT setkey
 #' @param filename (string) Path to the feature file.
 #' @param runID (string) id in RUN.ID column of the feature file.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
@@ -342,7 +328,8 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
                           DBI::dbFetch(output)},
                           finally = {DBI::dbClearResult(output)
                             DBI::dbDisconnect(con)})
-  featuresInfo
+  setDT(featuresInfo)
+  setkey(featuresInfo, "transition_group_id")
 }
 
 
@@ -356,7 +343,6 @@ fetchFeaturesFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = 
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-04-06
-#' @importFrom magrittr %>%
 #' @inheritParams alignTargetedRuns
 #' @param fileInfo (data-frame) output of \code{\link{getRunNames}} function.
 #' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
@@ -394,6 +380,21 @@ getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics"
   features
 }
 
+dummyFeatures <- function(precursors, numMerge = 0L, startIdx = 1L){
+  stpIdx <- startIdx + numMerge - 1
+  masters <- paste0("master", startIdx:stpIdx)
+  transition_group_ids <- .subset2(precursors, "transition_group_id")
+
+  features <- lapply(masters, function(run) {
+    data.table("transition_group_id" = rep(transition_group_ids, each = 5L),
+               "feature_id" = bit64::NA_integer64_, "RT" = NA_real_, "intensity" = NA_real_,
+               "leftWidth" = NA_real_, "rightWidth" = NA_real_, "peak_group_rank" = NA_integer_,
+               "m_score" = NA_real_, key = "transition_group_id")
+  })
+  names(features) <- masters
+  features
+}
+
 #' Get scores of all peptides
 #'
 #' Return a scores, pvalues, and qvalues for all peptides from the osw file.
@@ -405,6 +406,7 @@ getFeatures <- function(fileInfo, maxFdrQuery = 0.05, runType = "DIA_Proteomics"
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-01
 #' @keywords internal
+#' @importFrom data.table setDT
 #' @inheritParams getPrecursors
 #' @param oswName (char) path to the osw file.
 #' @return (dataframe) with following columns:
@@ -435,7 +437,9 @@ fetchPeptidesInfo <- function(oswName, runType, context){
               finally = {DBI::dbClearResult(output)
                          DBI::dbDisconnect(con)})
 
-  peptidesInfo[,c("peptide_id", "run", "score", "pvalue", "qvalue")]
+  peptidesInfo <- peptidesInfo[,c("peptide_id", "run", "score", "pvalue", "qvalue")]
+  setDT(peptidesInfo)
+  peptidesInfo
 }
 
 #' Get scores of all peptides
@@ -479,6 +483,7 @@ fetchPeptidesInfo2 <- function(oswName, runType, context, runID){
   finally = {DBI::dbClearResult(output)
     DBI::dbDisconnect(con)})
 
+  setDT(peptidesInfo)
   peptidesInfo
 }
 
@@ -493,7 +498,7 @@ fetchPeptidesInfo2 <- function(oswName, runType, context, runID){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-07-01
-#' @import dplyr bit64
+#' @importFrom data.table setnames setcolorder setkey
 #' @inheritParams getPrecursors
 #' @param peptides (integer) Ids of peptides for which scores are required.
 #' @return (list of dataframes) dataframe has following columns:
@@ -520,29 +525,22 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
     oswName <- unique(fileInfo[["featureFile"]])
     peptidesInfo <- fetchPeptidesInfo(oswName, runType, context)
   } else {
-    oswName <- fileInfo[["featureFile"]][[1]]
-    peptidesInfo <- fetchPeptidesInfo(oswName, runType, context)
-    # Iterate over each file and collect peptides information
-    #peptidesInfo <- data.frame()
-    #for(i in 1:nrow(fileInfo)){
-    #  oswName <- fileInfo[["featureFile"]][[i]]
-    #  runID <- fileInfo[["spectraFileID"]][[i]]
-    #  names(runID) <- rownames(fileInfo)[[i]]
-    #  temp <- fetchPeptidesInfo2(oswName, runType, context, runID)
-    #  peptidesInfo <- dplyr::bind_rows(peptidesInfo, temp)
-    #}
+    peptidesInfo <- rbindlist(lapply(1:nrow(fileInfo), function(i){
+      oswName <- fileInfo[["featureFile"]][[i]]
+      runID <- fileInfo[["spectraFileID"]][[i]]
+      names(runID) <- rownames(fileInfo)[[i]]
+      fetchPeptidesInfo2(oswName, runType, context, runID)}), use.names=FALSE)
   }
-  peptidesInfo <- dplyr::filter(peptidesInfo, .data$peptide_id %in% peptides)
-  runs <- bit64::as.integer64(fileInfo$spectraFileID)
-  peptidesInfo <- dplyr::filter(peptidesInfo, .data$run %in% runs)
-  peptidesInfo$run <- rownames(fileInfo)[match(peptidesInfo$run, runs)]
-  if(length(unique(peptidesInfo$peptide_id)) != length(peptides)) {
-    warning("Unable to find scores for few peptides. Appending NAs.")
-    temp <- data.frame(peptide_id = setdiff(peptides, unique(peptidesInfo$peptide_id)),
-                       run = NA_character_, score = NA_real_, pvalue = NA_real_, qvalue = NA_real_)
-    peptidesInfo <- rbind(peptidesInfo, temp)
-  }
-  message(nrow(peptidesInfo), " peptides scores are fetched.")
+
+  ids <- bit64::as.integer64(fileInfo$spectraFileID)
+  peptidesInfo <- peptidesInfo[list(ids), on = "run"]
+  peptidesInfo[, col2 := rownames(fileInfo)[match(run, ids)]][,run:= NULL]
+  setnames(peptidesInfo, "col2", "run")
+  setcolorder(peptidesInfo, c("peptide_id","run"))
+  peptidesInfo <- peptidesInfo[list(peptides), on = "peptide_id"]
+
+  setkey(peptidesInfo, peptide_id)
+  message(peptidesInfo[,.N], " peptides scores are fetched.")
   peptidesInfo
 }
 
@@ -557,7 +555,7 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-11-15
-#' @importFrom magrittr %>%
+#' @importFrom data.table setnames setDT setcolorder .SD ":="
 #' @param filename (string) Path to the feature file.
 #' @param runID (string) id in RUN.ID column of the feature file.
 #' @param maxFdrQuery (numeric) A numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.
@@ -583,24 +581,24 @@ getPeptideScores <- function(fileInfo, peptides, oswMerged = TRUE, runType = "DI
 #' }
 fetchTransitionsFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType = "DIA_Proteomics"){
   # Establish a connection of SQLite file.
-  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = as.character(filename))
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = filename)
   # Generate a query.
   query <- getTransitionsQuery(runType)
   # Run query to get peptides, their coordinates and scores.
   transitionInfo <- tryCatch(expr = {output <- DBI::dbSendQuery(con, statement = query)
-  DBI::dbBind(output, list("FDR"=maxFdrQuery, "runID" = runID))
-  DBI::dbFetch(output)},
-  finally = {DBI::dbClearResult(output)
-    DBI::dbDisconnect(con)})
-  df1 <- dplyr::select(transitionInfo, -.data$intensity) %>%
-    dplyr::group_by(.data$transition_group_id, .data$peak_group_rank) %>%
-    filter(row_number()==1) %>% dplyr::ungroup() %>% as.data.frame()
-  df2 <- dplyr::group_by(transitionInfo, .data$transition_group_id, .data$peak_group_rank) %>%
-    dplyr::summarise(intensity = base::list(.data$intensity)) %>% dplyr::ungroup() %>% as.data.frame()
-  transitionInfo <- merge(df1, df2, by = c("transition_group_id", "peak_group_rank"))
-  transitionInfo <- dplyr::select(transitionInfo, .data$transition_group_id, .data$feature_id, .data$RT,
-                                  .data$intensity, .data$leftWidth, .data$rightWidth, .data$peak_group_rank, .data$m_score) %>%
-    dplyr::arrange(transitionInfo, .data$transition_group_id, .data$peak_group_rank)
+                  DBI::dbBind(output, list("FDR"=maxFdrQuery, "runID" = runID))
+                  DBI::dbFetch(output)},
+                  finally = {DBI::dbClearResult(output)
+                    DBI::dbDisconnect(con)})
+  setDT(transitionInfo)
+  transitionInfo <- transitionInfo[, `:=`(intensity2 = list(intensity)),
+                                   keyby = .(transition_group_id, peak_group_rank)][
+       ,intensity := NULL][
+       , head(.SD, 1), by=.(transition_group_id, peak_group_rank),
+       .SDcols = c("feature_id", "RT", "intensity2", "leftWidth", "rightWidth", "m_score")]
+  setnames(transitionInfo, "intensity2", "intensity")
+  setcolorder(transitionInfo, c("transition_group_id", "feature_id", "RT", "intensity", "leftWidth",
+                                "rightWidth", "peak_group_rank", "m_score"))
   transitionInfo
 }
 
@@ -615,7 +613,6 @@ fetchTransitionsFromRun <- function(filename, runID, maxFdrQuery = 1.00, runType
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-11-15
-#' @importFrom magrittr %>%
 #' @inheritParams alignTargetedRuns
 #' @param fileInfo (data-frame) output of \code{\link{getRunNames}} function.
 #' @param maxFdrQuery (numeric) a numeric value between 0 and 1. It is used to filter features from osw file which have SCORE_MS2.QVALUE less than itself.

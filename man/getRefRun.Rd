@@ -26,11 +26,9 @@ precursorsInfo <- getPrecursors(fileInfo, oswMerged = TRUE, runType = "DIA_Prote
                                 context = "experiment-wide", maxPeptideFdr = 0.05)
 peptideIDs <- unique(precursorsInfo$peptide_id)
 peptidesInfo <- getPeptideScores(fileInfo, peptideIDs)
-peptidesInfo <- lapply(peptideIDs, function(pep) dplyr::filter(peptidesInfo, .data$peptide_id == pep))
+peptidesInfo <- lapply(peptideIDs, function(pep) peptidesInfo [.(pep),])
 names(peptidesInfo) <- as.character(peptideIDs)
-\dontrun{
 getRefRun(peptidesInfo)
-}
 }
 \seealso{
 \code{\link{getPeptideScores}}
@@ -43,4 +41,3 @@ ORCID: 0000-0003-3500-8152
 License: (c) Author (2020) + GPL-3
 Date: 2020-04-08
 }
-\keyword{internal}

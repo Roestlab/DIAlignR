@@ -211,11 +211,7 @@ alignTargetedRuns2 <- function(dataPath, outFile = "DIAlignR.tsv", params, ids= 
 
   #### Convert features into multi-peptide #####
   message("Building multipeptide.")
-  if(params[["transitionIntensity"]]){
-    multipeptide <- getMultipeptide2(precursors, features, applyFun)
-  } else{
-    multipeptide <- getMultipeptide(precursors, features, applyFun)
-  }
+  multipeptide <- getMultipeptide(precursors, features, applyFun)
   message(length(multipeptide), " peptides are in the multipeptide.")
 
   #### Get reference run for each precursor ########

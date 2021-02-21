@@ -4,7 +4,7 @@
 \alias{getChildFeature}
 \title{Transform features to child time-domain}
 \usage{
-getChildFeature(XICs, alignedVec, df.ref, df.eXp, params)
+getChildFeature(XICs, alignedVec, df.ref, df.eXp, i.ref, i.eXp, params)
 }
 \arguments{
 \item{XICs}{(list of data-frames) extracted ion chromatograms from the child run.}

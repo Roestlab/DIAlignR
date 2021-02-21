@@ -4,7 +4,7 @@
 \alias{trfrParentFeature}
 \title{Transform features to child time-domain}
 \usage{
-trfrParentFeature(XICs, timeParent, df, params)
+trfrParentFeature(XICs, timeParent, df, i, params)
 }
 \arguments{
 \item{XICs}{(list of data-frames) extracted ion chromatograms from the child run.}

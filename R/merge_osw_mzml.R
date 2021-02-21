@@ -1,13 +1,13 @@
 #' Merge dataframes from OSW and mzML files
 #'
 #' Merges dataframes on transition_id(OSW) = chromatogramId(mzML).
-#' @importFrom dplyr %>%
 #' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
 #'
 #' ORCID: 0000-0003-3500-8152
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
+#' @importFrom dplyr %>%
 #' @importFrom rlang .data
 #' @param oswAnalytes (dataframe) This is an output of getOswFiles.
 #' @param chromHead (dataframe) This has two columns: chromatogramId and chromatogramIndex with integer values.
@@ -174,11 +174,11 @@ mapPrecursorToChromIndices <- function(prec2transition, chromHead){
 #' @seealso \code{\link{chromatogramIdAsInteger}, \link{mapPrecursorToChromIndices}}
 #' @examples
 #' dataPath <- system.file("extdata", package = "DIAlignR")
-#' fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+#' fileInfo <- getRunNames(dataPath = dataPath)
 #' precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 #' mzPntrs <- getMZMLpointers(fileInfo)
 #' prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
-#' rm(mzPntrs)
+#' for(mz in mzPntrs) DBI::dbDisconnect(mz)
 #' @export
 getChromatogramIndices <- function(fileInfo, precursors, mzPntrs, applyFun=lapply){
   # Get precursor to transition mapping and unlist so that each row has one transition.
@@ -199,9 +199,20 @@ getChromatogramIndices <- function(fileInfo, precursors, mzPntrs, applyFun=lappl
     df <- df[match(precursors$transition_group_id, df$transition_group_id),]
     row.names(df) <- NULL
     message("Fetched chromatogram indices from ", fileInfo$chromatogramFile[i])
-    df
+    setDT(df)
   })
   names(prec2chromIndex) <- runs
   prec2chromIndex
 }
 
+dummyChromIndex <- function(precursors, numMerge = 0L, startIdx = 1L){
+  stpIdx <- startIdx + numMerge - 1
+  masters <- paste0("master", startIdx:stpIdx)
+  transition_group_ids <- .subset2(precursors, "transition_group_id")
+  prec2chromIndex <- lapply(masters, function(run) {
+    data.table("transition_group_id" = transition_group_ids,
+               "chromatogramIndex" = list(c(NA_integer_, NA_integer_)))
+  })
+  names(prec2chromIndex) <- masters
+  prec2chromIndex
+}

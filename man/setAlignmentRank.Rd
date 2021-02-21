@@ -4,27 +4,25 @@
 \alias{setAlignmentRank}
 \title{Set Alignment rank to the aligned feature}
 \usage{
-setAlignmentRank(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT)
+setAlignmentRank(df, refIdx, eXp, tAligned, XICs, params, adaptiveRT)
 }
 \arguments{
 \item{df}{(dataframe) a collection of features related to analyte_chr.}
-
-\item{ref}{(string) name of the reference run. Must be in the rownames of fileInfo.}
 
 \item{eXp}{(string) name of the run to be aligned to reference run. Must be in the rownames of fileInfo.}
 
 \item{tAligned}{(list) the first element corresponds to the aligned reference time,
 the second element is the aligned experiment time.}
 
-\item{XICs.eXp}{(list) list of extracted ion chromatograms from experiment run.}
-
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
 \item{adaptiveRT}{(numeric) defines the window around the aligned retention time, within which
 features with m-score below aligned FDR are considered for quantification.}
+
+\item{XICs.eXp}{(list) list of extracted ion chromatograms from experiment run.}
 }
 \value{
-(dataframe) a collection of aligned features for a peptide( = peptideIDs[rownum]).
+invisible NULL
 }
 \description{
 Picks the top feature in run by comparing m-score to unaligned FDR and aligned FDR.
@@ -43,7 +41,7 @@ XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10\%PlasmaBiolR
 # Use getAlignedTimes() to get tAligned.
 alignObj <- testAlignObj()
 tAligned <- alignedTimes2(alignObj, XICs.ref, XICs.eXp)
-setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
+setAlignmentRank(df, refIdx = 3L, eXp = "run2", tAligned, XICs.eXp,
 params, adaptiveRT = 38.66)
 }
 }
