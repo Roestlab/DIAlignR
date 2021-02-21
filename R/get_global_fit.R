@@ -8,8 +8,6 @@
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-14
-#' @importFrom rlang .data
-#' @importFrom dplyr %>%
 #' @param oswFiles (list of data-frames) it is output from getFeatures function.
 #' @param ref (string) Must be a combination of "run" and an iteger e.g. "run2".
 #' @param eXp (string) Must be a combination of "run" and an iteger e.g. "run2".
@@ -231,28 +229,26 @@ getGlobalFits <- function(refRun, features, fileInfo, globalAlignment,
 #'
 #' License: (c) Author (2021) + GPL-3
 #' Date: 2019-03-01
-#' @importFrom dplyr %>%
 #' @inheritParams getGlobalAlignment
+#' @inheritParams getGlobalFits
 #' @return A data-frame
 #' @seealso \code{\link{getGlobalAlignment}}
 #' @examples
 #' data(oswFiles_DIAlignR, package="DIAlignR")
-#' df <- getRTdf(oswFiles = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
+#' df <- getRTdf(features = oswFiles_DIAlignR, ref = "run1", eXp = "run2", maxFdrGlobal = 0.05)
 #' @export
-getRTdf <- function(oswFiles, ref, eXp, maxFdrGlobal){
+getRTdf <- function(features, ref, eXp, maxFdrGlobal){
   if(maxFdrGlobal > 1) stop("No common precursors found between ", ref, " and ", eXp)
-  df.ref <-  oswFiles[[ref]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  df.eXp <-  oswFiles[[eXp]] %>% dplyr::filter(.data$m_score <= maxFdrGlobal & .data$peak_group_rank == 1) %>%
-    dplyr::select(.data$transition_group_id, .data$RT)
-  RUNS_RT <- dplyr::inner_join(df.ref, df.eXp, by = "transition_group_id", suffix = c(".ref", ".eXp"))
+  df.ref <-  features[[ref]][peak_group_rank == 1L & m_score <= maxFdrGlobal, .(transition_group_id, RT)]
+  df.eXp <-  features[[eXp]][peak_group_rank == 1L & m_score <= maxFdrGlobal, .(transition_group_id, RT)]
+  RUNS_RT <- df.ref[df.eXp, on = .(transition_group_id), nomatch = 0]
   if(nrow(RUNS_RT) < 2){
     message("Increasing maxFdrGlobal 10 times")
-    RUNS_RT <- getRTdf(oswFiles, ref, eXp, 10*maxFdrGlobal)
+    RUNS_RT <- getRTdf(features, ref, eXp, 10*maxFdrGlobal)
   }
+  colnames(RUNS_RT) <- c("transition_group_id", "RT.ref", "RT.eXp")
   RUNS_RT
 }
-
 
 extractFit <- function(fit, globalAlignment){
   if(globalAlignment == "linear"){

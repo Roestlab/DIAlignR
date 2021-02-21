@@ -25,11 +25,11 @@ This function reads the header of chromatogram files. It then fetches chromatogr
 }
 \examples{
 dataPath <- system.file("extdata", package = "DIAlignR")
-fileInfo <- DIAlignR::getRunNames(dataPath = dataPath)
+fileInfo <- getRunNames(dataPath = dataPath)
 precursors <- getPrecursors(fileInfo, oswMerged = TRUE, context = "experiment-wide")
 mzPntrs <- getMZMLpointers(fileInfo)
 prec2chromIndex <- getChromatogramIndices(fileInfo, precursors, mzPntrs)
-rm(mzPntrs)
+for(mz in mzPntrs) DBI::dbDisconnect(mz)
 }
 \seealso{
 \code{\link{chromatogramIdAsInteger}, \link{mapPrecursorToChromIndices}}

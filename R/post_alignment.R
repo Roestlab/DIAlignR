@@ -8,7 +8,6 @@
 #'
 #' License: (c) Author (2019) + GPL-3
 #' Date: 2019-12-13
-#' @importFrom rlang .data
 #' @param eXpRT (numeric) retention time in experiment run.
 #' @param analyte (integer) vector of precursor IDs.
 #' @param oswFiles (list of data-frames) it is output from getFeatures function.
@@ -123,14 +122,15 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #'
 #' License: (c) Author (2020) + GPL-3
 #' Date: 2020-04-13
-#' @importFrom bit64 NA_integer64_
+#' @importFrom data.table set
 #' @inheritParams alignToRef
-#' @inherit alignIthAnalyte return
+#' @inherit perBatch return
 #' @param adaptiveRT (numeric) defines the window around the aligned retention time, within which
 #'  features with m-score below aligned FDR are considered for quantification.
 #' @param tAligned (list) the first element corresponds to the aligned reference time,
 #'  the second element is the aligned experiment time.
 #' @param XICs.eXp (list) list of extracted ion chromatograms from experiment run.
+#' @return invisible NULL
 #' @seealso \code{\link{getMultipeptide}, \link{calculateIntensity}, \link{alignToRef}}
 #' @keywords internal
 #'
@@ -146,189 +146,74 @@ mappedRTfromAlignObj <- function(refRT, tVec.ref, tVec.eXp, AlignObj){
 #' # Use getAlignedTimes() to get tAligned.
 #' alignObj <- testAlignObj()
 #' tAligned <- alignedTimes2(alignObj, XICs.ref, XICs.eXp)
-#' setAlignmentRank(df, ref = "run1", eXp = "run2", tAligned, XICs.eXp,
+#' setAlignmentRank(df, refIdx = 3L, eXp = "run2", tAligned, XICs.eXp,
 #' params, adaptiveRT = 38.66)
 #' }
-setAlignmentRank <- function(df, ref, eXp, tAligned, XICs.eXp, params, adaptiveRT){
-  ##### Check if any feature is below unaligned FDR. If present alignment_rank = 1. #####
-  df.eXp <- df[df$run == eXp,]
-  if(any(df.eXp[["m_score"]] < params[["unalignedFDR"]], na.rm = TRUE)){
-    idx <- which.min(df.eXp[["m_score"]])
-    df.eXp[["alignment_rank"]][idx] <- 1L
-    return(df.eXp)
-  }
-
-  ##### No high quality feature, hence, alignment is needed. Map peak from ref to eXp #####
+setAlignmentRank <- function(df, refIdx, eXp, tAligned, XICs, params, adaptiveRT){
+  ##### Map peak from ref to eXp #####
   # reference run.
-  refIdx <- which(df[["run"]] == ref & df[["alignment_rank"]] == 1)
-  if(all(is.na(df$m_score[refIdx]))){
-    refIdx <- refIdx[1]
-  } else {
-    refIdx <- refIdx[which.min(df$m_score[refIdx])]
-  }
-  analyte <- df[["transition_group_id"]][refIdx]
+  analyte <- .subset2(df, "transition_group_id")[[refIdx]]
   analyte_chr <- as.character(analyte)
-  refRT <- df[["RT"]][refIdx]
-  leftRef <- df[["leftWidth"]][refIdx]
-  rightRef <- df[["rightWidth"]][refIdx]
+  refRT <- .subset2(df, "RT")[[refIdx]]
+  leftRef <- .subset2(df, "leftWidth")[[refIdx]]
+  rightRef <- .subset2(df, "rightWidth")[[refIdx]]
   # Experiment run.
   left <- tAligned[,2][which.min(abs(tAligned[,1] - leftRef))]
   right <- tAligned[,2][which.min(abs(tAligned[,1] - rightRef))]
   eXpRT <- tAligned[,2][which.min(abs(tAligned[,1] - refRT))]
   # TODO. Save for the edge cases. or use wider chromatogram.
   if(any(length(left)==0, length(right)==0, length(eXpRT)==0)){
-    return(df.eXp) # Can happen if XICs have all zero intensities.
+    return(invisible(NULL)) # Can happen if XICs have all zero intensities.
   }
 
   ##### Find any feature present within adaptiveRT. #####
   pk <- c(left - adaptiveRT, right + adaptiveRT)
-  idx <- sapply(1:nrow(df.eXp), function(i) checkOverlap(pk, c(df.eXp$leftWidth[i], df.eXp$rightWidth[i])))
-  idx <- which(idx)
-  if(any(df.eXp[["m_score"]][idx] < params[["alignedFDR"]], na.rm = TRUE)){
-    idx <- idx[which.min(df.eXp[["m_score"]][idx])]
-    df.eXp[["alignment_rank"]][idx] <- 1L
-    return(df.eXp)
+  tempi <- which(df$run == eXp & !is.na(df$RT))
+  if(length(tempi) != 0){
+    idx <- sapply(tempi, function(i) checkOverlap(pk,
+        c(.subset2(df, "leftWidth")[[i]], .subset2(df, "rightWidth")[[i]])))
+    idx <- tempi[which(idx)]
+    if(any(.subset2(df, "m_score")[idx] <= params[["alignedFDR"]], na.rm = TRUE)){
+      idx <- idx[which.min(.subset2(df, "m_score")[idx])]
+      set(df, i = idx, "alignment_rank", 1L)
+      return(invisible(NULL))
+    }
   }
 
   ##### Create a new feature. #####
   if(params[["fillMissing"]]){
-    row <- newRow(XICs.eXp[[analyte_chr]], left, right, eXpRT, analyte, eXp, params)
-    df.eXp <- rbind(df.eXp, row)
+    newRow(df, XICs[[analyte_chr]], left, right, eXpRT, analyte, eXp, params)
   }
-  df.eXp
+  invisible(NULL)
 }
 
 # df should have features from one run only.
-setOtherPrecursors <- function(df, XICs, analytes, params){
-  refIdx <- which(df[["alignment_rank"]] == 1)
-  if(length(refIdx) == 0 | is.null(refIdx)) return(df)
+setOtherPrecursors <- function(df, refIdx, XICs, analytes, params){
+  Run <- .subset2(df, "run")[[refIdx]]
+  if(length(refIdx) == 0 | is.null(refIdx)) return(NULL)
 
-  run <- df$run[refIdx]
-  precRef <- df$transition_group_id[refIdx]
-  pk <- c(df$leftWidth[refIdx], df$rightWidth[refIdx])
+  precRef <- .subset2(df, "transition_group_id")[[refIdx]]
+  pk <- c(.subset2(df, "leftWidth")[refIdx], .subset2(df, "rightWidth")[refIdx])
 
   # If other precursors have overlapping feature then set their alignment rank to 1.
   for(analyte in setdiff(analytes, precRef)){
-    idx <- which(df[["transition_group_id"]] == analyte)
+    idx <- which(df[["run"]] == Run & df[["transition_group_id"]] == analyte)
     if(length(idx)!=0){
-      idx <- idx[sapply(idx, function(i) checkOverlap(pk, c(df$leftWidth[i], df$rightWidth[i])))]
+      idx <- idx[sapply(idx, function(i) {
+        sts <- checkOverlap(pk,  c(.subset2(df, "leftWidth")[i], .subset2(df, "rightWidth")[i]))
+        ifelse(is.na(sts), FALSE, sts)
+      } )]
     }
     if((length(idx)==0 | all(is.na(idx))) & params[["fillMissing"]]){
       # Create a feature for missing precursor
       analyte_chr <- as.character(analyte)
-      row <- newRow(XICs[[analyte_chr]], pk[1], pk[2], df$RT[refIdx], analyte, run, params)
-      df <- rbind(df, row)
+      newRow(df, XICs[[analyte_chr]], pk[1], pk[2], .subset2(df, "RT")[refIdx], analyte, Run, params)
     } else{
-      idx <- idx[which.max(pmin(pk[2], df$rightWidth[idx]) - pmax(pk[1], df$leftWidth[idx]))]
-      df[["alignment_rank"]][idx] <- 1L # set alignment rank for already present feature
+      idx <- idx[which.max(pmin(pk[2], .subset2(df, "rightWidth")[idx]) - pmax(pk[1], .subset2(df, "leftWidth")[idx]))]
+      set(df, i = idx, 10L, 1L)  # set alignment rank (10L) for already present feature
     }
   }
-  df
+  invisible(NULL)
 }
 
-#' Set Alignment rank to the aligned feature
-#'
-#' Picks the top feature in run by comparing m-score to unaligned FDR and aligned FDR.
-#' If no satisfactory feature is found, peak-integration is carried out by mapping left and right peak
-#' boundaries from the reference feature and integrating area under the curve.
-#' @author Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}
-#'
-#' ORCID: 0000-0003-3500-8152
-#'
-#' License: (c) Author (2020) + GPL-3
-#' Date: 2020-04-13
-#' @importFrom bit64 NA_integer64_
-#' @param multipeptide (list of data-frames) each element of the list is collection of features associated with a precursor.
-#' @param ref (numeric) name of the refernce run.
-#' @param eXp (numeric) name of the experiment run.
-#' @param analyte_chr (string) coerced transition_group_id.
-#' @param unalignedFDR (numeric) must be between 0 and maxFdrQuery. Features below unalignedFDR are
-#'  considered for quantification even without the RT alignment.
-#' @param alignedFDR (numeric) must be between unalignedFDR and 1. Features below alignedFDR are
-#'  considered for quantification after the alignment.
-#' @param adaptiveRT (numeric) defines the window around the aligned retention time, within which
-#'  features with m-score below aligned FDR are considered for quantification.
-#' @param tAligned (list) the first element corresponds to the aligned reference time,
-#'  the second element is the aligned experiment time.
-#' @param XICs.ref (list) list of extracted ion chromatograms from reference run.
-#' @param XICs.eXp (list) list of extracted ion chromatograms from experiment run.
-#' @param integrationType (string) method to ompute the area of a peak contained in XICs. Must be
-#'  from "intensity_sum", "trapezoid", "simpson".
-#' @param baselineType (string) method to estimate the background of a peak contained in XICs. Must be
-#'  from "base_to_base", "vertical_division_min", "vertical_division_max".
-#' @param fitEMG (logical) enable/disable exponentially modified gaussian peak model fitting.
-#' @param recalIntensity (logical) recalculate intensity for all analytes.
-#' @param fillMissing (logical) calculate intensity for ananlytes for which features are not found.
-#' @return (NULL)
-#' @seealso \code{\link{getMultipeptide}, \link{calculateIntensity}}
-#' @keywords internal
-#'
-#' @examples
-#' data(multipeptide_DIAlignR, package="DIAlignR")
-#' data(XIC_QFNNTDIVLLEDFQK_3_DIAlignR, package="DIAlignR")
-#' XICs.ref <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep0%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
-#' XICs.eXp <- XIC_QFNNTDIVLLEDFQK_3_DIAlignR[["hroest_K120809_Strep10%PlasmaBiolRepl2_R04_SW_filt"]][["4618"]]
-#' \dontrun{
-#' # Use getAlignedTimes() to get tAligned.
-#' setAlignmentRank(multipeptide_DIAlignR, ref = "run1", eXp = "run2", analyte_chr = "4618",
-#'  unalignedFDR = 0.01, alignedFDR = 0.05, adaptiveRT = 30, tAligned, XICs.ref, XICs.eXp,
-#'  integrationType = "intensity_sum", baselineType = "base_to_base", fitEMG = FALSE,
-#'  recalIntensity = FALSE, fillMissing = TRUE)
-#' multipeptide[["4618"]]
-#' }
-setAlignmentRank2 <- function(df, ref, eXp, adaptiveRT, tAligned, XICs.eXp,
-                              params){
-  refIdx <- which(df[["run"]] == ref & df[["alignment_rank"]] == 1)
-  refRT <- df[["RT"]][refIdx]
-  leftRef <- df[["leftWidth"]][refIdx]; rightRef <- df[["rightWidth"]][refIdx]
-
-  # Experiment run.
-  idx <- which(df[["run"]] == eXp)
-  eXpRT <- tAligned[, 2][which.min(abs(tAligned[, 1] - refRT))]
-  left <- tAligned[, 2][which.min(abs(tAligned[, 1] - leftRef))]
-  right <- tAligned[, 2][which.min(abs(tAligned[, 1] - rightRef))]
-  # TODO. Save for the edge cases. or use wider chromatogram.
-  if(any(length(left)==0, length(right)==0, length(eXpRT)==0 )){
-    return(df) # Can happen if XICs have all zero intensities.
-  }
-
-  # Peak is mapped outside of the chromatogram
-  if(any(is.na(eXpRT), is.na(left), is.na(right))) return(df)
-
-  featurePresent <- FALSE
-  # Check if any feature is below unaligned FDR.
-  if(any(df[["m_score"]][idx] < params[["unalignedFDR"]], na.rm = TRUE)){
-    featurePresent <- TRUE
-  } else if(any(df[["m_score"]][idx] < params[["alignedFDR"]], na.rm = TRUE)){
-    # Check if any feature is below aligned FDR and within adaptive RT.
-    idx <- idx[abs(df[["rightWidth"]][idx] - eXpRT) < adaptiveRT |
-                 abs(df[["leftWidth"]][idx] - eXpRT) < adaptiveRT |
-                 abs(df[["RT"]][idx] - eXpRT) < adaptiveRT]
-    idx <- idx[!is.na(idx)]
-    if(length(idx!=0)){
-      featurePresent <- TRUE
-    }
-  }
-
-  # Feature is present. Set alignment rank = 1
-  if(featurePresent){
-    idx <- idx[which.min(df[["m_score"]][idx])]
-    df[["alignment_rank"]][idx] <- 1L
-    if(params[["recalIntensity"]]){
-      df[["intensity"]][idx] <- calculateIntensity(XICs.eXp, left, right,
-                                                   params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])}
-  } else if(params[["fillMissing"]]){
-    # Feature is absent. Create new feature and alignment rank = 1.
-    intensity <- calculateIntensity(XICs.eXp, left, right, params[["integrationType"]], params[["baselineType"]], params[["fitEMG"]])
-    row <- data.frame("transition_group_id" = df[["transition_group_id"]][1], "feature_id" = NA_integer64_,
-                      "RT" = eXpRT,
-                      "intensity"= intensity, "leftWidth" = left, "rightWidth" = right,
-                      "m_score" = NA_real_, "peak_group_rank" = NA_integer_, "run" = eXp,
-                      "alignment_rank" = 1L)
-    df <- rbind(df, row)
-  }
-
-  # Return the updated dataframe
-  df
-}
 

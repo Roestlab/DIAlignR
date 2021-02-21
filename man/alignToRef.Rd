@@ -7,13 +7,11 @@
 alignToRef(
   eXp,
   ref,
-  preIdx,
-  analytes,
+  refIdx,
   fileInfo,
+  XICs,
   XICs.ref,
   params,
-  prec2chromIndex,
-  mzPntrs,
   df,
   globalFits,
   RSE
@@ -28,12 +26,6 @@ alignToRef(
 
 \item{params}{(list) parameters are entered as list. Output of the \code{\link{paramsDIAlignR}} function.}
 
-\item{prec2chromIndex}{(list) a list of dataframes having following columns: \cr
-transition_group_id: it is PRECURSOR.ID from osw file. \cr
-chromatogramIndex: index of chromatogram in mzML file.}
-
-\item{mzPntrs}{(list) a list of mzRpwiz.}
-
 \item{df}{(dataframe) a collection of features related to analyte_chr.}
 
 \item{globalFits}{(list) each element is either of class lm or loess. This is an output of \code{\link{getGlobalFits}}.}
@@ -45,7 +37,7 @@ chromatogramIndex: index of chromatogram in mzML file.}
 \item{XICs.ref.s}{(list of dataframes) Smoothed fragment-ion chromatograms of the analyte_chr from the reference run.}
 }
 \value{
-(dataframe) aligned features of analyte_chr in eXp run.
+invisible NULL
 }
 \description{
 df contains unaligned features for an analyte across multiple runs. This function aligns eXp run to
@@ -55,7 +47,7 @@ ref run and updates corresponding features.
 dataPath <- system.file("extdata", package = "DIAlignR")
 }
 \seealso{
-\code{\link{alignTargetedRuns}, \link{alignIthAnalyte}, \link{setAlignmentRank}, \link{getMultipeptide}}
+\code{\link{alignTargetedRuns}, \link{perBatch}, \link{setAlignmentRank}, \link{getMultipeptide}}
 }
 \author{
 Shubham Gupta, \email{shubh.gupta@mail.utoronto.ca}

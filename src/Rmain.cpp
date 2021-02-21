@@ -800,6 +800,7 @@ List getChildXICpp(Rcpp::List l1, Rcpp::List l2, int kernelLen, int polyOrd,
   std::vector<int> flank = getFlank(t1, t2);
   std::vector<int> skip = getSkip(obj.indexA_aligned, flank);
   std::vector<int> keep = getKeep(t1.size(), skip);
+  if(keep.size() == 0) return List::create(R_NilValue);
   std::vector<double> t1NN(keep.size());
   std::vector<double> t2NN(keep.size());
   std::vector<std::vector<double> > intensity1NN(intensity1N.size()-1);
