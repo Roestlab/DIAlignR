@@ -29,16 +29,16 @@
 #' params[["context"]] <- "experiment-wide"
 #' \dontrun{
 #' ropenms <- get_ropenms(condaEnv = "envName")
-#' progAlignRuns(dataPath, params = params, outFile = "test3.tsv", ropenms = ropenms)
+#' progAlignRuns(dataPath, params = params, outFile = "test3", ropenms = ropenms)
 #' # Removing aligned vectors
 #' file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 #' # Removing temporarily created master chromatograms
 #' file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\.chrom\\.mzML$", full.names = TRUE))
-#' file.remove(file.path(dataPath, "multipeptide.rds"))
+#' file.remove(file.path(dataPath, "test3.temp.RData"))
 #' file.remove(file.path(dataPath, "master.merged.osw"))
 #' }
 #' @export
-progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = NULL, oswMerged = TRUE,
+progAlignRuns <- function(dataPath, params, outFile = "DIAlignR", ropenms = NULL, oswMerged = TRUE,
                           runs = NULL, newickTree = NULL, applyFun = lapply){
   if(params[["chromFile"]] == "mzML"){
     if(is.null(ropenms)) stop("ropenms is required to write chrom.mzML files.")
@@ -128,8 +128,8 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
 
   #### Save features and add master runs to osw #####
   addMasterToOSW(dataPath, tree$node.label, oswMerged)
-  filename <- file.path(dataPath, "multipeptide.rds")
-  saveRDS(multipeptide, file = filename)
+  save(multipeptide, fileInfo, peptideScores, refRuns, adaptiveRTs,
+       file = file.path(dataPath, paste0(outFile,".temp.RData", sep = "")))
 
   #### Cleanup.  #######
   for(mz in names(mzPntrs)){
@@ -139,9 +139,10 @@ progAlignRuns <- function(dataPath, params, outFile = "DIAlignR.tsv", ropenms = 
 
   #### Write tables to the disk  #######
   finalTbl <- writeTables(fileInfo, multipeptide, precursors)
-  utils::write.table(finalTbl, file = outFile, sep = "\t", row.names = FALSE)
+  filename <- paste0(outFile, ".tsv", sep = "")
+  utils::write.table(finalTbl, file = filename, sep = "\t", row.names = FALSE)
   message("Retention time alignment across runs is done.")
-  message(paste0(outFile, " file has been written."))
+  message(paste0(filename, " file has been written."))
 
   #### End of function. #####
   alignmentStats(finalTbl, params)

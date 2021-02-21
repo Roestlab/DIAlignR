@@ -7,7 +7,7 @@
 progAlignRuns(
   dataPath,
   params,
-  outFile = "DIAlignR.tsv",
+  outFile = "DIAlignR",
   ropenms = NULL,
   oswMerged = TRUE,
   runs = NULL,
@@ -49,12 +49,12 @@ params <- paramsDIAlignR()
 params[["context"]] <- "experiment-wide"
 \dontrun{
 ropenms <- get_ropenms(condaEnv = "envName")
-progAlignRuns(dataPath, params = params, outFile = "test3.tsv", ropenms = ropenms)
+progAlignRuns(dataPath, params = params, outFile = "test3", ropenms = ropenms)
 # Removing aligned vectors
 file.remove(list.files(dataPath, pattern = "*_av.rds", full.names = TRUE))
 # Removing temporarily created master chromatograms
 file.remove(list.files(file.path(dataPath, "mzml"), pattern = "^master[0-9]+\\\\.chrom\\\\.mzML$", full.names = TRUE))
-file.remove(file.path(dataPath, "multipeptide.rds"))
+file.remove(file.path(dataPath, "test3.temp.RData"))
 file.remove(file.path(dataPath, "master.merged.osw"))
 }
 }

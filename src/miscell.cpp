@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cmath>
 #include "miscell.h"
 
 namespace DIAlign
