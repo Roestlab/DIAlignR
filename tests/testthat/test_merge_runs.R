@@ -74,14 +74,15 @@ test_that("test_getNodeRun",{
   expect_equal(peptideScores[["9861"]][2,"pvalue"][[1]], 5.603183e-05, tolerance = 1e-04)
   expect_equal(peptideScores[["14383"]][2,"pvalue"][[1]], 5.603183e-05, tolerance = 1e-04)
 
-  #data(masterXICs_DIAlignR, package="DIAlignR")
-  #outData <- mzR::chromatograms(mzR::openMSfile(file.path(".", "xics", "master2.chrom.mzML"), backend = "pwiz"))
+  data(masterXICs_DIAlignR, package="DIAlignR")
+  outData <- mzR::chromatograms(mzR::openMSfile(file.path(".", "xics", "master2.chrom.mzML"), backend = "pwiz"))
+  outData <- outData[13:18] # transition_group_id = 4618
   for(i in 1:6){
-    #expect_equal(outData[[i]][[1]], masterXICs_DIAlignR[[1]][[i]][[1]], tolerance = 1e-04)
-    #expect_equal(outData[[i]][[2]], masterXICs_DIAlignR[[1]][[i]][[2]], tolerance = 1e-04)
+    expect_equal(outData[[i]][[1]], masterXICs_DIAlignR[[1]][[i]][[1]], tolerance = 1e-04)
+    expect_equal(outData[[i]][[2]], masterXICs_DIAlignR[[1]][[i]][[2]], tolerance = 1e-04)
   }
-  #outData <- readRDS("master2_av.rds", refhook = NULL)
-  #for(i in 1:3) expect_equal(outData[[2]][,i], masterXICs_DIAlignR[[2]][,i+2], tolerance = 1e-04)
+  outData <- readRDS("master2_av.rds", refhook = NULL)
+  for(i in 1:3) expect_equal(outData[[3]][,i], masterXICs_DIAlignR[[2]][,i+2], tolerance = 1e-04)
   file.remove("master2_av.rds")
   file.remove(file.path("xics", "master2.chrom.mzML"))
   unlink("xics", recursive = TRUE)
