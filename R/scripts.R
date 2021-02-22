@@ -46,7 +46,7 @@ script1 <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), o
   end_time <- Sys.time()
   message("The execution time for calculating global alignment:")
   print(end_time - start_time)
-  save(features, globalFits, RSE, file = file.path(dataPath, paste0(outFile, "_script1.RData")))
+  save(features, globalFits, RSE, fileInfo, file = file.path(dataPath, paste0(outFile, "_script1.RData")))
   print("script1 is done.")
 }
 
@@ -79,8 +79,6 @@ script2 <- function(dataPath, outFile = "DIAlignR", params = paramsDIAlignR(), o
   params <- checkParams(params)
 
   #### Get filenames from .osw file and check consistency between osw and mzML files. #################
-  fileInfo <- getRunNames(dataPath, oswMerged, params)
-  fileInfo <- updateFileInfo(fileInfo, runs)
   runs <- rownames(fileInfo)
   message("Following runs will be aligned:")
   print(fileInfo[, "runName"], sep = "\n")
